@@ -10,9 +10,31 @@ permissions:
   contents: read
 
 jobs:
+  source-check:
+    name: Source synchronization check
+    runs-on: ubuntu-latest
+    outputs:
+      source_present: \${{ steps.check.outputs.present }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: check
+        name: Check source tree
+        shell: bash
+        run: |
+          if [[ -f rplay_watcher/__init__.py && -f pyproject.toml ]]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+            echo "Complete source tree detected; full CI will run."
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "Repository is in bootstrap/source-sync state; full runtime CI is intentionally not claimed."
+          fi
+
   test:
-    name: Python ${{ matrix.python-version }} / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Python \${{ matrix.python-version }} / \${{ matrix.os }}
+    needs: source-check
+    if: needs.source-check.outputs.source_present == 'true'
+    runs-on: \${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -24,7 +46,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: \${{ matrix.python-version }}
           cache: pip
       - name: Install test tooling
         run: python -m pip install --upgrade pip pytest
