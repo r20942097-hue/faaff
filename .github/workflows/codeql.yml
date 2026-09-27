@@ -17,25 +17,30 @@ permissions:
 jobs:
   source-state:
     runs-on: ubuntu-latest
+    outputs:
+      python_present: ${{ steps.detect.outputs.python_present }}
+      javascript_present: ${{ steps.detect.outputs.javascript_present }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Report source state
+      - id: detect
+        name: Detect source
         shell: bash
         run: |
           if [[ -f rplay_watcher/__init__.py ]]; then
-            echo "Python source tree present."
+            echo "python_present=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Bootstrap/source-sync state: Python source tree not present."
+            echo "python_present=false" >> "$GITHUB_OUTPUT"
           fi
           if compgen -G "extension/*.js" > /dev/null; then
-            echo "JavaScript source tree present."
+            echo "javascript_present=true" >> "$GITHUB_OUTPUT"
           else
-            echo "Bootstrap/source-sync state: JavaScript source tree not present."
+            echo "javascript_present=false" >> "$GITHUB_OUTPUT"
           fi
+          echo "source detection complete"
 
   analyze-python:
-    if: ${{ hashFiles('rplay_watcher/**/*.py') != '' }}
+    if: needs.source-state.outputs.python_present == 'true'
     needs: source-state
     runs-on: ubuntu-latest
     steps:
@@ -51,7 +56,7 @@ jobs:
           category: /language:python
 
   analyze-javascript:
-    if: ${{ hashFiles('extension/**/*.js') != '' }}
+    if: needs.source-state.outputs.javascript_present == 'true'
     needs: source-state
     runs-on: ubuntu-latest
     steps:
