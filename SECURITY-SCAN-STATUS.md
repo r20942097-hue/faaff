@@ -1,7 +1,7 @@
 # Security Scan Status
 
-The active GitHub repository is private. CodeQL code scanning is not active for this repository under the current plan, so no active CodeQL workflow is presented as successful.
+The active private GitHub repository does not run CodeQL code scanning under the current plan. A ready-to-enable template is retained at `.github/workflows/codeql.yml.template`.
 
-The ready-to-enable workflow is kept at `.github/workflows/codeql.yml.template`. This is separate from the local security test suite and must not be treated as equivalent coverage.
+Local v6.8.1 verification includes 425 tests covering manifest/network security, Bridge authentication, subprocess isolation, Recovery, recording, extension control, HLS variant failover, cross-scheme redirect handling, toolchain diagnostics, crash-safe segment journaling, session isolation, current-output journal scoping, and release integrity.
 
-Local verification for v6.6.0 includes 406 tests covering manifest/network security, Bridge authentication, subprocess isolation, Recovery, recording, extension control, crash-safe segment journaling, and release integrity.
+Local tests are not equivalent to GitHub-hosted CodeQL scanning.
