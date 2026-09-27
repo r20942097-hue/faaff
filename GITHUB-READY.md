@@ -2,10 +2,12 @@
 
 The repository is private and currently serves as the GitHub engineering/bootstrap surface for Universal Live Watcher.
 
-Current release: v6.2.0. The complete verified runtime source remains the local deterministic release artifact because the connected GitHub interface does not provide a bulk local-tree upload operation.
+Current verified local release: v6.3.0.
 
-Active repository controls:
-- CI with explicit source-sync detection.
+The complete tested runtime source is preserved in the deterministic local release artifact because the connected GitHub interface does not currently provide a direct bulk local-tree upload workflow.
+
+Active repository automation:
+- CI with explicit source-synchronization detection.
 - Dependency Review.
 - Dependabot.
 - Minimal workflow permissions.
