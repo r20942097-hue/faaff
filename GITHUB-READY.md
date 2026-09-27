@@ -1,21 +1,14 @@
 # GitHub Operation Notes
 
-The repository is private and currently serves as the GitHub engineering/bootstrap surface for Universal Live Watcher.
-
-Current verified local release: v6.6.0.
+Current verified local release: v6.8.1.
 
 Verified release SHA-256:
-`6e6be97ec426dd9d9a816da42bee6278677a35d23337773de35d739b416c890e`
+`94d30d1ec57a2a195a79df1095196341618ce41fb76b4418c93b88d65b0c37e9`
 
-The complete tested runtime source is preserved in the deterministic local release artifact. The connected GitHub interface provides individual repository file and Git object operations, but the complete tested runtime tree is not presented as mirrored unless synchronization is actually complete.
+The repository is private and currently serves as the engineering/bootstrap surface. Active automation covers source-state CI, Dependency Review, Dependabot, minimal workflow permissions, and full-SHA pinning for third-party Actions.
 
-Active repository automation:
-- CI with explicit source-synchronization detection.
-- Dependency Review.
-- Dependabot.
-- Minimal workflow permissions.
-- Full-SHA pinning for third-party Actions.
+The current CI run validates source synchronization state. Full Python/Windows runtime matrix execution begins once the complete runtime source tree is synchronized into the repository.
 
-CodeQL is retained as a ready-to-enable template for repositories/plans where code scanning is available. It is not active in this repository.
+CodeQL is retained as a ready-to-enable template but is not active in this private repository under the current plan.
 
 Do not place runtime SQLite databases, recordings, diagnostics, credentials, tokens, or local caches in Git.
