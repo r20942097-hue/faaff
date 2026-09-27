@@ -1,7 +1,12 @@
 # Source synchronization
 
-The verified Universal Live Watcher v5.11.0 source tree is maintained in the deterministic local release artifact. The connected GitHub interface used for this repository does not expose a bulk local-tree upload operation, so the repository intentionally does not claim to be a complete source checkout yet.
+Verified local source snapshot: Universal Live Watcher v6.1.0.
 
-This prevents an incomplete tree from being mistaken for the tested application source. The CI workflow detects this state explicitly and only enables the full test matrix after the source tree is present.
+Verified release ZIP SHA-256:
+`78dc39c027aa771635d9715ef5af4f72b495913544cdbaebcafd466a0c0de895`
 
-Verified release ZIP SHA-256: `6e051ce31d84a8c4d3ff5346a89037effaf4b71baa83bf158a99fb8f12c54b94`.
+The connected GitHub interface exposes individual repository file operations but no bulk local-tree upload operation. This repository therefore intentionally remains an engineering/bootstrap surface until full source synchronization is available.
+
+CI and CodeQL explicitly detect this state. They do not represent the bootstrap repository as a complete tested runtime checkout.
+
+The complete verified ZIP is maintained outside this GitHub bootstrap tree at the local release artifact path.
