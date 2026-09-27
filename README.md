@@ -1,40 +1,27 @@
-# Universal Live Watcher
+# Universal Live Watcher v6.9.0
 
-Windows向けのRPLAY LIVE監視・録画基盤。Discovery、Browser Bridge、yt-dlp、manifest検証、FFmpeg録画、Recovery、SQLite履歴、Diagnostics、Adaptive Learningを統合します。
+Windows向けのRPLAY LIVE監視・録画基盤です。RPLAY API、Browser Bridge、yt-dlp Providerを分離し、HLS/DASH manifestの観測、FFmpeg録画、録画復旧、通知、SQLite履歴、Dashboard、Watchdogを統合します。SSRF/DNS-rebinding対策、ストリーム健全性監視、動的録画同時実行制御、MV3 alarmsによるBridge保守も含みます。
 
-## Current verified release
+## v6.9 hardening
 
-v6.8.1
+Manifest probing now rejects response bodies over the configured byte limit, including chunked/unknown-length responses. yt-dlp child processes use bounded stdout/stderr readers and terminate on oversized extractor output. HLS fallback observes LL-HLS PART/PRELOAD-HINT/SKIP metadata plus GAP/DISCONTINUITY telemetry without independently reconstructing partial segments. Release verification rejects symlink entries and runtime/local-state contamination.
 
-Verified local release ZIP SHA-256:
-`8350cd2fbb9afb626c4060ca89b2e7d985d9d00e5823aad2afd4727c25d0f729`
+The segmented fallback remains deliberately conservative: encrypted HLS, fMP4 initialization segments, byte-range reconstruction, and independent DASH downloading are not implemented. FFmpeg remains authoritative for complex live formats.
 
-## Unified recorder core
+## v6.8 unified recorder core
 
-Browser Extensionは検出転送だけでなく、LIVE状態、HLS品質候補、録画状態、進捗、録画履歴を扱う操作面です。
+HLS can use a conservative MPEG-TS segment fallback after repeated FFmpeg failures, with per-session variant state, quality preference, live-edge control, initial-take limiting, crash-safe journaling, retry/backoff, variant failover, and time/byte limits.
 
-HLS録画はFFmpegを主経路とし、連続失敗時にMPEG-TS segment fallbackへ切り替えられます。fallbackはper-session variant state、preferred quality、live-edge、initial take count、retry/backoff、two-phase journal、time/byte limits、variant failoverを備えます。
+The Browser Extension receives opaque quality IDs. Signed manifest URLs stay inside the watcher process, and the HLS master manifest is retained internally for safe variant failover.
 
-拡張機能はopaqueな `quality_id` のみを送信し、署名manifest URLはブラウザUIへ返しません。HLS master URLもwatcher内部でだけ保持してvariant failoverに利用します。
+## Security and production boundary
 
-## Security
+Manifest and segmented recording redirect handling rejects HTTPS-to-HTTP downgrade and revalidates redirect targets. Authentication, subscription, ticket, DRM, signed-access, Cookie, password, localStorage, and Authorization bypasses are not implemented.
 
-Manifest probingとsegment recordingではHTTPSからHTTPへのredirect downgradeを拒否し、redirect先も再検証します。認証、購読、チケット、DRM、署名アクセス、Cookie、password、localStorage、Authorization headerの回避機能はありません。
+The tested local release is validated with the full test suite, clean extraction, compileall, extension JavaScript syntax checks, CLI smoke tests, release verification, and deterministic rebuild. Real Windows + real RPLAY production E2E remains a separate validation boundary and is not inferred from local tests.
 
-## Verification boundary
+## GitHub / engineering
 
-ローカルでは425 tests、clean release extraction 425 tests、compileall、Extension JavaScript syntax、CLI version、dry-run、release verifier、deterministic rebuildを確認済みです。
+GitHub is currently the engineering/bootstrap surface rather than the complete runtime source of truth. Active automation includes CI, Dependency Review, Dependabot, deterministic release packaging, SHA-256, and artifact-attestation preparation. CodeQL is retained as a ready-to-enable template because the current private-repository plan does not provide active scanning.
 
-実Windows + 実RPLAY本番E2Eは別検証境界であり、この開発環境から成功率や網羅性を推定していません。
-
-## GitHub security
-
-このprivate GitHub repositoryではCodeQL code scanningは現行プランではactiveにしていません。再有効化用templateとstatus文書を残しています。
-
-## Repository synchronization
-
-GitHub側はengineering/bootstrap surfaceです。完全な検証済みruntime source checkoutとは主張せず、完全なv6.8.1 runtimeは上記の決定論的release ZIPを基準にしています。
-
-## Engineering
-
-CI、Dependency Review、Dependabot、deterministic release packaging、SHA-256、artifact provenance準備を利用します。第三者Actionsはfull commit SHAで固定しています。
+Do not commit runtime SQLite databases, recordings, diagnostics, credentials, tokens, or local caches.
