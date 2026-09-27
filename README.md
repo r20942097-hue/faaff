@@ -7,7 +7,7 @@ Windows向けのRPLAY LIVE監視・録画基盤。Discovery、Browser Bridge、y
 v6.8.1
 
 Verified local release ZIP SHA-256:
-`94d30d1ec57a2a195a79df1095196341618ce41fb76b4418c93b88d65b0c37e9`
+`8350cd2fbb9afb626c4060ca89b2e7d985d9d00e5823aad2afd4727c25d0f729`
 
 ## Unified recorder core
 
