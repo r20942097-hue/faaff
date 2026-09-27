@@ -3,7 +3,7 @@
 Verified local source snapshot: Universal Live Watcher v6.8.1.
 
 Verified release ZIP SHA-256:
-`94d30d1ec57a2a195a79df1095196341618ce41fb76b4418c93b88d65b0c37e9`
+`8350cd2fbb9afb626c4060ca89b2e7d985d9d00e5823aad2afd4727c25d0f729`
 
 The complete tested runtime source is maintained in the deterministic local release ZIP. GitHub remains an engineering/bootstrap surface until the complete runtime tree is synchronized and independently verified there.
 
