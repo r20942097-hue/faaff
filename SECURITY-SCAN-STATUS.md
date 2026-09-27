@@ -1,9 +1,7 @@
 # Security Scan Status
 
-The current GitHub repository is private. GitHub documents that code scanning on private repositories requires GitHub Code Security / GitHub Advanced Security. On GitHub Free or Pro, code scanning is available only for public repositories.
+The current GitHub repository is private. CodeQL code scanning is not active for this repository under the current plan, so no active CodeQL workflow is presented as successful.
 
-The active repository therefore does not run a CodeQL workflow that would be rejected by the current plan. The ready-to-enable workflow is kept at `.github/workflows/codeql.yml.template`.
+The ready-to-enable workflow is kept at `.github/workflows/codeql.yml.template`. This is separate from the local security test suite and must not be treated as equivalent coverage.
 
-Local verification continues through the 391-test suite, manifest/network security tests, Bridge authentication tests, subprocess isolation tests, and deterministic release checks.
-
-This status does not claim that local tests are equivalent to GitHub-hosted CodeQL scanning.
+Local verification currently includes 394 tests covering manifest/network security, Bridge authentication, subprocess isolation, recovery, recording, and release integrity.
