@@ -1,12 +1,16 @@
 # GitHub Operation Notes
 
-The repository is private and is intended as the source-of-truth development repository.
+The repository is private and currently serves as the GitHub engineering/bootstrap surface for Universal Live Watcher.
 
-Recommended main-branch policy:
-- Require pull requests for changes to `main`.
-- Require CI and CodeQL before merge.
-- Keep workflow permissions minimal.
-- Keep runtime databases, recordings, diagnostics, credentials, and local caches out of Git.
-- Use version tags for deterministic release builds.
+Current release: v6.2.0. The complete verified runtime source remains the local deterministic release artifact because the connected GitHub interface does not provide a bulk local-tree upload operation.
 
-Release workflow builds the ZIP, computes SHA-256, runs tests, and creates artifact provenance. Publishing a GitHub Release remains a deliberate owner action.
+Active repository controls:
+- CI with explicit source-sync detection.
+- Dependency Review.
+- Dependabot.
+- Minimal workflow permissions.
+- Full-SHA pinning for third-party Actions.
+
+CodeQL is retained as a ready-to-enable template for repositories/plans where code scanning is available. It is not active in this repository.
+
+Do not place runtime SQLite databases, recordings, diagnostics, credentials, tokens, or local caches in Git.
