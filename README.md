@@ -4,10 +4,10 @@ Windows向けのRPLAY LIVE監視・録画基盤。Discovery、Browser Bridge、y
 
 ## Current verified release
 
-v6.1.0
+v6.1.1
 
 Verified local release ZIP SHA-256:
-`78dc39c027aa771635d9715ef5af4f72b495913544cdbaebcafd466a0c0de895`
+`ff6dfb5540205d3cd8552c4f3ec264c97933f3d569b4218e897b236fdd649f53`
 
 ## Unified Stream UX
 
@@ -21,9 +21,13 @@ HLS品質選択では、拡張機能から署名manifest URLを送信せず、op
 
 ## Verification boundary
 
-ローカルでは390 tests、clean release extraction 390 tests、compileall、Extension JavaScript syntax、CLI version、dry-run、release verifier、deterministic rebuildを確認済みです。
+ローカルでは391 tests、clean release extraction 391 tests、compileall、Extension JavaScript syntax、CLI version、dry-run、release verifier、deterministic rebuildを確認済みです。
 
 実Windows + 実RPLAY本番E2Eは別検証境界であり、この開発環境から成功率や網羅性を推定していません。
+
+## GitHub security
+
+このprivate GitHub repositoryでは、現行GitHub Free/Proの制約によりCodeQL code scanningを有効化できないため、active workflowからは外し、`.github/workflows/codeql.yml.template` と `SECURITY-SCAN-STATUS.md` を残しています。
 
 ## Repository sync
 
@@ -31,4 +35,4 @@ HLS品質選択では、拡張機能から署名manifest URLを送信せず、op
 
 ## Engineering
 
-CI、CodeQL、Dependency Review、Dependabot、deterministic release packaging、SHA-256、artifact attestationを利用します。第三者Actionsはfull commit SHAで固定しています。
+CI、Dependency Review、Dependabot、deterministic release packaging、SHA-256、artifact attestationを利用します。第三者Actionsはfull commit SHAで固定しています。
