@@ -4,16 +4,18 @@ Windows向けのRPLAY LIVE監視・録画基盤。Discovery、Browser Bridge、y
 
 ## Current verified release
 
-v6.1.1
+v6.2.0
 
 Verified local release ZIP SHA-256:
-`ff6dfb5540205d3cd8552c4f3ec264c97933f3d569b4218e897b236fdd649f53`
+`cc3432897cab172f57631fc9bbf4bf885c4f5fcf3628e49105861c824bc673a3`
 
 ## Unified Stream UX
 
-Browser Extensionを検出転送だけの層から操作面へ拡張しています。検出LIVEの状態、HLS品質候補、録画状態、進捗を表示し、Record / StopをローカルBridge経由で実行できます。
+Browser Extensionを検出転送だけの層から操作面へ拡張しています。検出LIVEの状態、HLS品質候補、録画状態、進捗、最近の録画履歴を表示し、Record / StopをローカルBridge経由で実行できます。
 
 HLS品質選択では、拡張機能から署名manifest URLを送信せず、opaqueな `quality_id` だけを送ります。実URLはWatcherプロセス内の直近Probe結果から解決されます。
+
+設定画面では追加hostへのサイト権限を明示的に要求できます。デフォルト監視対象はRPLAYだけで、他サイトはopt-inです。
 
 ## Safety
 
@@ -21,18 +23,18 @@ HLS品質選択では、拡張機能から署名manifest URLを送信せず、op
 
 ## Verification boundary
 
-ローカルでは391 tests、clean release extraction 391 tests、compileall、Extension JavaScript syntax、CLI version、dry-run、release verifier、deterministic rebuildを確認済みです。
+ローカルでは394 tests、clean release extraction 394 tests、compileall、Extension JavaScript syntax、CLI version、dry-run、release verifier、deterministic rebuildを確認済みです。
 
 実Windows + 実RPLAY本番E2Eは別検証境界であり、この開発環境から成功率や網羅性を推定していません。
 
 ## GitHub security
 
-このprivate GitHub repositoryでは、現行GitHub Free/Proの制約によりCodeQL code scanningを有効化できないため、active workflowからは外し、`.github/workflows/codeql.yml.template` と `SECURITY-SCAN-STATUS.md` を残しています。
+このprivate GitHub repositoryでは、現行プランではCodeQL code scanningを実行できないため、active workflowからは外し、`.github/workflows/codeql.yml.template` と `SECURITY-SCAN-STATUS.md` を残しています。
 
-## Repository sync
+## Repository synchronization
 
-接続中のGitHub操作APIには個別ファイル書き込みはありますが、ローカルの全ソースツリーを一括同期する操作がありません。そのためこのprivate repositoryはGitHub engineering/bootstrap layerとして扱い、完全な検証済みruntime source checkoutであるとは主張しません。
+GitHubの現在の操作面では全ローカルtreeの一括同期ができないため、GitHub側はengineering/bootstrap surfaceとして扱っています。完全な検証済みruntime source checkoutとは主張しません。
 
 ## Engineering
 
-CI、Dependency Review、Dependabot、deterministic release packaging、SHA-256、artifact attestationを利用します。第三者Actionsはfull commit SHAで固定しています。
+CI、Dependency Review、Dependabot、deterministic release packaging、SHA-256、artifact provenance用workflowを使用します。第三者Actionsはfull commit SHAで固定しています。
