@@ -29,3 +29,10 @@ The tested local v6.10.0 release passed 441 tests, clean extraction, Python comp
 GitHub is currently the engineering/bootstrap surface rather than the complete runtime source of truth. Active automation includes CI, Dependency Review, Dependabot, deterministic release packaging, SHA-256, and artifact-attestation preparation. CodeQL is retained as a ready-to-enable template because the current private-repository plan does not provide active scanning.
 
 Do not commit runtime SQLite databases, recordings, diagnostics, credentials, tokens, or local caches.
+
+## Suite artifact intake
+
+This bootstrap checkout also contains a standalone, offline intake auditor for
+Universal Control Suite candidate ZIPs. See `SUITE-v0.30-AUDIT.md` for the exact
+evidence boundary and `release/suite-v0.30-inventory.json` for the immutable
+candidate inventory. The auditor does not extract or execute untrusted content.
