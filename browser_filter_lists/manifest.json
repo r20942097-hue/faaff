@@ -45,5 +45,6 @@
       "max_rule_count": 40
     }
   ],
-  "candidate_queue": "experimental/candidates.json"
+  "candidate_queue": "experimental/candidates.json",
+  "snapshot_inventory": "upstream/current-source-snapshot-inventory.json"
 }
