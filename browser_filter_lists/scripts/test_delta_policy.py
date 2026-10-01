@@ -1,5 +1,6 @@
 from pathlib import Path
 import copy
+from datetime import date
 import unittest
 
 import validate_delta_policy as delta
@@ -66,6 +67,18 @@ class DeltaPolicyTests(unittest.TestCase):
         inventory["snapshots"][0]["files"][0]["size_bytes"] = True
         errors = delta.validate_snapshot_inventory(inventory, audit["baseline"])
         self.assertTrue(any("size_bytes" in error for error in errors))
+
+    def test_source_inventory_expires_with_upstream_audit_window(self):
+        manifest = delta.load_json(delta.MANIFEST_PATH)
+        audit = delta.load_json(delta.ROOT / manifest["upstream_audit"])
+        inventory = delta.load_json(delta.ROOT / manifest["snapshot_inventory"])
+        errors = delta.validate_snapshot_inventory(
+            inventory,
+            audit["baseline"],
+            today=date(2026, 10, 10),
+            max_age_days=manifest["upstream_audit_max_age_days"],
+        )
+        self.assertTrue(any("snapshot inventory: stale" in error for error in errors))
 
 
 if __name__ == "__main__":
