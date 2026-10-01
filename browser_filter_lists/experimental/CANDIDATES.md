@@ -2,8 +2,8 @@
 
 > Generated from `experimental/candidates.json`. These entries are inactive and are not subscription rules.
 
-Last verified: `2026-10-01`  
-Evidence freshness limit: `45 days`  
+Last verified: `2026-10-01`\
+Evidence freshness limit: `45 days`\
 Queue: `0 candidate`, `4 hold`, `1 rejected`
 
 | Domain | Category | State | Risk | Verified | Reason |
@@ -18,29 +18,29 @@ Queue: `0 candidate`, `4 hold`, `1 rejected`
 
 ### `bidswitch.net`
 
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/easylist/easylist/blob/f1f8051be490ba07b5c2214298ad04026f4e7663/easyprivacy/easyprivacy_trackingservers_general.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/tracking_servers.txt
 
 ### `bluekai.com`
 
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/allowlist.txt
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/uBlockOrigin/uAssets/blob/907de3b6bb763e908f97c087b18585387219078a/filters/unbreak.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/easylist/easylist/blob/f1f8051be490ba07b5c2214298ad04026f4e7663/easyprivacy/easyprivacy_trackingservers_general.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/tracking_servers.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/allowlist.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/uBlockOrigin/uAssets/blob/6d71f53af6fcbee8c36e89ba705b7e9a24badfae/filters/unbreak.txt
 - Promotion blocker: Known site-specific allow/unbreak exceptions must be resolved or explicitly scoped before stable promotion.
 
 ### `agkn.com`
 
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/allowlist.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/easylist/easylist/blob/f1f8051be490ba07b5c2214298ad04026f4e7663/easyprivacy/easyprivacy_trackingservers_general.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/tracking_servers.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/allowlist.txt
 - Promotion blocker: Known site-specific allow exception requires breakage analysis before stable promotion.
 
 ### `bounceexchange.com`
 
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt
-- `github_file_snapshot` checked `2026-10-01`: https://github.com/uBlockOrigin/uAssets/blob/907de3b6bb763e908f97c087b18585387219078a/filters/unbreak.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/easylist/easylist/blob/f1f8051be490ba07b5c2214298ad04026f4e7663/easyprivacy/easyprivacy_trackingservers_general.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/tracking_servers.txt
+- `github_file_snapshot` checked `2026-10-01`: https://github.com/uBlockOrigin/uAssets/blob/6d71f53af6fcbee8c36e89ba705b7e9a24badfae/filters/unbreak.txt
 - Promotion blocker: Known uAssets unbreak exception requires site-breakage analysis before stable promotion.
 
 ### `amazon-adsystem.com`

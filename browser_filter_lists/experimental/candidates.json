@@ -13,7 +13,9 @@
       "reason": "Rejected from the recommended delta profile because current EasyPrivacy already covers bidswitch.net; adding it would duplicate uBlock Origin default coverage.",
       "upstream_overlap": {
         "covered": true,
-        "sources": ["easyprivacy"]
+        "sources": [
+          "easyprivacy"
+        ]
       },
       "sources": [
         "https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt",
@@ -31,8 +33,8 @@
           "source_family": "easylist",
           "repository": "easylist/easylist",
           "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
-          "commit": "4f3f9cb97f86ee67db3c7cf33e8d786c822f5804",
-          "url": "https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "f1f8051be490ba07b5c2214298ad04026f4e7663",
+          "url": "https://github.com/easylist/easylist/blob/f1f8051be490ba07b5c2214298ad04026f4e7663/easyprivacy/easyprivacy_trackingservers_general.txt",
           "checked_at": "2026-10-01"
         },
         {
@@ -41,8 +43,8 @@
           "source_family": "adguard",
           "repository": "AdguardTeam/AdguardFilters",
           "path": "SpywareFilter/sections/tracking_servers.txt",
-          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
-          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt",
+          "commit": "1ad282a5134fde60e6943e777b74ea9ec5abd161",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/tracking_servers.txt",
           "checked_at": "2026-10-01"
         }
       ]
@@ -74,8 +76,8 @@
           "source_family": "easylist",
           "repository": "easylist/easylist",
           "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
-          "commit": "4f3f9cb97f86ee67db3c7cf33e8d786c822f5804",
-          "url": "https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "f1f8051be490ba07b5c2214298ad04026f4e7663",
+          "url": "https://github.com/easylist/easylist/blob/f1f8051be490ba07b5c2214298ad04026f4e7663/easyprivacy/easyprivacy_trackingservers_general.txt",
           "checked_at": "2026-10-01"
         },
         {
@@ -84,8 +86,8 @@
           "source_family": "adguard",
           "repository": "AdguardTeam/AdguardFilters",
           "path": "SpywareFilter/sections/tracking_servers.txt",
-          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
-          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt",
+          "commit": "1ad282a5134fde60e6943e777b74ea9ec5abd161",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/tracking_servers.txt",
           "checked_at": "2026-10-01"
         },
         {
@@ -94,8 +96,8 @@
           "source_family": "adguard",
           "repository": "AdguardTeam/AdguardFilters",
           "path": "SpywareFilter/sections/allowlist.txt",
-          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
-          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/allowlist.txt",
+          "commit": "1ad282a5134fde60e6943e777b74ea9ec5abd161",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/allowlist.txt",
           "checked_at": "2026-10-01"
         },
         {
@@ -104,8 +106,8 @@
           "source_family": "ublock",
           "repository": "uBlockOrigin/uAssets",
           "path": "filters/unbreak.txt",
-          "commit": "907de3b6bb763e908f97c087b18585387219078a",
-          "url": "https://github.com/uBlockOrigin/uAssets/blob/907de3b6bb763e908f97c087b18585387219078a/filters/unbreak.txt",
+          "commit": "6d71f53af6fcbee8c36e89ba705b7e9a24badfae",
+          "url": "https://github.com/uBlockOrigin/uAssets/blob/6d71f53af6fcbee8c36e89ba705b7e9a24badfae/filters/unbreak.txt",
           "checked_at": "2026-10-01"
         }
       ]
@@ -136,8 +138,8 @@
           "source_family": "easylist",
           "repository": "easylist/easylist",
           "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
-          "commit": "4f3f9cb97f86ee67db3c7cf33e8d786c822f5804",
-          "url": "https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "f1f8051be490ba07b5c2214298ad04026f4e7663",
+          "url": "https://github.com/easylist/easylist/blob/f1f8051be490ba07b5c2214298ad04026f4e7663/easyprivacy/easyprivacy_trackingservers_general.txt",
           "checked_at": "2026-10-01"
         },
         {
@@ -146,8 +148,8 @@
           "source_family": "adguard",
           "repository": "AdguardTeam/AdguardFilters",
           "path": "SpywareFilter/sections/tracking_servers.txt",
-          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
-          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt",
+          "commit": "1ad282a5134fde60e6943e777b74ea9ec5abd161",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/tracking_servers.txt",
           "checked_at": "2026-10-01"
         },
         {
@@ -156,8 +158,8 @@
           "source_family": "adguard",
           "repository": "AdguardTeam/AdguardFilters",
           "path": "SpywareFilter/sections/allowlist.txt",
-          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
-          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/allowlist.txt",
+          "commit": "1ad282a5134fde60e6943e777b74ea9ec5abd161",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/allowlist.txt",
           "checked_at": "2026-10-01"
         }
       ]
@@ -188,8 +190,8 @@
           "source_family": "easylist",
           "repository": "easylist/easylist",
           "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
-          "commit": "4f3f9cb97f86ee67db3c7cf33e8d786c822f5804",
-          "url": "https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "f1f8051be490ba07b5c2214298ad04026f4e7663",
+          "url": "https://github.com/easylist/easylist/blob/f1f8051be490ba07b5c2214298ad04026f4e7663/easyprivacy/easyprivacy_trackingservers_general.txt",
           "checked_at": "2026-10-01"
         },
         {
@@ -198,8 +200,8 @@
           "source_family": "adguard",
           "repository": "AdguardTeam/AdguardFilters",
           "path": "SpywareFilter/sections/tracking_servers.txt",
-          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
-          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt",
+          "commit": "1ad282a5134fde60e6943e777b74ea9ec5abd161",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/1ad282a5134fde60e6943e777b74ea9ec5abd161/SpywareFilter/sections/tracking_servers.txt",
           "checked_at": "2026-10-01"
         },
         {
@@ -208,8 +210,8 @@
           "source_family": "ublock",
           "repository": "uBlockOrigin/uAssets",
           "path": "filters/unbreak.txt",
-          "commit": "907de3b6bb763e908f97c087b18585387219078a",
-          "url": "https://github.com/uBlockOrigin/uAssets/blob/907de3b6bb763e908f97c087b18585387219078a/filters/unbreak.txt",
+          "commit": "6d71f53af6fcbee8c36e89ba705b7e9a24badfae",
+          "url": "https://github.com/uBlockOrigin/uAssets/blob/6d71f53af6fcbee8c36e89ba705b7e9a24badfae/filters/unbreak.txt",
           "checked_at": "2026-10-01"
         }
       ]
