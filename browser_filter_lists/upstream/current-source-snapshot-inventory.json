@@ -1,0 +1,115 @@
+{
+  "schema": "browser-filter-snapshot-inventory/v1",
+  "retrieved_at": "2026-10-01",
+  "snapshots": [
+    {
+      "source_family": "easylist",
+      "status": "verified",
+      "repository": "easylist/easylist",
+      "commit": "f1f8051be490ba07b5c2214298ad04026f4e7663",
+      "commit_date": "2026-10-01T14:26:39Z",
+      "files": [
+        {
+          "path": "easylist/easylist_adservers.txt",
+          "blob_sha": "6ff3680d901ac8d72b3e7cf505b00b738aa671f6",
+          "size_bytes": 991567
+        },
+        {
+          "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
+          "blob_sha": "1b597e69051308fc4a4ed57a023df6ec33b61161",
+          "size_bytes": 9428
+        }
+      ]
+    },
+    {
+      "source_family": "uassets",
+      "status": "verified",
+      "repository": "uBlockOrigin/uAssets",
+      "commit": "6d71f53af6fcbee8c36e89ba705b7e9a24badfae",
+      "commit_date": "2026-10-01T13:25:16Z",
+      "files": [
+        {
+          "path": "filters/filters-general.txt",
+          "blob_sha": "f3a53239b7bc79023e26213542b3cfdd8bae0602",
+          "size_bytes": 684196
+        },
+        {
+          "path": "filters/privacy.txt",
+          "blob_sha": "b7b14963b266ceda560fe6c4759df8aee1b1a512",
+          "size_bytes": 183492
+        },
+        {
+          "path": "filters/unbreak.txt",
+          "blob_sha": "95fe6b228865f2195eecaff2ce0cfda6dff8078f",
+          "size_bytes": 280366
+        }
+      ]
+    },
+    {
+      "source_family": "adguard",
+      "status": "verified",
+      "repository": "AdguardTeam/AdguardFilters",
+      "commit": "1ad282a5134fde60e6943e777b74ea9ec5abd161",
+      "commit_date": "2026-10-01T14:25:45Z",
+      "files": [
+        {
+          "path": "SpywareFilter/sections/tracking_servers.txt",
+          "blob_sha": "f7186cb05e8640edce883925efb79331dc08753e",
+          "size_bytes": 125403
+        },
+        {
+          "path": "SpywareFilter/sections/allowlist.txt",
+          "blob_sha": "1ca0a2024af7afd182ec4ccbffaff1badb4ae36c",
+          "size_bytes": 297965
+        },
+        {
+          "path": "AnnoyancesFilter/Popups/sections/antiadblock.txt",
+          "blob_sha": "6d0e90e217572e504d87e64ca488f9ed83d0a57d",
+          "size_bytes": 254268
+        }
+      ]
+    },
+    {
+      "source_family": "peter_lowe",
+      "status": "mirror_only",
+      "official_source_url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=adblockplus&mimetype=plaintext",
+      "direct_retrieval": "NOT_VERIFIED",
+      "mirror": {
+        "repository": "uBlockOrigin/uAssets",
+        "commit": "6d71f53af6fcbee8c36e89ba705b7e9a24badfae",
+        "commit_date": "2026-10-01T13:25:16Z",
+        "path": "thirdparties/pgl.yoyo.org/as/serverlist",
+        "blob_sha": "ff624202586472104c91e0745f14b586d661e56a",
+        "size_bytes": 95078
+      }
+    },
+    {
+      "source_family": "easylist_japan",
+      "status": "stale_excluded",
+      "repository": "k2jp/abp-japanese-filters",
+      "commit": "ecf68081e1efae53782b039ab844986918d15027",
+      "commit_date": "2021-05-26T11:54:18Z",
+      "files": [
+        {
+          "path": "abp_jp.txt",
+          "blob_sha": "5a630857ef70ec00a947c5a37a2245f9c031d67f",
+          "size_bytes": 206162
+        }
+      ],
+      "reason": "The pinned upstream commit is from 2021 and is excluded from current multi-source promotion evidence."
+    }
+  ],
+  "audit_findings": {
+    "legacy_rule_count": 26,
+    "legacy_rules_found_in_current_peter_lowe_mirror": 26,
+    "recommended_delta_rule_count": 0,
+    "canary_rule_count": 0,
+    "research_domains_in_adguard_tracking_snapshot_only": [
+      "trackhaven.com",
+      "bidderstack.com",
+      "targetrtb.com",
+      "rtbscale.com",
+      "northstar.cr"
+    ]
+  }
+}
