@@ -1,9 +1,11 @@
 {
   "schema": "browser-filter-lists/v1",
-  "policy_version": 2,
+  "policy_version": 3,
   "homepage": "https://github.com/r20942097-hue/faaff/tree/main/browser_filter_lists",
   "raw_base": "https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters",
   "candidate_evidence_max_age_days": 45,
+  "candidate_min_independent_source_families": 2,
+  "candidate_exception_review_required": true,
   "stable_lists": [
     {
       "id": "ads",

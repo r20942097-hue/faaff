@@ -48,11 +48,13 @@ Canonical list metadata and expected rule counts are defined in `manifest.json`.
 
 `experimental/candidates.json` is the canonical review queue, not a subscribable filter list. Entries there are inactive until they are explicitly promoted to a stable list.
 
-Candidates record category, risk, proposed rule, live source links, verification dates, immutable evidence snapshots, and any promotion blocker. File-based evidence is pinned to an exact Git commit so later source changes cannot silently rewrite the historical basis for a candidate.
+Candidate promotion now requires at least two independently maintained classification source families, a current exception review with no known compatibility exception, fresh immutable evidence, live breakage testing, and CI. Multiple files from the same filter project count as one source family.
+
+Known allow/unbreak/CNAME exceptions force an entry to `hold` or `rejected`. Current review therefore leaves `bidswitch.net` as the only candidate and places `bluekai.com`, `agkn.com`, `bounceexchange.com`, and `amazon-adsystem.com` on hold.
 
 `experimental/CANDIDATES.md` is a generated human-readable view of the same queue. CI verifies that the report is exactly synchronized with the JSON source of truth.
 
-Candidate evidence currently expires after 45 days. A weekly GitHub Actions run checks freshness even when no filter change is submitted. Stale evidence must be reviewed again before it can be used for promotion.
+Candidate evidence currently expires after 45 days. A weekly GitHub Actions run checks freshness and promotion gates even when no filter change is submitted.
 
 ## Updates
 
@@ -67,9 +69,11 @@ Run:
 ```bash
 python browser_filter_lists/scripts/test_validator.py
 python browser_filter_lists/scripts/test_evidence.py
+python browser_filter_lists/scripts/test_promotion.py
 python browser_filter_lists/scripts/validate_filters.py
 python browser_filter_lists/scripts/validate_candidate_evidence.py
+python browser_filter_lists/scripts/validate_candidate_promotion.py
 python browser_filter_lists/scripts/render_candidate_report.py --check
 ```
 
-GitHub Actions runs compilation, regression tests, stable-list validation, candidate-evidence freshness validation, and generated-report consistency checks on relevant pushes and pull requests, plus a weekly scheduled evidence check.
+GitHub Actions runs compilation, regression tests, stable-list validation, candidate-evidence freshness validation, cross-source promotion gates, and generated-report consistency checks on relevant pushes and pull requests, plus a weekly scheduled check.
