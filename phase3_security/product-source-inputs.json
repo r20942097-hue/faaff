@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "baseline": [
+    {
+      "product_id": "universal-control-suite",
+      "product_name": "Universal Control Suite",
+      "version": "0.30",
+      "source_status": "MISSING",
+      "immutable_source": null,
+      "sha256": null,
+      "size": null
+    },
+    {
+      "product_id": "universal-live-watcher",
+      "product_name": "Universal Live Watcher",
+      "version": "6.49.12",
+      "source_status": "MISSING",
+      "immutable_source": null,
+      "sha256": null,
+      "size": null
+    },
+    {
+      "product_id": "windows-control",
+      "product_name": "Windows Control",
+      "version": "0.1.8",
+      "source_status": "MISSING",
+      "immutable_source": null,
+      "sha256": null,
+      "size": null
+    },
+    {
+      "product_id": "ai-orchestrator",
+      "product_name": "AI Orchestrator",
+      "version": "1.51",
+      "source_status": "MISSING",
+      "immutable_source": null,
+      "sha256": null,
+      "size": null
+    },
+    {
+      "product_id": "shared-foundation",
+      "product_name": "Shared Foundation",
+      "version": "0.10",
+      "source_status": "MISSING",
+      "immutable_source": null,
+      "sha256": null,
+      "size": null
+    },
+    {
+      "product_id": "browser-control",
+      "product_name": "Browser Control",
+      "version": "0.3.0",
+      "source_status": "MISSING",
+      "immutable_source": null,
+      "sha256": null,
+      "size": null
+    },
+    {
+      "product_id": "media-download-tools",
+      "product_name": "Media / Download Tools",
+      "version": "0.1.0",
+      "source_status": "MISSING",
+      "immutable_source": null,
+      "sha256": null,
+      "size": null
+    }
+  ]
+}
