@@ -63,22 +63,12 @@
     {"domain":"clarity.ms","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy"]},
     {"domain":"amplitude.com","legacy_list":"tracking","status":"overbroad-vs-default","default_sources":["easyprivacy","plowe"],"note":"Current default sources use narrower subdomain/path blocking plus compatibility exceptions; a root-domain block is not suitable for the delta profile."}
   ],
-  "canary_gaps": [
-    {
-      "domain": "trackhaven.com",
-      "status": "canary",
-      "category": "tracking",
-      "default_coverage": "absent-in-reviewed-default-sources",
-      "classification_sources": ["adguard-tracking", "primary-site"],
-      "known_exception": false,
-      "checked_at": "2026-10-01",
-      "note": "Current AdGuard tracking servers classify the domain; the service's own site identifies it as analytics. No match was found in the reviewed EasyPrivacy, Peter Lowe, uAssets unbreak, or AdGuard spyware allowlist sources."
-    }
-  ],
+  "canary_gaps": [],
   "research_gaps": [
+    {"domain":"trackhaven.com","category":"tracking","state":"research","reason":"AdGuard classifies the domain as tracking and the service identifies itself as privacy-focused web analytics, but that does not independently establish privacy-invasive behavior. Keep out of canary/stable until stronger independent evidence exists."},
     {"domain":"bidderstack.com","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches, but independent classification evidence is not yet strong enough."},
     {"domain":"targetrtb.com","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches, but independent classification evidence is not yet strong enough."},
-    {"domain":"rtbscale.com","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches; secondary evidence indicates RTB/ad-tech use but is not strong enough for stable promotion."},
-    {"domain":"northstar.cr","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches; secondary evidence indicates analytics use but is not strong enough for stable promotion."}
+    {"domain":"rtbscale.com","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches; public descriptions indicate RTB/programmatic advertising, but current evidence is not authoritative enough for canary promotion."},
+    {"domain":"northstar.cr","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches; public evidence suggests analytics use, but current evidence is not sufficient to classify it as privacy-invasive tracking."}
   ]
 }
