@@ -1,4 +1,5 @@
 from datetime import date
+from copy import deepcopy
 import unittest
 
 import validate_candidate_evidence as ev
@@ -36,6 +37,18 @@ class EvidenceValidatorTests(unittest.TestCase):
             "easyprivacy/easyprivacy_trackingservers_general.txt"
         )
         self.assertIsNone(ev.GITHUB_FILE_SNAPSHOT_RE.fullmatch(url))
+
+    def test_candidate_source_pins_match_inventory(self):
+        queue = ev.load_json(ev.ROOT / "experimental/candidates.json")
+        inventory = ev.load_json(ev.ROOT / "upstream/current-source-snapshot-inventory.json")
+        self.assertEqual(ev.validate_inventory_pins(queue, inventory), [])
+
+    def test_candidate_source_pin_drift_is_rejected(self):
+        queue = deepcopy(ev.load_json(ev.ROOT / "experimental/candidates.json"))
+        inventory = ev.load_json(ev.ROOT / "upstream/current-source-snapshot-inventory.json")
+        queue["candidates"][0]["evidence"][0]["commit"] = "4f3f9cb97f86ee67db3c7cf33e8d786c822f5804"
+        errors = ev.validate_inventory_pins(queue, inventory)
+        self.assertTrue(any("commit does not match" in error for error in errors))
 
 
 if __name__ == "__main__":
