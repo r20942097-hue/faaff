@@ -34,6 +34,54 @@ def evidence_is_stale(checked_at, today, max_age_days):
     return (today - checked_at).days > max_age_days
 
 
+def validate_inventory_pins(queue, inventory):
+    errors = []
+    if not isinstance(inventory, dict) or inventory.get("schema") != "browser-filter-snapshot-inventory/v1":
+        return ["snapshot inventory: unsupported or invalid schema"]
+    snapshots = inventory.get("snapshots")
+    if not isinstance(snapshots, list):
+        return ["snapshot inventory: snapshots must be an array"]
+
+    repository_pins = {}
+    for snapshot in snapshots:
+        if not isinstance(snapshot, dict) or snapshot.get("status") != "verified":
+            continue
+        repository = snapshot.get("repository")
+        commit = snapshot.get("commit")
+        files = snapshot.get("files")
+        if isinstance(repository, str) and isinstance(commit, str):
+            paths = {
+                item.get("path")
+                for item in files
+                if isinstance(files, list) and isinstance(item, dict) and isinstance(item.get("path"), str)
+            } if isinstance(files, list) else set()
+            repository_pins[repository] = (commit, paths)
+
+    candidates = queue.get("candidates") if isinstance(queue, dict) else None
+    if not isinstance(candidates, list):
+        return ["candidate queue: candidates must be an array"]
+    for candidate_index, candidate in enumerate(candidates, 1):
+        if not isinstance(candidate, dict):
+            continue
+        evidence = candidate.get("evidence")
+        if not isinstance(evidence, list):
+            continue
+        for evidence_index, record in enumerate(evidence, 1):
+            if not isinstance(record, dict) or record.get("kind") != "github_file_snapshot":
+                continue
+            repository = record.get("repository")
+            pin = repository_pins.get(repository)
+            if pin is None:
+                continue
+            commit, paths = pin
+            prefix = f"candidate queue:candidate[{candidate_index}]:evidence[{evidence_index}]"
+            if record.get("commit") != commit:
+                errors.append(f"{prefix}: commit does not match the current snapshot inventory for {repository}")
+            if record.get("path") not in paths:
+                errors.append(f"{prefix}: path is not listed in the current snapshot inventory for {repository}")
+    return errors
+
+
 def validate(today=None):
     errors = []
     warnings = []
@@ -63,6 +111,23 @@ def validate(today=None):
         queue = load_json(candidate_path)
     except (OSError, json.JSONDecodeError) as exc:
         return [f"{candidate_rel}: cannot be read: {exc}"], warnings
+
+    inventory_rel = manifest.get("snapshot_inventory")
+    if not isinstance(inventory_rel, str):
+        errors.append("manifest.json: snapshot_inventory is missing")
+    else:
+        inventory_path = (ROOT / inventory_rel).resolve()
+        try:
+            inventory_path.relative_to(ROOT)
+        except ValueError:
+            errors.append("manifest.json: snapshot_inventory escapes repository root")
+        else:
+            try:
+                inventory = load_json(inventory_path)
+            except (OSError, json.JSONDecodeError) as exc:
+                errors.append(f"{inventory_rel}: cannot be read: {exc}")
+            else:
+                errors.extend(validate_inventory_pins(queue, inventory))
 
     observed_at = parse_iso_date(queue.get("observed_at"))
     if observed_at is None:
