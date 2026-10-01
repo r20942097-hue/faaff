@@ -13,10 +13,10 @@ Phase 2 artifact integrity is verified. No Phase 2 artifact rebuild is required.
 | SBOM | DECLARATION_ONLY | CycloneDX 1.6 declaration inventory only; dependencies are not resolved. |
 | Product source intake contract | IMPLEMENTED | All Candidate Baseline product identities are registered and missing inputs cannot be promoted to verified evidence. |
 | GitHub-consumable product source readiness | 0/7 VERIFIED | Complete product source ZIPs are not committed/mounted into a GitHub Actions-consumable input surface. |
-| Current external source re-verification | 6/7 VERIFIED_EXTERNAL | Six Library ZIPs were retrieved again and their SHA-256/CRC/safe ZIP structure rechecked; Watcher ZIP is not currently retrievable. |
+| Current external source re-verification | 7/7 VERIFIED_EXTERNAL | All seven Library ZIPs were re-retrieved and their SHA-256, CRC, safe paths, and symlink status checked in the current environment. |
 | Dependency Review | NOT_RUN / UNSUPPORTED | No supported repository-native Dependency Review result is being treated as evidence. |
 | CodeQL | NOT_RUN | CodeQL is not active for this workstream. |
-| Complete dependency-bearing source scan | NOT_RUN | One of seven baseline source artifacts is currently unavailable and no complete resolved graph has been scanned. |
+| Complete dependency-bearing source scan | NOT_RUN | No complete resolved dependency graph or vulnerability database scan has been performed; GitHub runner artifact ingress remains absent. |
 | Vulnerability posture | UNKNOWN | No claim of vulnerability clearance is permitted. |
 
 ## Phase 3 Gate A
@@ -31,12 +31,12 @@ Gate B has a machine-readable product-source registry and validator for the seve
 
 The GitHub-consumable registry remains `0/7 VERIFIED`; this is intentional because the product ZIPs are not present in the repository/runner input surface.
 
-A separate environment-scoped record, `phase3_security/external-source-evidence.json`, captures current Library evidence without pretending GitHub can consume it. On 2026-10-01, six products were re-materialized from Library and directly rechecked against the accepted SHA ledger: AI Orchestrator 1.51, Browser Control 0.3.0, Shared Foundation 0.10, Media / Download Tools 0.1.0, Universal Control Suite 0.30, and Windows Control 0.1.8. Each matched its expected SHA-256 and passed ZIP CRC/safe-path/symlink checks.
+A separate environment-scoped record, `phase3_security/external-source-evidence.json`, captures current Library evidence without pretending GitHub can consume it. On 2026-10-01, six products were re-materialized from Library and directly rechecked against the accepted SHA ledger: AI Orchestrator 1.51, Browser Control 0.3.0, Shared Foundation 0.10, Media / Download Tools 0.1.0, Universal Control Suite 0.30, and Windows Control 0.1.8. On 2026-10-02, Universal Live Watcher 6.49.12 was retrieved and independently rechecked: its 502,993-byte ZIP matched the expected SHA-256, passed CRC and safe-path checks, and contained no symlink entries.
 
-Universal Live Watcher 6.49.12 remains the only current retrieval blocker. Its verification report and expected SHA-256 still exist, but the ZIP itself is not currently returned by Library/conversation search, so current byte-level re-verification is `NOT_RUN`. Historical verification is not promoted into current availability.
+The current external retrieval gate is now 7/7. The GitHub-consumable registry remains 0/7 because the artifacts are not in the repository or runner input surface; external Library evidence does not satisfy that separate intake contract.
 
-Among the six currently retrievable archives, only AI Orchestrator exposed a supported dependency manifest (`pyproject.toml`). It declares FastAPI, Pydantic and Uvicorn directly; optional groups declare Playwright, PyJWT, pytest and httpx; the build system declares setuptools. No lockfile or resolved dependency graph was established by this step.
+Among the seven reverified archives, AI Orchestrator and Universal Live Watcher exposed supported dependency manifests. AI Orchestrator declares FastAPI, Pydantic and Uvicorn directly; optional groups declare Playwright, PyJWT, pytest and httpx; its build system declares setuptools. Universal Live Watcher declares setuptools and wheel in its build system; its `requirements.txt` contains comments only. No lockfile or resolved dependency graph was established by this step.
 
 ## Next gate
 
-Recover or re-provide the exact Universal Live Watcher 6.49.12 ZIP matching SHA-256 `69a6358f3f5581318cf84a35133c40e008e9e12e239dcab4c843ccc0ce018fcd`, then re-run byte/ZIP checks and dependency manifest inventory over all seven artifacts. After all dependency-bearing inputs are available, resolve exact dependency versions in a controlled environment, produce complete SBOMs, run supported vulnerability/static scanners, preserve scanner/version/database provenance, and evaluate policy without converting `UNKNOWN`, `NOT_RUN`, `UNSUPPORTED`, historical evidence, or partial results to `PASS`.
+Provide a controlled, scanner-consumable ingress for the seven immutable source artifacts, then resolve exact dependency versions, produce complete SBOMs, and run supported vulnerability/static scanners. Preserve scanner/version/database provenance and evaluate policy without converting `UNKNOWN`, `NOT_RUN`, `UNSUPPORTED`, historical evidence, or partial results to `PASS`.

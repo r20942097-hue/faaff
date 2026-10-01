@@ -1,7 +1,7 @@
 {
   "baseline_product_count": 7,
-  "current_retrievable_verified": 6,
-  "evidence_date": "2026-10-01",
+  "current_retrievable_verified": 7,
+  "evidence_date": "2026-10-02",
   "github_scan_ready": false,
   "products": [
     {
@@ -116,24 +116,50 @@
       "zip_crc": "PASS"
     },
     {
-      "current_retrieval_status": "UNAVAILABLE",
-      "current_sha256_reverification": "NOT_RUN",
+      "actual_sha256": "69a6358f3f5581318cf84a35133c40e008e9e12e239dcab4c843ccc0ce018fcd",
+      "current_retrieval_status": "VERIFIED_EXTERNAL",
+      "current_sha256_reverification": "PASS",
+      "dependency_declaration_count": 2,
+      "dependency_manifest_count": 2,
       "expected_sha256": "69a6358f3f5581318cf84a35133c40e008e9e12e239dcab4c843ccc0ce018fcd",
       "expected_size": 502993,
       "filename": "Universal-Live-Watcher-v6.49.12.zip",
       "historical_evidence_status": "PREVIOUSLY_VERIFIED",
+      "lockfile_count": 0,
+      "manifests": [
+        {
+          "declarations": [
+            {"group": "build-system", "raw": "setuptools>=76"},
+            {"group": "build-system", "raw": "wheel"}
+          ],
+          "kind": "pyproject.toml",
+          "path": "Universal-Live-Watcher-v6.49.12/pyproject.toml"
+        },
+        {
+          "declarations": [],
+          "kind": "requirements.txt",
+          "path": "Universal-Live-Watcher-v6.49.12/requirements.txt"
+        }
+      ],
       "product_id": "universal-live-watcher",
       "product_name": "Universal Live Watcher",
-      "source_file_id": null,
+      "sha256_match": true,
+      "size": 502993,
+      "source_file_id": "file_00000000b4e081f5a15860443a341b25",
       "source_surface": "chatgpt-library",
-      "version": "6.49.12"
+      "version": "6.49.12",
+      "zip_crc": "PASS",
+      "zip_entry_count": 260,
+      "zip_path_safety": "PASS",
+      "zip_symlink_count": 0,
+      "zip_uncompressed_size": 1656121
     }
   ],
   "schema_version": 1,
   "scope": "environment-scoped re-verification of currently retrievable ChatGPT Library artifacts; not reproducible by GitHub Actions without artifact ingress",
   "security_interpretation": {
     "complete_dependency_bearing_source_scan": "NOT_RUN",
-    "reason": "One of seven baseline artifacts is not currently retrievable and no resolved dependency graph or vulnerability database matching was performed.",
+    "reason": "All seven baseline artifacts were reverified in the current Library environment, but the GitHub runner still has no artifact ingress and no resolved dependency graph or vulnerability database matching was performed.",
     "unknown_not_pass": true
   },
   "vulnerability_posture": "UNKNOWN"
