@@ -78,6 +78,7 @@ python browser_filter_lists/scripts/test_validator.py
 python browser_filter_lists/scripts/test_evidence.py
 python browser_filter_lists/scripts/test_promotion.py
 python browser_filter_lists/scripts/test_delta_policy.py
+python browser_filter_lists/scripts/test_source_snapshot_proposal.py
 python browser_filter_lists/scripts/validate_filters.py
 python browser_filter_lists/scripts/validate_candidate_evidence.py
 python browser_filter_lists/scripts/validate_candidate_promotion.py
