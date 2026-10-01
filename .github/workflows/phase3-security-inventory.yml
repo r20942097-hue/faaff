@@ -6,6 +6,7 @@ on:
       - 'control_plane_next/**'
       - 'phase3_security/**'
       - 'tests/test_phase3_dependency_inventory.py'
+      - 'tests/test_phase3_product_source_intake.py'
       - 'PHASE3-STATUS.md'
       - '.github/workflows/phase3-security-inventory.yml'
   push:
@@ -16,7 +17,7 @@ permissions:
   contents: read
 
 jobs:
-  declaration-inventory:
+  security-intake:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,8 +28,8 @@ jobs:
           python-version: '3.11'
       - name: Re-verify immutable Phase 2 source archive
         run: python control_plane_next/verify_source_archive.py
-      - name: Run Phase 3 inventory regression tests
-        run: python -m unittest -v tests/test_phase3_dependency_inventory.py
+      - name: Run Phase 3 regression tests
+        run: python -m unittest -v tests/test_phase3_dependency_inventory.py tests/test_phase3_product_source_intake.py
       - name: Generate declaration inventory and partial SBOM
         run: |
           python phase3_security/dependency_inventory.py \
@@ -38,3 +39,9 @@ jobs:
             --sbom-output /tmp/phase3-cyclonedx-declared.json
           cat /tmp/phase3-dependency-inventory.json
           cat /tmp/phase3-cyclonedx-declared.json
+      - name: Validate complete-product source intake boundary
+        run: |
+          python phase3_security/product_source_intake.py \
+            --registry phase3_security/product-source-inputs.json \
+            --output /tmp/phase3-product-source-intake.json
+          cat /tmp/phase3-product-source-intake.json
