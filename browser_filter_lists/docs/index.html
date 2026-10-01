@@ -9,25 +9,31 @@
     .card { border: 1px solid #ccc; border-radius: 10px; padding: 18px; margin: 18px 0; }
     a.button { display: inline-block; padding: 10px 14px; border: 1px solid currentColor; border-radius: 8px; text-decoration: none; margin-right: 8px; }
     code { overflow-wrap: anywhere; }
+    .note { opacity: .8; }
   </style>
 </head>
 <body>
   <h1>Browser Filter Lists</h1>
+  <p class="note">Supplementary third-party network filters. The tracking list is optional.</p>
+
   <div class="card">
     <h2>Universal Web Ad Filter</h2>
     <p>Recommended supplementary list. Third-party ad-network blocking only.</p>
     <p>
-      <a class="button" href="ubo:subscribe?location=https%3A%2F%2Fraw.githubusercontent.com%2Fr20942097-hue%2Ffaaff%2Fmain%2Fbrowser_filter_lists%2Ffilters%2Funiversal-web-ad-filter.txt&title=Universal%20Web%20Ad%20Filter">Subscribe with uBlock Origin</a>
+      <a class="button" href="https://subscribe.adblockplus.org/?location=https%3A%2F%2Fraw.githubusercontent.com%2Fr20942097-hue%2Ffaaff%2Fmain%2Fbrowser_filter_lists%2Ffilters%2Funiversal-web-ad-filter.txt&amp;title=Universal%20Web%20Ad%20Filter">Subscribe</a>
       <a href="https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters/universal-web-ad-filter.txt">View raw list</a>
     </p>
   </div>
+
   <div class="card">
     <h2>Universal Web Tracking Filter</h2>
     <p>Optional analytics/session-measurement blocking. May affect some site features.</p>
     <p>
-      <a class="button" href="ubo:subscribe?location=https%3A%2F%2Fraw.githubusercontent.com%2Fr20942097-hue%2Ffaaff%2Fmain%2Fbrowser_filter_lists%2Ffilters%2Funiversal-web-tracking-filter.txt&title=Universal%20Web%20Tracking%20Filter">Subscribe with uBlock Origin</a>
+      <a class="button" href="https://subscribe.adblockplus.org/?location=https%3A%2F%2Fraw.githubusercontent.com%2Fr20942097-hue%2Ffaaff%2Fmain%2Fbrowser_filter_lists%2Ffilters%2Funiversal-web-tracking-filter.txt&amp;title=Universal%20Web%20Tracking%20Filter">Subscribe</a>
       <a href="https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters/universal-web-tracking-filter.txt">View raw list</a>
     </p>
   </div>
+
+  <p class="note">Fallback: copy a raw-list URL and import it in uBlock Origin under Dashboard → Filter lists → Custom.</p>
 </body>
 </html>
