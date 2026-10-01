@@ -2,38 +2,5 @@
   "schema": "browser-filter-canary/v1",
   "observed_at": "2026-10-01",
   "minimum_soak_days": 14,
-  "candidates": [
-    {
-      "domain": "trackhaven.com",
-      "category": "tracking",
-      "state": "canary",
-      "started_at": "2026-10-01",
-      "earliest_promotion_at": "2026-10-15",
-      "rule": "||trackhaven.com^$third-party",
-      "default_coverage": "absent-in-reviewed-default-sources",
-      "exception_review": {
-        "checked_at": "2026-10-01",
-        "known_exception": false,
-        "reviewed_sources": ["uassets-unbreak", "adguard-spyware-allowlist"],
-        "summary": "No exact allow/unbreak match was found in the reviewed compatibility sources."
-      },
-      "evidence": [
-        {
-          "kind": "github_file_snapshot",
-          "source_family": "adguard",
-          "repository": "AdguardTeam/AdguardFilters",
-          "path": "SpywareFilter/sections/tracking_servers.txt",
-          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
-          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt"
-        },
-        {
-          "kind": "primary_web",
-          "source_family": "trackhaven",
-          "url": "https://trackhaven.com/",
-          "claim": "The service identifies itself as analytics."
-        }
-      ],
-      "promotion_blocker": "Complete the minimum canary soak and obtain the pinned independent classification evidence required by the stable promotion policy."
-    }
-  ]
+  "candidates": []
 }
