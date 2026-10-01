@@ -27,6 +27,8 @@ Keep one authoritative chain:
 4. `CANDIDATES.md` remains generated from `candidates.json`; README claims describe the actual canary and queue state.
 5. Any source refresh invalidates mismatched evidence until the cited rules and exceptions are checked again at the new pinned revisions.
 
+The first operational tool for this design is `scripts/refresh_source_snapshot_proposal.py`. It queries GitHub for the latest immutable commits and file blob metadata, then prints or atomically writes a separate proposal. It never updates the authoritative inventory, candidate statuses, stable rules, or canary. Human review must refresh overlap and candidate evidence before adopting the proposal.
+
 ## Completion gates
 
 - All local tests, validators, and generated-report checks pass.
