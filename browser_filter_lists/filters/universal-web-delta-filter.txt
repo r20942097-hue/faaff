@@ -1,0 +1,17 @@
+[Adblock Plus 2.0]
+! Title: Universal Web Delta Filter (Recommended)
+! Version: 20261001.1
+! Expires: 1 day
+! Homepage: https://github.com/r20942097-hue/faaff/tree/main/browser_filter_lists
+! Subscription: https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters/universal-web-delta-filter.txt
+! Description: Delta-only supplement for the current uBlock Origin default filter set.
+! Policy: Only vetted third-party hostname rules absent from current default uBO coverage may be active here.
+! Baseline: EasyList 202610011127 / f72f869a83d8c2bff8997fda8cc479e99e1e3212
+! Baseline: EasyPrivacy 202610011201 / a8dc592f535b1c6d040213071d2febec6436c30e
+! Baseline: Peter Lowe 2026-09-20
+! Baseline: uAssets 907de3b6bb763e908f97c087b18585387219078a
+! No cosmetic, first-party, anti-adblock, paywall, URL-rewrite, $document, or $all rules.
+! License: CC0-1.0
+!
+! No stable delta rules as of 2026-10-01.
+! The previous 17 ad and 9 tracking rules are default-covered or too broad for this delta profile.
