@@ -1,16 +1,20 @@
 {
   "schema": "browser-filter-candidates/v1",
   "observed_at": "2026-10-01",
-  "notes": "Candidates are inactive. Promotion requires fresh multi-source classification evidence, an explicit exception review, live breakage testing, and CI.",
+  "notes": "Candidates are inactive. Delta policy rejects domains already covered by the reviewed uBlock Origin default set; promotion also requires fresh multi-source evidence, exception review, canary soak, live breakage testing, and CI.",
   "candidates": [
     {
       "domain": "bidswitch.net",
       "category": "tracking",
-      "state": "candidate",
+      "state": "rejected",
       "risk": "medium",
       "verified_at": "2026-10-01",
-      "proposed_rule": "||bidswitch.net^$third-party",
-      "reason": "Confirmed in current EasyPrivacy and AdGuard tracking-server lists; no exact allow/unbreak exception was found in the reviewed sources.",
+      "proposed_rule": null,
+      "reason": "Rejected from the recommended delta profile because current EasyPrivacy already covers bidswitch.net; adding it would duplicate uBlock Origin default coverage.",
+      "upstream_overlap": {
+        "covered": true,
+        "sources": ["easyprivacy"]
+      },
       "sources": [
         "https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt",
         "https://github.com/AdguardTeam/AdguardFilters/blob/master/SpywareFilter/sections/tracking_servers.txt"
