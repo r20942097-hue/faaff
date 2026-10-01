@@ -52,7 +52,7 @@ def valid_positive_integer(value):
 
 
 
-def validate_snapshot_inventory(inventory, baseline, today=None):
+def validate_snapshot_inventory(inventory, baseline, today=None, max_age_days=None):
     errors = []
     today = today or date.today()
     if not isinstance(inventory, dict):
@@ -64,6 +64,10 @@ def validate_snapshot_inventory(inventory, baseline, today=None):
     retrieved = parse_date(inventory.get("retrieved_at"))
     if retrieved is None or retrieved > today:
         errors.append("snapshot inventory: retrieved_at must be a valid non-future date")
+    elif isinstance(max_age_days, int) and (today - retrieved).days > max_age_days:
+        errors.append(
+            f"snapshot inventory: stale ({(today - retrieved).days} days; maximum {max_age_days})"
+        )
 
     snapshots = inventory.get("snapshots")
     if not isinstance(snapshots, list):
@@ -255,7 +259,7 @@ def validate(today=None):
         except (OSError, json.JSONDecodeError) as exc:
             errors.append(f"{inventory_rel}: cannot be read: {exc}")
         else:
-            errors.extend(validate_snapshot_inventory(inventory, baseline, today=today))
+            errors.extend(validate_snapshot_inventory(inventory, baseline, today=today, max_age_days=audit_max_age))
 
     legacy_records = audit.get("legacy_rules")
     if not isinstance(legacy_records, list):
