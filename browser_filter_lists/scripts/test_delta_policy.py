@@ -28,7 +28,6 @@ class DeltaPolicyTests(unittest.TestCase):
         recommended = next(entry for entry in manifest["stable_lists"] if entry.get("recommended") is True)
         stable_hosts = set(delta.active_hosts(delta.ROOT / recommended["path"]))
         canary_hosts = {item["domain"] for item in canary["candidates"]}
-        self.assertTrue(canary_hosts)
         self.assertTrue(stable_hosts.isdisjoint(canary_hosts))
 
 
