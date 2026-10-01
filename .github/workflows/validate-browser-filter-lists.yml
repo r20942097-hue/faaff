@@ -29,9 +29,13 @@ jobs:
         run: python browser_filter_lists/scripts/test_validator.py
       - name: Run evidence regression tests
         run: python browser_filter_lists/scripts/test_evidence.py
+      - name: Run promotion-gate regression tests
+        run: python browser_filter_lists/scripts/test_promotion.py
       - name: Validate published lists
         run: python browser_filter_lists/scripts/validate_filters.py
       - name: Validate candidate evidence freshness
         run: python browser_filter_lists/scripts/validate_candidate_evidence.py
+      - name: Validate candidate promotion gates
+        run: python browser_filter_lists/scripts/validate_candidate_promotion.py
       - name: Check generated candidate report
         run: python browser_filter_lists/scripts/render_candidate_report.py --check
