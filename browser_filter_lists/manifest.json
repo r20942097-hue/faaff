@@ -1,17 +1,35 @@
 {
   "schema": "browser-filter-lists/v1",
-  "policy_version": 3,
+  "policy_version": 4,
   "homepage": "https://github.com/r20942097-hue/faaff/tree/main/browser_filter_lists",
   "raw_base": "https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters",
+  "recommended_profile": "ubo-default-delta",
+  "candidate_default_overlap_forbidden": true,
   "candidate_evidence_max_age_days": 45,
   "candidate_min_independent_source_families": 2,
   "candidate_exception_review_required": true,
+  "canary_min_soak_days": 14,
+  "upstream_audit": "upstream/default-overlap-audit.json",
+  "canary_manifest": "experimental/canary.json",
+  "canary_filter": "experimental/universal-web-canary-filter.txt",
   "stable_lists": [
+    {
+      "id": "delta",
+      "path": "filters/universal-web-delta-filter.txt",
+      "title": "Universal Web Delta Filter (Recommended)",
+      "optional": false,
+      "recommended": true,
+      "profile": "ubo-default-delta",
+      "expected_rule_count": 0,
+      "max_rule_count": 30
+    },
     {
       "id": "ads",
       "path": "filters/universal-web-ad-filter.txt",
       "title": "Universal Web Ad Filter (Supplement)",
-      "optional": false,
+      "optional": true,
+      "recommended": false,
+      "profile": "legacy-compat",
       "expected_rule_count": 17,
       "max_rule_count": 60
     },
@@ -20,6 +38,8 @@
       "path": "filters/universal-web-tracking-filter.txt",
       "title": "Universal Web Tracking Filter (Optional)",
       "optional": true,
+      "recommended": false,
+      "profile": "legacy-compat",
       "expected_rule_count": 9,
       "max_rule_count": 40
     }
