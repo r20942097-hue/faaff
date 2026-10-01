@@ -1,0 +1,40 @@
+name: Phase 3 security inventory
+
+on:
+  pull_request:
+    paths:
+      - 'control_plane_next/**'
+      - 'phase3_security/**'
+      - 'tests/test_phase3_dependency_inventory.py'
+      - 'PHASE3-STATUS.md'
+      - '.github/workflows/phase3-security-inventory.yml'
+  push:
+    branches: [codex/ucs-control-plane-phase3-security]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  declaration-inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Re-verify immutable Phase 2 source archive
+        run: python control_plane_next/verify_source_archive.py
+      - name: Run Phase 3 inventory regression tests
+        run: python -m unittest -v tests/test_phase3_dependency_inventory.py
+      - name: Generate declaration inventory and partial SBOM
+        run: |
+          python phase3_security/dependency_inventory.py \
+            --archive control_plane_next/ucs-control-plane-phase2-source.zip \
+            --declared-checksum control_plane_next/SOURCE-ARCHIVE-SHA256.txt \
+            --output /tmp/phase3-dependency-inventory.json \
+            --sbom-output /tmp/phase3-cyclonedx-declared.json
+          cat /tmp/phase3-dependency-inventory.json
+          cat /tmp/phase3-cyclonedx-declared.json
