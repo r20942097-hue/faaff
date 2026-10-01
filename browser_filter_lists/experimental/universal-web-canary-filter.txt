@@ -1,10 +1,10 @@
 [Adblock Plus 2.0]
 ! Title: Universal Web Canary Filter (Experimental)
-! Version: 20261001.1
+! Version: 20261001.2
 ! Expires: 1 day
 ! Description: Experimental delta candidates only. Do not use as the normal stable subscription.
-! Policy: Canary rules must be absent from reviewed uBO default coverage and must not have known compatibility exceptions.
+! Policy: Canary rules must be absent from reviewed uBO default coverage, have independent evidence of actual ad/tracking behavior, and have no known compatibility exception.
 ! Minimum soak: 14 days
 ! License: CC0-1.0
 !
-||trackhaven.com^$third-party
+! No active canary rules. Current research candidates do not yet meet the evidence threshold.
