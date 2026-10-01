@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "manifest.json"
 ALLOWED_LEGACY_STATUSES = {"default-covered", "overbroad-vs-default"}
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
+UTC_TIMESTAMP_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
 
 def load_json(path):
@@ -36,10 +37,28 @@ def active_hosts(path):
     return hosts
 
 
+def valid_utc_timestamp(value, today):
+    if not isinstance(value, str) or not UTC_TIMESTAMP_RE.fullmatch(value):
+        return False
+    try:
+        parsed = datetime.strptime(value, "%Y-%m-%dT%H:%M:%SZ")
+    except ValueError:
+        return False
+    return parsed.date() <= today
+
+
+def valid_positive_integer(value):
+    return isinstance(value, int) and not isinstance(value, bool) and value > 0
+
+
 
 def validate_snapshot_inventory(inventory, baseline, today=None):
     errors = []
     today = today or date.today()
+    if not isinstance(inventory, dict):
+        return ["snapshot inventory: root must be an object"]
+    if not isinstance(baseline, dict):
+        return ["snapshot inventory: baseline must be an object"]
     if inventory.get("schema") != "browser-filter-snapshot-inventory/v1":
         return ["snapshot inventory: unsupported schema"]
     retrieved = parse_date(inventory.get("retrieved_at"))
@@ -67,10 +86,8 @@ def validate_snapshot_inventory(inventory, baseline, today=None):
             commit = snapshot.get("commit")
             if not isinstance(commit, str) or not COMMIT_RE.fullmatch(commit):
                 errors.append(f"{prefix}: commit must be lowercase 40-hex")
-            commit_date = snapshot.get("commit_date")
-            parsed_commit_date = parse_date(commit_date[:10]) if isinstance(commit_date, str) else None
-            if parsed_commit_date is None or parsed_commit_date > today:
-                errors.append(f"{prefix}: commit_date must be a valid non-future UTC timestamp")
+            if not valid_utc_timestamp(snapshot.get("commit_date"), today):
+                errors.append(f"{prefix}: commit_date must be a valid non-future UTC timestamp in YYYY-MM-DDTHH:MM:SSZ form")
             files = snapshot.get("files")
             if not isinstance(files, list) or not files:
                 errors.append(f"{prefix}: verified snapshot requires files")
@@ -92,7 +109,7 @@ def validate_snapshot_inventory(inventory, baseline, today=None):
                 if not isinstance(blob_sha, str) or not COMMIT_RE.fullmatch(blob_sha):
                     errors.append(f"{file_prefix}: blob_sha must be lowercase 40-hex")
                 size = file.get("size_bytes")
-                if not isinstance(size, int) or size <= 0:
+                if not valid_positive_integer(size):
                     errors.append(f"{file_prefix}: size_bytes must be a positive integer")
         elif status == "mirror_only" and family == "peter_lowe":
             if not isinstance(snapshot.get("official_source_url"), str) or not snapshot["official_source_url"].startswith("https://"):
@@ -105,13 +122,17 @@ def validate_snapshot_inventory(inventory, baseline, today=None):
                 continue
             if mirror.get("repository") != "uBlockOrigin/uAssets" or not isinstance(mirror.get("path"), str):
                 errors.append(f"{prefix}: mirror must identify its uAssets repository path")
+            elif mirror["path"].startswith("/") or ".." in Path(mirror["path"]).parts:
+                errors.append(f"{prefix}: mirror.path must be a safe repository-relative path")
+            if not valid_utc_timestamp(mirror.get("commit_date"), today):
+                errors.append(f"{prefix}: mirror.commit_date must be a valid non-future UTC timestamp in YYYY-MM-DDTHH:MM:SSZ form")
             for key in ["commit", "blob_sha"]:
                 value = mirror.get(key)
                 if not isinstance(value, str) or not COMMIT_RE.fullmatch(value):
                     errors.append(f"{prefix}: mirror.{key} must be lowercase 40-hex")
             if mirror.get("commit") != by_family.get("uassets", {}).get("commit"):
                 errors.append(f"{prefix}: Peter Lowe mirror must pin the verified uAssets commit")
-            if not isinstance(mirror.get("size_bytes"), int) or mirror["size_bytes"] <= 0:
+            if not valid_positive_integer(mirror.get("size_bytes")):
                 errors.append(f"{prefix}: mirror.size_bytes must be a positive integer")
         elif status == "stale_excluded" and family == "easylist_japan":
             if not isinstance(snapshot.get("repository"), str) or not snapshot["repository"]:
@@ -121,7 +142,7 @@ def validate_snapshot_inventory(inventory, baseline, today=None):
                 errors.append(f"{prefix}: commit must be lowercase 40-hex")
             commit_date = snapshot.get("commit_date")
             parsed_commit_date = parse_date(commit_date[:10]) if isinstance(commit_date, str) else None
-            if parsed_commit_date is None or (today - parsed_commit_date).days <= 45:
+            if not valid_utc_timestamp(commit_date, today) or parsed_commit_date is None or (today - parsed_commit_date).days <= 45:
                 errors.append(f"{prefix}: stale_excluded source must be older than 45 days")
             if not isinstance(snapshot.get("reason"), str) or not snapshot["reason"].strip():
                 errors.append(f"{prefix}: stale exclusion requires a reason")
@@ -135,7 +156,7 @@ def validate_snapshot_inventory(inventory, baseline, today=None):
                         continue
                     if not isinstance(file.get("blob_sha"), str) or not COMMIT_RE.fullmatch(file["blob_sha"]):
                         errors.append(f"{prefix}:files[{file_index}]: blob_sha must be lowercase 40-hex")
-                    if not isinstance(file.get("size_bytes"), int) or file["size_bytes"] <= 0:
+                    if not valid_positive_integer(file.get("size_bytes")):
                         errors.append(f"{prefix}:files[{file_index}]: size_bytes must be a positive integer")
         else:
             errors.append(f"{prefix}: unsupported status/family combination")
