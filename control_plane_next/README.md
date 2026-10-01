@@ -25,3 +25,21 @@ python -m ucs_control_plane recovery plan --root .ucs-control-plane
 ```
 
 `Artifact` audit is `NOT_RUN` when baseline ZIPs are not copied into `<root>/artifacts/`; the baseline registry's historical verification state is not silently reused as a current local artifact check.
+
+## Verify the source archive
+
+From this directory, verify the published archive and the extracted source:
+
+```sh
+sha256sum -c SOURCE-ARCHIVE-SHA256.txt
+python -m zipfile -t ucs-control-plane-phase2-source.zip
+python -m zipfile -e ucs-control-plane-phase2-source.zip /tmp/ucs-control-plane-phase2-source
+cd /tmp/ucs-control-plane-phase2-source
+sha256sum -c SHA256SUMS.txt
+python -m unittest discover -s tests -v
+python -m compileall -q ucs_control_plane tests
+```
+
+The verification evidence inventories project files but deliberately excludes its own path to avoid an impossible self-checksum. Its digest and size are recorded only in the detached `SHA256SUMS.txt` manifest.
+
+For maintainers, rebuild the archive reproducibly from an extracted source tree with `python control_plane_next/build_source_archive.py --source-dir <source-directory>`. The packaging tool rewrites `SHA256SUMS.txt`, fixes archive timestamps and file modes, and updates the detached archive digest. CI rebuilds the ZIP and requires byte-for-byte equality with the committed archive.

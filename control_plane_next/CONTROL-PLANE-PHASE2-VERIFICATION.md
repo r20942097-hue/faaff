@@ -27,7 +27,9 @@ The GitHub `codex/universal-control-suite` branch at `b49dd9f` is treated only a
 
 ## Verification
 
-- Unit/security/regression tests: 45 total; 44 PASS; 0 FAIL; 1 SKIP.
+The committed source archive was re-extracted from the Library-reverified 28,044-byte candidate, whose SHA-256 is `9baba968621dec3f1bd63c3c8b6768f120d6025c0e04332724cb384945050a2a`; Python ZIP validation and CRC checks passed.
+
+- Unit/security/regression tests: 46 total; 45 PASS; 0 FAIL; 1 SKIP, rerun from the repaired archive in CI/local verification.
 - SKIP: real Windows Junction creation/detection; current execution platform is Linux. Junction rejection code path exists via `os.path.isjunction` and must be rerun on Windows.
 - Compile/static: PASS (`compileall`, AST parse).
 - Static no-network-client import policy: PASS.
@@ -39,7 +41,7 @@ The GitHub `codex/universal-control-suite` branch at `b49dd9f` is treated only a
 
 PASS: path traversal, absolute path, Windows drive path, UNC path, symlink, NUL byte, Unicode normalization collision, case collision, Windows reserved names, duplicate IDs, malformed JSON, duplicate JSON keys, NaN, Infinity, oversized metadata, deeply nested JSON, modified/missing payload, hash mismatch, post-seal tamper detection, broken evidence chain, evidence cycle corruption, corrupted event, corrupt latest snapshot fallback, corrupted snapshot, interrupted write, concurrent write serialization, UNKNOWN promotion rejection, payload non-execution.
 
-NOT_RUN: real Windows Junction construction/detection. No archive reader is introduced in this phase, so archive-processing attack surface is not expanded.
+NOT_RUN: real Windows Junction construction/detection. The product runtime does not process archives; the CI-only archive verifier checks the published source ZIP for CRC, safe paths, symlinks, size limits and manifest consistency.
 
 ## Recovery / rollback
 
