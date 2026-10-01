@@ -1,7 +1,7 @@
 {
   "schema": "browser-filter-candidates/v1",
   "observed_at": "2026-10-01",
-  "notes": "Candidates are not active filters. Promotion requires current evidence plus breakage review.",
+  "notes": "Candidates are inactive. Promotion requires fresh multi-source classification evidence, an explicit exception review, live breakage testing, and CI.",
   "candidates": [
     {
       "domain": "bidswitch.net",
@@ -10,15 +10,35 @@
       "risk": "medium",
       "verified_at": "2026-10-01",
       "proposed_rule": "||bidswitch.net^$third-party",
-      "reason": "Present in the current EasyPrivacy general tracking-server list.",
-      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"],
+      "reason": "Confirmed in current EasyPrivacy and AdGuard tracking-server lists; no exact allow/unbreak exception was found in the reviewed sources.",
+      "sources": [
+        "https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt",
+        "https://github.com/AdguardTeam/AdguardFilters/blob/master/SpywareFilter/sections/tracking_servers.txt"
+      ],
+      "exception_review": {
+        "checked_at": "2026-10-01",
+        "known_exception": false,
+        "summary": "Reviewed current EasyList, AdGuard, and uAssets matches; no exact allow/unbreak rule for bidswitch.net was found."
+      },
       "evidence": [
         {
           "kind": "github_file_snapshot",
+          "role": "classification",
+          "source_family": "easylist",
           "repository": "easylist/easylist",
           "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
-          "commit": "de1806065e53df5732bd048688a9b2800fa69a73",
-          "url": "https://github.com/easylist/easylist/blob/de1806065e53df5732bd048688a9b2800fa69a73/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "4f3f9cb97f86ee67db3c7cf33e8d786c822f5804",
+          "url": "https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "checked_at": "2026-10-01"
+        },
+        {
+          "kind": "github_file_snapshot",
+          "role": "classification",
+          "source_family": "adguard",
+          "repository": "AdguardTeam/AdguardFilters",
+          "path": "SpywareFilter/sections/tracking_servers.txt",
+          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt",
           "checked_at": "2026-10-01"
         }
       ]
@@ -26,19 +46,62 @@
     {
       "domain": "bluekai.com",
       "category": "tracking",
-      "state": "candidate",
+      "state": "hold",
       "risk": "medium",
       "verified_at": "2026-10-01",
       "proposed_rule": "||bluekai.com^$third-party",
-      "reason": "Present in the current EasyPrivacy general tracking-server list.",
-      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"],
+      "reason": "Confirmed in EasyPrivacy and AdGuard tracking lists, but current compatibility allow/unbreak rules show that broad blocking can break specific sites.",
+      "promotion_blocker": "Known site-specific allow/unbreak exceptions must be resolved or explicitly scoped before stable promotion.",
+      "sources": [
+        "https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt",
+        "https://github.com/AdguardTeam/AdguardFilters/blob/master/SpywareFilter/sections/tracking_servers.txt",
+        "https://github.com/AdguardTeam/AdguardFilters/blob/master/SpywareFilter/sections/allowlist.txt",
+        "https://github.com/uBlockOrigin/uAssets/blob/master/filters/unbreak.txt"
+      ],
+      "exception_review": {
+        "checked_at": "2026-10-01",
+        "known_exception": true,
+        "summary": "AdGuard and uAssets contain site-specific compatibility exceptions involving bluekai.com."
+      },
       "evidence": [
         {
           "kind": "github_file_snapshot",
+          "role": "classification",
+          "source_family": "easylist",
           "repository": "easylist/easylist",
           "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
-          "commit": "de1806065e53df5732bd048688a9b2800fa69a73",
-          "url": "https://github.com/easylist/easylist/blob/de1806065e53df5732bd048688a9b2800fa69a73/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "4f3f9cb97f86ee67db3c7cf33e8d786c822f5804",
+          "url": "https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "checked_at": "2026-10-01"
+        },
+        {
+          "kind": "github_file_snapshot",
+          "role": "classification",
+          "source_family": "adguard",
+          "repository": "AdguardTeam/AdguardFilters",
+          "path": "SpywareFilter/sections/tracking_servers.txt",
+          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt",
+          "checked_at": "2026-10-01"
+        },
+        {
+          "kind": "github_file_snapshot",
+          "role": "exception",
+          "source_family": "adguard",
+          "repository": "AdguardTeam/AdguardFilters",
+          "path": "SpywareFilter/sections/allowlist.txt",
+          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/allowlist.txt",
+          "checked_at": "2026-10-01"
+        },
+        {
+          "kind": "github_file_snapshot",
+          "role": "exception",
+          "source_family": "ublock",
+          "repository": "uBlockOrigin/uAssets",
+          "path": "filters/unbreak.txt",
+          "commit": "907de3b6bb763e908f97c087b18585387219078a",
+          "url": "https://github.com/uBlockOrigin/uAssets/blob/907de3b6bb763e908f97c087b18585387219078a/filters/unbreak.txt",
           "checked_at": "2026-10-01"
         }
       ]
@@ -46,19 +109,51 @@
     {
       "domain": "agkn.com",
       "category": "tracking",
-      "state": "candidate",
+      "state": "hold",
       "risk": "medium",
       "verified_at": "2026-10-01",
       "proposed_rule": "||agkn.com^$third-party",
-      "reason": "Present in the current EasyPrivacy general tracking-server list.",
-      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"],
+      "reason": "Confirmed in EasyPrivacy and AdGuard tracking lists, but AdGuard contains a site-specific compatibility allow rule for an agkn.com resource.",
+      "promotion_blocker": "Known site-specific allow exception requires breakage analysis before stable promotion.",
+      "sources": [
+        "https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt",
+        "https://github.com/AdguardTeam/AdguardFilters/blob/master/SpywareFilter/sections/tracking_servers.txt",
+        "https://github.com/AdguardTeam/AdguardFilters/blob/master/SpywareFilter/sections/allowlist.txt"
+      ],
+      "exception_review": {
+        "checked_at": "2026-10-01",
+        "known_exception": true,
+        "summary": "AdGuard contains a site-specific allow rule for js.agkn.com on netd.com."
+      },
       "evidence": [
         {
           "kind": "github_file_snapshot",
+          "role": "classification",
+          "source_family": "easylist",
           "repository": "easylist/easylist",
           "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
-          "commit": "de1806065e53df5732bd048688a9b2800fa69a73",
-          "url": "https://github.com/easylist/easylist/blob/de1806065e53df5732bd048688a9b2800fa69a73/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "4f3f9cb97f86ee67db3c7cf33e8d786c822f5804",
+          "url": "https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "checked_at": "2026-10-01"
+        },
+        {
+          "kind": "github_file_snapshot",
+          "role": "classification",
+          "source_family": "adguard",
+          "repository": "AdguardTeam/AdguardFilters",
+          "path": "SpywareFilter/sections/tracking_servers.txt",
+          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt",
+          "checked_at": "2026-10-01"
+        },
+        {
+          "kind": "github_file_snapshot",
+          "role": "exception",
+          "source_family": "adguard",
+          "repository": "AdguardTeam/AdguardFilters",
+          "path": "SpywareFilter/sections/allowlist.txt",
+          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/allowlist.txt",
           "checked_at": "2026-10-01"
         }
       ]
@@ -66,19 +161,51 @@
     {
       "domain": "bounceexchange.com",
       "category": "tracking",
-      "state": "candidate",
+      "state": "hold",
       "risk": "medium",
       "verified_at": "2026-10-01",
       "proposed_rule": "||bounceexchange.com^$third-party",
-      "reason": "Present in the current EasyPrivacy general tracking-server list; may affect site engagement widgets, so it is not promoted automatically.",
-      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"],
+      "reason": "Confirmed in EasyPrivacy and AdGuard tracking lists, but uAssets contains an explicit site-specific unbreak exception for bounceexchange.com.",
+      "promotion_blocker": "Known uAssets unbreak exception requires site-breakage analysis before stable promotion.",
+      "sources": [
+        "https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt",
+        "https://github.com/AdguardTeam/AdguardFilters/blob/master/SpywareFilter/sections/tracking_servers.txt",
+        "https://github.com/uBlockOrigin/uAssets/blob/master/filters/unbreak.txt"
+      ],
+      "exception_review": {
+        "checked_at": "2026-10-01",
+        "known_exception": true,
+        "summary": "uAssets unbreak contains an allow rule for bounceexchange.com on thelaundress.com."
+      },
       "evidence": [
         {
           "kind": "github_file_snapshot",
+          "role": "classification",
+          "source_family": "easylist",
           "repository": "easylist/easylist",
           "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
-          "commit": "de1806065e53df5732bd048688a9b2800fa69a73",
-          "url": "https://github.com/easylist/easylist/blob/de1806065e53df5732bd048688a9b2800fa69a73/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "4f3f9cb97f86ee67db3c7cf33e8d786c822f5804",
+          "url": "https://github.com/easylist/easylist/blob/4f3f9cb97f86ee67db3c7cf33e8d786c822f5804/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "checked_at": "2026-10-01"
+        },
+        {
+          "kind": "github_file_snapshot",
+          "role": "classification",
+          "source_family": "adguard",
+          "repository": "AdguardTeam/AdguardFilters",
+          "path": "SpywareFilter/sections/tracking_servers.txt",
+          "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380",
+          "url": "https://github.com/AdguardTeam/AdguardFilters/blob/55e75e4a8817ed1a250382ce7ddb77c1e541f380/SpywareFilter/sections/tracking_servers.txt",
+          "checked_at": "2026-10-01"
+        },
+        {
+          "kind": "github_file_snapshot",
+          "role": "exception",
+          "source_family": "ublock",
+          "repository": "uBlockOrigin/uAssets",
+          "path": "filters/unbreak.txt",
+          "commit": "907de3b6bb763e908f97c087b18585387219078a",
+          "url": "https://github.com/uBlockOrigin/uAssets/blob/907de3b6bb763e908f97c087b18585387219078a/filters/unbreak.txt",
           "checked_at": "2026-10-01"
         }
       ]
@@ -90,15 +217,22 @@
       "risk": "high",
       "verified_at": "2026-10-01",
       "proposed_rule": null,
-      "reason": "Advertising domain with documented exception handling in AdGuard; broad promotion is held pending site-breakage testing.",
+      "reason": "Advertising domain with documented exception handling in AdGuard; broad promotion remains blocked pending targeted breakage testing.",
       "promotion_blocker": "Documented CNAME-related exception indicates broad blocking can affect legitimate requests.",
       "sources": [
         "https://github.com/AdguardTeam/AdGuardSDNSFilter/blob/master/Filters/exceptions.txt",
         "https://github.com/uBlockOrigin/uAssets/issues/17437"
       ],
+      "exception_review": {
+        "checked_at": "2026-10-01",
+        "known_exception": true,
+        "summary": "AdGuard SDNS documents a CNAME-related exception; uAssets also records real-world blocking of amazon-adsystem.com in an ad issue."
+      },
       "evidence": [
         {
           "kind": "github_file_snapshot",
+          "role": "exception",
+          "source_family": "adguard",
           "repository": "AdguardTeam/AdGuardSDNSFilter",
           "path": "Filters/exceptions.txt",
           "commit": "4a991ef85f9ae63c38f8f32f7996fa85e9d5cfb2",
@@ -107,6 +241,8 @@
         },
         {
           "kind": "github_issue",
+          "role": "exception",
+          "source_family": "ublock",
           "url": "https://github.com/uBlockOrigin/uAssets/issues/17437",
           "checked_at": "2026-10-01"
         }
