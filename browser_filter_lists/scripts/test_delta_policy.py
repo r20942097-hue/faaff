@@ -45,6 +45,28 @@ class DeltaPolicyTests(unittest.TestCase):
         errors = delta.validate_snapshot_inventory(inventory, audit["baseline"])
         self.assertTrue(any("blob_sha" in error for error in errors))
 
+    def test_source_inventory_rejects_non_object_root(self):
+        self.assertEqual(
+            delta.validate_snapshot_inventory([], {}),
+            ["snapshot inventory: root must be an object"],
+        )
+
+    def test_source_inventory_rejects_loose_commit_timestamp(self):
+        manifest = delta.load_json(delta.MANIFEST_PATH)
+        audit = delta.load_json(delta.ROOT / manifest["upstream_audit"])
+        inventory = copy.deepcopy(delta.load_json(delta.ROOT / manifest["snapshot_inventory"]))
+        inventory["snapshots"][0]["commit_date"] = "2026-10-01garbage"
+        errors = delta.validate_snapshot_inventory(inventory, audit["baseline"])
+        self.assertTrue(any("commit_date" in error for error in errors))
+
+    def test_source_inventory_rejects_boolean_size(self):
+        manifest = delta.load_json(delta.MANIFEST_PATH)
+        audit = delta.load_json(delta.ROOT / manifest["upstream_audit"])
+        inventory = copy.deepcopy(delta.load_json(delta.ROOT / manifest["snapshot_inventory"]))
+        inventory["snapshots"][0]["files"][0]["size_bytes"] = True
+        errors = delta.validate_snapshot_inventory(inventory, audit["baseline"])
+        self.assertTrue(any("size_bytes" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()
