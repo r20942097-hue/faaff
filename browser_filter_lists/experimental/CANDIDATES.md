@@ -2,8 +2,8 @@
 
 > Generated from `experimental/candidates.json`. These entries are inactive and are not subscription rules.
 
-Last verified: `2026-10-01`  
-Evidence freshness limit: `45 days`  
+Last verified: `2026-10-01`\
+Evidence freshness limit: `45 days`\
 Queue: `0 candidate`, `4 hold`, `1 rejected`
 
 | Domain | Category | State | Risk | Verified | Reason |
