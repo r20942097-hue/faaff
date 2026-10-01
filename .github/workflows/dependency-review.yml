@@ -1,17 +1,23 @@
 name: Dependency Review
 
+# Repository-native Dependency Review is currently unsupported for this private
+# repository configuration. Keep this workflow manual-only so an unsupported
+# capability is not confused with a vulnerability finding or used as a PR gate.
 on:
-  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  review:
+  capability-status:
     runs-on: ubuntu-latest
     steps:
-      - name: Dependency review
-        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
-        with:
-          fail-on-severity: high
+      - name: Report unsupported capability
+        shell: bash
+        run: |
+          echo "::error title=Dependency Review NOT_RUN::Repository-native Dependency Review is unsupported for the current repository configuration. This is not a vulnerability scan result."
+          echo "status=NOT_RUN"
+          echo "capability=UNSUPPORTED"
+          echo "vulnerability_posture=UNKNOWN"
+          exit 1

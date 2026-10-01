@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "gate_c_status": "NOT_RUN",
+  "dependency_resolution": {
+    "status": "NOT_RUN",
+    "resolver": null,
+    "resolver_version": null,
+    "lock_artifact": null,
+    "lock_sha256": null,
+    "package_count": 0
+  },
+  "sbom": {
+    "status": "NOT_RUN",
+    "format": "CycloneDX",
+    "spec_version": "1.6",
+    "artifact": null,
+    "sha256": null,
+    "covered_product_ids": []
+  },
+  "scanner_results": [],
+  "policy_evaluation": {
+    "status": "NOT_RUN",
+    "policy_id": null,
+    "policy_version": null,
+    "result": "UNKNOWN",
+    "product_results": []
+  },
+  "unknown_not_pass": true
+}

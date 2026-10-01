@@ -1,0 +1,166 @@
+{
+  "baseline_product_count": 7,
+  "current_retrievable_verified": 7,
+  "evidence_date": "2026-10-02",
+  "github_scan_ready": false,
+  "products": [
+    {
+      "actual_sha256": "71562bfa2a5e604e6cb8c03f4a7f8806fd0723323e9a16ee946408e6805b8444",
+      "dependency_declaration_count": 8,
+      "dependency_manifest_count": 1,
+      "expected_sha256": "71562bfa2a5e604e6cb8c03f4a7f8806fd0723323e9a16ee946408e6805b8444",
+      "filename": "ai_orchestrator_v151.zip",
+      "manifests": [
+        {
+          "declarations": [
+            {"group": "project", "raw": "fastapi>=0.100,<1"},
+            {"group": "project", "raw": "pydantic>=2,<3"},
+            {"group": "project", "raw": "uvicorn>=0.20,<1"},
+            {"group": "optional:browser", "raw": "playwright>=1.40"},
+            {"group": "optional:security", "raw": "PyJWT[crypto]>=2,<3"},
+            {"group": "optional:test", "raw": "pytest>=8,<10"},
+            {"group": "optional:test", "raw": "httpx>=0.27,<1"},
+            {"group": "build-system", "raw": "setuptools>=68"}
+          ],
+          "kind": "pyproject.toml",
+          "path": "pyproject.toml"
+        }
+      ],
+      "product_id": "ai-orchestrator",
+      "product_name": "AI Orchestrator",
+      "sha256_match": true,
+      "size": 626587,
+      "source_file_id": "file_00000000177c81f58b6fe801377809d7",
+      "source_surface": "chatgpt-library",
+      "version": "1.51",
+      "zip_crc": "PASS"
+    },
+    {
+      "actual_sha256": "802e542fc73b9c5d70e6442778246ff72e325a8672ec199f30e293c0f81a2c35",
+      "dependency_declaration_count": 0,
+      "dependency_manifest_count": 0,
+      "expected_sha256": "802e542fc73b9c5d70e6442778246ff72e325a8672ec199f30e293c0f81a2c35",
+      "filename": "browser-control-v0.3.0.zip",
+      "manifests": [],
+      "product_id": "browser-control",
+      "product_name": "Browser Control",
+      "sha256_match": true,
+      "size": 57534,
+      "source_file_id": "file_00000000ab3c82099a7ca74e367660c7",
+      "source_surface": "chatgpt-library",
+      "version": "0.3.0",
+      "zip_crc": "PASS"
+    },
+    {
+      "actual_sha256": "19b00428657f6efae11aefd705d12110fb016da946cc0eee66a853f828fe1304",
+      "dependency_declaration_count": 0,
+      "dependency_manifest_count": 0,
+      "expected_sha256": "19b00428657f6efae11aefd705d12110fb016da946cc0eee66a853f828fe1304",
+      "filename": "suite-foundation-v0.10.zip",
+      "manifests": [],
+      "product_id": "shared-foundation",
+      "product_name": "Shared Foundation",
+      "sha256_match": true,
+      "size": 20907,
+      "source_file_id": "file_0000000095b081f5be92dd26e39d36ce",
+      "source_surface": "chatgpt-library",
+      "version": "0.10",
+      "zip_crc": "PASS"
+    },
+    {
+      "actual_sha256": "b64d75ce606bac493929887747ca6a4574fa49bb6b9da87b49d8cbd40a1bdbae",
+      "dependency_declaration_count": 0,
+      "dependency_manifest_count": 0,
+      "expected_sha256": "b64d75ce606bac493929887747ca6a4574fa49bb6b9da87b49d8cbd40a1bdbae",
+      "filename": "media-download-tools-v0.1.0.zip",
+      "manifests": [],
+      "product_id": "media-download-tools",
+      "product_name": "Media / Download Tools",
+      "sha256_match": true,
+      "size": 5680,
+      "source_file_id": "file_000000002710820980b8e48923ef825f",
+      "source_surface": "chatgpt-library",
+      "version": "0.1.0",
+      "zip_crc": "PASS"
+    },
+    {
+      "actual_sha256": "bc5391e02c5916aacfb9c7fa85aae1679a90efb515d1cc1ca718901a70559904",
+      "dependency_declaration_count": 0,
+      "dependency_manifest_count": 0,
+      "expected_sha256": "bc5391e02c5916aacfb9c7fa85aae1679a90efb515d1cc1ca718901a70559904",
+      "filename": "suite-workspace-v0.30.zip",
+      "manifests": [],
+      "product_id": "universal-control-suite",
+      "product_name": "Universal Control Suite",
+      "sha256_match": true,
+      "size": 76009,
+      "source_file_id": "file_00000000d4a08209a1b60cfeda0986ef",
+      "source_surface": "chatgpt-library",
+      "version": "0.30",
+      "zip_crc": "PASS"
+    },
+    {
+      "actual_sha256": "83deff3b04e7fb79052097c81326d5a5e62dac8bf7b32988e87f47bb41382f1c",
+      "dependency_declaration_count": 0,
+      "dependency_manifest_count": 0,
+      "expected_sha256": "83deff3b04e7fb79052097c81326d5a5e62dac8bf7b32988e87f47bb41382f1c",
+      "filename": "windows-control-v0.1.8.zip",
+      "manifests": [],
+      "product_id": "windows-control",
+      "product_name": "Windows Control",
+      "sha256_match": true,
+      "size": 11717,
+      "source_file_id": "file_00000000204481f5a82db9910e9faf2b",
+      "source_surface": "chatgpt-library",
+      "version": "0.1.8",
+      "zip_crc": "PASS"
+    },
+    {
+      "actual_sha256": "69a6358f3f5581318cf84a35133c40e008e9e12e239dcab4c843ccc0ce018fcd",
+      "current_retrieval_status": "VERIFIED_EXTERNAL",
+      "current_sha256_reverification": "PASS",
+      "dependency_declaration_count": 2,
+      "dependency_manifest_count": 2,
+      "expected_sha256": "69a6358f3f5581318cf84a35133c40e008e9e12e239dcab4c843ccc0ce018fcd",
+      "expected_size": 502993,
+      "filename": "Universal-Live-Watcher-v6.49.12.zip",
+      "historical_evidence_status": "PREVIOUSLY_VERIFIED",
+      "lockfile_count": 0,
+      "manifests": [
+        {
+          "declarations": [
+            {"group": "build-system", "raw": "setuptools>=76"},
+            {"group": "build-system", "raw": "wheel"}
+          ],
+          "kind": "pyproject.toml",
+          "path": "Universal-Live-Watcher-v6.49.12/pyproject.toml"
+        },
+        {
+          "declarations": [],
+          "kind": "requirements.txt",
+          "path": "Universal-Live-Watcher-v6.49.12/requirements.txt"
+        }
+      ],
+      "product_id": "universal-live-watcher",
+      "product_name": "Universal Live Watcher",
+      "sha256_match": true,
+      "size": 502993,
+      "source_file_id": "file_00000000b4e081f5a15860443a341b25",
+      "source_surface": "chatgpt-library",
+      "version": "6.49.12",
+      "zip_crc": "PASS",
+      "zip_entry_count": 260,
+      "zip_path_safety": "PASS",
+      "zip_symlink_count": 0,
+      "zip_uncompressed_size": 1656121
+    }
+  ],
+  "schema_version": 1,
+  "scope": "environment-scoped re-verification of currently retrievable ChatGPT Library artifacts; not reproducible by GitHub Actions without artifact ingress",
+  "security_interpretation": {
+    "complete_dependency_bearing_source_scan": "NOT_RUN",
+    "reason": "All seven baseline artifacts were reverified in the current Library environment, but the GitHub runner still has no artifact ingress and no resolved dependency graph or vulnerability database matching was performed.",
+    "unknown_not_pass": true
+  },
+  "vulnerability_posture": "UNKNOWN"
+}
