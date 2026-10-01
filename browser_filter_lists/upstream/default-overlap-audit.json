@@ -1,0 +1,84 @@
+{
+  "schema": "browser-filter-upstream-audit/v1",
+  "checked_at": "2026-10-01",
+  "purpose": "Prevent the recommended delta list from duplicating current uBlock Origin default coverage.",
+  "baseline": {
+    "ubo_default_assets": [
+      "ublock-filters",
+      "ublock-badware",
+      "ublock-privacy",
+      "ublock-abuse",
+      "ublock-unbreak",
+      "easylist",
+      "easyprivacy",
+      "urlhaus-1",
+      "plowe-0"
+    ],
+    "easylist": {
+      "version": "202610011127",
+      "commit": "f72f869a83d8c2bff8997fda8cc479e99e1e3212",
+      "last_modified": "2026-10-01T11:27:00Z"
+    },
+    "easyprivacy": {
+      "version": "202610011201",
+      "commit": "a8dc592f535b1c6d040213071d2febec6436c30e",
+      "last_modified": "2026-10-01T12:01:00Z"
+    },
+    "peter_lowe": {
+      "last_modified": "2026-09-20T09:44:39Z",
+      "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=adblockplus&mimetype=plaintext"
+    },
+    "uassets": {
+      "commit": "907de3b6bb763e908f97c087b18585387219078a"
+    },
+    "adguard_tracking": {
+      "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380"
+    }
+  },
+  "legacy_rules": [
+    {"domain":"doubleclick.net","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"googlesyndication.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"googleadservices.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"adservice.google.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"adnxs.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"criteo.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"taboola.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"outbrain.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"rubiconproject.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"openx.net","legacy_list":"ads","status":"default-covered","default_sources":["easylist","plowe"]},
+    {"domain":"pubmatic.com","legacy_list":"ads","status":"default-covered","default_sources":["easylist"]},
+    {"domain":"adsrvr.org","legacy_list":"ads","status":"default-covered","default_sources":["easylist","plowe"]},
+    {"domain":"smartadserver.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"casalemedia.com","legacy_list":"ads","status":"default-covered","default_sources":["easylist","plowe"]},
+    {"domain":"sharethrough.com","legacy_list":"ads","status":"default-covered","default_sources":["easylist","plowe"]},
+    {"domain":"yieldmo.com","legacy_list":"ads","status":"default-covered","default_sources":["easylist","plowe"]},
+    {"domain":"adform.net","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"google-analytics.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy","plowe"]},
+    {"domain":"analytics.google.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy"]},
+    {"domain":"scorecardresearch.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy","plowe"]},
+    {"domain":"quantserve.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy","plowe"]},
+    {"domain":"hotjar.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy","plowe"]},
+    {"domain":"fullstory.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy","plowe"]},
+    {"domain":"mixpanel.com","legacy_list":"tracking","status":"default-covered","default_sources":["plowe"]},
+    {"domain":"clarity.ms","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy"]},
+    {"domain":"amplitude.com","legacy_list":"tracking","status":"overbroad-vs-default","default_sources":["easyprivacy","plowe"],"note":"Current default sources use narrower subdomain/path blocking plus compatibility exceptions; a root-domain block is not suitable for the delta profile."}
+  ],
+  "canary_gaps": [
+    {
+      "domain": "trackhaven.com",
+      "status": "canary",
+      "category": "tracking",
+      "default_coverage": "absent-in-reviewed-default-sources",
+      "classification_sources": ["adguard-tracking", "primary-site"],
+      "known_exception": false,
+      "checked_at": "2026-10-01",
+      "note": "Current AdGuard tracking servers classify the domain; the service's own site identifies it as analytics. No match was found in the reviewed EasyPrivacy, Peter Lowe, uAssets unbreak, or AdGuard spyware allowlist sources."
+    }
+  ],
+  "research_gaps": [
+    {"domain":"bidderstack.com","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches, but independent classification evidence is not yet strong enough."},
+    {"domain":"targetrtb.com","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches, but independent classification evidence is not yet strong enough."},
+    {"domain":"rtbscale.com","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches; secondary evidence indicates RTB/ad-tech use but is not strong enough for stable promotion."},
+    {"domain":"northstar.cr","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches; secondary evidence indicates analytics use but is not strong enough for stable promotion."}
+  ]
+}
