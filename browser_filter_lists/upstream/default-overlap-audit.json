@@ -16,59 +16,281 @@
     ],
     "easylist": {
       "version": "202610011127",
-      "commit": "f72f869a83d8c2bff8997fda8cc479e99e1e3212",
+      "commit": "f1f8051be490ba07b5c2214298ad04026f4e7663",
       "last_modified": "2026-10-01T11:27:00Z"
     },
     "easyprivacy": {
       "version": "202610011201",
-      "commit": "a8dc592f535b1c6d040213071d2febec6436c30e",
+      "commit": "f1f8051be490ba07b5c2214298ad04026f4e7663",
       "last_modified": "2026-10-01T12:01:00Z"
     },
     "peter_lowe": {
       "last_modified": "2026-09-20T09:44:39Z",
-      "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=adblockplus&mimetype=plaintext"
+      "url": "https://pgl.yoyo.org/adservers/serverlist.php?hostformat=adblockplus&mimetype=plaintext",
+      "mirror_commit": "6d71f53af6fcbee8c36e89ba705b7e9a24badfae",
+      "direct_retrieval": "NOT_VERIFIED"
     },
     "uassets": {
-      "commit": "907de3b6bb763e908f97c087b18585387219078a"
+      "commit": "6d71f53af6fcbee8c36e89ba705b7e9a24badfae"
     },
     "adguard_tracking": {
-      "commit": "55e75e4a8817ed1a250382ce7ddb77c1e541f380"
+      "commit": "1ad282a5134fde60e6943e777b74ea9ec5abd161"
     }
   },
   "legacy_rules": [
-    {"domain":"doubleclick.net","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"googlesyndication.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"googleadservices.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"adservice.google.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"adnxs.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"criteo.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"taboola.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"outbrain.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"rubiconproject.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"openx.net","legacy_list":"ads","status":"default-covered","default_sources":["easylist","plowe"]},
-    {"domain":"pubmatic.com","legacy_list":"ads","status":"default-covered","default_sources":["easylist"]},
-    {"domain":"adsrvr.org","legacy_list":"ads","status":"default-covered","default_sources":["easylist","plowe"]},
-    {"domain":"smartadserver.com","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"casalemedia.com","legacy_list":"ads","status":"default-covered","default_sources":["easylist","plowe"]},
-    {"domain":"sharethrough.com","legacy_list":"ads","status":"default-covered","default_sources":["easylist","plowe"]},
-    {"domain":"yieldmo.com","legacy_list":"ads","status":"default-covered","default_sources":["easylist","plowe"]},
-    {"domain":"adform.net","legacy_list":"ads","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"google-analytics.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy","plowe"]},
-    {"domain":"analytics.google.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy"]},
-    {"domain":"scorecardresearch.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy","plowe"]},
-    {"domain":"quantserve.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy","plowe"]},
-    {"domain":"hotjar.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy","plowe"]},
-    {"domain":"fullstory.com","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy","plowe"]},
-    {"domain":"mixpanel.com","legacy_list":"tracking","status":"default-covered","default_sources":["plowe"]},
-    {"domain":"clarity.ms","legacy_list":"tracking","status":"default-covered","default_sources":["easyprivacy"]},
-    {"domain":"amplitude.com","legacy_list":"tracking","status":"overbroad-vs-default","default_sources":["easyprivacy","plowe"],"note":"Current default sources use narrower subdomain/path blocking plus compatibility exceptions; a root-domain block is not suitable for the delta profile."}
+    {
+      "domain": "doubleclick.net",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "googlesyndication.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "googleadservices.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "adservice.google.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "adnxs.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "criteo.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "taboola.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "outbrain.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "rubiconproject.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "openx.net",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "easylist",
+        "plowe"
+      ]
+    },
+    {
+      "domain": "pubmatic.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "easylist"
+      ]
+    },
+    {
+      "domain": "adsrvr.org",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "easylist",
+        "plowe"
+      ]
+    },
+    {
+      "domain": "smartadserver.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "casalemedia.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "easylist",
+        "plowe"
+      ]
+    },
+    {
+      "domain": "sharethrough.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "easylist",
+        "plowe"
+      ]
+    },
+    {
+      "domain": "yieldmo.com",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "easylist",
+        "plowe"
+      ]
+    },
+    {
+      "domain": "adform.net",
+      "legacy_list": "ads",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "google-analytics.com",
+      "legacy_list": "tracking",
+      "status": "default-covered",
+      "default_sources": [
+        "easyprivacy",
+        "plowe"
+      ]
+    },
+    {
+      "domain": "analytics.google.com",
+      "legacy_list": "tracking",
+      "status": "default-covered",
+      "default_sources": [
+        "easyprivacy"
+      ]
+    },
+    {
+      "domain": "scorecardresearch.com",
+      "legacy_list": "tracking",
+      "status": "default-covered",
+      "default_sources": [
+        "easyprivacy",
+        "plowe"
+      ]
+    },
+    {
+      "domain": "quantserve.com",
+      "legacy_list": "tracking",
+      "status": "default-covered",
+      "default_sources": [
+        "easyprivacy",
+        "plowe"
+      ]
+    },
+    {
+      "domain": "hotjar.com",
+      "legacy_list": "tracking",
+      "status": "default-covered",
+      "default_sources": [
+        "easyprivacy",
+        "plowe"
+      ]
+    },
+    {
+      "domain": "fullstory.com",
+      "legacy_list": "tracking",
+      "status": "default-covered",
+      "default_sources": [
+        "easyprivacy",
+        "plowe"
+      ]
+    },
+    {
+      "domain": "mixpanel.com",
+      "legacy_list": "tracking",
+      "status": "default-covered",
+      "default_sources": [
+        "plowe"
+      ]
+    },
+    {
+      "domain": "clarity.ms",
+      "legacy_list": "tracking",
+      "status": "default-covered",
+      "default_sources": [
+        "easyprivacy"
+      ]
+    },
+    {
+      "domain": "amplitude.com",
+      "legacy_list": "tracking",
+      "status": "overbroad-vs-default",
+      "default_sources": [
+        "easyprivacy",
+        "plowe"
+      ],
+      "note": "Current default sources use narrower subdomain/path blocking plus compatibility exceptions; a root-domain block is not suitable for the delta profile."
+    }
   ],
   "canary_gaps": [],
   "research_gaps": [
-    {"domain":"trackhaven.com","category":"tracking","state":"research","reason":"AdGuard classifies the domain as tracking and the service identifies itself as privacy-focused web analytics, but that does not independently establish privacy-invasive behavior. Keep out of canary/stable until stronger independent evidence exists."},
-    {"domain":"bidderstack.com","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches, but independent classification evidence is not yet strong enough."},
-    {"domain":"targetrtb.com","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches, but independent classification evidence is not yet strong enough."},
-    {"domain":"rtbscale.com","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches; public descriptions indicate RTB/programmatic advertising, but current evidence is not authoritative enough for canary promotion."},
-    {"domain":"northstar.cr","category":"tracking","state":"research","reason":"Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches; public evidence suggests analytics use, but current evidence is not sufficient to classify it as privacy-invasive tracking."}
-  ]
+    {
+      "domain": "trackhaven.com",
+      "category": "tracking",
+      "state": "research",
+      "reason": "AdGuard classifies the domain as tracking and the service identifies itself as privacy-focused web analytics, but that does not independently establish privacy-invasive behavior. Keep out of canary/stable until stronger independent evidence exists."
+    },
+    {
+      "domain": "bidderstack.com",
+      "category": "tracking",
+      "state": "research",
+      "reason": "Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches, but independent classification evidence is not yet strong enough."
+    },
+    {
+      "domain": "targetrtb.com",
+      "category": "tracking",
+      "state": "research",
+      "reason": "Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches, but independent classification evidence is not yet strong enough."
+    },
+    {
+      "domain": "rtbscale.com",
+      "category": "tracking",
+      "state": "research",
+      "reason": "Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches; public descriptions indicate RTB/programmatic advertising, but current evidence is not authoritative enough for canary promotion."
+    },
+    {
+      "domain": "northstar.cr",
+      "category": "tracking",
+      "state": "research",
+      "reason": "Seen in current AdGuard tracking servers and absent from reviewed EasyPrivacy/Peter Lowe matches; public evidence suggests analytics use, but current evidence is not sufficient to classify it as privacy-invasive tracking."
+    }
+  ],
+  "snapshot_inventory": "current-source-snapshot-inventory.json"
 }
