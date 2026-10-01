@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-10-01 — candidate evidence hardening
+
+- Added a 45-day candidate evidence freshness policy to `manifest.json`.
+- Added per-candidate verification dates and immutable GitHub evidence snapshots.
+- Pinned EasyPrivacy evidence to repository snapshot `de1806065e53df5732bd048688a9b2800fa69a73`.
+- Pinned the AdGuard exception evidence to snapshot `4a991ef85f9ae63c38f8f32f7996fa85e9d5cfb2`.
+- Added a dedicated evidence validator for dates, snapshot URL integrity, commit/path matching, and stale evidence.
+- Added evidence-validator regression tests.
+- Added generated `experimental/CANDIDATES.md` and CI synchronization checks.
+- Added a weekly scheduled evidence freshness check.
+- Kept stable active rules unchanged at 17 ad rules and 9 optional tracking rules.
+
 ## 2026-10-01 — validation and staging hardening
 
 - Added `manifest.json` as the canonical stable-list registry.

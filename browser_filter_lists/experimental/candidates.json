@@ -8,48 +8,108 @@
       "category": "tracking",
       "state": "candidate",
       "risk": "medium",
+      "verified_at": "2026-10-01",
       "proposed_rule": "||bidswitch.net^$third-party",
       "reason": "Present in the current EasyPrivacy general tracking-server list.",
-      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"]
+      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"],
+      "evidence": [
+        {
+          "kind": "github_file_snapshot",
+          "repository": "easylist/easylist",
+          "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "de1806065e53df5732bd048688a9b2800fa69a73",
+          "url": "https://github.com/easylist/easylist/blob/de1806065e53df5732bd048688a9b2800fa69a73/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "checked_at": "2026-10-01"
+        }
+      ]
     },
     {
       "domain": "bluekai.com",
       "category": "tracking",
       "state": "candidate",
       "risk": "medium",
+      "verified_at": "2026-10-01",
       "proposed_rule": "||bluekai.com^$third-party",
-      "reason": "Present near other tracking servers in the current EasyPrivacy general tracking-server list.",
-      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"]
+      "reason": "Present in the current EasyPrivacy general tracking-server list.",
+      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"],
+      "evidence": [
+        {
+          "kind": "github_file_snapshot",
+          "repository": "easylist/easylist",
+          "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "de1806065e53df5732bd048688a9b2800fa69a73",
+          "url": "https://github.com/easylist/easylist/blob/de1806065e53df5732bd048688a9b2800fa69a73/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "checked_at": "2026-10-01"
+        }
+      ]
     },
     {
       "domain": "agkn.com",
       "category": "tracking",
       "state": "candidate",
       "risk": "medium",
+      "verified_at": "2026-10-01",
       "proposed_rule": "||agkn.com^$third-party",
       "reason": "Present in the current EasyPrivacy general tracking-server list.",
-      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"]
+      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"],
+      "evidence": [
+        {
+          "kind": "github_file_snapshot",
+          "repository": "easylist/easylist",
+          "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "de1806065e53df5732bd048688a9b2800fa69a73",
+          "url": "https://github.com/easylist/easylist/blob/de1806065e53df5732bd048688a9b2800fa69a73/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "checked_at": "2026-10-01"
+        }
+      ]
     },
     {
       "domain": "bounceexchange.com",
       "category": "tracking",
       "state": "candidate",
       "risk": "medium",
+      "verified_at": "2026-10-01",
       "proposed_rule": "||bounceexchange.com^$third-party",
       "reason": "Present in the current EasyPrivacy general tracking-server list; may affect site engagement widgets, so it is not promoted automatically.",
-      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"]
+      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"],
+      "evidence": [
+        {
+          "kind": "github_file_snapshot",
+          "repository": "easylist/easylist",
+          "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
+          "commit": "de1806065e53df5732bd048688a9b2800fa69a73",
+          "url": "https://github.com/easylist/easylist/blob/de1806065e53df5732bd048688a9b2800fa69a73/easyprivacy/easyprivacy_trackingservers_general.txt",
+          "checked_at": "2026-10-01"
+        }
+      ]
     },
     {
       "domain": "amazon-adsystem.com",
       "category": "ads",
       "state": "hold",
       "risk": "high",
+      "verified_at": "2026-10-01",
       "proposed_rule": null,
       "reason": "Advertising domain with documented exception handling in AdGuard; broad promotion is held pending site-breakage testing.",
       "promotion_blocker": "Documented CNAME-related exception indicates broad blocking can affect legitimate requests.",
       "sources": [
         "https://github.com/AdguardTeam/AdGuardSDNSFilter/blob/master/Filters/exceptions.txt",
         "https://github.com/uBlockOrigin/uAssets/issues/17437"
+      ],
+      "evidence": [
+        {
+          "kind": "github_file_snapshot",
+          "repository": "AdguardTeam/AdGuardSDNSFilter",
+          "path": "Filters/exceptions.txt",
+          "commit": "4a991ef85f9ae63c38f8f32f7996fa85e9d5cfb2",
+          "url": "https://github.com/AdguardTeam/AdGuardSDNSFilter/blob/4a991ef85f9ae63c38f8f32f7996fa85e9d5cfb2/Filters/exceptions.txt",
+          "checked_at": "2026-10-01"
+        },
+        {
+          "kind": "github_issue",
+          "url": "https://github.com/uBlockOrigin/uAssets/issues/17437",
+          "checked_at": "2026-10-01"
+        }
       ]
     }
   ]

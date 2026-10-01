@@ -9,6 +9,8 @@ on:
     paths:
       - "browser_filter_lists/**"
       - ".github/workflows/validate-browser-filter-lists.yml"
+  schedule:
+    - cron: "17 3 * * 1"
 
 permissions:
   contents: read
@@ -21,9 +23,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-      - name: Compile validator
+      - name: Compile validators
         run: python -m compileall -q browser_filter_lists/scripts
-      - name: Run regression tests
+      - name: Run stable-list regression tests
         run: python browser_filter_lists/scripts/test_validator.py
+      - name: Run evidence regression tests
+        run: python browser_filter_lists/scripts/test_evidence.py
       - name: Validate published lists
         run: python browser_filter_lists/scripts/validate_filters.py
+      - name: Validate candidate evidence freshness
+        run: python browser_filter_lists/scripts/validate_candidate_evidence.py
+      - name: Check generated candidate report
+        run: python browser_filter_lists/scripts/render_candidate_report.py --check

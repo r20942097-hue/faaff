@@ -46,9 +46,13 @@ Canonical list metadata and expected rule counts are defined in `manifest.json`.
 
 ## Experimental candidates
 
-`experimental/candidates.json` is a review queue, not a subscribable filter list. Entries there are inactive until they are explicitly promoted to a stable list.
+`experimental/candidates.json` is the canonical review queue, not a subscribable filter list. Entries there are inactive until they are explicitly promoted to a stable list.
 
-Candidates record category, risk, proposed rule, evidence sources, and any promotion blocker. High-risk candidates remain on hold rather than being silently added to the stable list.
+Candidates record category, risk, proposed rule, live source links, verification dates, immutable evidence snapshots, and any promotion blocker. File-based evidence is pinned to an exact Git commit so later source changes cannot silently rewrite the historical basis for a candidate.
+
+`experimental/CANDIDATES.md` is a generated human-readable view of the same queue. CI verifies that the report is exactly synchronized with the JSON source of truth.
+
+Candidate evidence currently expires after 45 days. A weekly GitHub Actions run checks freshness even when no filter change is submitted. Stale evidence must be reviewed again before it can be used for promotion.
 
 ## Updates
 
@@ -62,7 +66,10 @@ Run:
 
 ```bash
 python browser_filter_lists/scripts/test_validator.py
+python browser_filter_lists/scripts/test_evidence.py
 python browser_filter_lists/scripts/validate_filters.py
+python browser_filter_lists/scripts/validate_candidate_evidence.py
+python browser_filter_lists/scripts/render_candidate_report.py --check
 ```
 
-GitHub Actions runs compilation, regression tests, and full validation on relevant pushes and pull requests. Validation checks manifest integrity, required metadata, stable rule counts and safety caps, duplicate rules and hostnames, path safety, hostname validity, cross-list duplicates, candidate evidence fields, and the conservative third-party-only rule policy.
+GitHub Actions runs compilation, regression tests, stable-list validation, candidate-evidence freshness validation, and generated-report consistency checks on relevant pushes and pull requests, plus a weekly scheduled evidence check.
