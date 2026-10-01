@@ -1,0 +1,25 @@
+{
+  "schema": "browser-filter-lists/v1",
+  "policy_version": 1,
+  "homepage": "https://github.com/r20942097-hue/faaff/tree/main/browser_filter_lists",
+  "raw_base": "https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters",
+  "stable_lists": [
+    {
+      "id": "ads",
+      "path": "filters/universal-web-ad-filter.txt",
+      "title": "Universal Web Ad Filter (Supplement)",
+      "optional": false,
+      "expected_rule_count": 17,
+      "max_rule_count": 60
+    },
+    {
+      "id": "tracking",
+      "path": "filters/universal-web-tracking-filter.txt",
+      "title": "Universal Web Tracking Filter (Optional)",
+      "optional": true,
+      "expected_rule_count": 9,
+      "max_rule_count": 40
+    }
+  ],
+  "candidate_queue": "experimental/candidates.json"
+}

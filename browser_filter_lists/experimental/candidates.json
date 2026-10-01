@@ -1,0 +1,56 @@
+{
+  "schema": "browser-filter-candidates/v1",
+  "observed_at": "2026-10-01",
+  "notes": "Candidates are not active filters. Promotion requires current evidence plus breakage review.",
+  "candidates": [
+    {
+      "domain": "bidswitch.net",
+      "category": "tracking",
+      "state": "candidate",
+      "risk": "medium",
+      "proposed_rule": "||bidswitch.net^$third-party",
+      "reason": "Present in the current EasyPrivacy general tracking-server list.",
+      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"]
+    },
+    {
+      "domain": "bluekai.com",
+      "category": "tracking",
+      "state": "candidate",
+      "risk": "medium",
+      "proposed_rule": "||bluekai.com^$third-party",
+      "reason": "Present near other tracking servers in the current EasyPrivacy general tracking-server list.",
+      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"]
+    },
+    {
+      "domain": "agkn.com",
+      "category": "tracking",
+      "state": "candidate",
+      "risk": "medium",
+      "proposed_rule": "||agkn.com^$third-party",
+      "reason": "Present in the current EasyPrivacy general tracking-server list.",
+      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"]
+    },
+    {
+      "domain": "bounceexchange.com",
+      "category": "tracking",
+      "state": "candidate",
+      "risk": "medium",
+      "proposed_rule": "||bounceexchange.com^$third-party",
+      "reason": "Present in the current EasyPrivacy general tracking-server list; may affect site engagement widgets, so it is not promoted automatically.",
+      "sources": ["https://github.com/easylist/easylist/blob/master/easyprivacy/easyprivacy_trackingservers_general.txt"]
+    },
+    {
+      "domain": "amazon-adsystem.com",
+      "category": "ads",
+      "state": "hold",
+      "risk": "high",
+      "proposed_rule": null,
+      "reason": "Advertising domain with documented exception handling in AdGuard; broad promotion is held pending site-breakage testing.",
+      "promotion_blocker": "Documented CNAME-related exception indicates broad blocking can affect legitimate requests.",
+      "sources": [
+        "https://github.com/AdguardTeam/AdGuardSDNSFilter/blob/master/Filters/exceptions.txt",
+        "https://github.com/uBlockOrigin/uAssets/issues/17437"
+      ]
+    }
+  ]
+}
