@@ -1,66 +1,73 @@
 # Browser Filter Lists
 
-Conservative supplementary filter lists for general web browsing.
+Conservative browser-network filter research and distribution.
 
-## Universal Web Ad Filter
+## Recommended profile: Universal Web Delta Filter
 
-Third-party ad-network blocking only. This is the recommended stable list.
-
-**One-click subscription:**
-
-https://subscribe.adblockplus.org/?location=https%3A%2F%2Fraw.githubusercontent.com%2Fr20942097-hue%2Ffaaff%2Fmain%2Fbrowser_filter_lists%2Ffilters%2Funiversal-web-ad-filter.txt&title=Universal%20Web%20Ad%20Filter
+The recommended list is now **delta-only**: it is intended to contain only vetted third-party hostname rules that are absent from the reviewed uBlock Origin default filter set.
 
 **Direct subscription URL:**
 
-`https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters/universal-web-ad-filter.txt`
+`https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters/universal-web-delta-filter.txt`
 
-## Universal Web Tracking Filter
+As of the 2026-10-01 audit, the recommended delta list intentionally contains **0 active rules**. The previous 17 ad and 9 tracking rules are already covered by current uBO defaults or are too broad for this profile. Zero rules is therefore a valid result, not a failure.
 
-Optional third-party analytics/session-measurement blocking. It can affect analytics, feedback widgets, or embedded site features.
+The reviewed default baseline includes uBO's own default assets together with EasyList, EasyPrivacy, Peter Lowe, and the relevant compatibility/unbreak sources. `upstream/default-overlap-audit.json` records the exact audit basis and pinned commits.
 
-**One-click subscription:**
+## Legacy compatibility lists
 
-https://subscribe.adblockplus.org/?location=https%3A%2F%2Fraw.githubusercontent.com%2Fr20942097-hue%2Ffaaff%2Fmain%2Fbrowser_filter_lists%2Ffilters%2Funiversal-web-tracking-filter.txt&title=Universal%20Web%20Tracking%20Filter
+The older lists remain available for compatibility but are no longer recommended when using current uBlock Origin defaults:
 
-**Direct subscription URL:**
+- `filters/universal-web-ad-filter.txt` — 17 legacy ad-network rules
+- `filters/universal-web-tracking-filter.txt` — 9 legacy tracking rules
 
-`https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters/universal-web-tracking-filter.txt`
+Do not subscribe to the legacy lists merely to increase rule count. Their current value is mainly compatibility/testing, because the audited rules overlap with default coverage or are intentionally narrower upstream.
 
-## Recommended use
+## Canary
 
-Use the ad list together with one maintained general-purpose base list. This repository is a small supplement, not a replacement for EasyList, uBlock filters, AdGuard Base, or another maintained base list.
+`experimental/universal-web-canary-filter.txt` is experimental and must not be used as the normal stable subscription.
 
-Enable the tracking list only if you accept a higher chance of site-feature breakage. When troubleshooting, disable the tracking list first.
+A domain may enter canary only when:
 
-In uBlock Origin, custom lists can also be added manually from **Dashboard → Filter lists → Custom → Import** by pasting a direct subscription URL.
+1. it is absent from the reviewed default uBO sources;
+2. it has current classification evidence;
+3. no reviewed allow/unbreak compatibility exception is known;
+4. it is kept separate from stable;
+5. it completes the configured soak period before stable promotion is even considered.
+
+The current minimum soak is 14 days. Canary metadata lives in `experimental/canary.json`.
+
+## Candidate and evidence policy
+
+`experimental/candidates.json` is the inactive review queue. A candidate cannot remain promotable when it is already covered by the reviewed uBO defaults.
+
+Stable promotion requires:
+
+- no reviewed default overlap;
+- at least two independently maintained classification source families;
+- fresh immutable evidence;
+- current exception review with no known compatibility exception;
+- canary soak;
+- live breakage testing;
+- CI success.
+
+Known allow/unbreak/CNAME exceptions force an entry to `hold` or `rejected`.
+
+Candidate evidence currently expires after 45 days. The upstream-overlap audit is stricter and expires after 7 days, so weekly CI forces the default-set comparison to be refreshed rather than allowing an old delta decision to persist indefinitely.
+
+## Current research
+
+The first delta-canary domain is `trackhaven.com`. It is not stable. It is being kept in canary because current reviewed default sources did not contain it, while AdGuard tracking data and the service's own description identify analytics/tracking use. Promotion is blocked until the canary soak and stronger pinned independent evidence requirements are satisfied.
+
+Additional domains such as `bidderstack.com`, `targetrtb.com`, `rtbscale.com`, and `northstar.cr` remain research-only; they are not active filters.
 
 ## Stable policy
 
-Stable rules are intentionally restricted to third-party hostname network blocks in this form:
+Stable network rules remain restricted to:
 
 `||example.com^$third-party`
 
-The stable lists intentionally avoid broad cosmetic filtering, first-party blocking, cookie-banner hiding, anti-adblock circumvention, paywall bypass rules, URL rewriting, `$document`, and `$all` rules.
-
-Canonical list metadata and expected rule counts are defined in `manifest.json`. See `POLICY.md` for promotion and rollback rules.
-
-## Experimental candidates
-
-`experimental/candidates.json` is the canonical review queue, not a subscribable filter list. Entries there are inactive until they are explicitly promoted to a stable list.
-
-Candidate promotion now requires at least two independently maintained classification source families, a current exception review with no known compatibility exception, fresh immutable evidence, live breakage testing, and CI. Multiple files from the same filter project count as one source family.
-
-Known allow/unbreak/CNAME exceptions force an entry to `hold` or `rejected`. Current review therefore leaves `bidswitch.net` as the only candidate and places `bluekai.com`, `agkn.com`, `bounceexchange.com`, and `amazon-adsystem.com` on hold.
-
-`experimental/CANDIDATES.md` is a generated human-readable view of the same queue. CI verifies that the report is exactly synchronized with the JSON source of truth.
-
-Candidate evidence currently expires after 45 days. A weekly GitHub Actions run checks freshness and promotion gates even when no filter change is submitted.
-
-## Updates
-
-Both stable lists currently declare `Expires: 5 days`. uBlock Origin can automatically refresh subscribed custom lists according to expiration metadata when automatic list updates are enabled.
-
-Keep the `main/browser_filter_lists/filters/...` paths stable so existing subscriptions continue to work.
+The project intentionally avoids broad cosmetic filtering, first-party blocking, cookie-banner hiding, anti-adblock circumvention, paywall bypass, URL rewriting, `$document`, and `$all` in stable lists.
 
 ## Validation
 
@@ -70,10 +77,12 @@ Run:
 python browser_filter_lists/scripts/test_validator.py
 python browser_filter_lists/scripts/test_evidence.py
 python browser_filter_lists/scripts/test_promotion.py
+python browser_filter_lists/scripts/test_delta_policy.py
 python browser_filter_lists/scripts/validate_filters.py
 python browser_filter_lists/scripts/validate_candidate_evidence.py
 python browser_filter_lists/scripts/validate_candidate_promotion.py
+python browser_filter_lists/scripts/validate_delta_policy.py
 python browser_filter_lists/scripts/render_candidate_report.py --check
 ```
 
-GitHub Actions runs compilation, regression tests, stable-list validation, candidate-evidence freshness validation, cross-source promotion gates, and generated-report consistency checks on relevant pushes and pull requests, plus a weekly scheduled check.
+GitHub Actions performs the same checks on relevant pushes and pull requests, plus a weekly scheduled refresh gate.
