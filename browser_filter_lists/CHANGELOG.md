@@ -1,5 +1,18 @@
 # Changelog
 
+## 2026-10-01 — cross-source promotion gates
+
+- Raised candidate policy to version 3.
+- Required at least two independent classification source families before an entry can remain a promotion candidate.
+- Added explicit exception review metadata and CI enforcement.
+- Added evidence roles (`classification` / `exception`) and source-family identities.
+- Rechecked current EasyPrivacy, AdGuard, and uAssets evidence using immutable snapshots.
+- Kept `bidswitch.net` as the only candidate after cross-source confirmation.
+- Moved `bluekai.com`, `agkn.com`, and `bounceexchange.com` to `hold` because maintained allow/unbreak evidence exists.
+- Kept `amazon-adsystem.com` on `hold` because of documented compatibility exceptions.
+- Added a dedicated promotion-gate validator and regression tests.
+- Kept stable active rules unchanged at 17 ad rules and 9 optional tracking rules.
+
 ## 2026-10-01 — candidate evidence hardening
 
 - Added a 45-day candidate evidence freshness policy to `manifest.json`.
