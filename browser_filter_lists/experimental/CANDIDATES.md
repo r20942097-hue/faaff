@@ -4,11 +4,11 @@
 
 Last verified: `2026-10-01`  
 Evidence freshness limit: `45 days`  
-Queue: `1 candidate`, `4 hold`, `0 rejected`
+Queue: `0 candidate`, `4 hold`, `1 rejected`
 
 | Domain | Category | State | Risk | Verified | Reason |
 | --- | --- | --- | --- | --- | --- |
-| bidswitch.net | tracking | candidate | medium | 2026-10-01 | Confirmed in current EasyPrivacy and AdGuard tracking-server lists; no exact allow/unbreak exception was found in the reviewed sources. |
+| bidswitch.net | tracking | rejected | medium | 2026-10-01 | Rejected from the recommended delta profile because current EasyPrivacy already covers bidswitch.net; adding it would duplicate uBlock Origin default coverage. |
 | bluekai.com | tracking | hold | medium | 2026-10-01 | Confirmed in EasyPrivacy and AdGuard tracking lists, but current compatibility allow/unbreak rules show that broad blocking can break specific sites. |
 | agkn.com | tracking | hold | medium | 2026-10-01 | Confirmed in EasyPrivacy and AdGuard tracking lists, but AdGuard contains a site-specific compatibility allow rule for an agkn.com resource. |
 | bounceexchange.com | tracking | hold | medium | 2026-10-01 | Confirmed in EasyPrivacy and AdGuard tracking lists, but uAssets contains an explicit site-specific unbreak exception for bounceexchange.com. |
