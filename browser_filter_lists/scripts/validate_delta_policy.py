@@ -1,6 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 import json
+import re
 import sys
 
 import validate_filters as stable_validator
@@ -8,6 +9,7 @@ import validate_filters as stable_validator
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "manifest.json"
 ALLOWED_LEGACY_STATUSES = {"default-covered", "overbroad-vs-default"}
+COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 
 
 def load_json(path):
@@ -34,9 +36,10 @@ def active_hosts(path):
     return hosts
 
 
-def validate():
+def validate(today=None):
     errors = []
     warnings = []
+    today = today or date.today()
     manifest = load_json(MANIFEST_PATH)
 
     if manifest.get("policy_version") != 4:
@@ -45,6 +48,11 @@ def validate():
         errors.append("manifest.json: recommended_profile must be ubo-default-delta")
     if manifest.get("candidate_default_overlap_forbidden") is not True:
         errors.append("manifest.json: candidate_default_overlap_forbidden must be true")
+
+    audit_max_age = manifest.get("upstream_audit_max_age_days")
+    if not isinstance(audit_max_age, int) or not 1 <= audit_max_age <= 30:
+        errors.append("manifest.json: upstream_audit_max_age_days must be 1..30")
+        return errors, warnings
 
     stable_lists = manifest.get("stable_lists", [])
     recommended = [entry for entry in stable_lists if entry.get("recommended") is True]
@@ -69,6 +77,32 @@ def validate():
     audit = load_json(audit_path)
     if audit.get("schema") != "browser-filter-upstream-audit/v1":
         errors.append(f"{audit_rel}: unsupported schema")
+
+    audit_date = parse_date(audit.get("checked_at"))
+    if audit_date is None:
+        errors.append(f"{audit_rel}: checked_at must use YYYY-MM-DD")
+    elif audit_date > today:
+        errors.append(f"{audit_rel}: checked_at cannot be in the future")
+    elif (today - audit_date).days > audit_max_age:
+        errors.append(
+            f"{audit_rel}: upstream audit is stale ({(today - audit_date).days} days; maximum {audit_max_age})"
+        )
+
+    baseline = audit.get("baseline")
+    if not isinstance(baseline, dict):
+        errors.append(f"{audit_rel}: baseline is required")
+        baseline = {}
+    for key in ["easylist", "easyprivacy", "uassets", "adguard_tracking"]:
+        section = baseline.get(key)
+        if not isinstance(section, dict):
+            errors.append(f"{audit_rel}: baseline.{key} is required")
+            continue
+        commit = section.get("commit")
+        if not isinstance(commit, str) or not COMMIT_RE.fullmatch(commit):
+            errors.append(f"{audit_rel}: baseline.{key}.commit must be lowercase 40-hex")
+    default_assets = baseline.get("ubo_default_assets")
+    if not isinstance(default_assets, list) or not {"easylist", "easyprivacy", "plowe-0", "ublock-unbreak"}.issubset(set(default_assets)):
+        errors.append(f"{audit_rel}: baseline.ubo_default_assets is incomplete")
 
     legacy_records = audit.get("legacy_rules")
     if not isinstance(legacy_records, list):
@@ -96,8 +130,7 @@ def validate():
         for domain in sorted(audited_legacy_hosts - legacy_hosts):
             errors.append(f"{audit_rel}: overlap audit contains non-legacy host: {domain}")
 
-    overlap = sorted(delta_hosts & legacy_hosts)
-    for domain in overlap:
+    for domain in sorted(delta_hosts & legacy_hosts):
         errors.append(f"{delta_entry['path']}: recommended delta duplicates a legacy/default-covered host: {domain}")
 
     gap_records = {}
@@ -114,6 +147,20 @@ def validate():
             errors.append(f"{delta_entry['path']}: {domain} is not delta-approved")
         if record.get("known_exception") is not False:
             errors.append(f"{delta_entry['path']}: {domain} has unresolved exception status")
+
+    queue = load_json(ROOT / manifest["candidate_queue"])
+    for index, item in enumerate(queue.get("candidates", []), 1):
+        state = item.get("state")
+        overlap_info = item.get("upstream_overlap")
+        if state == "candidate":
+            if not isinstance(overlap_info, dict) or overlap_info.get("covered") is not False:
+                errors.append(
+                    f"{manifest['candidate_queue']}:candidate[{index}]: candidate must explicitly prove no default overlap"
+                )
+        if isinstance(overlap_info, dict) and overlap_info.get("covered") is True and state == "candidate":
+            errors.append(
+                f"{manifest['candidate_queue']}:candidate[{index}]: default-covered entry cannot remain candidate"
+            )
 
     canary_rel = manifest.get("canary_manifest")
     canary_filter_rel = manifest.get("canary_filter")
@@ -136,7 +183,6 @@ def validate():
         errors.append(f"{canary_rel}: minimum_soak_days must match manifest")
 
     declared_canary_rules = set()
-    canary_domains = set()
     for index, item in enumerate(canary.get("candidates", []), 1):
         prefix = f"{canary_rel}:candidate[{index}]"
         domain = item.get("domain")
@@ -144,7 +190,6 @@ def validate():
             errors.append(f"{prefix}: invalid domain")
             continue
         domain = domain.lower()
-        canary_domains.add(domain)
         expected_rule = f"||{domain}^$third-party"
         if item.get("rule") != expected_rule:
             errors.append(f"{prefix}: rule must exactly match {expected_rule}")
@@ -156,6 +201,15 @@ def validate():
         review = item.get("exception_review")
         if not isinstance(review, dict) or review.get("known_exception") is not False:
             errors.append(f"{prefix}: canary requires a no-known-exception review")
+        else:
+            review_date = parse_date(review.get("checked_at"))
+            max_review_age = manifest.get("candidate_evidence_max_age_days")
+            if review_date is None:
+                errors.append(f"{prefix}: exception review date is invalid")
+            elif review_date > today:
+                errors.append(f"{prefix}: exception review date cannot be in the future")
+            elif isinstance(max_review_age, int) and (today - review_date).days > max_review_age:
+                errors.append(f"{prefix}: exception review is stale")
         if domain in legacy_hosts or domain in delta_hosts:
             errors.append(f"{prefix}: canary domain must not already be legacy or stable delta")
         audit_record = gap_records.get(domain)
@@ -171,11 +225,9 @@ def validate():
 
     file_rules = set(stable_validator.active_rules(canary_filter_path))
     if file_rules != declared_canary_rules:
-        missing = sorted(declared_canary_rules - file_rules)
-        extra = sorted(file_rules - declared_canary_rules)
-        for rule in missing:
+        for rule in sorted(declared_canary_rules - file_rules):
             errors.append(f"{canary_filter_rel}: missing declared canary rule: {rule}")
-        for rule in extra:
+        for rule in sorted(file_rules - declared_canary_rules):
             errors.append(f"{canary_filter_rel}: undeclared canary rule: {rule}")
 
     if not delta_hosts:
