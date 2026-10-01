@@ -33,6 +33,8 @@ jobs:
         run: python browser_filter_lists/scripts/test_promotion.py
       - name: Run delta-policy regression tests
         run: python browser_filter_lists/scripts/test_delta_policy.py
+      - name: Run source snapshot proposal tests
+        run: python browser_filter_lists/scripts/test_source_snapshot_proposal.py
       - name: Validate published lists
         run: python browser_filter_lists/scripts/validate_filters.py
       - name: Validate candidate evidence freshness
