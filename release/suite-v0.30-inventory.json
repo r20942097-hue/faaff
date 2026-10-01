@@ -1,0 +1,23 @@
+{
+  "candidates": [
+    {
+      "filename": "suite-workspace-v0.30.zip",
+      "product": "Suite workspace",
+      "sha256": "bc5391e02c5916aacfb9c7fa85aae1679a90efb515d1cc1ca718901a70559904",
+      "version": "0.30"
+    },
+    {
+      "filename": "browser-control-v0.3.0.zip",
+      "product": "Browser Control",
+      "sha256": "802e542fc73b9c5d70e6442778246ff72e325a8672ec199f30e293c0f81a2c35",
+      "version": "0.3.0"
+    },
+    {
+      "filename": "media-download-tools-v0.1.0.zip",
+      "product": "Media / Download Tools",
+      "sha256": "b64d75ce606bac493929887747ca6a4574fa49bb6b9da87b49d8cbd40a1bdbae",
+      "version": "0.1.0"
+    }
+  ],
+  "schema_version": 1
+}
