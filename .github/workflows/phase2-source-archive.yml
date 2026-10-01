@@ -1,0 +1,26 @@
+name: Phase 2 source archive
+
+on:
+  pull_request:
+    paths:
+      - 'control_plane_next/**'
+      - '.github/workflows/phase2-source-archive.yml'
+  push:
+    branches: [codex/ucs-control-plane-phase2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-source-archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+      - name: Verify published archive and run archived tests
+        run: python control_plane_next/verify_source_archive.py
