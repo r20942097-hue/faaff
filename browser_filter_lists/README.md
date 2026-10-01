@@ -57,9 +57,9 @@ Candidate evidence currently expires after 45 days. The upstream-overlap audit i
 
 ## Current research
 
-The first delta-canary domain is `trackhaven.com`. It is not stable. It is being kept in canary because current reviewed default sources did not contain it, while AdGuard tracking data and the service's own description identify analytics/tracking use. Promotion is blocked until the canary soak and stronger pinned independent evidence requirements are satisfied.
+The canary list is currently empty. `trackhaven.com`, `bidderstack.com`, `targetrtb.com`, `rtbscale.com`, and `northstar.cr` remain research-only because the available evidence does not meet the independent classification and promotion requirements. None is an active subscription rule.
 
-Additional domains such as `bidderstack.com`, `targetrtb.com`, `rtbscale.com`, and `northstar.cr` remain research-only; they are not active filters.
+The separate candidate review queue contains four held candidates and one rejected candidate. Their evidence is pinned to the source revisions recorded in the current snapshot inventory; every refresh must revalidate those pins before the evidence can pass CI.
 
 ## Stable policy
 
