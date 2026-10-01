@@ -5,6 +5,7 @@
   "raw_base": "https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters",
   "recommended_profile": "ubo-default-delta",
   "candidate_default_overlap_forbidden": true,
+  "upstream_audit_max_age_days": 7,
   "candidate_evidence_max_age_days": 45,
   "candidate_min_independent_source_families": 2,
   "candidate_exception_review_required": true,
