@@ -36,6 +36,126 @@ def active_hosts(path):
     return hosts
 
 
+
+def validate_snapshot_inventory(inventory, baseline, today=None):
+    errors = []
+    today = today or date.today()
+    if inventory.get("schema") != "browser-filter-snapshot-inventory/v1":
+        return ["snapshot inventory: unsupported schema"]
+    retrieved = parse_date(inventory.get("retrieved_at"))
+    if retrieved is None or retrieved > today:
+        errors.append("snapshot inventory: retrieved_at must be a valid non-future date")
+
+    snapshots = inventory.get("snapshots")
+    if not isinstance(snapshots, list):
+        return errors + ["snapshot inventory: snapshots must be an array"]
+    by_family = {}
+    for index, snapshot in enumerate(snapshots, 1):
+        prefix = f"snapshot inventory:snapshots[{index}]"
+        if not isinstance(snapshot, dict):
+            errors.append(f"{prefix}: must be an object")
+            continue
+        family = snapshot.get("source_family")
+        if not isinstance(family, str) or not family or family in by_family:
+            errors.append(f"{prefix}: source_family must be unique and non-empty")
+            continue
+        by_family[family] = snapshot
+        status = snapshot.get("status")
+        if status == "verified":
+            if not isinstance(snapshot.get("repository"), str) or not snapshot["repository"]:
+                errors.append(f"{prefix}: repository is required")
+            commit = snapshot.get("commit")
+            if not isinstance(commit, str) or not COMMIT_RE.fullmatch(commit):
+                errors.append(f"{prefix}: commit must be lowercase 40-hex")
+            commit_date = snapshot.get("commit_date")
+            parsed_commit_date = parse_date(commit_date[:10]) if isinstance(commit_date, str) else None
+            if parsed_commit_date is None or parsed_commit_date > today:
+                errors.append(f"{prefix}: commit_date must be a valid non-future UTC timestamp")
+            files = snapshot.get("files")
+            if not isinstance(files, list) or not files:
+                errors.append(f"{prefix}: verified snapshot requires files")
+                continue
+            seen_paths = set()
+            for file_index, file in enumerate(files, 1):
+                file_prefix = f"{prefix}:files[{file_index}]"
+                if not isinstance(file, dict):
+                    errors.append(f"{file_prefix}: must be an object")
+                    continue
+                path = file.get("path")
+                if not isinstance(path, str) or not path or path.startswith("/") or ".." in Path(path).parts:
+                    errors.append(f"{file_prefix}: path must be a safe repository-relative path")
+                elif path in seen_paths:
+                    errors.append(f"{file_prefix}: duplicate path")
+                else:
+                    seen_paths.add(path)
+                blob_sha = file.get("blob_sha")
+                if not isinstance(blob_sha, str) or not COMMIT_RE.fullmatch(blob_sha):
+                    errors.append(f"{file_prefix}: blob_sha must be lowercase 40-hex")
+                size = file.get("size_bytes")
+                if not isinstance(size, int) or size <= 0:
+                    errors.append(f"{file_prefix}: size_bytes must be a positive integer")
+        elif status == "mirror_only" and family == "peter_lowe":
+            if not isinstance(snapshot.get("official_source_url"), str) or not snapshot["official_source_url"].startswith("https://"):
+                errors.append(f"{prefix}: official_source_url must be HTTPS")
+            if snapshot.get("direct_retrieval") != "NOT_VERIFIED":
+                errors.append(f"{prefix}: direct Peter Lowe retrieval status must remain explicit")
+            mirror = snapshot.get("mirror")
+            if not isinstance(mirror, dict):
+                errors.append(f"{prefix}: mirror metadata is required")
+                continue
+            if mirror.get("repository") != "uBlockOrigin/uAssets" or not isinstance(mirror.get("path"), str):
+                errors.append(f"{prefix}: mirror must identify its uAssets repository path")
+            for key in ["commit", "blob_sha"]:
+                value = mirror.get(key)
+                if not isinstance(value, str) or not COMMIT_RE.fullmatch(value):
+                    errors.append(f"{prefix}: mirror.{key} must be lowercase 40-hex")
+            if mirror.get("commit") != by_family.get("uassets", {}).get("commit"):
+                errors.append(f"{prefix}: Peter Lowe mirror must pin the verified uAssets commit")
+            if not isinstance(mirror.get("size_bytes"), int) or mirror["size_bytes"] <= 0:
+                errors.append(f"{prefix}: mirror.size_bytes must be a positive integer")
+        elif status == "stale_excluded" and family == "easylist_japan":
+            if not isinstance(snapshot.get("repository"), str) or not snapshot["repository"]:
+                errors.append(f"{prefix}: repository is required")
+            commit = snapshot.get("commit")
+            if not isinstance(commit, str) or not COMMIT_RE.fullmatch(commit):
+                errors.append(f"{prefix}: commit must be lowercase 40-hex")
+            commit_date = snapshot.get("commit_date")
+            parsed_commit_date = parse_date(commit_date[:10]) if isinstance(commit_date, str) else None
+            if parsed_commit_date is None or (today - parsed_commit_date).days <= 45:
+                errors.append(f"{prefix}: stale_excluded source must be older than 45 days")
+            if not isinstance(snapshot.get("reason"), str) or not snapshot["reason"].strip():
+                errors.append(f"{prefix}: stale exclusion requires a reason")
+            files = snapshot.get("files")
+            if not isinstance(files, list) or not files:
+                errors.append(f"{prefix}: stale source metadata requires files")
+            else:
+                for file_index, file in enumerate(files, 1):
+                    if not isinstance(file, dict) or not isinstance(file.get("path"), str):
+                        errors.append(f"{prefix}:files[{file_index}]: path is required")
+                        continue
+                    if not isinstance(file.get("blob_sha"), str) or not COMMIT_RE.fullmatch(file["blob_sha"]):
+                        errors.append(f"{prefix}:files[{file_index}]: blob_sha must be lowercase 40-hex")
+                    if not isinstance(file.get("size_bytes"), int) or file["size_bytes"] <= 0:
+                        errors.append(f"{prefix}:files[{file_index}]: size_bytes must be a positive integer")
+        else:
+            errors.append(f"{prefix}: unsupported status/family combination")
+
+    required = {"easylist", "uassets", "adguard", "peter_lowe", "easylist_japan"}
+    if set(by_family) != required:
+        errors.append("snapshot inventory: source families must exactly cover EasyList, uAssets, AdGuard, Peter Lowe, and EasyList Japan")
+
+    for family, baseline_key in [("easylist", "easylist"), ("uassets", "uassets"), ("adguard", "adguard_tracking")]:
+        snapshot = by_family.get(family, {})
+        baseline_section = baseline.get(baseline_key, {})
+        if snapshot.get("commit") != baseline_section.get("commit"):
+            errors.append(f"snapshot inventory: {family} commit does not match baseline.{baseline_key}")
+    if baseline.get("easyprivacy", {}).get("commit") != by_family.get("easylist", {}).get("commit"):
+        errors.append("snapshot inventory: easyprivacy commit does not match the EasyList repository snapshot")
+    if baseline.get("peter_lowe", {}).get("mirror_commit") != by_family.get("peter_lowe", {}).get("mirror", {}).get("commit"):
+        errors.append("snapshot inventory: Peter Lowe mirror commit does not match baseline")
+    return errors
+
+
 def validate(today=None):
     errors = []
     warnings = []
@@ -103,6 +223,18 @@ def validate(today=None):
     default_assets = baseline.get("ubo_default_assets")
     if not isinstance(default_assets, list) or not {"easylist", "easyprivacy", "plowe-0", "ublock-unbreak"}.issubset(set(default_assets)):
         errors.append(f"{audit_rel}: baseline.ubo_default_assets is incomplete")
+
+    inventory_rel = manifest.get("snapshot_inventory")
+    inventory_path = stable_validator.safe_repo_path(inventory_rel)
+    if inventory_path is None or inventory_path.is_symlink() or not inventory_path.is_file():
+        errors.append("manifest.json: snapshot_inventory is missing or unsafe")
+    else:
+        try:
+            inventory = load_json(inventory_path)
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"{inventory_rel}: cannot be read: {exc}")
+        else:
+            errors.extend(validate_snapshot_inventory(inventory, baseline, today=today))
 
     legacy_records = audit.get("legacy_rules")
     if not isinstance(legacy_records, list):
