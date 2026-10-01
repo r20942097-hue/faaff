@@ -7,6 +7,8 @@ on:
       - 'phase3_security/**'
       - 'tests/test_phase3_dependency_inventory.py'
       - 'tests/test_phase3_product_source_intake.py'
+      - 'tests/test_phase3_external_source_evidence.py'
+      - 'tests/test_phase3_gate_c_preflight.py'
       - 'PHASE3-STATUS.md'
       - '.github/workflows/phase3-security-inventory.yml'
   push:
@@ -29,7 +31,7 @@ jobs:
       - name: Re-verify immutable Phase 2 source archive
         run: python control_plane_next/verify_source_archive.py
       - name: Run Phase 3 regression tests
-        run: python -m unittest -v tests/test_phase3_dependency_inventory.py tests/test_phase3_product_source_intake.py
+        run: python -m unittest -v tests/test_phase3_dependency_inventory.py tests/test_phase3_product_source_intake.py tests/test_phase3_external_source_evidence.py tests/test_phase3_gate_c_preflight.py
       - name: Generate declaration inventory and partial SBOM
         run: |
           python phase3_security/dependency_inventory.py \
@@ -45,3 +47,16 @@ jobs:
             --registry phase3_security/product-source-inputs.json \
             --output /tmp/phase3-product-source-intake.json
           cat /tmp/phase3-product-source-intake.json
+      - name: Validate external evidence without promoting scan readiness
+        run: |
+          python -m phase3_security.external_source_evidence \
+            --evidence phase3_security/external-source-evidence.json \
+            --output /tmp/phase3-external-source-evidence.json
+          cat /tmp/phase3-external-source-evidence.json
+      - name: Run fail-closed Gate C preflight
+        run: |
+          python -m phase3_security.gate_c_preflight \
+            --registry phase3_security/product-source-inputs.json \
+            --evidence phase3_security/gate-c-evidence.json \
+            --output /tmp/phase3-gate-c-preflight.json
+          cat /tmp/phase3-gate-c-preflight.json

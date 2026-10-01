@@ -12,8 +12,10 @@ Phase 2 artifact integrity is verified. No Phase 2 artifact rebuild is required.
 | Dependency declaration inventory | IMPLEMENTED | Phase 3 can inventory supported manifests inside the verified Phase 2 source ZIP. |
 | SBOM | DECLARATION_ONLY | CycloneDX 1.6 declaration inventory only; dependencies are not resolved. |
 | Product source intake contract | IMPLEMENTED | All Candidate Baseline product identities are registered and missing inputs cannot be promoted to verified evidence. |
+| External evidence validator | IMPLEMENTED | Validates the seven-product Library record while requiring GitHub scan readiness to remain false and vulnerability posture UNKNOWN. |
 | GitHub-consumable product source readiness | 0/7 VERIFIED | Complete product source ZIPs are not committed/mounted into a GitHub Actions-consumable input surface. |
 | Current external source re-verification | 7/7 VERIFIED_EXTERNAL | All seven Library ZIPs were re-retrieved and their SHA-256, CRC, safe paths, and symlink status checked in the current environment. |
+| Gate C preflight | IMPLEMENTED / NOT_RUN | Requires the exact seven scanner-consumable sources and complete dependency, SBOM, scanner/database, and policy evidence; it cannot emit PASS. |
 | Dependency Review | NOT_RUN / UNSUPPORTED | No supported repository-native Dependency Review result is being treated as evidence. |
 | CodeQL | NOT_RUN | CodeQL is not active for this workstream. |
 | Complete dependency-bearing source scan | NOT_RUN | No complete resolved dependency graph or vulnerability database scan has been performed; GitHub runner artifact ingress remains absent. |
@@ -35,8 +37,12 @@ A separate environment-scoped record, `phase3_security/external-source-evidence.
 
 The current external retrieval gate is now 7/7. The GitHub-consumable registry remains 0/7 because the artifacts are not in the repository or runner input surface; external Library evidence does not satisfy that separate intake contract.
 
+The external-evidence validator checks the seven baseline identities, per-product SHA/size/CRC and manifest counts, and the top-level verified count. It rejects any external-evidence record that claims GitHub scan readiness or vulnerability clearance.
+
 Among the seven reverified archives, AI Orchestrator and Universal Live Watcher exposed supported dependency manifests. AI Orchestrator declares FastAPI, Pydantic and Uvicorn directly; optional groups declare Playwright, PyJWT, pytest and httpx; its build system declares setuptools. Universal Live Watcher declares setuptools and wheel in its build system; its `requirements.txt` contains comments only. No lockfile or resolved dependency graph was established by this step.
 
 ## Next gate
+
+Gate C preflight is implemented and reports `NOT_RUN` while scanner-consumable inputs or scan evidence are missing. It requires exact dependency resolution and lock evidence, a complete CycloneDX 1.6 SBOM, scanner and vulnerability-database provenance for every product, and explicit policy results. `READY_FOR_REVIEW` is not a vulnerability `PASS`.
 
 Provide a controlled, scanner-consumable ingress for the seven immutable source artifacts, then resolve exact dependency versions, produce complete SBOMs, and run supported vulnerability/static scanners. Preserve scanner/version/database provenance and evaluate policy without converting `UNKNOWN`, `NOT_RUN`, `UNSUPPORTED`, historical evidence, or partial results to `PASS`.
