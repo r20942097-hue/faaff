@@ -1,40 +1,33 @@
 name: Management Governance
-
 on:
   pull_request:
     paths:
       - 'PROJECT_INDEX.md'
-      - 'docs/PROJECT_MANAGEMENT_POLICY.md'
-      - 'docs/ARTIFACT_GOVERNANCE.md'
-      - 'docs/RETENTION_POLICY.md'
-      - 'docs/SUPPLY_CHAIN_POLICY.md'
-      - 'docs/project_registry.json'
+      - 'docs/**'
       - 'schemas/**'
       - 'templates/**'
-      - 'tools/validate_project_registry.py'
-      - 'tools/validate_release_manifest.py'
-      - 'tools/promotion_decision.py'
+      - 'policies/**'
+      - 'tools/**'
+      - 'tests/test_governance.py'
+      - '.github/workflows/management-governance.yml'
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   validate-governance:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Validate project registry
-        run: python tools/validate_project_registry.py docs/project_registry.json
-
-      - name: Validate release manifest template
-        run: python tools/validate_release_manifest.py templates/RELEASE_MANIFEST.example.json
-
-      - name: Verify promotion decision is candidate-only
-        shell: bash
+      - uses: actions/checkout@v6
+      - name: Validate imported portfolio and blocked example
         run: |
-          decision="$(python tools/promotion_decision.py templates/RELEASE_MANIFEST.example.json)"
-          test "$decision" = "CANDIDATE_ELIGIBLE"
-          printf 'promotion_decision=%s\n' "$decision"
+          python tools/validate_project_registry.py docs/project_registry.json
+          python tools/validate_release_manifest.py templates/RELEASE_MANIFEST.example.json
+          test "$(python tools/promotion_decision.py templates/RELEASE_MANIFEST.example.json)" = "DEV_OR_NO_GO"
+      - name: Verify generated index
+        run: |
+          python tools/render_index.py docs/project_registry.json > /tmp/generated-project-index.md
+          diff -u PROJECT_INDEX.md /tmp/generated-project-index.md
+      - name: Run management regression tests
+        run: python -m unittest discover -s tests -p test_governance.py -v
+      - name: Validate retention plan
+        run: python tools/retention_plan.py docs/project_registry.json

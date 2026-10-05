@@ -1,0 +1,23 @@
+{
+  "input_zip_sha256": "3ecf31a3206d00496dccc3667e73a5f646c01ed0a69a829dd6d6dce82004f712",
+  "input_crc_pass": true,
+  "input_content_hashes_pass": true,
+  "reproductions": [
+    {
+      "case": "string false + NO_GO + core blocker + prerelease",
+      "v3_output": "STABLE_ELIGIBLE",
+      "expected": "must not qualify STABLE"
+    },
+    {
+      "case": "empty registry missing metadata",
+      "v3_exit": 0,
+      "v3_output": "projects=0",
+      "expected": "reject"
+    },
+    {
+      "case": "integration and previous known-good references",
+      "v3_output": "youtube-home-optimizer: keep_refs=['2.6.0-dev70'] state=DEV decision=NO_GO",
+      "expected": "both references retained"
+    }
+  ]
+}

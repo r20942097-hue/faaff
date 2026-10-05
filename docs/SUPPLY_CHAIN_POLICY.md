@@ -1,21 +1,9 @@
-# Supply Chain Policy
+# Supply chain policy v4
 
-## SBOM
+Candidate requirements include SBOM and provenance records with payload digests. Use CycloneDX 1.7 SBOMs and SLSA provenance v1 in in-toto Statement v1 envelopes. Bind SBOM metadata.component to product/version and provenance subject to the artifact filename/digest.
 
-Preferred interchange format: CycloneDX JSON (`bom.cdx.json` or `*.cdx.json`). Record resolved direct and transitive software components where tooling can determine them. Do not fabricate unresolved dependencies.
+This pack checks basic structure and binding; it does not generate production dependency inventories, sign records, verify signatures, award SLSA levels, or establish trust in a producer. Keep the actual SBOM/provenance validation and attestation verification result with its evidence record.
 
-## Provenance
+Published release identities are immutable. Use trusted build inputs and an appropriate attestation workflow for each product. Repository security settings, Dependency Graph and release immutability need separate configuration; no such setting was changed in this run.
 
-Record where, when, and how release artifacts were produced. For supported GitHub builds, prefer GitHub Artifact Attestations. For higher-assurance workflows, align provenance records with SLSA provenance concepts.
-
-## Stable public releases
-
-Prefer immutable GitHub releases for STABLE public releases when repository policy permits. Create the release as a draft, attach all final assets, verify them, and only then publish.
-
-## Dependency security
-
-Enable Dependency Graph before treating Dependency Review as an enforcement gate. When enabled, make Dependency Review a required pull-request check at an appropriate vulnerability-severity threshold.
-
-## Secrets
-
-Use secret scanning and push protection when available. Never include credentials, API keys, authentication databases, cookies, browser profiles, private tokens, or other live secrets in release artifacts or evidence bundles.
+Exclude API keys, cookies, authenticated browser profiles and private tokens from artifact/evidence inputs.

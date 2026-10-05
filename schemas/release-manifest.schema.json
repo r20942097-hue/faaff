@@ -1,28 +1,342 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "Release Manifest",
   "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 2
+    },
+    "product_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "risk_class": {
+      "type": "string",
+      "minLength": 1
+    },
+    "state": {
+      "enum": [
+        "DEV",
+        "CANDIDATE",
+        "STABLE"
+      ]
+    },
+    "example": {
+      "type": "boolean"
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "required": [
+        "repository",
+        "commit",
+        "path",
+        "sha256"
+      ],
+      "additionalProperties": false
+    },
+    "artifact": {
+      "type": "object",
+      "properties": {
+        "filename": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "filename",
+        "sha256",
+        "size_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "tests": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "clean_extract": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "archive_integrity": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reproducible_build": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sbom": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "provenance": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "real_environment": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "rollback": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$"
+                }
+              },
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "tests",
+        "clean_extract",
+        "archive_integrity",
+        "reproducible_build",
+        "sbom",
+        "provenance",
+        "real_environment",
+        "rollback"
+      ],
+      "additionalProperties": false
+    },
+    "release_decision": {
+      "enum": [
+        "NO_GO",
+        "HOLD",
+        "GO"
+      ]
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "enum": [
+              "candidate",
+              "stable"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "scope",
+          "reason"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
   "required": [
     "schema_version",
     "product_id",
     "version",
+    "risk_class",
     "state",
+    "example",
     "source",
     "artifact",
     "evidence",
     "release_decision",
     "blockers"
   ],
-  "properties": {
-    "schema_version": {"const": 1},
-    "product_id": {"type": "string", "minLength": 1},
-    "version": {"type": "string", "minLength": 1},
-    "state": {"enum": ["DEV", "CANDIDATE", "STABLE"]},
-    "source": {"type": "object"},
-    "artifact": {"type": "object"},
-    "evidence": {"type": "object"},
-    "release_decision": {"type": "string"},
-    "blockers": {"type": "array", "items": {"type": "string"}}
-  },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema"
 }
