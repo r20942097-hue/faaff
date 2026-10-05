@@ -71,9 +71,9 @@
     },
     {
       "id": "universal-control-suite",
-      "latest_observed": "0.50.0",
-      "product_verified": "0.50.0",
-      "integration_verified": "0.50.0",
+      "latest_observed": "0.51.0",
+      "product_verified": "0.51.0",
+      "integration_verified": "0.51.0",
       "stable": null,
       "state": "DEV",
       "decision": "NO_GO",

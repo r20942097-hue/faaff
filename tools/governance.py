@@ -187,7 +187,8 @@ def retention(d):
 
 def render_index(d):
     validate_registry(d)
-    lines=['# PROJECT_INDEX','', 'Updated: '+d['updated']+' | Policy: '+d['policy_version'], '', 'Baseline: imported from v3; product artifacts and test claims have not been revalidated in this run.', '', '| Project | Observed | Product verified | Integration verified | Stable | Previous known-good | State | Decision |','|---|---|---|---|---|---|---|---|']
+    lines=['# PROJECT_INDEX','', 'Updated: '+d['updated']+' | Policy: '+d['policy_version'], '', 'Baseline imported from v3. Selective product revalidation: WP10 0.38.0 and Suite 0.51.0; YouTube dev70 integrity/report audit. Other references remain inherited. See PORTFOLIO_AUDIT.md.', '', '| Project | Observed | Product verified | Integration verified | Stable | Previous known-good | State | Decision |','|---|---|---|---|---|---|---|---|']
     keys=['id','latest_observed','product_verified','integration_verified','stable','previous_known_good','state','decision']
     for p in d['projects']: lines.append('| '+' | '.join(str(p[k] or '—').replace('|','\\|').replace('\n',' ') for k in keys)+' |')
     return '\n'.join(lines)+'\n'
+

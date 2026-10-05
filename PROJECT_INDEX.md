@@ -2,7 +2,7 @@
 
 Updated: 2026-10-05 | Policy: 4.0
 
-Baseline: imported from v3; product artifacts and test claims have not been revalidated in this run.
+Baseline imported from v3. Selective product revalidation: WP10 0.38.0 and Suite 0.51.0; YouTube dev70 integrity/report audit. Other references remain inherited. See PORTFOLIO_AUDIT.md.
 
 | Project | Observed | Product verified | Integration verified | Stable | Previous known-good | State | Decision |
 |---|---|---|---|---|---|---|---|
@@ -12,7 +12,7 @@ Baseline: imported from v3; product artifacts and test claims have not been reva
 | ai-orchestrator | 1.51 | 1.51 | 1.51 | — | — | CANDIDATE | HOLD |
 | windows-control | 0.1.8 | 0.1.8 | 0.1.8 | — | — | CANDIDATE | NO_GO |
 | browser-control | 0.4.2 | 0.3.0 | 0.4.2 | — | — | DEV | NO_GO |
-| universal-control-suite | 0.50.0 | 0.50.0 | 0.50.0 | — | — | DEV | NO_GO |
+| universal-control-suite | 0.51.0 | 0.51.0 | 0.51.0 | — | — | DEV | NO_GO |
 | browser-filter-lists | engineering-source-plus-distribution-mirror | stable-lists | v2-candidate | current-stable-lists | — | CANDIDATE | CONSOLIDATE |
 | music-prompts | MASTER-workstream | — | — | — | — | DEV | CONTEXT_ONLY |
 | incremental-game | prototype | — | — | — | — | PROTOTYPE | CONTEXT_ONLY |
