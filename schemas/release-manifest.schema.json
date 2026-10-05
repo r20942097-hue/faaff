@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Release Manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "product_id",
+    "version",
+    "state",
+    "source",
+    "artifact",
+    "evidence",
+    "release_decision",
+    "blockers"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "product_id": {"type": "string", "minLength": 1},
+    "version": {"type": "string", "minLength": 1},
+    "state": {"enum": ["DEV", "CANDIDATE", "STABLE"]},
+    "source": {"type": "object"},
+    "artifact": {"type": "object"},
+    "evidence": {"type": "object"},
+    "release_decision": {"type": "string"},
+    "blockers": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}
