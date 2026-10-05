@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Project Registry",
+  "type": "object",
+  "required": ["schema_version", "updated", "policy_version", "projects"],
+  "properties": {
+    "schema_version": {"const": 3},
+    "updated": {"type": "string"},
+    "policy_version": {"type": "string"},
+    "projects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "latest_observed", "product_verified", "integration_verified", "stable", "state", "decision", "risk_class"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "latest_observed": {"type": ["string", "null"]},
+          "product_verified": {"type": ["string", "null"]},
+          "integration_verified": {"type": ["string", "null"]},
+          "stable": {"type": ["string", "null"]},
+          "state": {"enum": ["RESEARCH", "PROTOTYPE", "DEV", "CANDIDATE", "STABLE"]},
+          "decision": {"type": "string"},
+          "risk_class": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
