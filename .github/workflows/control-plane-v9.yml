@@ -1,0 +1,36 @@
+name: Control Plane v9.1
+
+on:
+  pull_request:
+    paths:
+      - 'control-plane-v9/**'
+      - '.github/workflows/control-plane-v9.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Extract verified v9.1 source
+        run: |
+          python control-plane-v9/extract_source.py --out /tmp/control-plane-v9
+      - name: Compile source
+        run: |
+          python -m compileall -q /tmp/control-plane-v9/tools
+      - name: Run Control Plane self-test
+        run: |
+          python /tmp/control-plane-v9/tools/ci_selftest.py
+      - name: Verify no external mutation primitives
+        run: |
+          python /tmp/control-plane-v9/tools/static_safety_check.py /tmp/control-plane-v9
