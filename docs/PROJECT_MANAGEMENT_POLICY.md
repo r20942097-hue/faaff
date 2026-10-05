@@ -1,5 +1,16 @@
 # Project Management Policy
 
+This document is the top-level policy. Detailed rules are split into:
+
+- `ARTIFACT_GOVERNANCE.md`
+- `RETENTION_POLICY.md`
+- `SUPPLY_CHAIN_POLICY.md`
+- `OFFICIAL_REFERENCES.md`
+- `../schemas/release-manifest.schema.json`
+- `../templates/RELEASE_MANIFEST.example.json`
+- `../tools/validate_release_manifest.py`
+- `../tools/promotion_decision.py`
+
 ## Versioning
 
 Use SemVer-compatible numeric versions where practical:
@@ -31,24 +42,13 @@ A lower evidence level does not override a higher-level NO_GO, and integration e
 
 ## Candidate gate
 
-A version can become CANDIDATE only when:
-
-1. source/build identity is recorded;
-2. verification refers to that exact identity;
-3. regression tests pass;
-4. package safety/integrity passes;
-5. deterministic/reproducible build checks pass when supported.
+A version can become CANDIDATE only when exact source/build identity is recorded, verification refers to that exact identity, regression tests pass, package safety/integrity passes, reproducible-build checks pass when supported, and required SBOM/provenance evidence is present.
 
 ## Stable gate
 
-A candidate can become STABLE only when:
+A candidate can become STABLE only when candidate gates pass, required real-environment acceptance passes, rollback/recovery is verified when persistent state can change, and unresolved blockers do not affect the advertised primary use.
 
-1. candidate gates pass;
-2. required real-environment acceptance passes;
-3. rollback/recovery is verified when persistent state can change;
-4. unresolved blockers do not affect the advertised primary use.
-
-Passing synthetic/offline tests alone is not sufficient for browser-, OS-, game-, or service-dependent functionality.
+Passing synthetic/offline tests alone is not sufficient for browser-, OS-, game-, service-, or hardware-dependent functionality.
 
 ## Active artifact retention
 
@@ -60,7 +60,7 @@ Keep in the active area:
 - current README/CHANGELOG/test report;
 - checksums/evidence for those retained artifacts.
 
-Archive older intermediate versions after preserving unique regression and recovery evidence.
+Archive older intermediate versions after preserving unique regression, recovery, provenance, and rollback evidence.
 
 ## Git workflow
 
@@ -72,4 +72,4 @@ Archive older intermediate versions after preserving unique regression and recov
 
 ## Public release integrity
 
-When stable public releases move to GitHub, prefer immutable releases, attach all release assets before publication, and verify local artifacts against the published release evidence.
+When STABLE public releases move to GitHub, prefer immutable releases, attach all release assets before publication, generate/retain provenance where supported, and verify local artifacts against the published release evidence.
