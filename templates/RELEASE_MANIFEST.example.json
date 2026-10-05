@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "product_id": "example-product",
+  "version": "1.2.3-rc.1",
+  "state": "CANDIDATE",
+  "source": {
+    "repository": "owner/repo",
+    "commit": "0123456789abcdef0123456789abcdef01234567",
+    "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "artifact": {
+    "filename": "example-product-v1.2.3-rc.1.zip",
+    "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "size_bytes": 12345
+  },
+  "evidence": {
+    "tests_pass": true,
+    "clean_extract_pass": true,
+    "archive_integrity_pass": true,
+    "reproducible_build_pass": true,
+    "real_environment_required": true,
+    "real_environment_pass": false,
+    "rollback_required": false,
+    "rollback_pass": null,
+    "sbom_required": true,
+    "sbom_present": true,
+    "provenance_required": true,
+    "provenance_present": true
+  },
+  "release_decision": "NO_GO",
+  "blockers": ["real environment acceptance not completed"]
+}
