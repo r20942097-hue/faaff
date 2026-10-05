@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "suite_version": "0.51.0",
+  "overall": "PASS_WITH_UNVERIFIED_RUNTIME_GATES",
+  "decision": "NO_GO",
+  "release_ready": false,
+  "changes": [
+    "Guard post-Popen registration failures and interrupts; stop child and preserve original exception",
+    "Retain acquired Job handles during setup failures and failed closes",
+    "Do not use unassigned Job termination to suppress PID fallback",
+    "One bounded retry for normal release; record JOB_RELEASED_AFTER_RETRY on confirmed success",
+    "Known ERROR_INVALID_HANDLE is never retried and remains failed",
+    "Workspace compatibility through 0.50.0; product payload unchanged"
+  ],
+  "focused_tests": {
+    "before_fix": "3 regression tests FAIL",
+    "final": "32 tests PASS",
+    "real_child_interruption_scope": "POSIX/Linux",
+    "windows_api_scope": "Mocked Windows APIs and ctypes error status"
+  },
+  "regression": {
+    "source": {
+      "overall": "PASS",
+      "modules": 35,
+      "tests": 366,
+      "source_sha256": "d89c5229be34ea886535e1e33f253e5d00d3fb9d9860485435078f773720229b",
+      "source_integrity": "UNCHANGED"
+    },
+    "extracted_zip": {
+      "overall": "PASS",
+      "modules": 35,
+      "tests": 366,
+      "source_sha256": "d89c5229be34ea886535e1e33f253e5d00d3fb9d9860485435078f773720229b",
+      "source_integrity": "UNCHANGED"
+    }
+  },
+  "evidence_files": {
+    "source": "source-final-regression.json",
+    "extracted_zip": "extracted-final-regression.json",
+    "distribution": "distribution-final.json"
+  },
+  "soak": {
+    "overall": "PASS",
+    "iterations": 10,
+    "scope": "offline_saved_html_workflow_only",
+    "fd_growth": 0,
+    "rss_growth_bytes": 720896,
+    "payload_unchanged": true
+  },
+  "distribution": {
+    "sha256": "f05cb74b0b2df83a9c7059b668a8a2e349c4dcd361244d066dad2e473f85a628",
+    "two_builds_byte_exact": true,
+    "crc": "PASS",
+    "internal_sha256_count": 742,
+    "extracted_rebuild_byte_exact": true
+  },
+  "browser_preflight": {
+    "overall": "BLOCKED",
+    "blockers": [
+      "PLAYWRIGHT_MODULE_MISSING",
+      "WEB_EXT_MISSING",
+      "FIREFOX_MISSING"
+    ]
+  },
+  "unverified": [
+    "Actual Windows Job creation/inheritance/termination/error behavior",
+    "Pre-assignment Windows launch race",
+    "Live-child PID fallback race",
+    "Real Chromium/Firefox/YouTube",
+    "Long-duration browser/daemon soak"
+  ],
+  "limitations": [
+    "Permanent handle-close failure cannot guarantee recovery if Popen becomes unreachable.",
+    "NOT_NEEDED does not certify uncontained descendant exit.",
+    "Popen internals interrupted before returning a child are outside the new post-Popen guard.",
+    "Polling output limits can overshoot between polls."
+  ],
+  "official_reference": "https://learn.microsoft.com/en-us/windows/win32/api/handleapi/nf-handleapi-closehandle"
+}
