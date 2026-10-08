@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "global_stable_gates": [
+    "sbom",
+    "provenance",
+    "attestation_verified",
+    "rollback"
+  ],
+  "profiles": {
+    "browser_runtime_youtube": {
+      "candidate_gates": ["unit_integration", "package_integrity"],
+      "stable_gates": ["clean_install_or_load", "real_chrome", "real_firefox", "signed_in_target_site", "performance", "long_run_recovery"]
+    },
+    "browser_control_standalone": {
+      "candidate_gates": ["unit_integration", "package_integrity"],
+      "stable_gates": ["real_chrome", "real_firefox", "long_scroll", "navigation_restore"]
+    },
+    "browser_control_integration": {
+      "candidate_gates": ["unit_integration", "package_integrity", "integration_noninterference"],
+      "stable_gates": ["real_chrome", "real_firefox", "long_scroll", "navigation_restore"]
+    },
+    "game_memory_runtime": {
+      "candidate_gates": ["unit_integration", "package_integrity"],
+      "stable_gates": ["real_game_build", "multiple_records", "ability_fields", "restart_reproducibility"]
+    },
+    "service_runtime": {
+      "candidate_gates": ["unit_integration", "package_integrity"],
+      "stable_gates": ["real_windows", "authenticated_service", "process_cleanup", "soak"]
+    },
+    "os_state_change": {
+      "candidate_gates": ["unit_integration", "package_integrity"],
+      "stable_gates": ["real_windows", "permissions_uac", "failure_paths", "state_restoration"]
+    },
+    "local_service_runtime": {
+      "candidate_gates": ["unit_integration", "package_integrity"],
+      "stable_gates": ["windows_launcher", "checkpoint_recovery", "approval_semantics", "real_integration"]
+    },
+    "integration_runtime": {
+      "candidate_gates": ["unit_integration", "package_integrity", "cross_component_regression"],
+      "stable_gates": ["component_gate_pass", "real_windows", "real_browser", "long_run"]
+    },
+    "content_policy": {
+      "candidate_gates": ["syntax", "duplicate_rule_check", "generated_mirror_reproducible"],
+      "stable_gates": ["target_site_smoke"]
+    },
+    "context_only": {"candidate_gates": [], "stable_gates": []}
+  },
+  "project_policy": {
+    "youtube-home-optimizer": "browser_runtime_youtube",
+    "wp10-2025-companion": "game_memory_runtime",
+    "universal-live-watcher": "service_runtime",
+    "windows-control": "os_state_change",
+    "ai-orchestrator": "local_service_runtime",
+    "universal-control-suite": "integration_runtime",
+    "browser-filter-lists": "content_policy",
+    "music-prompts": "context_only",
+    "incremental-game": "context_only"
+  },
+  "track_policy": {
+    "browser-control:standalone": "browser_control_standalone",
+    "browser-control:suite-integration": "browser_control_integration"
+  },
+  "approval_policy": {
+    "CANDIDATE": ["operator"],
+    "STABLE": ["operator", "release_owner"]
+  }
+}

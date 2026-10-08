@@ -1,0 +1,38 @@
+name: Control Plane v9.1
+
+on:
+  pull_request:
+    paths:
+      - 'control-plane-v9/**'
+      - '.github/workflows/control-plane-v9.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  selftest:
+    name: Control Plane / Python ${{ matrix.python-version }} / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python-version: ['3.11', '3.12', '3.13', '3.14']
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Extract verified v9.1 source
+        run: python control-plane-v9/extract_source.py --out control-plane-v9-ci
+      - name: Compile source
+        run: python -m compileall -q control-plane-v9-ci/tools
+      - name: Run promotion safety regressions
+        run: python control-plane-v9-ci/tools/test_promotion_safety.py
+      - name: Run Control Plane self-test
+        run: python control-plane-v9-ci/tools/ci_selftest.py
+      - name: Verify no external mutation primitives
+        run: python control-plane-v9-ci/tools/static_safety_check.py control-plane-v9-ci
