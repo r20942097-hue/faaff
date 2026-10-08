@@ -2,6 +2,7 @@
 import argparse,sqlite3,json,datetime
 from state_v9 import state_sha256
 from eventlog_v9 import append_event
+from evaluate_promotion_eligibility import active_policy, eligibility_for
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('db');ap.add_argument('plan_id');ap.add_argument('--actor',required=True);ap.add_argument('--role',required=True);ap.add_argument('--confirm',default='');a=ap.parse_args()
@@ -14,6 +15,10 @@ def main():
         if plan['status']!='READY_FOR_APPROVAL':raise RuntimeError('plan not ready')
         if plan['input_state_sha256']!=state_sha256(con):raise RuntimeError('authoritative state drift')
         roles=json.loads(plan['required_approvals_json'])
+        policy=active_policy(con)
+        if roles!=policy['approval_policy'][plan['target_stage']]:raise RuntimeError('approval policy drift')
+        fresh=eligibility_for(con,policy,plan['release_id'])
+        if fresh['candidate_status' if plan['target_stage']=='CANDIDATE' else 'stable_status']!='ELIGIBLE':raise RuntimeError('promotion gates no longer eligible')
         if a.role not in roles:raise RuntimeError('role not required by plan')
         con.execute("""INSERT OR IGNORE INTO promotion_plan_approvals(plan_id,role,actor,approved_at,note) VALUES(?,?,?,?,?)""",
                     (a.plan_id,a.role,a.actor,datetime.datetime.now(datetime.timezone.utc).isoformat(),'explicit local-only approval'))

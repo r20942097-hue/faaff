@@ -2,11 +2,13 @@
 from pathlib import Path
 import argparse,sqlite3,json,hashlib,datetime
 from state_v9 import state_sha256
+from evaluate_promotion_eligibility import active_policy, eligibility_for
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('db');ap.add_argument('release_id');ap.add_argument('--target',choices=['CANDIDATE','STABLE'],required=True);ap.add_argument('--policy',required=True);ap.add_argument('--out',required=True);a=ap.parse_args()
-    pol=json.loads(Path(a.policy).read_text(encoding='utf-8'))
+    raw=Path(a.policy).read_bytes()
     con=sqlite3.connect(a.db);con.execute('PRAGMA foreign_keys=ON');con.row_factory=sqlite3.Row
+    pol=active_policy(con,raw)
     state=state_sha256(con)
     e=con.execute("""SELECT * FROM promotion_eligibility WHERE release_id=? AND input_state_sha256=? ORDER BY evaluated_at DESC LIMIT 1""",(a.release_id,state)).fetchone()
     r=con.execute('SELECT * FROM releases WHERE release_id=?',(a.release_id,)).fetchone()
@@ -14,6 +16,11 @@ def main():
     required_roles=pol['approval_policy'][a.target]
     eligibility=(e['candidate_status'] if a.target=='CANDIDATE' else e['stable_status']) if e else 'NOT_EVALUATED'
     reasons=json.loads(e['candidate_reasons_json'] if a.target=='CANDIDATE' else e['stable_reasons_json']) if e else [{'status':'NOT_EVALUATED'}]
+    current=eligibility_for(con,pol,a.release_id)
+    fresh=current['candidate_status'] if a.target=='CANDIDATE' else current['stable_status']
+    if fresh!='ELIGIBLE':
+        eligibility=fresh
+        reasons=current['candidate_reasons'] if a.target=='CANDIDATE' else current['stable_reasons']
     status='READY_FOR_APPROVAL' if eligibility=='ELIGIBLE' else 'BLOCKED'
     artifacts=[dict(x) for x in con.execute("""SELECT a.sha256,a.size_bytes,ra.role FROM release_artifacts ra JOIN artifacts a ON a.artifact_id=ra.artifact_id WHERE ra.release_id=? ORDER BY ra.role,a.sha256""",(a.release_id,))]
     pre={'input_state_sha256':state,'release_stage':r['stage'],'release_decision':r['decision'],'artifact_identities':artifacts,'eligibility':eligibility}
