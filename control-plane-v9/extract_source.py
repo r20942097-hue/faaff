@@ -1,34 +1,61 @@
 #!/usr/bin/env python3
-from pathlib import Path
-import argparse, base64, gzip, hashlib, subprocess, sys, tempfile
+"""Verify the committed runtime sources, then copy into a fresh directory."""
+from pathlib import Path, PurePosixPath
+import argparse, hashlib, json, os, stat
 
-ENCODED_SHA256 = "a608b9365dd57881cab1009cabfe24c1af0b7c59ec944e053a85c2c7d6f4251c"
-BOOTSTRAP_SHA256 = "b20979eaf275754addfa573c29ac684bf04579c68bbe96c006363ae84cab28cc"
+MANIFEST_SHA256 = "1be200f72f07bc42007890428c8035d27d19f1bef7db261dba49422a7f056f10"
 
-
-def sha256(data: bytes) -> str:
+def sha256(data):
     return hashlib.sha256(data).hexdigest()
 
+def regular_file(path):
+    if not stat.S_ISREG(path.lstat().st_mode):
+        raise ValueError("source must be a regular file: " + str(path))
+    return path.read_bytes()
 
-def main() -> None:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--out", required=True)
-    args = ap.parse_args()
-    root = Path(__file__).resolve().parent
-    encoded_path = root / "source" / "control-plane-v9.1-bootstrap.py.gz.b64"
-    encoded_bytes = encoded_path.read_bytes()
-    if sha256(encoded_bytes) != ENCODED_SHA256:
-        raise SystemExit("encoded payload SHA-256 mismatch")
-    compressed = base64.b64decode(b"".join(encoded_bytes.split()), validate=True)
-    bootstrap = gzip.decompress(compressed)
-    if sha256(bootstrap) != BOOTSTRAP_SHA256:
-        raise SystemExit("bootstrap SHA-256 mismatch")
-    with tempfile.TemporaryDirectory(prefix="control-plane-v9-bootstrap-") as td:
-        script = Path(td) / "bootstrap.py"
-        script.write_bytes(bootstrap)
-        subprocess.run([sys.executable, str(script), "--extract", args.out], check=True)
-    print("PASS: extracted verified Production Control Plane v9.1 source")
+def extract(root, out):
+    manifest_bytes = regular_file(root / "runtime-manifest.json")
+    if sha256(manifest_bytes) != MANIFEST_SHA256:
+        raise ValueError("runtime manifest SHA-256 mismatch")
+    manifest = json.loads(manifest_bytes)
+    if manifest.get("schema_version") != 1:
+        raise ValueError("unsupported manifest schema")
+    sources = root / "runtime"
+    if not stat.S_ISDIR(sources.lstat().st_mode):
+        raise ValueError("runtime must be a real directory")
+    expected = manifest["files"]
+    actual = set()
+    for current, dirs, files in os.walk(sources, followlinks=False):
+        for name in dirs:
+            if not stat.S_ISDIR((Path(current) / name).lstat().st_mode):
+                raise ValueError("linked runtime directory")
+        for name in files:
+            actual.add((Path(current) / name).relative_to(sources).as_posix())
+    if actual != set(expected):
+        raise ValueError("runtime file set mismatch")
+    checked = {}
+    for name, identity in expected.items():
+        path = PurePosixPath(name)
+        if path.is_absolute() or ".." in path.parts or "\\" in name:
+            raise ValueError("unsafe manifest path")
+        data = regular_file(sources / name)
+        if len(data) != identity["bytes"] or sha256(data) != identity["sha256"]:
+            raise ValueError("runtime source identity mismatch: " + name)
+        checked[name] = data
+    # Validate everything before creating output; existing destinations fail closed.
+    out.mkdir(parents=True, exist_ok=False)
+    for name, data in checked.items():
+        target = out / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("xb") as stream:
+            stream.write(data)
+    print("PASS: extracted verified Production Control Plane v9.1 runtime (15 files)")
 
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--out", type=Path, required=True)
+    args = parser.parse_args()
+    extract(Path(__file__).resolve().parent, args.out)
 
 if __name__ == "__main__":
     main()
