@@ -106,5 +106,19 @@ class PromotionSafety(unittest.TestCase):
         self.candidate_gates(); policy=self.evaluate(); plan=self.plan(policy)
         self.call(apply_local_promotion,[plan['plan_id'],'--actor','fixture','--role','operator','--confirm','APPLY_LOCAL_ONLY'])
         self.assertEqual(self.con.execute("SELECT stage FROM releases WHERE release_id='r'").fetchone()[0],'CANDIDATE')
+    def test_cli_database_connections_close(self):
+        self.candidate_gates()
+        closed=[]
+        original=sqlite3.connect
+        class Tracked(sqlite3.Connection):
+            def close(connection):
+                closed.append(connection)
+                super(Tracked,connection).close()
+        def connect(*args,**kwargs):
+            return original(*args,factory=Tracked,**kwargs)
+        with patch.object(sqlite3,'connect',side_effect=connect):
+            policy=self.evaluate(); plan=self.plan(policy)
+            self.call(apply_local_promotion,[plan['plan_id'],'--actor','fixture','--role','operator','--confirm','APPLY_LOCAL_ONLY'])
+        self.assertEqual(len(closed),3)
 
 if __name__=='__main__': unittest.main(verbosity=2)

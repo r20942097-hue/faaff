@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from pathlib import Path
+from contextlib import closing
 import argparse, sqlite3, json, hashlib, datetime
 from state_v9 import state_sha256
 
@@ -100,21 +101,22 @@ def main():
     ap.add_argument('db'); ap.add_argument('--policy', required=True); ap.add_argument('--out', required=True)
     a = ap.parse_args()
     raw = Path(a.policy).read_bytes(); policy_sha = hashlib.sha256(raw).hexdigest()
-    con = sqlite3.connect(a.db); con.execute('PRAGMA foreign_keys=ON'); con.row_factory = sqlite3.Row
-    pol = active_policy(con, raw)
-    state = state_sha256(con); now = utc_now(); report = []
-    for r in con.execute('SELECT * FROM releases ORDER BY project_id,track_id,version'):
-        result = eligibility_for(con, pol, r['release_id'], now)
-        payload = {'release_id': r['release_id'], 'policy_sha256': policy_sha, **result, 'state': state}
-        eid = 'elig:' + hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
-        dep_status = 'BLOCKED' if any(x.get('gate') == 'dependency_graph' for x in result['stable_reasons']) else 'CLEAR'
-        con.execute("""INSERT OR IGNORE INTO promotion_eligibility(eligibility_id,release_id,evaluated_at,input_state_sha256,candidate_status,stable_status,
-                       candidate_reasons_json,stable_reasons_json,dependency_status) VALUES(?,?,?,?,?,?,?,?,?)""",
-                    (eid, r['release_id'], now.isoformat(), state, result['candidate_status'], result['stable_status'], json.dumps(result['candidate_reasons'], sort_keys=True), json.dumps(result['stable_reasons'], sort_keys=True), dep_status))
-        report.append(payload)
-    con.commit()
-    Path(a.out).write_text(json.dumps({'schema_version': 1, 'policy_sha256': policy_sha, 'input_state_sha256': state, 'releases': report}, indent=2), encoding='utf-8')
-    print('evaluated', len(report), 'candidate_eligible', sum(x['candidate_status'] == 'ELIGIBLE' for x in report), 'stable_eligible', sum(x['stable_status'] == 'ELIGIBLE' for x in report))
+    with closing(sqlite3.connect(a.db)) as con:
+        con.execute('PRAGMA foreign_keys=ON'); con.row_factory = sqlite3.Row
+        pol = active_policy(con, raw)
+        state = state_sha256(con); now = utc_now(); report = []
+        for r in con.execute('SELECT * FROM releases ORDER BY project_id,track_id,version'):
+            result = eligibility_for(con, pol, r['release_id'], now)
+            payload = {'release_id': r['release_id'], 'policy_sha256': policy_sha, **result, 'state': state}
+            eid = 'elig:' + hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+            dep_status = 'BLOCKED' if any(x.get('gate') == 'dependency_graph' for x in result['stable_reasons']) else 'CLEAR'
+            con.execute("""INSERT OR IGNORE INTO promotion_eligibility(eligibility_id,release_id,evaluated_at,input_state_sha256,candidate_status,stable_status,
+                           candidate_reasons_json,stable_reasons_json,dependency_status) VALUES(?,?,?,?,?,?,?,?,?)""",
+                        (eid, r['release_id'], now.isoformat(), state, result['candidate_status'], result['stable_status'], json.dumps(result['candidate_reasons'], sort_keys=True), json.dumps(result['stable_reasons'], sort_keys=True), dep_status))
+            report.append(payload)
+        con.commit()
+        Path(a.out).write_text(json.dumps({'schema_version': 1, 'policy_sha256': policy_sha, 'input_state_sha256': state, 'releases': report}, indent=2), encoding='utf-8')
+        print('evaluated', len(report), 'candidate_eligible', sum(x['candidate_status'] == 'ELIGIBLE' for x in report), 'stable_eligible', sum(x['stable_status'] == 'ELIGIBLE' for x in report))
 
 
 if __name__ == '__main__':

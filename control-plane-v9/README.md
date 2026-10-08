@@ -30,3 +30,5 @@ No remote publication, PR merge, artifact deletion or Library mutation is perfor
 Promotion safety regressions reject unknown/empty profiles, missing or mismatched evidence, invalid/expired deadlines, and supplied policies that differ from the active policy. Planning and application recheck eligibility so elapsed time alone can block a stale plan. Evidence with no expiry retains its original semantics; this does not establish independent authenticity.
 
 The dedicated CI requests Python 3.11–3.14 on Linux and Windows. A matrix definition is a request to test; successful execution must be checked on the exact HEAD. The regressions and self-test use synthetic evidence and local databases. Real game/browser/service acceptance remains unverified.
+
+SQLite connections close deterministically on both success and error paths, including embedded invocations. The 19 promotion regressions include database connection closure. Scoped Git attributes preserve LF bytes for the manifest and runtime on Windows checkout.

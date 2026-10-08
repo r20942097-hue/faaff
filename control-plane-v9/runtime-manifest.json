@@ -17,8 +17,8 @@
       "sha256": "04f11504dbf1bb0db0957fe50af41f2b32d2b4730d7f62d1899a8023bf8720b8"
     },
     "tools/apply_local_promotion.py": {
-      "bytes": 2877,
-      "sha256": "4f1e1fbaf73f3c2a034d477e7cfde4fc49cd042898e2dc4ae1defb9ac68d23f6"
+      "bytes": 3038,
+      "sha256": "864b48abbf479c94390ea14af20b3c5163f3caadc082b143238ed67a05091be9"
     },
     "tools/apply_sql_migration.py": {
       "bytes": 1137,
@@ -29,8 +29,8 @@
       "sha256": "70e3031f126e62e1a0f9361c5bc7d3b2ac0d57e9dad2370adfb9801a2fe5e11b"
     },
     "tools/evaluate_promotion_eligibility.py": {
-      "bytes": 6971,
-      "sha256": "956958bfeb31a12fa1bc3bbce3bfdd51b805759a007e3f486a4037a841c5c215"
+      "bytes": 7081,
+      "sha256": "93a3ce51017e89cfad7019314b36ed431b1bd2f718b5d8d45b110a4c5d5f6b67"
     },
     "tools/eventlog_v9.py": {
       "bytes": 1215,
@@ -45,8 +45,8 @@
       "sha256": "691c8f615669fe6f224d2e5797606a688dbb3a46cdcfd1a62e1715c67442af47"
     },
     "tools/plan_promotion.py": {
-      "bytes": 3317,
-      "sha256": "542f922632ab4f8433d00703047656d9fcdccad9633034e4b58b78f5bccac5e2"
+      "bytes": 3506,
+      "sha256": "0138ffebf2769418362705bcf39e14ebc63d4fc9fe696ab6f30998df1b554a60"
     },
     "tools/state_v9.py": {
       "bytes": 971,
@@ -57,8 +57,8 @@
       "sha256": "9a0208227cf06744d5604bfc62e07cd410583bee0ad16f651bfd7bcd36b76325"
     },
     "tools/test_promotion_safety.py": {
-      "bytes": 8004,
-      "sha256": "2f283588ea41dd9e0119b092b3287139bc449f2bd924cc1439613432b6f88edf"
+      "bytes": 8703,
+      "sha256": "0daba9f6b48794beaa1c95f91f86c10132430e10dbee2e47aca354ec0ce8b050"
     },
     "tools/verify_v9.py": {
       "bytes": 2800,

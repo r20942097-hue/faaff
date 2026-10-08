@@ -3,7 +3,7 @@
 from pathlib import Path, PurePosixPath
 import argparse, hashlib, json, os, stat
 
-MANIFEST_SHA256 = "d1781cea9c28b9f7905329f126a1e183627ae42bb7d26b1393dd2c98499041a1"
+MANIFEST_SHA256 = "2252e1513d1a665f5925f0df0be5ea144d01de98e2a85322eefa9c174b01a9ea"
 
 def sha256(data):
     return hashlib.sha256(data).hexdigest()
