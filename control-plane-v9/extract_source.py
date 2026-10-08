@@ -49,7 +49,7 @@ def extract(root, out):
         target.parent.mkdir(parents=True, exist_ok=True)
         with target.open("xb") as stream:
             stream.write(data)
-    print("PASS: extracted verified Production Control Plane v9.1 runtime (15 files)")
+    print(f"PASS: extracted verified Production Control Plane v9.1 runtime ({len(expected)} files)")
 
 def main():
     parser = argparse.ArgumentParser()
