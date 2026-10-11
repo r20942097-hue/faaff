@@ -46,3 +46,7 @@ sの広告更新はPR #3でmain反映済み。日本語表示はPR #5でCI成功
 CIはPR更新と手動実行を入口とし、pushとの二重実行を除いています。ZIP・Python bootstrap・チェックサム・CI定義の変更時に6環境で検証します。GitHubのPRパス条件はPR全体の変更を評価するため、このPRではREADMEや検証記録のみの追記でも再実行されます。ライセンス・出典・取得コミットを保持しています。
 
 2026-10-12追補：導入をmanage.py setupから実行できるようにしました。CI設定のpermissions・jobs・steps・uses・checkoutのwithに不正な型がある場合は検査エラーとして表示します。ローカル方針チェックであり、Actions全仕様を代替するものではありません。ツール一覧では診断したPythonの版も確認できます。
+
+## Dependency Reviewの準備
+
+[残作業と手順](DEPENDENCY-READINESS.md)に管理設定の確認・再実行・main反映の順序をまとめました。検証用依存3プロファイルをdependencies/のrequirements.txtへ確認用に公開し、CIで検証済みZIPとの一致を照合します。導入の正本はZIP内のロックです。照合用5テストはZIP内の回帰296件と別に検証します。Dependency graphの解析成功は設定有効化後に確認します。

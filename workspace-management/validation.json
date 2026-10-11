@@ -32,5 +32,15 @@
     },
     "scope": "Management regressions; not Windows product E2E."
   },
-  "published_bytes_verified": true
+  "published_bytes_verified": true,
+  "dependency_review_preparation": {
+    "mirror_profiles": 3,
+    "mirror_unit_tests": 5,
+    "local_mirror_check": "pass",
+    "export_ci": "pending",
+    "zip_changed": false,
+    "dependency_review_retry": "failed",
+    "reason": "API403; action advises enabling Dependency graph",
+    "settings_change_available_to_connector": false
+  }
 }
