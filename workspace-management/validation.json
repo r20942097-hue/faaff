@@ -18,17 +18,19 @@
   "catalogue_ui_checks": 35,
   "live_interruption_fixture": true,
   "additional_python_matrix": {
-    "versions": [
-      "3.11",
-      "3.14",
-      "3.15"
-    ],
-    "platforms": [
-      "Linux",
-      "Windows"
-    ],
-    "status": "pending",
+    "source_commit": "0e4e509de2d6031851bcf7a8a975c9f848622acc",
+    "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38156671982",
+    "Linux": {
+      "3.11": "PASS",
+      "3.14": "PASS",
+      "3.15": "PASS"
+    },
+    "Windows": {
+      "3.11": "PASS",
+      "3.14": "PASS",
+      "3.15": "PASS"
+    },
     "scope": "Management regressions; not Windows product E2E."
   },
-  "published_bytes_verified": false
+  "published_bytes_verified": true
 }
