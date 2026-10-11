@@ -41,12 +41,12 @@ python tools/manage.py run --tool suite-audit
 
 録画・AI・Windows操作・Browser Bridge等の製品本体は未取得です。管理ソースのCIを製品E2Eや録画完成判定へ転用しません。署名付きuBOのFirefox実拡張12項目は同一フィルター版で以前に確認済みで、Python 3.15の実拡張合格を意味しません。
 
-sの広告更新はPR #3でmain反映済み。日本語表示はPR #5でCI成功、main未反映。faaffのDependency ReviewはDependency graph無効で失敗しており、設定の有効化後に再検証が必要です。検査を弱めていません。
+sの広告更新はPR #3でmain反映済み。日本語表示はPR #5でCI成功、main未反映。faaffのDependency Reviewは以前API403で失敗していましたが、今回PR #15で合格し、公開した3依存表の解析を確認しました。high以上の脆弱性は検出されませんでした。検査条件を弱めていません。main未反映です。
 
 CIはPR更新と手動実行を入口とし、pushとの二重実行を除いています。ZIP・Python bootstrap・チェックサム・CI定義の変更時に6環境で検証します。GitHubのPRパス条件はPR全体の変更を評価するため、このPRではREADMEや検証記録のみの追記でも再実行されます。ライセンス・出典・取得コミットを保持しています。
 
 2026-10-12追補：導入をmanage.py setupから実行できるようにしました。CI設定のpermissions・jobs・steps・uses・checkoutのwithに不正な型がある場合は検査エラーとして表示します。ローカル方針チェックであり、Actions全仕様を代替するものではありません。ツール一覧では診断したPythonの版も確認できます。
 
-## Dependency Reviewの準備
+## Dependency Reviewと依存照合の見方
 
-[残作業と手順](DEPENDENCY-READINESS.md)に管理設定の確認・再実行・main反映の順序をまとめました。検証用依存3プロファイルをdependencies/のrequirements.txtへ確認用に公開し、CIで検証済みZIPとの一致を照合します。導入の正本はZIP内のロックです。照合用5テストはZIP内の回帰296件と別に検証します。Dependency graphの解析成功は設定有効化後に確認します。
+[残作業と手順](DEPENDENCY-READINESS.md)に管理設定の確認・再実行・main反映の順序をまとめました。検証用依存3プロファイルをdependencies/のrequirements.txtへ確認用に公開し、CIで検証済みZIPとの一致を照合します。導入の正本はZIP内のロックです。照合用9テストはZIP内の回帰296件と別に検証します。用途・サイズ・SHA256は通常表示、または `verify_dependencies.py --snapshot 展開先 --json` で確認できます。3表が一致した場合にだけ合格の一覧を表示し、CIログにも残します。PR #15の解析成功と残る警告はリンク先に記載しました。

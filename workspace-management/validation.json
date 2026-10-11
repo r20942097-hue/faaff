@@ -35,15 +35,15 @@
   "published_bytes_verified": true,
   "dependency_review_preparation": {
     "mirror_profiles": 3,
-    "mirror_unit_tests": 5,
+    "mirror_unit_tests": 9,
     "local_mirror_check": "pass",
     "export_ci": "success",
     "zip_changed": false,
-    "dependency_review_retry": "failed",
-    "reason": "API403; action advises enabling Dependency graph",
+    "dependency_review_retry": "success",
+    "reason": "Previous API403 did not recur; review parsed all three requirement mirrors",
     "settings_change_available_to_connector": false,
-    "export_commit": "631c319ea668ff7324690ac17cab89ff1534bae9",
-    "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38161658501",
+    "export_commit": "75d584993ffaf4b14f121e2f5f68d3f0522775f1",
+    "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38164196425",
     "matrix": {
       "Linux": {
         "3.11": "PASS",
@@ -56,6 +56,38 @@
         "3.15": "PASS"
       }
     },
-    "windows_checkout_lf_enforced": true
+    "windows_checkout_lf_enforced": true,
+    "evidence_schema": "dependency-mirror-check/v1",
+    "evidence_fields": [
+      "profile",
+      "mirror",
+      "snapshot_source",
+      "bytes",
+      "sha256"
+    ],
+    "local_python_versions": [
+      "3.11",
+      "3.14",
+      "3.15"
+    ],
+    "dependency_review": {
+      "pr15": {
+        "result": "success",
+        "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38164196557",
+        "high_or_above_vulnerabilities_detected": false,
+        "requirement_profiles_parsed": 3
+      },
+      "pr14": {
+        "result": "success",
+        "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38125486938",
+        "retry_failed_jobs_only": true
+      },
+      "settings_directly_verified": false,
+      "conditions_weakened": false,
+      "remaining_notes": [
+        "typing_extensions 4.16.0 license not detected by GitHub; PyPI declares PSF-2.0",
+        "PySocks OpenSSF Scorecard 2.4 warning remains"
+      ]
+    }
   }
 }
