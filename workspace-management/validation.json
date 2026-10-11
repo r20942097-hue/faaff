@@ -17,9 +17,17 @@
   "regression_checks_linux": 281,
   "catalogue_ui_checks": 33,
   "additional_python_matrix": {
-    "previous_verified_sha256": "71b81cb491dc298a0d4d2c41ff690a7f1b97a8e7ae34b0b0b819ffa9f6644256",
-    "previous_run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38139161227",
-    "previous_matrix": "Linux/Windows Python 3.11/3.14 PASS",
-    "current_snapshot": "CI pending"
-  }
+    "source_commit": "5507652d72818eb72776e7d8f7f7e5c9fa2493fd",
+    "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38139542746",
+    "Linux": {
+      "3.11": "PASS",
+      "3.14": "PASS"
+    },
+    "Windows": {
+      "3.11": "PASS",
+      "3.14": "PASS"
+    },
+    "scope": "Management regressions; not Windows product E2E."
+  },
+  "published_bytes_verified": true
 }
