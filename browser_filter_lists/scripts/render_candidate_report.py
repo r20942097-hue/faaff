@@ -1,16 +1,12 @@
 from pathlib import Path
 import argparse
-import json
 import sys
+
+from registry_io import load_json_object as load_json, safe_path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "manifest.json"
 REPORT_PATH = ROOT / "experimental" / "CANDIDATES.md"
-
-
-def load_json(path):
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
 
 
 def escape_cell(value):
@@ -19,7 +15,10 @@ def escape_cell(value):
 
 def render():
     manifest = load_json(MANIFEST_PATH)
-    queue = load_json(ROOT / manifest["candidate_queue"])
+    queue_path = safe_path(ROOT, manifest.get('candidate_queue'))
+    if queue_path is None:
+        raise ValueError('unsafe candidate queue path')
+    queue = load_json(queue_path)
     candidates = queue.get("candidates", [])
 
     counts = {"candidate": 0, "hold": 0, "rejected": 0}
@@ -33,8 +32,10 @@ def render():
         "",
         "> Generated from `experimental/candidates.json`. These entries are inactive and are not subscription rules.",
         "",
-        f"Last verified: `{queue.get('observed_at', 'unknown')}`  ",
-        f"Evidence freshness limit: `{manifest.get('candidate_evidence_max_age_days', 'unknown')} days`  ",
+        f"Last verified: `{queue.get('observed_at', 'unknown')}`",
+        "",
+        f"Evidence freshness limit: `{manifest.get('candidate_evidence_max_age_days', 'unknown')} days`",
+        "",
         f"Queue: `{counts['candidate']} candidate`, `{counts['hold']} hold`, `{counts['rejected']} rejected`",
         "",
         "| Domain | Category | State | Risk | Verified | Reason |",
@@ -74,7 +75,13 @@ def main():
     parser.add_argument("--write", action="store_true", help="write the generated report")
     args = parser.parse_args()
 
-    rendered = render()
+    try:
+        rendered = render()
+        if safe_path(ROOT, REPORT_PATH.relative_to(ROOT).as_posix()) is None:
+            raise ValueError('unsafe candidate report path')
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        print(f'candidate report cannot be generated: {exc}', file=sys.stderr)
+        return 1
 
     if args.check:
         try:

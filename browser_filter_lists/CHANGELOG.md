@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-10-11 — shared profiles and refreshed evidence (local)
+
+- Refreshed candidate evidence from pinned current EasyList, AdGuard and uAssets snapshots.
+- Kept one candidate and four holds; no automatic promotions.
+- Kept stable active rules at 17 advertising and 9 tracking rules; generated metadata version 20261011.1.
+- Exported common rule sets from s/filter-profiles.json while retaining existing subscription paths and licenses.
+- Raised registry policy to version 4 and bound each source family to known repositories.
+- Rejected duplicate JSON keys, unsafe paths, spoofed independent families and expired promotion evidence.
+- CI discovers all regression tests, including shared JSON/path helpers.
+- These changes have not been pushed or published.
+
 ## 2026-10-01 — cross-source promotion gates
 
 - Raised candidate policy to version 3.

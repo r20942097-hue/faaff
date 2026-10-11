@@ -1,6 +1,8 @@
-# Verification Report — v5.10.0
+# Historical Verification Report — v5.10.0
 
 Date: 2026-09-27
+
+This is the preserved historical v5.10.0 record. It does not verify v6.10.0 or this checkout; see SOURCE-SYNC.md for the source boundary.
 
 - pytest: 379 passed
 - Python compileall: passed
