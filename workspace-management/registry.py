@@ -1,10 +1,13 @@
 """Strict shared command registry; no shell execution or credential inspection."""
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import sys
+from tempfile import NamedTemporaryFile
+import uuid
 
 REGISTRY = Path(__file__).with_name('registry.json')
 
@@ -125,14 +128,38 @@ def child_environment():
     return environment
 
 
+def write_report(destination, report):
+    destination = Path(destination)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with NamedTemporaryFile(mode='w', encoding='utf-8', newline='', dir=destination.parent, delete=False) as stream:
+            temporary = Path(stream.name)
+            json.dump(report, stream, ensure_ascii=False, indent=2)
+            stream.write('\n')
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, destination)
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
+
+
 def run_tool(root, key):
     from doctor import inspect
     data = load()
     tool = next((item for item in data['tools'] if item['id'] == key), None)
     if tool is None:
         raise ValueError('unknown tool: ' + key)
+    destination = safe_path(root, 'catalog/results/tool-' + key + '.json')
+    report = {'schema': 'workspace-tool-run/v1', 'run_id': uuid.uuid4().hex, 'tool': key,
+              'started_at_utc': datetime.now(timezone.utc).isoformat(), 'status': 'running', 'passed': False,
+              'python': {'executable': sys.executable, 'version': sys.version.split()[0]}, 'checks': []}
+    write_report(destination, report)
     ready = next(item for item in inspect(root, registry=data)['tools'] if item['id'] == key)
     if ready['status'] != 'ready' or not tool['commands']:
+        report.update(status='blocked', missing=ready['missing'], finished_at_utc=datetime.now(timezone.utc).isoformat())
+        write_report(destination, report)
         print('BLOCKED: ' + tool['name'] + '; ' + ', '.join(ready['missing']))
         return 2
     results = []
@@ -142,7 +169,8 @@ def run_tool(root, key):
         print(result['output'], end='' if result['output'].endswith('\n') else '\n')
         if result['exit_code']:
             break
-    destination = safe_path(root, 'catalog/results/tool-' + key + '.json')
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    destination.write_text(json.dumps({'tool': key, 'passed': all(r['exit_code'] == 0 for r in results), 'checks': results}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='')
+    passed = all(result['exit_code'] == 0 for result in results)
+    report.update(checks=results, passed=passed, status='passed' if passed else 'failed',
+                  finished_at_utc=datetime.now(timezone.utc).isoformat())
+    write_report(destination, report)
     return results[-1]['exit_code']
