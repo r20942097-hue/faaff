@@ -43,4 +43,4 @@ python tools/manage.py run --tool suite-audit
 
 sの広告更新はPR #3でmain反映済み。日本語表示はPR #5でCI成功、main未反映。faaffのDependency ReviewはDependency graph無効で失敗しており、設定の有効化後に再検証が必要です。検査を弱めていません。
 
-CIはPR更新と手動実行を入口とし、pushとの二重実行を除いています。ZIP・Python bootstrap・チェックサム・CI定義の変更時に6環境で検証します。READMEと検証記録のみの更新ではソース検証を再実行しません。ライセンス・出典・取得コミットを保持しています。
+CIはPR更新と手動実行を入口とし、pushとの二重実行を除いています。ZIP・Python bootstrap・チェックサム・CI定義の変更時に6環境で検証します。GitHubのPRパス条件はPR全体の変更を評価するため、このPRではREADMEや検証記録のみの追記でも再実行されます。ライセンス・出典・取得コミットを保持しています。
