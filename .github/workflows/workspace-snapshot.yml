@@ -54,7 +54,9 @@ jobs:
           count = extract(source, expected, target)
           print('Verified snapshot:', count, 'files', flush=True)
           subprocess.run([sys.executable, '-m', 'venv', str(target / 'work/verify-env')], check=True)
-          python = (target / 'work/verify-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')).resolve()
+          python = (target / 'work/verify-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')).absolute()
+          # Keep the venv executable path: resolve() follows its symlink to global Python.
+          subprocess.run([str(python), '-c', 'import sys; assert sys.prefix != sys.base_prefix'], cwd=target, check=True)
           subprocess.run([str(python), 'tools/setup_verification.py'], cwd=target, check=True)
           for command in [
               ['tools/manage.py', 'doctor'],
