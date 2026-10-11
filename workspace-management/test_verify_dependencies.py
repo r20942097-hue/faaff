@@ -1,7 +1,8 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
+import hashlib
 import unittest
-from verify_dependencies import MIRRORS, verify
+from verify_dependencies import MIRRORS, audit, verify
 
 
 class MirrorTests(unittest.TestCase):
@@ -37,3 +38,35 @@ class MirrorTests(unittest.TestCase):
         (self.snapshot / MIRRORS[0][1]).unlink()
         with self.assertRaises(OSError):
             verify(self.root, self.snapshot)
+
+    def test_evidence_identifies_every_original(self):
+        report = audit(self.root, self.snapshot)
+        self.assertTrue(report['passed'])
+        self.assertEqual(report['schema'], 'dependency-mirror-check/v1')
+        self.assertEqual([row['profile'] for row in report['profiles']], [p for p, _ in MIRRORS])
+        for row, (profile, source) in zip(report['profiles'], MIRRORS):
+            self.assertEqual(row['snapshot_source'], source)
+            self.assertEqual(row['mirror'], 'dependencies/' + profile + '/requirements.txt')
+            self.assertEqual(row['bytes'], 15)
+            self.assertEqual(row['sha256'], hashlib.sha256(b'example==1.2.3\n').hexdigest())
+
+    def test_mismatch_reports_both_actual_hashes(self):
+        path = self.root / 'dependencies/runtime/requirements.txt'
+        path.write_bytes(b'changed\n')
+        with self.assertRaises(ValueError) as result:
+            audit(self.root, self.snapshot)
+        self.assertIn('runtime', str(result.exception))
+        self.assertIn(hashlib.sha256(b'changed\n').hexdigest(), str(result.exception))
+        self.assertIn(hashlib.sha256(b'example==1.2.3\n').hexdigest(), str(result.exception))
+
+    def test_line_endings_are_not_silently_normalized(self):
+        (self.root / 'dependencies/runtime/requirements.txt').write_bytes(b'example==1.2.3\r\n')
+        with self.assertRaisesRegex(ValueError, 'differs'):
+            audit(self.root, self.snapshot)
+
+    def test_directory_manifest_is_rejected(self):
+        path = self.root / 'dependencies/build/requirements.txt'
+        path.unlink()
+        path.mkdir()
+        with self.assertRaisesRegex(OSError, 'not a regular file'):
+            audit(self.root, self.snapshot)
