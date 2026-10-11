@@ -1,8 +1,9 @@
 from pathlib import Path
 import ipaddress
-import json
 import re
 import sys
+
+from registry_io import load_json_object as load_json, safe_path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "manifest.json"
@@ -12,11 +13,6 @@ dangerous_all = re.compile(r"\$(?:all|document)(?:,|$)", re.I)
 version_re = re.compile(r"^\d{8}\.\d+$")
 expires_re = re.compile(r"^\d+\s+days?$", re.I)
 label_re = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$")
-
-
-def load_json(path):
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
 
 
 def valid_hostname(host):
@@ -33,14 +29,7 @@ def valid_hostname(host):
 
 
 def safe_repo_path(relative_path):
-    if not isinstance(relative_path, str) or not relative_path:
-        return None
-    candidate = (ROOT / relative_path).resolve()
-    try:
-        candidate.relative_to(ROOT)
-    except ValueError:
-        return None
-    return candidate
+    return safe_path(ROOT, relative_path)
 
 
 def active_rules(path):
@@ -60,8 +49,11 @@ def validate():
 
     try:
         manifest = load_json(MANIFEST_PATH)
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError) as exc:
         return [f"manifest.json cannot be read: {exc}"], warnings
+
+    if not isinstance(manifest, dict):
+        return ["manifest.json: root must be an object"], warnings
 
     if manifest.get("schema") != "browser-filter-lists/v1":
         errors.append("manifest.json: unsupported schema")
@@ -99,7 +91,7 @@ def validate():
         else:
             declared_ids.add(list_id)
 
-        if rel_path in declared_paths:
+        if isinstance(rel_path, str) and rel_path in declared_paths:
             errors.append(f"manifest.json: duplicate stable list path: {rel_path}")
         elif isinstance(rel_path, str):
             declared_paths.add(rel_path)
@@ -194,12 +186,12 @@ def validate():
             else:
                 all_hosts[host] = rel_path
 
-        if not isinstance(expected_count, int) or expected_count < 0:
+        if type(expected_count) is not int or expected_count < 0:
             errors.append(f"manifest.json: invalid expected_rule_count for {list_id}")
         elif len(rules) != expected_count:
             errors.append(f"{rel_path}: expected {expected_count} active rules, found {len(rules)}")
 
-        if not isinstance(max_count, int) or max_count < 1:
+        if type(max_count) is not int or max_count < 1:
             errors.append(f"manifest.json: invalid max_rule_count for {list_id}")
         elif len(rules) > max_count:
             errors.append(f"{rel_path}: rule count {len(rules)} exceeds safety cap {max_count}")
@@ -226,7 +218,7 @@ def validate():
     else:
         try:
             queue = load_json(candidate_path)
-        except (OSError, json.JSONDecodeError) as exc:
+        except (OSError, ValueError) as exc:
             errors.append(f"{candidate_rel}: cannot be read: {exc}")
             queue = {}
 
