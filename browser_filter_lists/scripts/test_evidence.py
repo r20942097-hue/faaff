@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 import unittest
 
 import validate_candidate_evidence as ev
@@ -6,8 +6,24 @@ import validate_candidate_evidence as ev
 
 class EvidenceValidatorTests(unittest.TestCase):
     def test_repository_evidence_is_valid(self):
-        errors, _warnings = ev.validate(today=date(2026, 10, 1))
+        manifest = ev.load_json(ev.MANIFEST_PATH)
+        queue = ev.load_json(ev.ROOT / manifest['candidate_queue'])
+        errors, _warnings = ev.validate(today=ev.parse_iso_date(queue['observed_at']))
         self.assertEqual(errors, [])
+
+    def test_repository_evidence_is_rejected_before_observation(self):
+        manifest = ev.load_json(ev.MANIFEST_PATH)
+        queue = ev.load_json(ev.ROOT / manifest['candidate_queue'])
+        observed = ev.parse_iso_date(queue['observed_at'])
+        errors, _ = ev.validate(today=observed - timedelta(days=1))
+        self.assertTrue(any('future' in error for error in errors))
+
+    def test_repository_evidence_expires(self):
+        manifest = ev.load_json(ev.MANIFEST_PATH)
+        queue = ev.load_json(ev.ROOT / manifest['candidate_queue'])
+        observed = ev.parse_iso_date(queue['observed_at'])
+        errors, _ = ev.validate(today=observed + timedelta(days=manifest['candidate_evidence_max_age_days'] + 1))
+        self.assertTrue(any('stale' in error for error in errors))
 
     def test_parse_iso_date(self):
         self.assertEqual(ev.parse_iso_date("2026-10-01"), date(2026, 10, 1))
