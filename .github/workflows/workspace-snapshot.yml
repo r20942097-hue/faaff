@@ -57,7 +57,7 @@ jobs:
           python = (target / 'work/verify-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')).absolute()
           # Keep the venv executable path: resolve() follows its symlink to global Python.
           subprocess.run([str(python), '-c', 'import sys; assert sys.prefix != sys.base_prefix'], cwd=target, check=True)
-          subprocess.run([str(python), 'tools/setup_verification.py'], cwd=target, check=True)
+          subprocess.run([str(python), 'tools/manage.py', 'setup'], cwd=target, check=True)
           for command in [
               ['tools/manage.py', 'doctor'],
               ['tools/manage.py', 'all'],
