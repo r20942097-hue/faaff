@@ -3,12 +3,9 @@ name: Workspace snapshot checks
 on:
   pull_request:
     paths:
-      - 'workspace-management/**'
-      - '.github/workflows/workspace-snapshot.yml'
-  push:
-    branches: ['codex/workspace-management-20261011']
-    paths:
-      - 'workspace-management/**'
+      - 'workspace-management/*.py'
+      - 'workspace-management/*.zip'
+      - 'workspace-management/*.zip.sha256'
       - '.github/workflows/workspace-snapshot.yml'
   workflow_dispatch:
 
