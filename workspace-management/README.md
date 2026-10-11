@@ -1,55 +1,46 @@
 # 共通ツール・整理済みソーススナップショット
 
-既存の2リポジトリをまたぐ生成・診断・検証を、共通入口と一覧にまとめました。ZIPは2026-10-11時点の保存用ソースです。フィルター配信の正本とGit履歴は既存のs・faaffを使い続けます。
+s・faaffをまたぐ15機能の生成・診断・検証を共通入口へまとめました。保存用ソースZIPであり、フィルター配信の正本とGit履歴は既存リポジトリを維持します。
 
 ## 見方
 
-1. `workspace-source-20261011.zip`とチェックサムを取得します。
-2. チェックサムとZIPのSHA256を照合し、新しいフォルダへ展開します。
-3. 展開先の`README.md`から目的を選びます。
-4. `catalog/generated/tools.html`：ツールの目的・実行準備・不足項目。
-5. `catalog/generated/inventory.html`：全ファイルの検索表。
-6. `catalog/generated/libraries.html`：直接・間接依存39件。
-7. `catalog/generated/projects.html`：10製品の現状と次の統合案、検索と本体ソースの状態で絞り込み。
+1. `workspace-source-20261011.zip`と`.zip.sha256`を取得し、SHA256を照合します。
+2. 新しいフォルダへ展開し、`README.md`から目的を選びます。
 
-「実行準備あり」は依存診断です。テスト合格は`catalog/results/`で確認してください。配布ZIPのリンクは原本を直接開くためsymlink不要です。
+| 一覧 | 内容 |
+|---|---|
+| catalog/generated/tools.html | 15機能の準備状況・前回の結果・登録入力とPython版の照合 |
+| catalog/generated/inventory.html | 全ファイルの検索、分類、原本リンク |
+| catalog/generated/libraries.html | ビルド依存を含む41件、重複を統合 |
+| catalog/generated/projects.html | 10製品の本体ソース・状態・次の統合案 |
+| catalog/PYTHON.md | Python 3.15対応、導入、改善案と調査根拠 |
 
-## 検証したこと
+実行準備と動作合格は別列です。合格時の登録ファイル・実行設定・Python版が変わった場合は再検証を表示します。外部サービスや全ての間接入力まで同一と保証する意味ではありません。実行後はdoctorで一覧を更新してください。
 
-- 共通17標準＋4追加検査が通過。
-- 回帰281件通過、LinuxではWindows junction 1件をskip。Windows CIでは製品E2Eとは別に管理コードを検証。
-- 署名付きuBOのFirefox実拡張12項目、一覧UI33項目、合成DOM12項目通過。
-- 固定入力の二重ビルドがバイト一致、ZIP全ファイルのハッシュとパスを展開前に確認。
-- 2,149,235バイトの非圧縮ZIPを485,487バイトへ圧縮（約78%削減）。
+## 実行とPython 3.15対応
 
-追加のLinux/Windows・Python 3.11/3.14 CIはこのブランチの「Workspace snapshot checks」で確認します。管理ソースの検証であり、Windows製品の実機合格ではありません。
+Python 3.11以上で新規仮想環境を作り、仮想環境のPythonで`tools/setup_verification.py`を実行します。通常11依存の版・配布SHA256を固定し、pip checkと実行版の照合まで共通実行します。
 
-## 実行
-
-展開先でPython 3.11以上を使います。
+Python 3.15ではPyYAML 6.0.3の配布バイナリがないため、固定ソースと固定ビルド依存から標準Python版を導入します。Cコンパイラー不要です。グローバルPythonでの導入は停止します。詳しいOS別コマンドはZIP内のcatalog/README.mdにあります。
 
 ```sh
 python tools/manage.py doctor
 python tools/manage.py all
-python tools/manage.py run --tool source-integrity
+python tools/manage.py run --tool suite-audit
 ```
 
-追加依存は仮想環境で`tools/requirements-verification.lock.txt`からハッシュ検証付きで導入します。詳細は展開先の`catalog/README.md`を参照してください。Firefox実拡張の再実行はLinux Docker用です。
+## 検証
 
-## 制約と更新
+正式版Python 3.15.0で標準17検査・回帰288件・一覧UI34項目を確認しました。LinuxのWindows junction 1件はskipとして別集計します。ワークフロー検査は標準Python版のPyYAMLでも通過しています。最新ZIPのLinux/Windows × Python 3.11/3.14/3.15の6環境CI結果はvalidation.jsonで確認してください。
 
-録画・AI・Windows操作・Browser Bridge等の製品本体は未取得です。既存履歴の合格記録は今回の合格数に含めません。ZIPを録画完成品として扱いません。
+固定入力の二重ビルドがバイト一致し、ZIP全ファイルのハッシュ・パスを展開前に検証します。最新内容はworkspace-source-20261011.10.zip、191ソースファイル、501,664バイトです。ZIP内の公開記録は作成時点の履歴です。最新ZIPのSHA256・実行コミット・CIはZIP外のvalidation.jsonで照合してください。
 
-sの広告リストはPR #3をmainへ反映済み。日本語表示の追補はs PR #5でCI成功、main未反映。faaff PR #14はDependency graph無効によりDependency Reviewが失敗しています。設定を有効化して再検証が必要です。
+不正UTF-8を含む子プロセス出力でも終了コードを保持します。元の管理・監査ソース73ファイルは保持し、Nextの圧縮差やSuiteのWindows ZIPパス差は明示したアダプターで検査します。
 
-`s/`、`faaff/`、取得した管理ソースに含まれるライセンス・出典・取得コミットを保持しています。ZIP、仮想環境、キャッシュ、Git管理データはそれぞれ分離して扱います。
+## 公開範囲と残課題
 
-最新版はworkspace-source-20261011.9.zipの内容です。Windows CIで見つかったリンク整理を修正し、Nextの元ソースを保持したまま圧縮差を許容する検証アダプターを追加しました。内部ハッシュ・メタデータ一致と同一環境の二重ビルド一致は必須です。最新版ZIPはLinux/Windows × Python 3.11/3.14の4環境すべて合格しました。モバイル表の折り返しと共通展開ツールの元パス検査を含みます。実行結果は開始時に過去の合格を無効化し、途中経過と終了状態を原子的に保存します。
+録画・AI・Windows操作・Browser Bridge等の製品本体は未取得です。管理ソースのCIを製品E2Eや録画完成判定へ転用しません。署名付きuBOのFirefox実拡張12項目は同一フィルター版で以前に確認済みで、Python 3.15の実拡張合格を意味しません。
 
-Suiteの検証では、Windowsで変換される前のZIPパス表記も検査します。元の監査実装とテストを変更せず、共通入口から明示したアダプターで実行します。ツール一覧には、診断時に読み込んだ前回の結果と日時（JST）を別列で表示します。実行後はdoctorで更新してください。
+sの広告更新はPR #3でmain反映済み。日本語表示はPR #5でCI成功、main未反映。faaffのDependency ReviewはDependency graph無効で失敗しており、設定の有効化後に再検証が必要です。検査を弱めていません。
 
-CI結果：[最新ソースコミットの4環境検証](https://github.com/r20942097-hue/faaff/actions/runs/38139542746)。実行対象のコミットとZIP SHA256はvalidation.jsonで確認できます。
-
-共通ZIP展開も、読み込み時に変換された名前を拒否します。NULで隠された接尾辞を含む回帰テストを追加しました。モバイル表は日時・コマンドの列幅を確保し、一文字ずつの折り返しを防ぎます。ZIP内のpublication等の記録は作成時点の履歴です。最新のZIP identityとCIはZIP外のvalidation.jsonで照合してください。
-
-公開ZIPとローカル検証ZIPのSHA256一致も確認済みです。CIはPR更新と手動実行を入口とし、pushとの二重実行を除きました。READMEや検証記録だけの更新ではソース検証を再実行しません。ソースZIP・Python bootstrap・チェックサム・CI定義が変わった場合に4環境で検証します。
+CIはPR更新と手動実行を入口とし、pushとの二重実行を除いています。ZIP・Python bootstrap・チェックサム・CI定義の変更時に6環境で検証します。READMEと検証記録のみの更新ではソース検証を再実行しません。ライセンス・出典・取得コミットを保持しています。
