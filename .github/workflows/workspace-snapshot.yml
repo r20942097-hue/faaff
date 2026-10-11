@@ -1,0 +1,70 @@
+name: Workspace snapshot checks
+
+on:
+  pull_request:
+    paths:
+      - 'workspace-management/**'
+      - '.github/workflows/workspace-snapshot.yml'
+  push:
+    branches: ['codex/workspace-management-20261011']
+    paths:
+      - 'workspace-management/**'
+      - '.github/workflows/workspace-snapshot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  snapshot:
+    name: Source snapshot / ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.14']
+    env:
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+    steps:
+      - name: Checkout fixed revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Verify snapshot, install hashed dependencies and run checks
+        shell: python
+        run: |
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          sys.path.insert(0, str(Path('workspace-management').resolve()))
+          from extract_snapshot import extract
+          source = Path('workspace-management/workspace-source-20261011.zip')
+          expected = source.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          target = Path('work/validated-workspace')
+          count = extract(source, expected, target)
+          print('Verified snapshot:', count, 'files', flush=True)
+          subprocess.run([sys.executable, '-m', 'venv', str(target / 'work/verify-env')], check=True)
+          python = (target / 'work/verify-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')).resolve()
+          subprocess.run([str(python), '-m', 'pip', 'install', '--require-hashes', '-r', 'tools/requirements-verification.lock.txt'], cwd=target, check=True)
+          subprocess.run([str(python), '-m', 'pip', 'check'], cwd=target, check=True)
+          for command in [
+              ['tools/manage.py', 'doctor'],
+              ['tools/manage.py', 'all'],
+              ['tools/manage.py', 'run', '--tool', 'python-environment'],
+              ['tools/manage.py', 'run', '--tool', 'suite-audit'],
+              ['tools/manage.py', 'check'],
+          ]:
+              subprocess.run([str(python), *command], cwd=target, check=True)
+          print('Source/management regression checks passed. No Windows recording, real browser operation or product acceptance is claimed.', flush=True)

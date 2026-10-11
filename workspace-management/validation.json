@@ -1,0 +1,24 @@
+{
+  "schema": "portable-snapshot-check/v1",
+  "passed": true,
+  "sha256": "387ea8f5ce364f4b5e7881e443be479ff7c4cf376ce64f4d4a6560064011c381",
+  "file": "work/releases/workspace-source-20261011.5.zip",
+  "source_files": 182,
+  "reproducible_frozen_inputs": true,
+  "compression": "ZIP_DEFLATED level 9",
+  "uncompressed_zip_bytes": 2112615,
+  "compressed_zip_bytes": 473529,
+  "clean_layout_standard_checks": true,
+  "extracted_hashes": true,
+  "extracted_catalogue_check": true,
+  "portable_paths_checked_before_extraction": true,
+  "scope": "Source snapshot, not a completed Windows recording distribution.",
+  "additional_python_matrix": {
+    "Linux": {
+      "3.11.16": "PASS",
+      "3.14.7": "PASS"
+    },
+    "Windows": "NOT_RUN"
+  },
+  "publication": "User approval is required for public source snapshot export."
+}
