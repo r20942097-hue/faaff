@@ -1,19 +1,25 @@
 {
   "schema": "portable-snapshot-check/v1",
   "passed": true,
-  "sha256": "71b81cb491dc298a0d4d2c41ff690a7f1b97a8e7ae34b0b0b819ffa9f6644256",
-  "file": "work/releases/workspace-source-20261011.7.zip",
+  "sha256": "87aaeb694bed2e8210abcff7dea95c685173b571314139a882ac0caba156381a",
+  "file": "work/releases/workspace-source-20261011.9.zip",
   "source_files": 186,
   "reproducible_frozen_inputs": true,
   "compression": "ZIP_DEFLATED level 9",
-  "uncompressed_zip_bytes": 2147493,
-  "compressed_zip_bytes": 484992,
+  "uncompressed_zip_bytes": 2149235,
+  "compressed_zip_bytes": 485487,
   "clean_layout_standard_checks": true,
   "extracted_hashes": true,
   "extracted_catalogue_check": true,
   "portable_paths_checked_before_extraction": true,
   "scope": "Source snapshot, not a completed Windows recording distribution.",
-  "publication": "User authorized public export; draft PR #15, latest checks pending.",
-  "regression_checks_linux": 280,
-  "catalogue_ui_checks": 32
+  "publication": "Authorized public snapshot export, draft PR #15.",
+  "regression_checks_linux": 281,
+  "catalogue_ui_checks": 33,
+  "additional_python_matrix": {
+    "previous_verified_sha256": "71b81cb491dc298a0d4d2c41ff690a7f1b97a8e7ae34b0b0b819ffa9f6644256",
+    "previous_run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38139161227",
+    "previous_matrix": "Linux/Windows Python 3.11/3.14 PASS",
+    "current_snapshot": "CI pending"
+  }
 }

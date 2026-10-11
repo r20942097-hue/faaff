@@ -27,6 +27,8 @@ def checked_archive(body, digest):
             raise ValueError('snapshot member count outside limits')
         for member in members:
             name = member.filename
+            if member.orig_filename != name:
+                raise ValueError('snapshot path was normalized by ZIP reader')
             parts = name.split('/')
             if not name or member.is_dir() or '\\' in name or any(ord(c) < 32 for c in name):
                 raise ValueError('invalid snapshot path')
