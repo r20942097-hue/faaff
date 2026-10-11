@@ -116,8 +116,11 @@ def execute(command, root, cwd='.', timeout=120):
         result = subprocess.run(expand(command, root), cwd=directory, capture_output=True, text=True,
                                 encoding='utf-8', errors='backslashreplace', env=child_environment(), timeout=timeout, check=False, shell=False)
         return {'exit_code': result.returncode, 'output': result.stdout + result.stderr}
-    except subprocess.TimeoutExpired:
-        return {'exit_code': 124, 'output': f'timeout after {timeout} seconds'}
+    except subprocess.TimeoutExpired as error:
+        def decoded(value):
+            return value.decode('utf-8', errors='backslashreplace') if isinstance(value, bytes) else value or ''
+        partial = decoded(error.stdout) + decoded(error.stderr)
+        return {'exit_code': 124, 'output': partial + ('\n' if partial and not partial.endswith('\n') else '') + f'timeout after {timeout} seconds'}
     except OSError as error:
         return {'exit_code': 127, 'output': str(error)}
 
@@ -182,13 +185,18 @@ def run_tool(root, key):
         return 2
     results = []
     for command in tool['commands']:
-        result = execute(command, root, tool['cwd'], tool['timeout_seconds'])
+        try:
+            result = execute(command, root, tool['cwd'], tool['timeout_seconds'])
+        except KeyboardInterrupt:
+            result = {'exit_code': 130, 'output': 'interrupted by user', 'interrupted': True}
         results.append(result)
+        report['checks'] = results
+        write_report(destination, report)
         print(result['output'], end='' if result['output'].endswith('\n') else '\n')
         if result['exit_code']:
             break
     passed = all(result['exit_code'] == 0 for result in results)
-    report.update(checks=results, passed=passed, status='passed' if passed else 'failed',
+    report.update(checks=results, passed=passed, status='interrupted' if results[-1].get('interrupted') else 'passed' if passed else 'failed',
                   finished_at_utc=datetime.now(timezone.utc).isoformat())
     report['inputs_after'] = input_identity(root, tool)
     report['inputs_unchanged_during_run'] = report['inputs_before'] == report['inputs_after']
