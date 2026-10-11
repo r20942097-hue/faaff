@@ -45,6 +45,7 @@ jobs:
         shell: python
         run: |
           import os
+          import json
           from pathlib import Path
           import subprocess
           import sys
@@ -66,5 +67,13 @@ jobs:
               ['tools/manage.py', 'run', '--tool', 'suite-audit'],
               ['tools/manage.py', 'check'],
           ]:
-              subprocess.run([str(python), *command], cwd=target, check=True)
+              completed = subprocess.run([str(python), *command], cwd=target, check=False)
+              if completed.returncode:
+                  report = target / 'catalog/results/latest.json'
+                  if report.is_file():
+                      for check in json.loads(report.read_text(encoding='utf-8')).get('checks', []):
+                          if check.get('exit_code'):
+                              print('FAILED CHECK:', check['name'], flush=True)
+                              print(check.get('output', ''), flush=True)
+                  raise SystemExit(completed.returncode)
           print('Source/management regression checks passed. No Windows recording, real browser operation or product acceptance is claimed.', flush=True)
