@@ -37,10 +37,25 @@
     "mirror_profiles": 3,
     "mirror_unit_tests": 5,
     "local_mirror_check": "pass",
-    "export_ci": "pending",
+    "export_ci": "success",
     "zip_changed": false,
     "dependency_review_retry": "failed",
     "reason": "API403; action advises enabling Dependency graph",
-    "settings_change_available_to_connector": false
+    "settings_change_available_to_connector": false,
+    "export_commit": "631c319ea668ff7324690ac17cab89ff1534bae9",
+    "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38161658501",
+    "matrix": {
+      "Linux": {
+        "3.11": "PASS",
+        "3.14": "PASS",
+        "3.15": "PASS"
+      },
+      "Windows": {
+        "3.11": "PASS",
+        "3.14": "PASS",
+        "3.15": "PASS"
+      }
+    },
+    "windows_checkout_lf_enforced": true
   }
 }
