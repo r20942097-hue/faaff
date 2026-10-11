@@ -1,19 +1,14 @@
 from datetime import date
 from pathlib import Path
-import json
 import re
 import sys
 
 import validate_candidate_evidence as evidence_validator
+from registry_io import integer_in_range, load_json_object as load_json, safe_path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "manifest.json"
 SOURCE_FAMILY_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,31}$")
-
-
-def load_json(path):
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
 
 
 def validate(today=None):
@@ -21,18 +16,44 @@ def validate(today=None):
     warnings = []
     today = today or date.today()
 
-    manifest = load_json(MANIFEST_PATH)
+    # Share the evidence gate: promotion checks cannot bypass stale/invalid evidence.
+    evidence_errors, evidence_warnings = evidence_validator.validate(today=today)
+    if evidence_errors:
+        return evidence_errors, evidence_warnings
+    try:
+        manifest = load_json(MANIFEST_PATH)
+    except (OSError, ValueError) as exc:
+        return [f"manifest.json cannot be read: {exc}"], warnings
     minimum = manifest.get("candidate_min_independent_source_families")
     max_age = manifest.get("candidate_evidence_max_age_days")
     review_required = manifest.get("candidate_exception_review_required")
+    family_repositories = manifest.get('source_family_repositories')
+    if not isinstance(family_repositories, dict) or not family_repositories:
+        return ['manifest.json: source_family_repositories must be a nonempty object'], warnings
+    registered_repositories = set()
+    for family, repositories in family_repositories.items():
+        if (not isinstance(family, str) or not SOURCE_FAMILY_RE.fullmatch(family)
+                or not isinstance(repositories, list) or not repositories
+                or any(not isinstance(repo, str) or not evidence_validator.REPOSITORY_RE.fullmatch(repo) for repo in repositories)):
+            return ['manifest.json: invalid source-family repository registry'], warnings
+        normalized = [repository.lower() for repository in repositories]
+        if len(set(normalized)) != len(normalized) or registered_repositories.intersection(normalized):
+            return ['manifest.json: a repository can belong to only one source family'], warnings
+        registered_repositories.update(normalized)
 
-    if not isinstance(minimum, int) or not 2 <= minimum <= 5:
+    if not integer_in_range(minimum, 2, 5):
         errors.append("manifest.json: candidate_min_independent_source_families must be 2..5")
         return errors, warnings
     if review_required is not True:
         errors.append("manifest.json: candidate_exception_review_required must be true")
 
-    queue = load_json(ROOT / manifest["candidate_queue"])
+    queue_path = safe_path(ROOT, manifest.get('candidate_queue'))
+    if queue_path is None:
+        return ["manifest.json: candidate_queue is unsafe"], warnings
+    try:
+        queue = load_json(queue_path)
+    except (OSError, ValueError) as exc:
+        return [f"candidate queue cannot be read: {exc}"], warnings
     for index, candidate in enumerate(queue.get("candidates", []), 1):
         prefix = f"candidate[{index}] {candidate.get('domain', '<unknown>')}"
         state = candidate.get("state")
@@ -61,10 +82,17 @@ def validate(today=None):
             ev_prefix = f"{prefix}:evidence[{evidence_index}]"
             role = record.get("role")
             family = record.get("source_family")
-            if role not in {"classification", "exception"}:
+            if not isinstance(role, str) or role not in {"classification", "exception"}:
                 errors.append(f"{ev_prefix}: role must be classification or exception")
             if not isinstance(family, str) or not SOURCE_FAMILY_RE.fullmatch(family):
                 errors.append(f"{ev_prefix}: invalid source_family")
+                continue
+            repository = record.get('repository')
+            if record.get('kind') == 'github_issue':
+                issue = evidence_validator.GITHUB_ISSUE_RE.fullmatch(record.get('url', ''))
+                repository = f'{issue.group(1)}/{issue.group(2)}' if issue else None
+            if repository not in family_repositories.get(family, []):
+                errors.append(f'{ev_prefix}: repository does not belong to the declared source_family')
                 continue
             if role == "classification":
                 if record.get("kind") != "github_file_snapshot":
