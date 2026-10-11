@@ -40,3 +40,15 @@ Dependency Reviewが合格するまでは公開準備が完了した扱いにし
 - [Dependency graphの有効化](https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/secure-your-dependencies/enable-dependency-graph)
 - [対応する依存マニフェスト](https://docs.github.com/en/code-security/reference/supply-chain-security/dependency-graph-supported-package-ecosystems)
 - [固定actionの403処理](https://github.com/actions/dependency-review-action/blob/a1d282b36b6f3519aa1f3fc636f609c47dddb294/src/main.ts#L262)
+
+## 照合結果の見方
+
+`verify_dependencies.py --snapshot 展開先 --json` で、3種類すべてが一致した場合にJSONを表示します。`profile` は用途、`mirror` は公開依存表、`snapshot_source` はZIP内の正本、`bytes` はファイルのサイズ、`sha256` はその内容のハッシュです。通常表示でも用途・サイズ・ハッシュを1行ずつ確認できます。不一致の場合は用途と両方の実測ハッシュをエラーに表示し、合格の一覧を出しません。
+
+| 用途 | サイズ | 確認対象 |
+|---|---:|---|
+| runtime | 15,237 bytes | 通常の検証依存 |
+| build | 628 bytes | PyYAMLビルド依存 |
+| extension | 2,968 bytes | Firefox実拡張用依存 |
+
+CIは導入前に照合結果をログと展開先の `dependency-mirror-check.json` に保存します。これはジョブ内の検証記録で、ダウンロード用Actions artifactとして公開する設定ではありません。既存5件に、全ファイルのハッシュ・サイズ・対応先、不一致時の実測ハッシュ、改行差、ディレクトリ誤指定の4件を追加し、ローカルの9件が合格しました。今回の変更でもZIPの内容とSHA256は同じです。

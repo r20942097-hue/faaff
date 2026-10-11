@@ -54,8 +54,10 @@ jobs:
           target = Path('work/validated-workspace')
           subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', 'workspace-management', '-p', 'test_verify_dependencies.py'], check=True)
           count = extract(source, expected, target)
-          from verify_dependencies import verify
-          print('Matched dependency profiles:', verify(Path('workspace-management'), target), flush=True)
+          from verify_dependencies import audit
+          evidence = audit(Path('workspace-management'), target)
+          (target / 'dependency-mirror-check.json').write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
+          print(json.dumps(evidence, indent=2), flush=True)
           print('Verified snapshot:', count, 'files', flush=True)
           subprocess.run([sys.executable, '-m', 'venv', str(target / 'work/verify-env')], check=True)
           python = (target / 'work/verify-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')).absolute()
