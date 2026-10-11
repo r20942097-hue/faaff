@@ -1,25 +1,19 @@
 {
   "schema": "portable-snapshot-check/v1",
   "passed": true,
-  "sha256": "ba74f9ac5fbdce1215498706a8d39fb524d767282fd24e2863c808108042dc48",
-  "file": "work/releases/workspace-source-20261011.6.zip",
-  "source_files": 184,
+  "sha256": "71b81cb491dc298a0d4d2c41ff690a7f1b97a8e7ae34b0b0b819ffa9f6644256",
+  "file": "work/releases/workspace-source-20261011.7.zip",
+  "source_files": 186,
   "reproducible_frozen_inputs": true,
   "compression": "ZIP_DEFLATED level 9",
-  "uncompressed_zip_bytes": 2132788,
-  "compressed_zip_bytes": 480290,
+  "uncompressed_zip_bytes": 2147493,
+  "compressed_zip_bytes": 484992,
   "clean_layout_standard_checks": true,
   "extracted_hashes": true,
   "extracted_catalogue_check": true,
   "portable_paths_checked_before_extraction": true,
   "scope": "Source snapshot, not a completed Windows recording distribution.",
-  "publication": "User authorized public snapshot publication and continued branch development; draft PR #15.",
-  "additional_python_matrix": {
-    "Linux": {
-      "previous_snapshot_3.11.16": "PASS",
-      "previous_snapshot_3.14.7": "PASS"
-    },
-    "current_snapshot_ci": "PENDING",
-    "Windows_previous_failures": "Dangling link pruning; cross-runtime ZIP compression comparison. Fixes included; CI pending."
-  }
+  "publication": "User authorized public export; draft PR #15, latest checks pending.",
+  "regression_checks_linux": 280,
+  "catalogue_ui_checks": 32
 }
