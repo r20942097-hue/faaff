@@ -25,7 +25,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python: ['3.11', '3.14']
+        python: ['3.11', '3.14', '3.15']
     env:
       PYTHONUTF8: '1'
       PYTHONIOENCODING: utf-8
@@ -55,13 +55,13 @@ jobs:
           print('Verified snapshot:', count, 'files', flush=True)
           subprocess.run([sys.executable, '-m', 'venv', str(target / 'work/verify-env')], check=True)
           python = (target / 'work/verify-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')).resolve()
-          subprocess.run([str(python), '-m', 'pip', 'install', '--require-hashes', '-r', 'tools/requirements-verification.lock.txt'], cwd=target, check=True)
-          subprocess.run([str(python), '-m', 'pip', 'check'], cwd=target, check=True)
+          subprocess.run([str(python), 'tools/setup_verification.py'], cwd=target, check=True)
           for command in [
               ['tools/manage.py', 'doctor'],
               ['tools/manage.py', 'all'],
               ['tools/manage.py', 'run', '--tool', 'python-environment'],
               ['tools/manage.py', 'run', '--tool', 'suite-audit'],
+              ['tools/manage.py', 'run', '--tool', 'workflows'],
               ['tools/manage.py', 'check'],
           ]:
               completed = subprocess.run([str(python), *command], cwd=target, check=False)

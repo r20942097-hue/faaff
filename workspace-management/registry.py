@@ -1,5 +1,6 @@
 """Strict shared command registry; no shell execution or credential inspection."""
 import json
+import hashlib
 import os
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
@@ -113,7 +114,7 @@ def execute(command, root, cwd='.', timeout=120):
     directory = safe_path(root, cwd, allow_dot=True)
     try:
         result = subprocess.run(expand(command, root), cwd=directory, capture_output=True, text=True,
-                                encoding='utf-8', env=child_environment(), timeout=timeout, check=False, shell=False)
+                                encoding='utf-8', errors='backslashreplace', env=child_environment(), timeout=timeout, check=False, shell=False)
         return {'exit_code': result.returncode, 'output': result.stdout + result.stderr}
     except subprocess.TimeoutExpired:
         return {'exit_code': 124, 'output': f'timeout after {timeout} seconds'}
@@ -126,6 +127,21 @@ def child_environment():
     environment['PYTHONUTF8'] = '1'
     environment['PYTHONIOENCODING'] = 'utf-8'
     return environment
+
+
+def input_identity(root, tool):
+    """Identify registered files and tool configuration, not every runtime input."""
+    files = {}
+    for name in tool['files']:
+        try:
+            path = safe_path(root, name)
+            with path.open('rb') as stream:
+                files[name] = hashlib.file_digest(stream, 'sha256').hexdigest()
+        except (ValueError, OSError):
+            files[name] = None
+    definition = json.dumps(tool, sort_keys=True, ensure_ascii=True, separators=(',', ':')).encode('utf-8')
+    return {'schema': 'registered-tool-inputs/v1', 'tool_definition_sha256': hashlib.sha256(definition).hexdigest(),
+            'files': files, 'scope': 'Registered files and tool definition only; external services, binaries and all transitive inputs are not fingerprinted.'}
 
 
 def write_report(destination, report):
@@ -156,6 +172,8 @@ def run_tool(root, key):
               'started_at_utc': datetime.now(timezone.utc).isoformat(), 'status': 'running', 'passed': False,
               'python': {'executable': sys.executable, 'version': sys.version.split()[0]}, 'checks': []}
     write_report(destination, report)
+    report['inputs_before'] = input_identity(root, tool)
+    write_report(destination, report)
     ready = next(item for item in inspect(root, registry=data)['tools'] if item['id'] == key)
     if ready['status'] != 'ready' or not tool['commands']:
         report.update(status='blocked', missing=ready['missing'], finished_at_utc=datetime.now(timezone.utc).isoformat())
@@ -172,5 +190,7 @@ def run_tool(root, key):
     passed = all(result['exit_code'] == 0 for result in results)
     report.update(checks=results, passed=passed, status='passed' if passed else 'failed',
                   finished_at_utc=datetime.now(timezone.utc).isoformat())
+    report['inputs_after'] = input_identity(root, tool)
+    report['inputs_unchanged_during_run'] = report['inputs_before'] == report['inputs_after']
     write_report(destination, report)
     return results[-1]['exit_code']
