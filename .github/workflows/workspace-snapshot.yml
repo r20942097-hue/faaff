@@ -6,6 +6,7 @@ on:
       - 'workspace-management/*.py'
       - 'workspace-management/*.zip'
       - 'workspace-management/*.zip.sha256'
+      - 'workspace-management/dependencies/**'
       - '.github/workflows/workspace-snapshot.yml'
   workflow_dispatch:
 
@@ -51,7 +52,10 @@ jobs:
           source = Path('workspace-management/workspace-source-20261011.zip')
           expected = source.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
           target = Path('work/validated-workspace')
+          subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', 'workspace-management', '-p', 'test_verify_dependencies.py'], check=True)
           count = extract(source, expected, target)
+          from verify_dependencies import verify
+          print('Matched dependency profiles:', verify(Path('workspace-management'), target), flush=True)
           print('Verified snapshot:', count, 'files', flush=True)
           subprocess.run([sys.executable, '-m', 'venv', str(target / 'work/verify-env')], check=True)
           python = (target / 'work/verify-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')).absolute()
