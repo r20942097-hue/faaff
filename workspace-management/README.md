@@ -31,11 +31,11 @@ python tools/manage.py run --tool suite-audit
 
 ## 検証
 
-正式版Python 3.15.0で標準17検査・回帰288件・一覧UI34項目を確認しました。LinuxのWindows junction 1件はskipとして別集計します。ワークフロー検査は標準Python版のPyYAMLでも通過しています。最新ZIPのLinux/Windows × Python 3.11/3.14/3.15の6環境CI結果はvalidation.jsonで確認してください。
+正式版Python 3.15.0で標準17検査・回帰290件・一覧UI34項目を確認しました。LinuxのWindows junction 1件はskipとして別集計します。ワークフロー検査は標準Python版のPyYAMLでも通過しています。最新ZIPのLinux/Windows × Python 3.11/3.14/3.15の6環境CI結果はvalidation.jsonで確認してください。
 
-固定入力の二重ビルドがバイト一致し、ZIP全ファイルのハッシュ・パスを展開前に検証します。最新内容はworkspace-source-20261011.10.zip、191ソースファイル、501,664バイトです。ZIP内の公開記録は作成時点の履歴です。最新ZIPのSHA256・実行コミット・CIはZIP外のvalidation.jsonで照合してください。
+固定入力の二重ビルドがバイト一致し、ZIP全ファイルのハッシュ・パスを展開前に検証します。最新内容はworkspace-source-20261011.11.zip、191ソースファイル、506,708バイトです。ZIP内の公開記録は作成時点の履歴です。最新ZIPのSHA256・実行コミット・CIはZIP外のvalidation.jsonで照合してください。
 
-不正UTF-8を含む子プロセス出力でも終了コードを保持します。元の管理・監査ソース73ファイルは保持し、Nextの圧縮差やSuiteのWindows ZIPパス差は明示したアダプターで検査します。
+不正UTF-8を含む子プロセス出力でも終了コードを保持します。各コマンドの結果を順次保存し、中断時は終了コード130と中断状態を記録して残りを停止します。実際のSIGINTで確認しました。タイムアウトは標準出力・標準エラーの部分ログを保存します。全ての子孫プロセスまで停止できる保証ではありません。元の管理・監査ソース73ファイルは保持し、Nextの圧縮差やSuiteのWindows ZIPパス差は明示したアダプターで検査します。
 
 ## 公開範囲と残課題
 
