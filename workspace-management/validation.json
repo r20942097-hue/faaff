@@ -1,93 +1,46 @@
 {
   "schema": "portable-snapshot-check/v1",
   "passed": true,
-  "sha256": "632b30a6ef0b154fb1fb96641ee8a257b3568d21e1c00e1657ef335182a8301c",
-  "file": "work/releases/workspace-source-20261012.1.zip",
+  "sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+  "file": "work/releases/workspace-source-20261012.2.zip",
   "source_files": 192,
   "reproducible_frozen_inputs": true,
   "compression": "ZIP_DEFLATED level 9",
-  "uncompressed_zip_bytes": 2227535,
-  "compressed_zip_bytes": 509757,
+  "uncompressed_zip_bytes": 2245645,
+  "compressed_zip_bytes": 515953,
   "clean_layout_standard_checks": true,
   "extracted_hashes": true,
   "extracted_catalogue_check": true,
   "portable_paths_checked_before_extraction": true,
   "scope": "Source snapshot, not a completed Windows recording distribution.",
-  "publication": "Authorized public snapshot export, draft PR #15.",
-  "regression_checks_linux": 296,
+  "publication": "User explicitly approved exact updated ZIP publication to faaff draft PR15; no main merge.",
+  "regression_checks_linux": 302,
   "catalogue_ui_checks": 35,
-  "live_interruption_fixture": true,
+  "catalogue_ui_scope": "Existing 35 UI checks; UI implementation unchanged in this update.",
+  "fresh_python315_setup_verified": true,
+  "source_identities_preserved": 73,
+  "mirror_unit_tests": 9,
+  "dependency_profiles_matched": 3,
+  "published_bytes_verified": false,
   "additional_python_matrix": {
-    "source_commit": "0e4e509de2d6031851bcf7a8a975c9f848622acc",
-    "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38156671982",
+    "status": "Published source candidate; six-environment CI pending",
     "Linux": {
       "3.11": "PASS",
       "3.14": "PASS",
       "3.15": "PASS"
     },
     "Windows": {
-      "3.11": "PASS",
-      "3.14": "PASS",
-      "3.15": "PASS"
+      "3.11": "PENDING",
+      "3.14": "PENDING",
+      "3.15": "PENDING"
     },
-    "scope": "Management regressions; not Windows product E2E."
+    "scope": "Current ZIP; source-management checks only, not Windows product E2E."
   },
-  "published_bytes_verified": true,
-  "dependency_review_preparation": {
-    "mirror_profiles": 3,
-    "mirror_unit_tests": 9,
-    "local_mirror_check": "pass",
-    "export_ci": "success",
-    "zip_changed": false,
-    "dependency_review_retry": "success",
-    "reason": "Previous API403 did not recur; review parsed all three requirement mirrors",
-    "settings_change_available_to_connector": false,
-    "export_commit": "75d584993ffaf4b14f121e2f5f68d3f0522775f1",
-    "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38164196425",
-    "matrix": {
-      "Linux": {
-        "3.11": "PASS",
-        "3.14": "PASS",
-        "3.15": "PASS"
-      },
-      "Windows": {
-        "3.11": "PASS",
-        "3.14": "PASS",
-        "3.15": "PASS"
-      }
-    },
-    "windows_checkout_lf_enforced": true,
-    "evidence_schema": "dependency-mirror-check/v1",
-    "evidence_fields": [
-      "profile",
-      "mirror",
-      "snapshot_source",
-      "bytes",
-      "sha256"
-    ],
-    "local_python_versions": [
-      "3.11",
-      "3.14",
-      "3.15"
-    ],
-    "dependency_review": {
-      "pr15": {
-        "result": "success",
-        "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38164196557",
-        "high_or_above_vulnerabilities_detected": false,
-        "requirement_profiles_parsed": 3
-      },
-      "pr14": {
-        "result": "success",
-        "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38125486938",
-        "retry_failed_jobs_only": true
-      },
-      "settings_directly_verified": false,
-      "conditions_weakened": false,
-      "remaining_notes": [
-        "typing_extensions 4.16.0 license not detected by GitHub; PyPI declares PSF-2.0",
-        "PySocks OpenSSF Scorecard 2.4 warning remains"
-      ]
-    }
-  }
+  "setup_improvements": [
+    "Shared subprocess runner",
+    "Checkpoint current command before launch",
+    "Partial timeout output and error type retained",
+    "Launch failures and interruption record command, status and exit code"
+  ],
+  "new_setup_regressions": 6
 }
