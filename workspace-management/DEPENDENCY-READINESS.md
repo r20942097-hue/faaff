@@ -58,3 +58,7 @@ PR #15のDependency Reviewは今回合格しました。PR #14も失敗したジ
 CIは導入前に照合結果をログと展開先の `dependency-mirror-check.json` に保存します。これはジョブ内の検証記録で、ダウンロード用Actions artifactとして公開する設定ではありません。既存5件に、全ファイルのハッシュ・サイズ・対応先、不一致時の実測ハッシュ、改行差、ディレクトリ誤指定の4件を追加し、ローカルの9件が合格しました。今回の変更でもZIPの内容とSHA256は同じです。
 
 改良後の9テスト・3表の照合・既存管理検証は、Linux/Windows × Python 3.11/3.14/3.15の6環境すべてで合格しました。[今回のCI](https://github.com/r20942097-hue/faaff/actions/runs/38164196425)はソースコミット `75d584993ffaf4b14f121e2f5f68d3f0522775f1` の実行です。ZIP内の回帰296件と、ZIP外の照合9件は別集計です。
+
+## 最新ZIPとの対応
+
+2026-10-12の更新ZIPは `workspace-source-20261012.2.zip` です。導入処理を共通化したためZIPの内容とSHA256を更新しています。本文中の75d584...と6環境CIは前回の依存表照合改良の記録です。今回のZIP、Linux回帰302件、照合9件と6環境CIは [validation.json](validation.json) と [最新改良一覧](TOOL-IMPROVEMENTS.md) を参照してください。導入依存の版と3表の内容は同じです。
