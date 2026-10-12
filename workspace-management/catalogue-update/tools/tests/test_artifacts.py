@@ -190,3 +190,15 @@ class ArtifactTests(unittest.TestCase):
             self.data['rule_groups'][0]['sha256'] = '0' * 64
             with self.assertRaisesRegex(ValueError, 'rule lines differ'):
                 views(self.data, root)
+
+    def test_markdown_descriptions_cannot_create_unregistered_links(self):
+        self.row['name'] = '[unexpected](javascript:alert(1))'
+        result = views(self.data)['artifacts.md']
+        self.assertNotIn('[unexpected](', result)
+        self.assertIn('\\[unexpected\\]', result)
+
+    def test_markdown_download_url_escapes_link_delimiters(self):
+        self.row['publication']['url'] += ')[unexpected](javascript:alert(1))'
+        result = views(self.data)['artifacts.md']
+        self.assertNotIn('[unexpected](', result)
+        self.assertIn('%29%5Bunexpected%5D%28', result)
