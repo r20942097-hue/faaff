@@ -136,7 +136,7 @@ def records(data, root=None):
 
 
 def spreadsheet(value):
-    text = str(value)
+    text = str(value).replace('\r\n', '\n').replace('\r', '\n')
     return "'" + text if text.lstrip().startswith(('=', '+', '-', '@')) else text
 
 
@@ -148,11 +148,12 @@ def views(data, root=None, standalone=False):
               r['verification']['summary'], r['verification']['checked_on'], LOCAL[r['local_state']],
               r['publication']['url'], r['sha256'], str(r['bytes'])] for r in rows]
     stream = io.StringIO(newline='')
-    writer = csv.writer(stream)
+    writer = csv.writer(stream, lineterminator='\n')
     writer.writerow(headers)
     writer.writerows([spreadsheet(v) for v in row] for row in cells)
     def md(value):
-        return html.escape(str(value)).replace('|', '&#124;').replace('\n', '<br>')
+        text = str(value).replace('\r\n', '\n').replace('\r', '\n')
+        return html.escape(text).replace('|', '&#124;').replace('\n', '<br>')
     md_headers = ['成果物・用途', '版', '公開状況', '公開版の検証・確認日', '生成時の手元', '取得先']
     markdown = ['# 成果物一覧', '', md(data['scope']), '', '| ' + ' | '.join(md_headers) + ' |', '| ' + ' | '.join(['---'] * len(md_headers)) + ' |']
     for row in rows:
@@ -191,5 +192,5 @@ const query=document.querySelector('#query'),stage=document.querySelector('#stag
     substitutions = {'__NAV__': nav, '__SCOPE__': esc(data['scope']), '__COUNTS__': counts, '__CARDS__': ''.join(cards), '__DELTA__': delta_html,
                      '__SOURCE__': source, '__KINDS__': ''.join('<option value="' + key + '">' + esc(label) + '</option>' for key, label in KINDS.items())}
     page = re.sub(r'__(?:NAV|SCOPE|COUNTS|CARDS|DELTA|SOURCE|KINDS)__', lambda match: substitutions[match.group(0)], page)
-    return {'artifacts.html': page + '\n', 'artifacts.md': '\n'.join(markdown) + '\n', 'artifacts.csv': '\ufeff' + stream.getvalue(),
+    return {'artifacts.html': page.replace('\r\n', '\n').replace('\r', '\n') + '\n', 'artifacts.md': '\n'.join(markdown) + '\n', 'artifacts.csv': '\ufeff' + stream.getvalue(),
             'artifacts.json': json.dumps({'schema': 'deliverable-catalog-view/v1', 'scope': data['scope'], 'artifacts': rows, 'changes': delta}, ensure_ascii=False, indent=2) + '\n'}
