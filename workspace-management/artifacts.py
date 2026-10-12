@@ -12,7 +12,7 @@ from urllib.parse import quote, urlsplit
 from registry import load_json, relative_path, safe_path
 
 STAGES = {'main': 'main反映済み', 'pr': 'PR公開・main未反映', 'local': 'ローカル保存'}
-KINDS = {'snapshot': 'ソースZIP', 'filter': '広告・追跡', 'font': '日本語表示', 'candidate': '候補', 'optional': '追加設定用'}
+KINDS = {'snapshot': 'ソースZIP', 'update': '管理コード更新', 'filter': '広告・追跡', 'font': '日本語表示', 'candidate': '候補', 'optional': '追加設定用'}
 LOCAL = {'match': '記録と一致', 'changed': '内容変更・要再確認', 'missing': '未保存・公開先から取得', 'unchecked': '手元は未照合', 'blocked': '原本を参照できません'}
 VERIFIED = {'passed': '検証合格', 'matched': '公開版の本文一致', 'pending': '未確認'}
 
@@ -33,6 +33,13 @@ def public_url(value, optional=False):
 def digest(value):
     if not isinstance(value, str) or not re.fullmatch('[0-9a-f]{64}', value):
         raise ValueError('invalid artifact SHA256')
+
+
+def rule_identity(body):
+    lines = [line.strip() for line in body.decode('utf-8-sig').splitlines()
+             if line.strip() and not line.lstrip().startswith('[')
+             and (not line.lstrip().startswith('!') or line.lstrip().startswith('!#'))]
+    return {'sha256': hashlib.sha256(('\n'.join(lines) + ('\n' if lines else '')).encode('utf-8')).hexdigest(), 'lines': len(lines)}
 
 
 def validate(data):
@@ -91,6 +98,26 @@ def validate(data):
             if any(not isinstance(item.get(k), str) or not item[k] for k in ('name', 'version')):
                 raise ValueError('invalid baseline description')
             digest(item.get('sha256'))
+    groups = data.get('rule_groups', [])
+    if not isinstance(groups, list):
+        raise ValueError('rule groups must be an array')
+    by_id = {row['id']: row for row in rows}
+    group_ids = set()
+    for group in groups:
+        if not isinstance(group, dict) or not isinstance(group.get('id'), str) or not re.fullmatch('[a-z][a-z0-9-]*', group['id']) or group['id'] in group_ids:
+            raise ValueError('invalid or duplicate rule group')
+        group_ids.add(group['id'])
+        members = group.get('members')
+        if not isinstance(members, list) or len(members) < 2 or not all(isinstance(m, str) and m in by_id and by_id[m]['kind'] in {'filter', 'font', 'candidate', 'optional'} for m in members) or len(set(members)) != len(members):
+            raise ValueError('invalid rule group members')
+        if not isinstance(group.get('name'), str) or not group['name'] or type(group.get('lines')) is not int or group['lines'] < 1:
+            raise ValueError('invalid rule group description')
+        if group.get('comparison') != 'ordered-rule-and-control-lines':
+            raise ValueError('invalid rule comparison')
+        digest(group.get('sha256'))
+        sources = group.get('source_sha256')
+        if not isinstance(sources, dict) or set(sources) != set(members) or any(sources[m] != by_id[m]['sha256'] for m in members):
+            raise ValueError('rule group refers to different source bytes')
     return data
 
 
@@ -143,6 +170,15 @@ def spreadsheet(value):
 def views(data, root=None, standalone=False):
     rows = records(data, root)
     delta = changes(data)
+    by_id = {row['id']: row for row in rows}
+    groups = data.get('rule_groups', [])
+    if root is not None:
+        for group in groups:
+            for member in group['members']:
+                if by_id[member]['local_state'] == 'match':
+                    actual = rule_identity(safe_path(root, by_id[member]['local_path']).read_bytes())
+                    if actual != {'sha256': group['sha256'], 'lines': group['lines']}:
+                        raise ValueError('recorded rule lines differ from matching source: ' + member)
     headers = ['成果物', '用途', '版', '公開状況', '公開版の検証', '確認日', '生成時の手元確認', '公開先', 'SHA256', 'サイズ']
     cells = [[r['name'], r['purpose'], r['version'], STAGES[r['publication']['stage']],
               r['verification']['summary'], r['verification']['checked_on'], LOCAL[r['local_state']],
@@ -169,6 +205,8 @@ def views(data, root=None, standalone=False):
         markdown += ['<details><summary>' + md(row['name']) + '</summary>', '',
                      format(row['bytes'], ',') + ' bytes', '', '`' + row['sha256'] + '`', '',
                      md(row['notes']), '', '</details>', '']
+    markdown += ['', '## 共有するルール', '', '出典・メタデータ・公開先を保持して関係を表示します。比較は順序を保ったルール・制御行で、製品動作の同一性を保証するものではありません。']
+    markdown += ['- ' + md(g['name']) + '：' + str(g['lines']) + '行、' + ' / '.join(md(by_id[m]['name']) for m in g['members']) for g in groups]
     cards = []
     esc = html.escape
     for row in rows:
@@ -180,11 +218,12 @@ def views(data, root=None, standalone=False):
             links += ' <a href="' + esc(verification['evidence_url'], quote=True) + '">検証記録</a>'
         if root is not None and row['local_state'] == 'match' and not standalone:
             links += ' <a href="../../' + quote(row['local_path']) + '">手元の原本</a>'
-        cards.append('<article data-stage="' + publication['stage'] + '" data-kind="' + row['kind'] + '" data-local="' + row['local_state'] + '"><p class="badges"><span>' + esc(KINDS[row['kind']]) + '</span><span>' + esc(STAGES[publication['stage']]) + '</span></p><h2>' + esc(row['name']) + '</h2><p>' + esc(row['purpose']) + '</p><dl><dt>版</dt><dd>' + esc(row['version']) + '</dd><dt>公開版の検証</dt><dd>' + esc(VERIFIED[verification['status']]) + '<br>' + esc(verification['summary']) + '</dd><dt>確認日</dt><dd>' + verification['checked_on'] + '</dd><dt>生成時の手元</dt><dd>' + esc(LOCAL[row['local_state']]) + '</dd></dl><p class="notes">' + esc(row['notes']) + '</p><p class="actions">' + links + '</p><details><summary>サイズ・SHA256・原本パス</summary><p>' + format(row['bytes'], ',') + ' bytes</p><code>' + row['sha256'] + '</code><p><code>' + esc(row['local_path']) + '</code></p></details></article>')
+        cards.append('<article id="artifact-' + row['id'] + '" tabindex="-1" data-stage="' + publication['stage'] + '" data-kind="' + row['kind'] + '" data-local="' + row['local_state'] + '"><p class="badges"><span>' + esc(KINDS[row['kind']]) + '</span><span>' + esc(STAGES[publication['stage']]) + '</span></p><h2>' + esc(row['name']) + '</h2><p>' + esc(row['purpose']) + '</p><dl><dt>版</dt><dd>' + esc(row['version']) + '</dd><dt>公開版の検証</dt><dd>' + esc(VERIFIED[verification['status']]) + '<br>' + esc(verification['summary']) + '</dd><dt>確認日</dt><dd>' + verification['checked_on'] + '</dd><dt>生成時の手元</dt><dd>' + esc(LOCAL[row['local_state']]) + '</dd></dl><p class="notes">' + esc(row['notes']) + '</p><p class="actions">' + links + '</p><details><summary>サイズ・SHA256・原本パス</summary><p>' + format(row['bytes'], ',') + ' bytes</p><code>' + row['sha256'] + '</code><p><code>' + esc(row['local_path']) + '</code></p></details></article>')
     nav = '<a href="inventory.html">全ファイル</a><a href="tools.html">ツール</a><a href="projects.html">製品</a><a href="../INTEGRATION.md">統合・更新案</a>' if not standalone else '<a href="README.md">使い方</a><a href="TOOL-IMPROVEMENTS.md">統合・更新案</a>'
     source = 'artifacts-source.json' if standalone else '../artifacts.json'
     counts = '<span>成果物 <strong>' + str(len(rows)) + '</strong></span>' + ''.join('<span>' + esc(label) + ' <strong>' + str(sum(r['publication']['stage'] == key for r in rows)) + '</strong></span>' for key, label in STAGES.items())
     delta_html = '<p>' + esc(delta['baseline']) + '：追加 ' + str(len(delta['added'])) + '件・変更 ' + str(len(delta['changed'])) + '件・登録解除 ' + str(len(delta['removed'])) + '件</p><ul>' + ''.join('<li>' + esc(c['name']) + '：' + esc(c['before']) + ' → ' + esc(c['after']) + '</li>' for c in delta['changed']) + '</ul>'
+    relations = '<section class="change" id="relations"><h2>共有するルール</h2><p>出典・メタデータ・公開先を保持して関係を表示します。比較は順序を保ったルール・制御行で、製品動作の同一性を保証するものではありません。</p><ul>' + ''.join('<li>' + esc(g['name']) + '：' + str(g['lines']) + '行、' + ' / '.join('<a href="#artifact-' + m + '">' + esc(by_id[m]['name']) + '</a>' for m in g['members']) + '</li>' for g in groups) + '</ul></section>' if groups else ''
     page = '''<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>成果物一覧</title><style>
 *{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:#18304b;font-family:system-ui,sans-serif;line-height:1.7}main{max-width:1240px;margin:auto;padding:28px 20px}a{color:#075bb5}nav,.summary,.toolbar,.actions{display:flex;gap:12px;flex-wrap:wrap}h1{font-size:30px}h2{font-size:21px;line-height:1.5}.summary{margin:22px 0}.summary span,article,.change{background:white;border:1px solid #d6e1ed;border-radius:12px;padding:18px}.note{background:#e8f1ff;border-radius:12px;padding:18px}.toolbar{margin:20px 0}input,select,button{font:inherit;padding:10px;border:1px solid #c9d5e5;border-radius:8px;background:white}input{flex:1;min-width:180px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px}.grid article[hidden]{display:none}article{min-width:0;overflow-wrap:anywhere}.badges{display:flex;gap:8px;flex-wrap:wrap}.badges span{background:#edf2f8;border-radius:6px;padding:3px 8px;font-size:13px}article[data-stage=main] .badges span:last-child{background:#e6f5ed;color:#20633d}article[data-stage=pr] .badges span:last-child{background:#fff2d9;color:#7c5100}dl{display:grid;grid-template-columns:110px 1fr;gap:8px}dt{color:#52657b}dd{margin:0}.notes{font-size:14px;color:#52657b}code{font-size:12px;overflow-wrap:anywhere}summary{cursor:pointer}.change{margin-top:24px}#empty{display:none}@media(max-width:600px){main{padding:20px 12px}.toolbar>*{max-width:100%}h1{font-size:26px}dl{grid-template-columns:96px 1fr}.summary span{padding:10px}}@media print{nav,.toolbar,.actions{display:none}body{background:white}main{max-width:none}.grid{display:block}article{break-inside:avoid;margin-bottom:14px}}</style><main><nav>__NAV__<a href="artifacts.csv" download>CSV保存</a></nav><h1>成果物一覧</h1><p class="note">__SCOPE__</p><div class="summary">__COUNTS__</div><p>確認日は記録時点の日付です。「生成時の手元」は一覧を作成したワークスペースの照合結果で、閲覧端末の診断ではありません。</p><div class="toolbar"><input id="query" type="search" aria-label="成果物検索" placeholder="名前・用途・版・SHA256で検索"><select id="stage" aria-label="公開状況"><option value="">公開状況すべて</option value="main">main反映済み</option><option value="pr">PR公開・main未反映</option><option value="local">ローカル保存</option></select><select id="kind" aria-label="成果物の種類"><option value="">種類すべて</option>__KINDS__</select><button id="reset">条件を解除</button></div><p id="count" aria-live="polite"></p><p id="empty">一致する成果物がありません。</p><div class="grid">__CARDS__</div><section class="change"><h2>前回からの変更</h2>__DELTA__<p>版・本文のSHA256を固定した比較対象と照合しています。登録解除は原本の削除を意味しません。</p></section><p><a href="artifacts.md">Markdown一覧</a> · <a href="__SOURCE__">一覧の正本</a></p></main><script>
 const query=document.querySelector('#query'),stage=document.querySelector('#stage'),kind=document.querySelector('#kind'),rows=[...document.querySelectorAll('article')];function render(){let count=0;for(const row of rows){const show=(!stage.value||row.dataset.stage===stage.value)&&(!kind.value||row.dataset.kind===kind.value)&&row.textContent.toLocaleLowerCase().includes(query.value.toLocaleLowerCase());row.hidden=!show;if(show)count++}document.querySelector('#count').textContent=count+'件 / 全'+rows.length+'件';document.querySelector('#empty').style.display=count?'none':'block'}query.addEventListener('input',render);stage.addEventListener('change',render);kind.addEventListener('change',render);document.querySelector('#reset').addEventListener('click',()=>{query.value='';stage.value='';kind.value='';render()});render();
@@ -192,5 +231,9 @@ const query=document.querySelector('#query'),stage=document.querySelector('#stag
     substitutions = {'__NAV__': nav, '__SCOPE__': esc(data['scope']), '__COUNTS__': counts, '__CARDS__': ''.join(cards), '__DELTA__': delta_html,
                      '__SOURCE__': source, '__KINDS__': ''.join('<option value="' + key + '">' + esc(label) + '</option>' for key, label in KINDS.items())}
     page = re.sub(r'__(?:NAV|SCOPE|COUNTS|CARDS|DELTA|SOURCE|KINDS)__', lambda match: substitutions[match.group(0)], page)
+    page = page.replace('<p><a href="artifacts.md">', relations + '<p><a href="artifacts.md">', 1)
+    page = page.replace('article{min-width:0;', 'article{scroll-margin-top:16px;min-width:0;')
+    page = page.replace('.change{margin-top:24px}', '.change{margin-top:24px;overflow-wrap:anywhere}article:target{outline:2px solid #075bb5}')
+    page = page.replace('render();\n</script>', 'for(const link of document.querySelectorAll(\'#relations a\'))link.addEventListener(\'click\',()=>{query.value=\'\';stage.value=\'\';kind.value=\'\';render()});render();\n</script>')
     return {'artifacts.html': page.replace('\r\n', '\n').replace('\r', '\n') + '\n', 'artifacts.md': '\n'.join(markdown) + '\n', 'artifacts.csv': '\ufeff' + stream.getvalue(),
-            'artifacts.json': json.dumps({'schema': 'deliverable-catalog-view/v1', 'scope': data['scope'], 'artifacts': rows, 'changes': delta}, ensure_ascii=False, indent=2) + '\n'}
+            'artifacts.json': json.dumps({'schema': 'deliverable-catalog-view/v1', 'scope': data['scope'], 'artifacts': rows, 'changes': delta, 'rule_groups': groups}, ensure_ascii=False, indent=2) + '\n'}

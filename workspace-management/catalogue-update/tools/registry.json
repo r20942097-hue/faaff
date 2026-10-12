@@ -344,6 +344,25 @@
         ]
       ],
       "timeout_seconds": 120
+    },
+    {
+      "id": "artifact-publication",
+      "name": "成果物の公開本文・main状況確認",
+      "files": [
+        "tools/check_artifact_publication.py",
+        "tools/artifacts.py",
+        "catalog/artifacts.json"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/check_artifact_publication.py"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 240
     }
   ],
   "checks": [

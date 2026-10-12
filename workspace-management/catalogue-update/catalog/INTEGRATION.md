@@ -62,3 +62,5 @@ python tools/manage.py release --output work/releases/workspace-source.zip
 調査根拠：[Selenium 4.51.0](https://pypi.org/pypi/selenium/4.51.0/json)、[urllib3 2.8.0](https://pypi.org/pypi/urllib3/2.8.0/json)、[PySocks公開版](https://pypi.org/pypi/PySocks/json)、[typing_extensions 4.16.0](https://pypi.org/pypi/typing_extensions/4.16.0/json)、[TimeoutExpiredの出力仕様](https://docs.python.org/3.15/library/subprocess.html#subprocess.TimeoutExpired)。公開が古いことだけで脆弱性があるとは判定しません。現在の固定版とハッシュは維持します。
 
 2026-10-12：配布・購読の12成果物を[成果物一覧](generated/artifacts.html)へ整理。正本 `catalog/artifacts.json` から4形式を既存build/checkで生成し、版・固定公開先・検証範囲・確認日・生成時の手元照合を分けます。前の公開ZIP 20261012.1と版・本文を比較します。[更新案と完了条件](ARTIFACTS.md)を参照してください。新しい生成コードは開発側の更新であり、公開ZIP 20261012.2への取り込みとは別に検証します。
+
+成果物の公開確認を共通registryのartifact-publicationへ登録しました。固定版と固定mainの本文、PR状態を確認し、結果を保存します。正本は自動変更せず、通信失敗・main本文変化・別の正本への古い確認結果から公開昇格を行いません。更新案は新規work JSONへ出します。

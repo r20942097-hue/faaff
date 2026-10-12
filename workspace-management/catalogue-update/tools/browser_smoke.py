@@ -178,8 +178,16 @@ def main():
         checks.append('artifact cards and expanded hashes fit mobile viewport')
         delta = changes(artifact_data)
         assert len(delta['changed']) == 1
-        assert '20261012.1 → 20261012.2' in page.locator('.change').inner_text()
+        assert '20261012.1 → 20261012.2' in page.locator('.change').first.inner_text()
         checks.append('artifact overview shows fixed release comparison')
+        assert '追跡ブロックの共有ルール' in page.locator('#relations').inner_text()
+        assert '9行' in page.locator('#relations').inner_text()
+        checks.append('artifact overview shows shared rules while keeping both sources')
+        page.fill('#query', 'Deep')
+        page.locator('#relations a').last.click()
+        assert page.locator('article:visible').count() == len(artifacts)
+        assert page.locator('#query').input_value() == ''
+        checks.append('shared-rule navigation clears filters and reveals target artifact')
         page.emulate_media(media='print')
         assert not page.locator('.toolbar').is_visible()
         checks.append('artifact print layout hides controls')

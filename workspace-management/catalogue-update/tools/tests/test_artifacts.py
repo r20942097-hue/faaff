@@ -7,7 +7,7 @@ from tempfile import TemporaryDirectory
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from artifacts import changes, load, records, validate, views
+from artifacts import changes, load, records, rule_identity, validate, views
 
 
 class ArtifactTests(unittest.TestCase):
@@ -151,3 +151,42 @@ class ArtifactTests(unittest.TestCase):
             path.write_text('{"schema":"a","schema":"b"}')
             with self.assertRaisesRegex(ValueError, 'duplicate'):
                 load(path)
+
+    def test_rule_comparison_preserves_directives_and_order(self):
+        rules = b'||one.example^\n||two.example^\n'
+        self.assertEqual(rule_identity(rules), rule_identity(b'! metadata\n[Adblock Plus 2.0]\n' + rules))
+        self.assertNotEqual(rule_identity(rules), rule_identity(b'!#if env_test\n' + rules + b'!#endif\n'))
+        self.assertNotEqual(rule_identity(rules), rule_identity(b'||two.example^\n||one.example^\n'))
+
+    def grouped_data(self):
+        self.row['kind'] = 'filter'
+        second = copy.deepcopy(self.row)
+        second.update(id='second', name='second source', local_path='repo/second.txt')
+        second['publication']['url'] = second['publication']['url'].replace('file.txt', 'second.txt')
+        body = b'! different metadata\n' + self.body
+        second.update(sha256=hashlib.sha256(body).hexdigest(), bytes=len(body))
+        second['verification']['sha256'] = second['sha256']
+        self.data['artifacts'].append(second)
+        actual = rule_identity(self.body)
+        self.data['rule_groups'] = [{'id': 'shared', 'name': 'shared fixture', 'comparison': 'ordered-rule-and-control-lines',
+                                    'members': ['fixture', 'second'], 'sha256': actual['sha256'], 'lines': actual['lines'],
+                                    'source_sha256': {r['id']: r['sha256'] for r in self.data['artifacts']}}]
+        return second, body
+
+    def test_relation_requires_current_source_identities(self):
+        self.grouped_data()
+        self.data['rule_groups'][0]['source_sha256']['second'] = '0' * 64
+        with self.assertRaisesRegex(ValueError, 'different source bytes'):
+            validate(self.data)
+
+    def test_relation_is_checked_against_matching_local_sources(self):
+        second, body = self.grouped_data()
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'repo').mkdir()
+            (root / self.row['local_path']).write_bytes(self.body)
+            (root / second['local_path']).write_bytes(body)
+            self.assertIn('shared fixture', views(self.data, root)['artifacts.html'])
+            self.data['rule_groups'][0]['sha256'] = '0' * 64
+            with self.assertRaisesRegex(ValueError, 'rule lines differ'):
+                views(self.data, root)
