@@ -36,3 +36,19 @@ PySocksの代替を採用する場合は、Seleniumとurllib3の要求を満た�
 調査根拠：[Selenium](https://pypi.org/pypi/selenium/4.51.0/json)、[urllib3](https://pypi.org/pypi/urllib3/2.8.0/json)、[PySocks](https://pypi.org/pypi/PySocks/json)、[typing_extensions](https://pypi.org/pypi/typing_extensions/4.16.0/json)、[Python TimeoutExpired](https://docs.python.org/3.15/library/subprocess.html#subprocess.TimeoutExpired)。
 
 最新版ソース `2f4c3a566789d1994b8a7664ecf91398b20673ba` は[Linux/Windows × Python 3.11/3.14/3.15の6環境CI](https://github.com/r20942097-hue/faaff/actions/runs/38189090220)すべてで合格しました。Dependency Review・通常CI・CodeQLも合格し、公開ZIP・チェックサム・資料等7パスの実バイト一致を確認しました。mainは未反映です。
+
+## 成果物一覧と統合更新（2026-10-12）
+
+[成果物一覧](artifacts.md)と[検索用HTML](artifacts.html)を追加します。原本はartifacts-source.jsonです。12成果物をmain反映済み7件・PR公開5件に分け、用途・版・固定公開先・検証の範囲と日付・SHA256を確認できます。公開版の検証と、一覧生成時の手元確認は別表示です。独立公開用ページは手元を未照合として表示します。
+
+| 対象 | 統合・更新 | 検証・残課題 |
+|---|---|---|
+| 成果物入口 | HTML・Markdown・CSV・JSONを同じ正本から生成 | 検索・状態と種類の絞り込み・条件解除・モバイル・印刷を確認 |
+| 生成・診断 | 既存build/check/catalogueに接続し、正本と生成コードも入力照合 | 一覧変更を既存の整合性検査で検出。新しい重複実行コマンドは追加しない |
+| 公開情報 | 古いZIPの公開記録を整理し、成果物一覧は正本JSONの固定コミット・本文に基づく | 11フィルターの公開本文を再取得してハッシュ一致を確認 |
+| 更新差分 | 前の公開ZIP 20261012.1と版・本文を比較 | ZIPのみ20261012.2へ更新、11フィルターは本文変更なし |
+| 次の更新入口 | 公開実バイト・PR状態・根拠を確認して正本を更新する処理を共通化 | 通信失敗を新たな合格として扱わず、以前の記録を履歴に残す |
+| 原本とミラー | SHA256と役割を照合して関係を表示 | 今回12成果物に完全同一本文の組はなし。購読先とGit履歴は維持 |
+| 製品本体 | 録画・AI・Windows等の正式ソース取得後に登録 | ソース固定と起動・復旧の実機テストが必要 |
+
+公開ZIP20261012.2の内容は変えていません。新しい管理コードの候補ファイルを、検証済みZIPから展開した隔離作業先に適用して別途検査します。適用前に基準ZIPのSHA256、候補ファイルのパス・SHA256・UTF-8を照合します。既存ZIPの合格と、新しいコードの合格を分けて記録します。

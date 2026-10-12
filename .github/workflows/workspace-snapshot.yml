@@ -1,4 +1,4 @@
-name: Workspace snapshot checks
+name: Workspace catalogue and snapshot checks
 
 on:
   pull_request:
@@ -7,6 +7,9 @@ on:
       - 'workspace-management/*.zip'
       - 'workspace-management/*.zip.sha256'
       - 'workspace-management/dependencies/**'
+      - 'workspace-management/artifacts*'
+      - 'workspace-management/catalogue-update/**'
+      - 'workspace-management/.gitattributes'
       - '.github/workflows/workspace-snapshot.yml'
   workflow_dispatch:
 
@@ -19,7 +22,7 @@ concurrency:
 
 jobs:
   snapshot:
-    name: Source snapshot / ${{ matrix.os }} / Python ${{ matrix.python }}
+    name: Management candidate / ${{ matrix.os }} / Python ${{ matrix.python }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
@@ -52,8 +55,13 @@ jobs:
           source = Path('workspace-management/workspace-source-20261011.zip')
           expected = source.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
           target = Path('work/validated-workspace')
-          subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', 'workspace-management', '-p', 'test_verify_dependencies.py'], check=True)
+          subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', 'workspace-management', '-p', 'test_*.py'], check=True)
+          from artifacts import load as load_artifacts, views as artifact_views
+          for name, content in artifact_views(load_artifacts(Path('workspace-management/artifacts-source.json')), standalone=True).items():
+              assert (Path('workspace-management') / name).read_bytes() == content.encode('utf-8'), 'stale standalone artifact view: ' + name
           count = extract(source, expected, target)
+          from verify_catalogue_update import apply_update
+          print('Applied checked catalogue candidate files:', apply_update(Path('workspace-management/catalogue-update'), target, expected), flush=True)
           from verify_dependencies import audit
           evidence = audit(Path('workspace-management'), target)
           (target / 'dependency-mirror-check.json').write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
@@ -81,4 +89,4 @@ jobs:
                               print('FAILED CHECK:', check['name'], flush=True)
                               print(check.get('output', ''), flush=True)
                   raise SystemExit(completed.returncode)
-          print('Source/management regression checks passed. No Windows recording, real browser operation or product acceptance is claimed.', flush=True)
+          print('Catalogue candidate management regressions passed after verification of the unchanged base ZIP. No Windows recording, real browser operation or product acceptance is claimed.', flush=True)
