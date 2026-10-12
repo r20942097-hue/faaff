@@ -45,11 +45,11 @@
         "commit": "f8288e48a77666aae4eb6aacb65bd898055f8f32"
       },
       "verification": {
-        "status": "pending",
+        "status": "passed",
         "checked_on": "2026-10-12",
         "sha256": "010c64b23b6c8a66adadf9c43c8711f293d7ea4c2fe3f336c951682b37ec0fde",
-        "summary": "二重ビルド・全内容ハッシュ・新規適用・Linux管理検証は合格。配布ZIPの6環境CIを確認中。",
-        "evidence_url": ""
+        "summary": "二重ビルド・全内容ハッシュ・新規適用、Linux回帰339件・公開支援55件、配布ZIPの6環境CI合格。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38196233061"
       },
       "local_state": "unchecked",
       "actual_sha256": null

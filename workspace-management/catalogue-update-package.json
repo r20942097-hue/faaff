@@ -33,7 +33,15 @@
   "scope": "Public fixed candidate files packaged as a checked update; base ZIP unchanged; not Windows recording product E2E.",
   "management_regressions_linux": 339,
   "ui_checks": 48,
-  "candidate_source_ci": "https://github.com/r20942097-hue/faaff/actions/runs/38195243376",
-  "candidate_source_matrix": "5 PASS; Windows3.11 Control Plane timeout needs recheck",
-  "applied_management_standard_checks": "PASS"
+  "candidate_source_ci": "https://github.com/r20942097-hue/faaff/actions/runs/38196233061",
+  "candidate_source_matrix": "6 PASS: delivered ZIP applied to checked base",
+  "applied_management_standard_checks": "PASS",
+  "delivered_update_ci_commit": "146ed09767969e5332392a4892e0f8f1e325d7d6",
+  "export_and_installer_unit_tests": 55,
+  "catalogue_entries_inside_update": 12,
+  "latest_standalone_catalogue_entries": 13,
+  "earlier_windows311_timeout": {
+    "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38195243376",
+    "result": "Control Plane check timed out; not reproduced in latest delivered-update run"
+  }
 }
