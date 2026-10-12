@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-13 JST",
+  "scope": "Development doctor source candidate; frozen ZIP unchanged",
+  "focused_tests": 11,
+  "focused_passed": true,
+  "public_layout_tests_passed": true,
+  "management_test_passed": true,
+  "browser_checks": 54,
+  "browser_passed": true,
+  "build_check_passed": true,
+  "prior_ci_head": "7df25fb521d56e9d5b14f7c7480825e7c9a81a2a",
+  "prior_ci_all_passed": true,
+  "new_head_ci": "not yet observed",
+  "automatic_transitive_test_selection": false
+}
