@@ -128,7 +128,6 @@ class CatalogueTests(unittest.TestCase):
 class ArtifactIntegrationTests(unittest.TestCase):
     def test_manage_build_check_tracks_source_and_artifact_changes(self):
         import hashlib
-        from artifacts import views
         body = b'fixture content\n'
         sha = hashlib.sha256(body).hexdigest()
         commit = 'a' * 40

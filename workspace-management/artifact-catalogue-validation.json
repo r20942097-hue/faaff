@@ -8,34 +8,45 @@
   "public_filter_bodies_matched": 11,
   "local": {
     "standard_checks": 17,
-    "management_tests": 97,
-    "regressions_linux": 320,
-    "ui_checks": 46,
+    "management_tests": 114,
+    "regressions_linux": 337,
+    "ui_checks": 48,
     "passed": true,
     "candidate_after_base_extraction": "PASS",
-    "standalone_and_apply_unit_tests": 32,
-    "note": "32 export/helper tests include 17 artifact cases also present in management regressions; do not sum as unique cases."
+    "standalone_and_apply_unit_tests": 49,
+    "note": "49 exported unit/helper cases include 34 artifact/publication cases also in management regressions; do not sum as unique cases."
   },
   "base_snapshot": {
     "version": "20261012.2",
     "sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
     "bytes_unchanged": true
   },
-  "candidate_files": 15,
+  "candidate_files": 17,
   "candidate_layout": "direct",
-  "manifest_sha256": "535f412e79a38488c1db6835617a9b68a37f65e2f9b251a2b321b8acc2a82b1b",
+  "manifest_sha256": "678c3c4206077b72289a431601689071b4ca465899dca846a566fedc5876347c",
   "ci": {
-    "status": "pending CSV-LF fix",
-    "first_run": "https://github.com/r20942097-hue/faaff/actions/runs/38191799587",
-    "first_result": "failed: checkout normalized generated CSV CRLF; now generation uses LF"
+    "status": "pending new publication tool and shared-rule relation update",
+    "previous_candidate_commit": "e5912128fd762fccf680a52014a34576c2f0e966",
+    "previous_candidate_run": "https://github.com/r20942097-hue/faaff/actions/runs/38192122527",
+    "previous_candidate_matrix": "6 PASS"
   },
   "canonical_record": "artifacts-source.json",
-  "canonical_sha256": "d1501364199035b558da358cca502b22fedf82d330994fa1bd5fb1ef46d412aa",
+  "canonical_sha256": "35243e9d515493523f21ca0756fc377de26569a14371b8d4872ffb5b449621fc",
   "next_updates": [
     "Shared evidence-based publication updater",
     "Registry-based guidance for required retesting",
     "Original and mirror role mapping when complete hashes match",
     "Acquire missing product sources before product integration"
   ],
-  "main_merged": false
+  "main_merged": false,
+  "shared_rule_groups": 1,
+  "shared_tracking_rules": 9,
+  "registered_development_tools": 16,
+  "live_publication_observation": {
+    "passed": true,
+    "fixed_public_bodies_matched": 12,
+    "main_bodies_matched": 7,
+    "pr_not_on_main": 5,
+    "scope": "Byte identity and PR/main observation, not fresh runtime or CI tests"
+  }
 }

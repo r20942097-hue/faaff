@@ -10,6 +10,7 @@ FILES = frozenset({
     'catalog/REPORT.md', 'catalog/artifacts.json', 'catalog/config.json', 'catalog/projects.json',
     'tools/artifacts.py', 'tools/browser_smoke.py', 'tools/manage.py', 'tools/registry.json',
     'tools/tests/test_artifacts.py', 'tools/tests/test_manage.py', 'tools/tests/test_registry.py',
+    'tools/check_artifact_publication.py', 'tools/tests/test_artifact_publication.py',
 })
 
 

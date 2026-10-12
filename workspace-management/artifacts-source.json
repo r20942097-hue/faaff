@@ -367,5 +367,22 @@
         "evidence_url": ""
       }
     }
+  ],
+  "rule_groups": [
+    {
+      "id": "tracking-shared",
+      "name": "追跡ブロックの共有ルール",
+      "comparison": "ordered-rule-and-control-lines",
+      "members": [
+        "faaff-browser-filter-lists-filters-universal-web-tracking-filter",
+        "s-tracking"
+      ],
+      "sha256": "3755da1c333d48ec4eff639d2467bdaccc1b1447ee72865622808fcf500b562c",
+      "lines": 9,
+      "source_sha256": {
+        "faaff-browser-filter-lists-filters-universal-web-tracking-filter": "f1922570d92147721703e4872ab85bc416cd9f8c0acd3c07291b3aba7edbcfe5",
+        "s-tracking": "6fc8af3e2561957c878c579743e48b1ae7971b199eed714980aa3c8bc4849897"
+      }
+    }
   ]
 }
