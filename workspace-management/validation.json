@@ -13,7 +13,7 @@
   "extracted_catalogue_check": true,
   "portable_paths_checked_before_extraction": true,
   "scope": "Source snapshot, not a completed Windows recording distribution.",
-  "publication": "User explicitly approved exact updated ZIP publication to faaff draft PR15; no main merge.",
+  "publication": "Published to explicitly authorized faaff draft PR15; main unmerged.",
   "regression_checks_linux": 302,
   "catalogue_ui_checks": 35,
   "catalogue_ui_scope": "Existing 35 UI checks; UI implementation unchanged in this update.",
@@ -21,20 +21,22 @@
   "source_identities_preserved": 73,
   "mirror_unit_tests": 9,
   "dependency_profiles_matched": 3,
-  "published_bytes_verified": false,
+  "published_bytes_verified": true,
   "additional_python_matrix": {
-    "status": "Published source candidate; six-environment CI pending",
+    "status": "success",
+    "source_commit": "2f4c3a566789d1994b8a7664ecf91398b20673ba",
+    "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38189090220",
     "Linux": {
       "3.11": "PASS",
       "3.14": "PASS",
       "3.15": "PASS"
     },
     "Windows": {
-      "3.11": "PENDING",
-      "3.14": "PENDING",
-      "3.15": "PENDING"
+      "3.11": "PASS",
+      "3.14": "PASS",
+      "3.15": "PASS"
     },
-    "scope": "Current ZIP; source-management checks only, not Windows product E2E."
+    "scope": "Current source ZIP management regressions; not Windows product E2E."
   },
   "setup_improvements": [
     "Shared subprocess runner",
@@ -42,5 +44,20 @@
     "Partial timeout output and error type retained",
     "Launch failures and interruption record command, status and exit code"
   ],
-  "new_setup_regressions": 6
+  "new_setup_regressions": 6,
+  "source_commit": "2f4c3a566789d1994b8a7664ecf91398b20673ba",
+  "github_checks": {
+    "dependency_review": {
+      "result": "success",
+      "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38189090255"
+    },
+    "ci": {
+      "result": "success",
+      "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38189090226"
+    },
+    "codeql": {
+      "result": "success",
+      "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38189090272"
+    }
+  }
 }

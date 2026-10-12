@@ -31,7 +31,7 @@ python tools/manage.py run --tool suite-audit
 
 ## 検証
 
-正式版Python 3.15.0で標準17検査・回帰302件を確認しました。一覧UI35項目は既存の確認結果で、今回一覧の実装は変更していません。LinuxのWindows junction 1件はskipとして別集計します。ワークフロー検査は標準Python版のPyYAMLでも通過しています。更新版は新規Python 3.15環境で導入から管理検証まで通過しました。Linux/Windows × Python 3.11/3.14/3.15の6環境CIの最新状態はvalidation.jsonで照合できます。
+正式版Python 3.15.0で標準17検査・回帰302件を確認しました。一覧UI35項目は既存の確認結果で、今回一覧の実装は変更していません。LinuxのWindows junction 1件はskipとして別集計します。ワークフロー検査は標準Python版のPyYAMLでも通過しています。更新版は新規Python 3.15環境で導入から管理検証まで通過しました。Linux/Windows × Python 3.11/3.14/3.15の6環境CIすべてで合格しました。[今回のCI](https://github.com/r20942097-hue/faaff/actions/runs/38189090220)とvalidation.jsonで照合できます。
 
 固定入力の二重ビルドがバイト一致し、ZIP全ファイルのハッシュ・パスを展開前に検証します。最新内容はworkspace-source-20261012.2.zip、192ソースファイル、515,953バイトです。ZIP内の公開記録は作成時点の履歴です。最新ZIPのSHA256・実行コミット・CIはZIP外のvalidation.jsonで照合してください。
 
