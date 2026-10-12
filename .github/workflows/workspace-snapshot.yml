@@ -51,7 +51,6 @@ jobs:
           import subprocess
           import sys
           sys.path.insert(0, str(Path('workspace-management').resolve()))
-          from extract_snapshot import extract
           source = Path('workspace-management/workspace-source-20261011.zip')
           expected = source.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
           target = Path('work/validated-workspace')
@@ -59,14 +58,19 @@ jobs:
           from artifacts import load as load_artifacts, views as artifact_views
           for name, content in artifact_views(load_artifacts(Path('workspace-management/artifacts-source.json')), standalone=True).items():
               assert (Path('workspace-management') / name).read_bytes() == content.encode('utf-8'), 'stale standalone artifact view: ' + name
-          count = extract(source, expected, target)
-          from verify_catalogue_update import apply_update
-          print('Applied checked catalogue candidate files:', apply_update(Path('workspace-management/catalogue-update'), target, expected), flush=True)
+          from apply_catalogue_update import prepare
+          update = Path('workspace-management/catalogue-update-20261012.1.zip')
+          update_expected = update.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          count = prepare(Path.cwd(), source, update, update_expected, target.as_posix())
+          from verify_catalogue_update import FILES, BASE_SHA256
+          assert expected == BASE_SHA256, 'unexpected base checksum'
+          for name in FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update') / name).read_bytes(), 'update ZIP differs from candidate file: ' + name
           from verify_dependencies import audit
           evidence = audit(Path('workspace-management'), target)
           (target / 'dependency-mirror-check.json').write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
           print(json.dumps(evidence, indent=2), flush=True)
-          print('Verified snapshot:', count, 'files', flush=True)
+          print('Prepared verified base with catalogue update:', count, 'candidate files', flush=True)
           subprocess.run([sys.executable, '-m', 'venv', str(target / 'work/verify-env')], check=True)
           python = (target / 'work/verify-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')).absolute()
           # Keep the venv executable path: resolve() follows its symlink to global Python.
