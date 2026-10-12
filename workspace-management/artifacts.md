@@ -5,6 +5,7 @@
 | 成果物・用途 | 版 | 公開状況 | 公開版の検証・確認日 | 生成時の手元 | 取得先 |
 | --- | --- | --- | --- | --- | --- |
 | 共通ツール・ソースZIP<br>15機能の管理コード・設定・一覧を保存 | 20261012.2 | PR公開・main未反映 | Linux回帰302件・依存照合9件、Linux/Windowsの6環境CI合格。<br>2026-10-12 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/eaa3160e31c8955d8c4b50fc98203faf1f5a10aa/workspace-management/workspace-source-20261011.zip) |
+| 成果物一覧・管理コード更新ZIP<br>基準ZIP20261012.2へ16機能の管理更新を適用 | 20261012.1 | PR公開・main未反映 | 二重ビルド・全内容ハッシュ・新規適用・Linux管理検証は合格。配布ZIPの6環境CIを確認中。<br>2026-10-12 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/f8288e48a77666aae4eb6aacb65bd898055f8f32/workspace-management/catalogue-update-20261012.1.zip) |
 | faaff広告リスト<br>広告または追跡通信を遮断 | 20261011.1 | PR公開・main未反映 | 固定公開版と本文SHA256が一致。動作検証は更新表参照。<br>2026-10-12 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/filters/universal-web-ad-filter.txt) |
 | faaff追跡リスト<br>広告または追跡通信を遮断 | 20261011.1 | PR公開・main未反映 | 固定公開版と本文SHA256が一致。動作検証は更新表参照。<br>2026-10-12 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/filters/universal-web-tracking-filter.txt) |
 | 広告ブロック・uBO版<br>広告または追跡通信を遮断 | 20261011.1 | main反映済み | 固定公開版と本文SHA256が一致。動作検証は更新表参照。<br>2026-10-12 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/ad-ubo.txt) |
@@ -21,7 +22,7 @@
 
 前の公開ソースZIP 20261012.1 内の本文・版との比較
 
-追加 0件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
+追加 1件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
 - 共通ツール・ソースZIP：20261012.1 → 20261012.2
 
 ## サイズ・SHA256
@@ -33,6 +34,16 @@
 `e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9`
 
 ソース保存用。録画等の製品本体の完成版ではありません。
+
+</details>
+
+<details><summary>成果物一覧・管理コード更新ZIP</summary>
+
+61,068 bytes
+
+`010c64b23b6c8a66adadf9c43c8711f293d7ea4c2fe3f336c951682b37ec0fde`
+
+17候補ファイルの更新。新規展開先へ適用します。ZIP内の一覧は作成時点の12対象、最新公開一覧は13対象です。
 
 </details>
 

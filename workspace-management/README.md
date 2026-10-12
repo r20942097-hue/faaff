@@ -60,3 +60,13 @@ CIはPR更新と手動実行を入口とし、pushとの二重実行を除いて
 [改良案と開発状況](TOOL-IMPROVEMENTS.md)に対象・変更・検証・残課題を一覧で記載しました。
 
 今回の成果物一覧・共通生成更新は、公開ZIP20261012.2の内容を変更するものではありません。17の候補ファイルを固定ハッシュで検証し、検証済み基準ZIPの新規展開先へ適用して管理コードを別途検査します。詳細・実行結果は [成果物一覧の検証記録](artifact-catalogue-validation.json) を参照してください。
+
+## 新しい管理コードを使う
+
+基準ZIPと[管理コード更新ZIP](catalogue-update-20261012.1.zip)・[SHA256](catalogue-update-20261012.1.zip.sha256)を使い、新規作業先を作成します。リポジトリのルートから実行してください。
+
+```sh
+python workspace-management/apply_catalogue_update.py --base workspace-management/workspace-source-20261011.zip --update workspace-management/catalogue-update-20261012.1.zip --update-sha256 010c64b23b6c8a66adadf9c43c8711f293d7ea4c2fe3f336c951682b37ec0fde --output work/updated-tools
+```
+
+作成したwork/updated-toolsで新規仮想環境を用意し、仮想環境のPythonでtools/manage.py setupとallを実行します。既存の作業先は上書きしません。基準ZIPのSHA256を固定し、更新ZIPの全ファイルを照合してから適用します。新しい16機能の管理コードは更新ZIP側、基準ZIPは以前の15機能です。製品本体の完成判定とは別です。

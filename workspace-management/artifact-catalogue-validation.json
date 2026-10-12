@@ -2,9 +2,9 @@
   "schema": "artifact-catalogue-validation/v1",
   "checked_date_jst": "2026-10-12",
   "scope": "New deliverable catalogue and development management candidate; current public ZIP 20261012.2 remains unchanged. Not Windows recording/product E2E.",
-  "deliverables": 12,
+  "deliverables": 13,
   "main_publications": 7,
-  "pr_publications": 5,
+  "pr_publications": 6,
   "public_filter_bodies_matched": 11,
   "local": {
     "standard_checks": 17,
@@ -13,8 +13,8 @@
     "ui_checks": 48,
     "passed": true,
     "candidate_after_base_extraction": "PASS",
-    "standalone_and_apply_unit_tests": 51,
-    "note": "51 exported unit/helper cases include 36 cases also in management regressions; do not sum as unique cases."
+    "standalone_and_apply_unit_tests": 55,
+    "note": "55 helper/export cases include 36 cases in management regressions; do not sum as unique cases."
   },
   "base_snapshot": {
     "version": "20261012.2",
@@ -25,13 +25,13 @@
   "candidate_layout": "direct",
   "manifest_sha256": "da13b108d9acfb04367e28375ca1aac8c20fe707baa5141bb14f9db90f924865",
   "ci": {
-    "status": "pending final Markdown output safeguards",
-    "previous_candidate_commit": "26268267c02f1b010c02c24cede352526b6325dc",
-    "previous_candidate_run": "https://github.com/r20942097-hue/faaff/actions/runs/38194690453",
-    "previous_candidate_matrix": "6 PASS"
+    "status": "pending delivered update ZIP and preparation CLI verification",
+    "candidate_source_commit": "ba9530cbd4c86d570dcd6163470cd419080df80f",
+    "candidate_source_run": "https://github.com/r20942097-hue/faaff/actions/runs/38195243376",
+    "candidate_source_matrix": "5 PASS, Windows3.11 Control Plane timeout, recheck queued"
   },
   "canonical_record": "artifacts-source.json",
-  "canonical_sha256": "35243e9d515493523f21ca0756fc377de26569a14371b8d4872ffb5b449621fc",
+  "canonical_sha256": "8cfc24786cb7b737c118899e0fe730a93e21d258c76a0fe8c9f7a361765ea4cb",
   "next_updates": [
     "Shared evidence-based publication updater",
     "Registry-based guidance for required retesting",

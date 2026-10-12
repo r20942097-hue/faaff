@@ -104,6 +104,30 @@
       }
     },
     {
+      "id": "catalogue-update",
+      "name": "成果物一覧・管理コード更新ZIP",
+      "kind": "update",
+      "version": "20261012.1",
+      "purpose": "基準ZIP20261012.2へ16機能の管理更新を適用",
+      "notes": "17候補ファイルの更新。新規展開先へ適用します。ZIP内の一覧は作成時点の12対象、最新公開一覧は13対象です。",
+      "local_path": "work/releases/catalogue-update-20261012.1.zip",
+      "bytes": 61068,
+      "sha256": "010c64b23b6c8a66adadf9c43c8711f293d7ea4c2fe3f336c951682b37ec0fde",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/f8288e48a77666aae4eb6aacb65bd898055f8f32/workspace-management/catalogue-update-20261012.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15",
+        "commit": "f8288e48a77666aae4eb6aacb65bd898055f8f32"
+      },
+      "verification": {
+        "status": "pending",
+        "checked_on": "2026-10-12",
+        "sha256": "010c64b23b6c8a66adadf9c43c8711f293d7ea4c2fe3f336c951682b37ec0fde",
+        "summary": "二重ビルド・全内容ハッシュ・新規適用・Linux管理検証は合格。配布ZIPの6環境CIを確認中。",
+        "evidence_url": ""
+      }
+    },
+    {
       "id": "faaff-browser-filter-lists-filters-universal-web-ad-filter",
       "name": "faaff広告リスト",
       "kind": "filter",
