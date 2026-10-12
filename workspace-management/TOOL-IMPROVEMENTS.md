@@ -34,3 +34,5 @@ PySocksの代替を採用する場合は、Seleniumとurllib3の要求を満た�
 [依存照合とDependency Reviewの記録](DEPENDENCY-READINESS.md)と[最新ZIP検証記録](validation.json)も参照してください。mainは未反映です。
 
 調査根拠：[Selenium](https://pypi.org/pypi/selenium/4.51.0/json)、[urllib3](https://pypi.org/pypi/urllib3/2.8.0/json)、[PySocks](https://pypi.org/pypi/PySocks/json)、[typing_extensions](https://pypi.org/pypi/typing_extensions/4.16.0/json)、[Python TimeoutExpired](https://docs.python.org/3.15/library/subprocess.html#subprocess.TimeoutExpired)。
+
+最新版ソース `2f4c3a566789d1994b8a7664ecf91398b20673ba` は[Linux/Windows × Python 3.11/3.14/3.15の6環境CI](https://github.com/r20942097-hue/faaff/actions/runs/38189090220)すべてで合格しました。Dependency Review・通常CI・CodeQLも合格し、公開ZIP・チェックサム・資料等7パスの実バイト一致を確認しました。mainは未反映です。
