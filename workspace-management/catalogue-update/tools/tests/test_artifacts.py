@@ -132,6 +132,13 @@ class ArtifactTests(unittest.TestCase):
         rows = list(csv.reader(io.StringIO(views(self.data)['artifacts.csv'].lstrip('\ufeff'))))
         self.assertEqual(rows[1][0], "'=SUM(1,2)")
 
+    def test_exports_use_checkout_stable_lf_for_multiline_descriptions(self):
+        self.row['purpose'] = 'first\r\nsecond\rthird'
+        result = views(self.data)
+        for name in ['artifacts.csv', 'artifacts.html', 'artifacts.md']:
+            self.assertNotIn('\r', result[name])
+        self.assertIn('first\nsecond\nthird', result['artifacts.csv'])
+
     def test_standalone_view_uses_public_navigation_and_no_local_links(self):
         result = views(self.data, standalone=True)['artifacts.html']
         self.assertIn('href="artifacts-source.json"', result)

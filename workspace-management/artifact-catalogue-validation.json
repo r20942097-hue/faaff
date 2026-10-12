@@ -8,13 +8,13 @@
   "public_filter_bodies_matched": 11,
   "local": {
     "standard_checks": 17,
-    "management_tests": 96,
-    "regressions_linux": 319,
+    "management_tests": 97,
+    "regressions_linux": 320,
     "ui_checks": 46,
     "passed": true,
     "candidate_after_base_extraction": "PASS",
-    "standalone_and_apply_unit_tests": 31,
-    "note": "31 export/helper tests include 16 artifact cases also present in management regressions; do not sum them as unique cases."
+    "standalone_and_apply_unit_tests": 32,
+    "note": "32 export/helper tests include 17 artifact cases also present in management regressions; do not sum as unique cases."
   },
   "base_snapshot": {
     "version": "20261012.2",
@@ -23,10 +23,11 @@
   },
   "candidate_files": 15,
   "candidate_layout": "direct",
-  "manifest_sha256": "a58bb3775173bbcf0dbf6af34db160d191f3dbc95bda5b102ed4690c293d881d",
+  "manifest_sha256": "535f412e79a38488c1db6835617a9b68a37f65e2f9b251a2b321b8acc2a82b1b",
   "ci": {
-    "status": "pending",
-    "matrix": "Linux/Windows × Python 3.11/3.14/3.15"
+    "status": "pending CSV-LF fix",
+    "first_run": "https://github.com/r20942097-hue/faaff/actions/runs/38191799587",
+    "first_result": "failed: checkout normalized generated CSV CRLF; now generation uses LF"
   },
   "canonical_record": "artifacts-source.json",
   "canonical_sha256": "d1501364199035b558da358cca502b22fedf82d330994fa1bd5fb1ef46d412aa",
