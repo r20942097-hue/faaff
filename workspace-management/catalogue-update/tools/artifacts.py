@@ -189,11 +189,14 @@ def views(data, root=None, standalone=False):
     writer.writerows([spreadsheet(v) for v in row] for row in cells)
     def md(value):
         text = str(value).replace('\r\n', '\n').replace('\r', '\n')
-        return html.escape(text).replace('|', '&#124;').replace('\n', '<br>')
+        text = html.escape(text).replace('\\', '\\\\')
+        for character in ('*', '_', '[', ']', '`'):
+            text = text.replace(character, '\\' + character)
+        return text.replace('|', '&#124;').replace('\n', '<br>')
     md_headers = ['成果物・用途', '版', '公開状況', '公開版の検証・確認日', '生成時の手元', '取得先']
     markdown = ['# 成果物一覧', '', md(data['scope']), '', '| ' + ' | '.join(md_headers) + ' |', '| ' + ' | '.join(['---'] * len(md_headers)) + ' |']
     for row in rows:
-        download = '[公開版](' + row['publication']['url'] + ')' if row['publication']['url'] else '—'
+        download = '[公開版](' + quote(row['publication']['url'], safe='/:#%?=&-_.~') + ')' if row['publication']['url'] else '—'
         markdown.append('| ' + ' | '.join([md(row['name']) + '<br>' + md(row['purpose']), md(row['version']),
                          md(STAGES[row['publication']['stage']]), md(row['verification']['summary']) + '<br>' + row['verification']['checked_on'],
                          md(LOCAL[row['local_state']]), download]) + ' |')

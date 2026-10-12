@@ -8,13 +8,13 @@
   "public_filter_bodies_matched": 11,
   "local": {
     "standard_checks": 17,
-    "management_tests": 114,
-    "regressions_linux": 337,
+    "management_tests": 116,
+    "regressions_linux": 339,
     "ui_checks": 48,
     "passed": true,
     "candidate_after_base_extraction": "PASS",
-    "standalone_and_apply_unit_tests": 49,
-    "note": "49 exported unit/helper cases include 34 artifact/publication cases also in management regressions; do not sum as unique cases."
+    "standalone_and_apply_unit_tests": 51,
+    "note": "51 exported unit/helper cases include 36 cases also in management regressions; do not sum as unique cases."
   },
   "base_snapshot": {
     "version": "20261012.2",
@@ -23,11 +23,11 @@
   },
   "candidate_files": 17,
   "candidate_layout": "direct",
-  "manifest_sha256": "678c3c4206077b72289a431601689071b4ca465899dca846a566fedc5876347c",
+  "manifest_sha256": "da13b108d9acfb04367e28375ca1aac8c20fe707baa5141bb14f9db90f924865",
   "ci": {
-    "status": "pending new publication tool and shared-rule relation update",
-    "previous_candidate_commit": "e5912128fd762fccf680a52014a34576c2f0e966",
-    "previous_candidate_run": "https://github.com/r20942097-hue/faaff/actions/runs/38192122527",
+    "status": "pending final Markdown output safeguards",
+    "previous_candidate_commit": "26268267c02f1b010c02c24cede352526b6325dc",
+    "previous_candidate_run": "https://github.com/r20942097-hue/faaff/actions/runs/38194690453",
     "previous_candidate_matrix": "6 PASS"
   },
   "canonical_record": "artifacts-source.json",
