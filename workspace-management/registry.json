@@ -48,7 +48,8 @@
       "name": "候補の根拠・昇格判定",
       "files": [
         "faaff/browser_filter_lists/scripts/validate_candidate_evidence.py",
-        "faaff/browser_filter_lists/scripts/validate_candidate_promotion.py"
+        "faaff/browser_filter_lists/scripts/validate_candidate_promotion.py",
+        "faaff/browser_filter_lists/scripts/render_candidate_report.py"
       ],
       "binaries": [],
       "modules": [],
@@ -167,7 +168,8 @@
       "cwd": "library-files/tool-sources/portfolio",
       "files": [
         "library-files/tool-sources/portfolio/tools/governance.py",
-        "library-files/tool-sources/portfolio/docs/project_registry.json"
+        "library-files/tool-sources/portfolio/docs/project_registry.json",
+        "library-files/tool-sources/portfolio/tools/validate_project_registry.py"
       ],
       "binaries": [],
       "modules": [],
@@ -363,6 +365,24 @@
       ],
       "cwd": ".",
       "timeout_seconds": 240
+    },
+    {
+      "id": "settings-consistency",
+      "name": "設定・実行入口の重複と整合性",
+      "files": [
+        "tools/check_settings.py",
+        "tools/registry.json"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/check_settings.py"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120
     }
   ],
   "checks": [
@@ -552,6 +572,15 @@
         "tools/check_sources.py"
       ],
       "timeout_seconds": 120
+    },
+    {
+      "name": "Settings and command ownership consistency",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "tools/check_settings.py"
+      ],
+      "timeout_seconds": 120
     }
   ],
   "input_groups": [
@@ -574,7 +603,8 @@
         "python-environment",
         "firefox-extension",
         "source-integrity",
-        "artifact-publication"
+        "artifact-publication",
+        "settings-consistency"
       ],
       "files": [
         "tools/registry.py",
@@ -582,7 +612,8 @@
         "tools/manage.py",
         "tools/registry.json",
         "tools/configuration.py",
-        "catalog/config.json"
+        "catalog/config.json",
+        "tools/check_settings.py"
       ]
     },
     {
