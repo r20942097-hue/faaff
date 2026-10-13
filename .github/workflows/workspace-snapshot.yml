@@ -66,7 +66,7 @@ jobs:
           update = Path('workspace-management/catalogue-update-20261012.1.zip')
           update_expected = update.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
           count = prepare(Path.cwd(), source, update, update_expected, target.as_posix())
-          from verify_catalogue_update import FILES, V2_FILES, BASE_SHA256
+          from verify_catalogue_update import FILES, V2_FILES, V3_FILES, BASE_SHA256
           assert expected == BASE_SHA256, 'unexpected base checksum'
           for name in FILES:
               assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update') / name).read_bytes(), 'update ZIP differs from candidate file: ' + name
@@ -87,6 +87,15 @@ jobs:
           count = len(V2_FILES)
           for name in V2_FILES:
               assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261013') / name).read_bytes(), 'v2 update ZIP differs from frozen candidate: ' + name
+          print('Retained v2 kit preparation verified:', count, 'files', flush=True)
+          target = Path('work/validated-workspace-v3')
+          update = Path('workspace-management/catalogue-update-20261014.1.zip')
+          update_expected = update.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          count = prepare(Path.cwd(), source, update, update_expected, target.as_posix())
+          assert count == len(V3_FILES)
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          for name in V3_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261014') / name).read_bytes(), 'v3 update differs from frozen candidate: ' + name
           from verify_dependencies import audit
           evidence = audit(Path('workspace-management'), target)
           (target / 'dependency-mirror-check.json').write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
@@ -114,4 +123,5 @@ jobs:
                               print('FAILED CHECK:', check['name'], flush=True)
                               print(check.get('output', ''), flush=True)
                   raise SystemExit(completed.returncode)
+          assert not any(path.is_symlink() for path in (target / 'catalog').rglob('*')), 'catalogue must use direct links after build/all'
           print('Catalogue candidate management regressions passed after verification of the unchanged base ZIP. No Windows recording, real browser operation or product acceptance is claimed.', flush=True)
