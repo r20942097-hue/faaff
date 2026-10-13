@@ -14,6 +14,8 @@ FILES = frozenset({
 })
 
 
+V2_FILES = FILES | {'tools/registry.py', 'tools/doctor.py', 'tools/tests/test_doctor.py'}
+
 def apply_update(source, target, snapshot_sha256):
     source, target = Path(source), Path(target)
     if source.is_symlink() or target.is_symlink() or not source.is_dir() or not target.is_dir():
@@ -23,9 +25,11 @@ def apply_update(source, target, snapshot_sha256):
     if safe_path(target, 'catalog/results/catalogue-development-update.json').exists():
         raise ValueError('candidate update already applied')
     manifest = load_json(safe_path(source, 'manifest.json'))
-    if (not isinstance(manifest, dict) or manifest.get('schema') != 'catalogue-development-update/v1'
+    schemas = {'catalogue-development-update/v1': FILES, 'catalogue-development-update/v2': V2_FILES}
+    allowed = schemas.get(manifest.get('schema')) if isinstance(manifest, dict) and isinstance(manifest.get('schema'), str) else None
+    if (not isinstance(manifest, dict) or allowed is None
             or snapshot_sha256 != BASE_SHA256 or manifest.get('base_snapshot_sha256') != BASE_SHA256
-            or not isinstance(manifest.get('files'), dict) or set(manifest['files']) != FILES):
+            or not isinstance(manifest.get('files'), dict) or set(manifest['files']) != allowed):
         raise ValueError('candidate manifest or base snapshot mismatch')
     prepared = []
     for name, expected in sorted(manifest['files'].items()):
@@ -47,7 +51,7 @@ def apply_update(source, target, snapshot_sha256):
         destination.write_bytes(body)
     from registry import write_report
     write_report(safe_path(target, 'catalog/results/catalogue-development-update.json'), {
-        'schema': 'catalogue-development-update/v1', 'base_snapshot_sha256': BASE_SHA256,
+        'schema': manifest['schema'], 'base_snapshot_sha256': BASE_SHA256,
         'files': manifest['files'], 'scope': 'Development catalogue candidate applied after base ZIP verification; base ZIP bytes are unchanged.',
     })
     return len(prepared)

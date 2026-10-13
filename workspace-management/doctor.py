@@ -8,12 +8,12 @@ import sys
 from datetime import datetime, timedelta, timezone
 
 
-from registry import load, load_json, safe_path, input_identity
+from registry import load, load_json, safe_path, input_identity, registered_files, selected_groups
 
 RUN_LABELS = {'passed': '合格', 'failed': '失敗', 'running': '実行中・中断の可能性', 'blocked': '実行不可', 'interrupted': '中断'}
 
 
-def last_run(root, key, tool=None):
+def last_run(root, key, tool=None, registry=None):
     try:
         path = safe_path(root, 'catalog/results/tool-' + key + '.json')
         if not path.is_file():
@@ -30,9 +30,10 @@ def last_run(root, key, tool=None):
         result = {'label': RUN_LABELS[status], 'time': stamp.astimezone(timezone(timedelta(hours=9))).strftime('%Y-%m-%d %H:%M:%S JST')}
         if status == 'passed':
             if tool is None:
-                tool = next(item for item in load()['tools'] if item['id'] == key)
+                registry = load() if registry is None else registry
+                tool = next(item for item in registry['tools'] if item['id'] == key)
             before, after = record.get('inputs_before'), record.get('inputs_after')
-            current = input_identity(root, tool)
+            current = input_identity(root, tool, registry)
             if not isinstance(before, dict) or not isinstance(after, dict):
                 result['detail'] = '実行時の照合情報なし'
             elif before != after or record.get('inputs_unchanged_during_run') is not True:
@@ -71,7 +72,7 @@ def inspect(root, executable=shutil.which, module=importlib.util.find_spec, regi
     for tool in registry['tools']:
         key, label = tool['id'], tool['name']
         missing = []
-        for relative in tool['files']:
+        for relative in registered_files(tool, registry):
             try:
                 present = safe_path(root, relative).is_file()
             except ValueError:
@@ -83,14 +84,16 @@ def inspect(root, executable=shutil.which, module=importlib.util.find_spec, regi
         if not tool['commands']:
             missing.append('implementation: 実行入口が未接続')
         command = 'python tools/manage.py run --tool ' + key if tool['commands'] else None
-        previous = last_run(root, key, tool)
+        previous = last_run(root, key, tool, registry)
         previous['retest_advice'] = retest_advice(previous, command, missing)
         results.append({'id': key, 'name': label, 'status': 'blocked' if missing else 'ready',
-                        'missing': missing, 'command': command, 'last_run': previous})
+                        'missing': missing, 'command': command, 'last_run': previous,
+                        'input_groups': [{'id': group['id'], 'name': group['name'], 'files': group['files']}
+                                         for group in selected_groups(tool, registry)]})
     return {'schema': 'workspace-readiness/v1',
             'python': {'version': sys.version.split()[0], 'executable': sys.executable},
             'scope': '実行前の依存関係診断。ready は動作検証の合格を意味しません。ブラウザー本体・通信・録画E2Eは別途検証が必要です。',
-            'tools': results}
+            'tools': results, 'input_groups': registry.get('input_groups', [])}
 
 
 
@@ -114,6 +117,15 @@ def render(report):
                                       item.get('last_run', {}).get('label', '未記録') + '<br>' + item.get('last_run', {}).get('time', '—') + '<br>' + item.get('last_run', {}).get('detail', '') + '<br>' + html.escape(retest_detail(item.get('last_run', {}))).replace('|', '&#124;'),
                                       '`' + item['command'] + '`' if item['command'] else 'ソース復元後に接続',
                                       '<br>'.join(item['missing']) or 'なし']) + ' |')
+    groups = report.get('input_groups', [])
+    if groups:
+        lines += ['', '## 共通入力の影響範囲', '',
+                  '明示登録した共通入力のみを照合します。未登録の間接依存や外部状態を網羅するものではありません。', '',
+                  '| 共通入力 | 利用ツール | 登録ファイル |', '|---|---|---|']
+        names = {item['id']: item['name'] for item in report['tools']}
+        for group in groups:
+            values = [group['name'], ' / '.join(names[key] for key in group['tools']), ' / '.join(group['files'])]
+            lines.append('| ' + ' | '.join(html.escape(value).replace('|', '&#124;') for value in values) + ' |')
     return '\n'.join(lines) + '\n'
 
 
@@ -141,6 +153,13 @@ const query=document.querySelector('#query'),state=document.querySelector('#stat
     page = page.replace('<th>共通コマンド</th>', '<th>前回の実行結果・日時</th><th>共通コマンド</th>')
     note += '<p>前回の結果は診断時の記録です。実行後はdoctorを再実行すると更新されます。</p>'
     note += '<p>照合対象は登録ファイル・実行設定・Python版です。外部サービス、実行バイナリ、間接依存すべての同一性は判定しません。</p>'
+    groups = report.get('input_groups', [])
+    if groups:
+        names = {item['id']: item['name'] for item in report['tools']}
+        note += '<section><h2>共通入力の影響範囲</h2><p>明示登録した共通入力の一覧です。未登録の間接依存・外部状態を網羅しません。</p>'
+        for group in groups:
+            note += '<details><summary>' + html.escape(group['name']) + '（' + str(len(group['tools'])) + '機能）</summary><p>' + html.escape(' / '.join(names[key] for key in group['tools'])) + '</p><p><code>' + html.escape(' / '.join(group['files'])) + '</code></p></details>'
+        note += '</section>'
     return page.replace('<div class="toolbar">', note + '<div class="toolbar">', 1)
 
 

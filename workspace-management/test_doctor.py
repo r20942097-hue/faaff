@@ -6,7 +6,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from doctor import inspect, last_run, retest_advice, retest_detail, overview
-from registry import load, input_identity
+from registry import load, input_identity, registered_files
 
 
 class ReadinessTests(unittest.TestCase):
@@ -94,7 +94,7 @@ class ReadinessTests(unittest.TestCase):
         with TemporaryDirectory() as directory:
             root = Path(directory)
             for tool in load()['tools']:
-                for name in tool['files']:
+                for name in registered_files(tool, load()):
                     path = root / name
                     path.parent.mkdir(parents=True, exist_ok=True)
                     path.touch()
@@ -148,3 +148,38 @@ class ReadinessTests(unittest.TestCase):
         self.assertIn('&lt;fixture&gt;.py', page)
         self.assertNotIn('<fixture>.py', page)
         self.assertIn('実行設定・登録定義も変更', retest_detail(previous))
+
+    def test_common_inputs_invalidate_success_and_missing_common_file_blocks(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'source.py').write_text('source')
+            (root / 'shared.py').write_text('before')
+            tool = {'id': 'fixture', 'name': 'fixture', 'files': ['source.py'], 'commands': [['{python}', 'source.py']], 'modules': [], 'binaries': []}
+            data = {'tools': [tool], 'input_groups': [{'id': 'shared', 'name': 'shared', 'tools': ['fixture'], 'files': ['shared.py']}]}
+            identity = input_identity(root, tool, data)
+            record = {'schema': 'workspace-tool-run/v1', 'tool': 'fixture', 'status': 'passed', 'passed': True,
+                      'started_at_utc': '2026-10-13T00:00:00+00:00', 'inputs_before': identity, 'inputs_after': identity,
+                      'inputs_unchanged_during_run': True, 'python': {'version': sys.version.split()[0]}}
+            path = root / 'catalog/results/tool-fixture.json';path.parent.mkdir(parents=True);path.write_text(json.dumps(record))
+            (root / 'shared.py').write_text('after')
+            result = inspect(root, registry=data)['tools'][0]
+            self.assertEqual(result['last_run']['changed_files'], ['shared.py'])
+            self.assertIn('再検証', result['last_run']['label'])
+            self.assertEqual(result['input_groups'][0]['id'], 'shared')
+            (root / 'shared.py').unlink()
+            self.assertIn('file: shared.py', inspect(root, registry=data)['tools'][0]['missing'])
+
+    def test_old_pass_without_shared_identity_requires_reverification(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'source.py').write_text('source');(root / 'shared.py').write_text('shared')
+            tool = {'id': 'fixture', 'files': ['source.py']}
+            identity = input_identity(root, tool)
+            record = {'schema': 'workspace-tool-run/v1', 'tool': 'fixture', 'status': 'passed', 'passed': True,
+                      'started_at_utc': '2026-10-13T00:00:00+00:00', 'inputs_before': identity, 'inputs_after': identity,
+                      'inputs_unchanged_during_run': True, 'python': {'version': sys.version.split()[0]}}
+            path=root/'catalog/results/tool-fixture.json';path.parent.mkdir(parents=True);path.write_text(json.dumps(record))
+            data={'input_groups':[{'id':'shared','name':'shared','tools':['fixture'],'files':['shared.py']}]}
+            result=last_run(root,'fixture',tool,data)
+            self.assertIn('再検証',result['label'])
+            self.assertEqual(result['changed_files'],['shared.py'])
