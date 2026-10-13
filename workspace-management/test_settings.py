@@ -89,3 +89,62 @@ class SettingsTests(unittest.TestCase):
         with TemporaryDirectory() as root,patch.object(check_settings,'ROOT',Path(root)),patch('check_settings.load',return_value=self.fixture()):
             self.assertEqual(check_settings.main(),0)
             report=json.loads((Path(root)/'catalog/results/settings-audit.json').read_text());self.assertTrue(report['passed']);self.assertIn('transitive',report['scope'])
+
+    def test_python_flags_and_clustered_flags_preserve_owned_entry(self):
+        commands = [
+            ['{python}', '-B', 'tool.py'], ['{python}', '-IB', 'tool.py'],
+            ['{python}', '-OO', 'tool.py'], ['{python}', '-W', 'ignore', 'tool.py'],
+            ['{python}', '-Wignore', 'tool.py'], ['{python}', '-X', 'utf8', 'tool.py'],
+            ['{python}', '-BXutf8', 'tool.py'], ['{python}', '--', '-tool.py']]
+        for command in commands:
+            with self.subTest(command=command):
+                self.assertEqual(script_path(command, 'sub'), 'sub/' + command[-1])
+
+    def test_flagged_unregistered_script_is_not_hidden(self):
+        data=self.fixture();data['tools'][0]['commands']=[['{python}','-B','missing.py']]
+        self.assertIn('missing.py',audit(data)['errors'][0])
+        data['tools'][0]['commands']=[['node','--no-warnings','missing.js']]
+        self.assertIn('missing.js',audit(data)['errors'][0])
+
+    def test_unknown_flags_and_missing_option_values_fail_without_exposing_value(self):
+        for command in [['{python}','--unknown=private-fixture','tool.py'],['{python}','-W'],
+                        ['{python}','-X'],['{python}','-m'],['{python}','-c'],
+                        ['node','--unknown=private-fixture','tool.js'],['node','--input-type'],['node','--eval']]:
+            data=self.fixture();data['tools'][0]['commands']=[command]
+            with self.subTest(command=command):
+                report=audit(data);self.assertFalse(report['passed']);self.assertNotIn('private-fixture',str(report))
+
+    def test_node_options_are_consumed_before_script_and_repl_is_a_filename(self):
+        for command in [['node','--no-warnings','tool.mjs'],['node','--inspect=127.0.0.1:0','tool.mjs'],
+                        ['node','--max-old-space-size','128','tool.mjs'],['node','--max-old-space-size=128','tool.mjs'],
+                        ['node','--','-tool.mjs'],['node','repl']]:
+            with self.subTest(command=command):self.assertEqual(script_path(command,'.'),command[-1])
+
+    def test_excluded_modes_are_recorded_without_inline_payload(self):
+        data=self.fixture();data['tools'][0]['commands']=[['{python}','-Bc','private-inline-fixture'],['{python}','-Im','unittest']]
+        report=audit(data);self.assertTrue(report['passed']);self.assertEqual([r['mode'] for r in report['excluded_entries']],['inline','module']);self.assertNotIn('private-inline-fixture',str(report))
+
+    def test_options_on_standard_checks_cannot_bypass_inspection(self):
+        data=self.fixture();data['checks']=[{'name':'bad','cwd':'.','argv':['{python}','--unsupported','tool.py'],'timeout_seconds':120}]
+        self.assertFalse(audit(data)['passed'])
+
+    def test_real_python_invocations_match_flagged_script_detection(self):
+        import subprocess
+        with TemporaryDirectory() as directory:
+            root=Path(directory);(root/'tool.py').write_text('import pathlib,sys; print(pathlib.Path(sys.argv[0]).name)')
+            for flags in [['-B'],['-IB'],['-W','ignore'],['-Wignore'],['-X','utf8'],['-BXutf8'],['--']]:
+                command=['{python}',*flags,'tool.py']
+                result=subprocess.run([sys.executable,*command[1:]],cwd=root,capture_output=True,text=True,timeout=10,check=True)
+                with self.subTest(flags=flags):
+                    self.assertEqual(result.stdout.strip(),script_path(command,'.'))
+
+    def test_real_node_invocations_match_flagged_script_detection(self):
+        import shutil,subprocess
+        node=shutil.which('node')
+        if node is None:self.skipTest('Node executable is not installed')
+        with TemporaryDirectory() as directory:
+            root=Path(directory);(root/'tool.cjs').write_text("console.log(require('path').basename(process.argv[1]));")
+            for flags in [['--no-warnings'],['--trace-warnings'],['--max-old-space-size=128'],['--']]:
+                command=['node',*flags,'tool.cjs']
+                result=subprocess.run([node,*command[1:]],cwd=root,capture_output=True,text=True,timeout=10,check=True)
+                with self.subTest(flags=flags):self.assertEqual(result.stdout.strip(),script_path(command,'.'))
