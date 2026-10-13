@@ -34,7 +34,7 @@
       "kind": "update",
       "version": "20261012.1",
       "purpose": "基準ZIP20261012.2へ16機能の管理更新を適用",
-      "notes": "17候補ファイルの更新。新規展開先へ適用します。ZIP内の一覧は作成時点の12対象、最新公開一覧は13対象です。",
+      "notes": "旧17ファイル版。基準ZIP20261012.2へ新規適用。ZIP内一覧は作成時点12件、現在の公開一覧は17件。直接リンクの追加検証は新版20261014.1を使用します。",
       "local_path": "work/releases/catalogue-update-20261012.1.zip",
       "bytes": 61068,
       "sha256": "010c64b23b6c8a66adadf9c43c8711f293d7ea4c2fe3f336c951682b37ec0fde",
@@ -345,7 +345,7 @@
       "name": "管理ツール統合更新 20261013.1",
       "version": "20261013.1",
       "purpose": "並べ替え・診断・公開状態比較・共通入力照合を基準ZIPへ追加",
-      "notes": "20ファイルの更新。基準ZIP20261012.2が必要。新規作業先へ適用。ZIP内の成果物一覧は作成時点13件、現在の一覧はこのZIPを加えた14件。",
+      "notes": "旧20ファイル版。基準ZIP20261012.2が必要。ZIP内一覧は作成時点13件、現在の公開一覧は17件。link_mode修正と直接リンク検証は新版20261014.1に含まれます。",
       "kind": "update",
       "local_path": "work/releases/catalogue-update-20261013.1.zip",
       "sha256": "c96d05659fce7815b240daa7d3a99a454fd96e5850783b4f4a8ea2d5a17848ae",
@@ -371,7 +371,7 @@
       "name": "ツール統合・導入キット",
       "version": "20261013.1",
       "purpose": "基準ZIP・最新20ファイル更新・検証ヘルパーを1つのダウンロードに統合",
-      "notes": "キットフォルダのapply_catalogue_update.pyで新規work/作業先を用意します。適用先で新規仮想環境・setup/allが必要。更新ZIP内の一覧は作成時点13件、現在の一覧はキットを含む15件です。未取得の製品本体は含みません。",
+      "notes": "旧20261013.1キット。新規作業先・仮想環境でsetup/allが必要。ZIP内一覧は作成時点13件、現在の公開一覧は17件。初回導入には新版20261014.1を推奨。未取得製品本体は含みません。",
       "kind": "snapshot",
       "local_path": "work/releases/tool-integration-kit-20261013.1.zip",
       "sha256": "efd1992664cdb7c947e6d86a65eaf388236f0e3ae8ab3b41f61bda81835c8c5e",
@@ -391,6 +391,58 @@
       },
       "local_state": "unchecked",
       "actual_sha256": null
+    },
+    {
+      "id": "management-update-20261014",
+      "name": "設定整合性・直接リンク更新",
+      "version": "20261014.1",
+      "kind": "update",
+      "purpose": "登録漏れ修正・重複と時間制限の検査・配布のlink_mode=directを追加",
+      "notes": "基準ZIP20261012.2が必要。24ファイル更新。ZIP内一覧は作成時点15件、現在の一覧は新版キットを含む17件。",
+      "local_path": "work/releases/catalogue-update-20261014.1.zip",
+      "sha256": "8b0774fcdae3bf9420b49835a766a8af6ff6dea3bd7f1b0102b3af18086557a1",
+      "bytes": 88988,
+      "publication": {
+        "stage": "pr",
+        "commit": "903fd41b8a8dad4e375a27d3ff24974a625002a1",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/903fd41b8a8dad4e375a27d3ff24974a625002a1/workspace-management/catalogue-update-20261014.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "8b0774fcdae3bf9420b49835a766a8af6ff6dea3bd7f1b0102b3af18086557a1",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キットの実CLI適用後に管理143件と公開支援112件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。生成後にカタログ内のシンボリックリンクなし。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38425363944"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null
+    },
+    {
+      "id": "tool-integration-kit-20261014",
+      "name": "ツール統合・導入キット 20261014.1",
+      "version": "20261014.1",
+      "kind": "snapshot",
+      "purpose": "基準ZIP・24ファイル更新・検証ヘルパーを一括導入",
+      "notes": "同梱CLIで新規work/作業先を用意し、新規仮想環境でsetup/allを実行。未取得製品本体は含まず、更新ZIP内一覧は作成時点15件。",
+      "local_path": "work/releases/tool-integration-kit-20261014.1.zip",
+      "sha256": "41136d2914216db668c3480a394360614376ba19c3b9e332297d2f9ed2b2da76",
+      "bytes": 587353,
+      "publication": {
+        "stage": "pr",
+        "commit": "903fd41b8a8dad4e375a27d3ff24974a625002a1",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/903fd41b8a8dad4e375a27d3ff24974a625002a1/workspace-management/tool-integration-kit-20261014.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "41136d2914216db668c3480a394360614376ba19c3b9e332297d2f9ed2b2da76",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キットの実CLI適用後に管理143件と公開支援112件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。生成後にカタログ内のシンボリックリンクなし。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38425363944"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null
     }
   ],
   "changes": {
@@ -398,7 +450,9 @@
     "added": [
       "成果物一覧・管理コード更新ZIP",
       "管理ツール統合更新 20261013.1",
-      "ツール統合・導入キット"
+      "設定整合性・直接リンク更新",
+      "ツール統合・導入キット",
+      "ツール統合・導入キット 20261014.1"
     ],
     "removed": [],
     "changed": [

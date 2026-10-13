@@ -114,6 +114,9 @@ def main():
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
         page.locator('section details').first.locator('summary').click()
         checks.append('shared input groups and consumers render and fit mobile viewport')
+        assert any(t['id']=='settings-consistency' for t in diagnosis['tools'])
+        assert '設定・実行入口の重複と整合性' in page.locator('main').inner_text()
+        checks.append('settings consistency tool is available from the common catalogue')
         page.select_option('#state', 'blocked')
         assert page.locator('tbody tr:visible').count() == sum(tool['status'] == 'blocked' for tool in diagnosis['tools'])
         checks.append('tool overview filters missing prerequisites')
@@ -167,7 +170,7 @@ def main():
         assert page.locator('article:visible').count() == sum(a['publication']['stage'] == 'pr' for a in artifacts)
         checks.append('artifact overview filters PR publications')
         page.select_option('#kind', 'snapshot')
-        assert page.locator('article:visible').count() == 2
+        assert page.locator('article:visible').count() == 3
         assert 'ツール統合・導入キット' in page.locator('.grid').inner_text()
         checks.append('artifact overview combines stage and kind filters including integration kit')
         page.fill('#query', 'no-matching-artifact-123456')

@@ -42,5 +42,15 @@
   "management_tests": 143,
   "browser_checks": 56,
   "catalogue_symlinks_after_all": false,
-  "ci": "pending v3 distribution path"
+  "ci": {
+    "source_commit": "903fd41b8a8dad4e375a27d3ff24974a625002a1",
+    "run_id": 38425363944,
+    "environments": 6,
+    "all_passed": true,
+    "actual_kit_installation_route": true,
+    "catalogue_symlinks_after_all": false,
+    "management_tests": 143,
+    "public_support_tests": 112,
+    "overlap": 89
+  }
 }
