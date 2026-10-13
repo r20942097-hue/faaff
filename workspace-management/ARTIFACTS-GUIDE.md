@@ -1,6 +1,6 @@
 # 成果物一覧の見方・更新方法
 
-[成果物一覧](artifacts.html)では、配布ZIPと広告・追跡・日本語表示等の14成果物を探せます。全ファイル・管理機能・10製品の一覧は別の目的の表です。録画等の未取得本体を完成品として数えません。
+[成果物一覧](artifacts.html)では、配布ZIPと広告・追跡・日本語表示等の15成果物を探せます。全ファイル・管理機能・10製品の一覧は別の目的の表です。録画等の未取得本体を完成品として数えません。
 
 ## 見方
 
@@ -109,3 +109,15 @@ python workspace-management/apply_catalogue_update.py --base workspace-managemen
 ```
 
 リポジトリルートで、同じPRの最新版apply_catalogue_update.py/verify_catalogue_update.py/extract_snapshot.py/registry.pyを使います。旧検証ヘルパーは新しいv2形式を受け付けません。既存作業先へ上書きせず、新規先で仮想環境を作成してsetup/allを実行してください。基準ZIPを含む単独配布や、録画等の完成品ではありません。
+
+## 1回のダウンロードで導入する
+
+[ツール統合・導入キット 20261013.1](https://raw.githubusercontent.com/r20942097-hue/faaff/fa79b626be6093d25f5ba19a5201c477d6ff25b4/workspace-management/tool-integration-kit-20261013.1.zip)は基準ZIP・最新更新ZIP・検証ヘルパーをまとめたものです。578,644bytes、SHA256は `efd1992664cdb7c947e6d86a65eaf388236f0e3ae8ab3b41f61bda81835c8c5e`。新しいフォルダへ展開し、同梱KIT-README.mdの手順で新規work/作業先を作成します。
+
+| 手元の状態 | 選ぶもの |
+|---|---|
+| 初めて導入する | 基準版と更新・検証ヘルパーを含む導入キット |
+| 基準ZIPと最新版の検証ヘルパーがある | 80,292bytesの管理更新ZIP20261013.1 |
+| 旧版の記録を確認する | 旧ZIP20261012.1と固定コミットの検証記録 |
+
+キットのZIPを展開しただけでは依存導入・動作検証の完了ではありません。新規作業先の仮想環境でsetup/allを実行します。現在の一覧はキットを加えた15件で、更新ZIP内の作成時点13件とは区別します。

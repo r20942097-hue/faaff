@@ -1,8 +1,8 @@
 {
   "schema": "artifact-publication-observation/v1",
   "passed": true,
-  "catalogue_identity": "42959298257cbcba08d43a49381a7520652bd25b747398f66d2045bc99fe3a88",
-  "checked_at_utc": "2026-10-13T05:02:30.055656+00:00",
+  "catalogue_identity": "7a14d90dc061143345e823bff3dc6c5239f169b5f3d7fab3f16aad89a7dbba7b",
+  "checked_at_utc": "2026-10-13T05:15:37.743620+00:00",
   "main_commits": {
     "r20942097-hue/faaff": "873f7bd5dc68443e2ef0d49a458f0222af6f588d",
     "r20942097-hue/s": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
@@ -190,6 +190,22 @@
       "proposal": null,
       "observed_main_commit": "873f7bd5dc68443e2ef0d49a458f0222af6f588d",
       "main_url": "https://raw.githubusercontent.com/r20942097-hue/faaff/873f7bd5dc68443e2ef0d49a458f0222af6f588d/workspace-management/catalogue-update-20261013.1.zip",
+      "main_state": "missing",
+      "pr_observation": {
+        "merged": false,
+        "state": "open",
+        "base": "codex/update-tools-20261011"
+      }
+    },
+    {
+      "id": "tool-integration-kit",
+      "passed": true,
+      "public_bytes_match": true,
+      "main_bytes_match": false,
+      "stage": "pr",
+      "proposal": null,
+      "observed_main_commit": "873f7bd5dc68443e2ef0d49a458f0222af6f588d",
+      "main_url": "https://raw.githubusercontent.com/r20942097-hue/faaff/873f7bd5dc68443e2ef0d49a458f0222af6f588d/workspace-management/tool-integration-kit-20261013.1.zip",
       "main_state": "missing",
       "pr_observation": {
         "merged": false,
