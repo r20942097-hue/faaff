@@ -21,12 +21,14 @@
 | ツール統合・導入キット<br>基準ZIP・最新20ファイル更新・検証ヘルパーを1つのダウンロードに統合 | 20261013.1 | PR公開・main未反映 | 二重ビルド・全内容ハッシュ・公開本文一致。同梱CLIで準備した作業先のsetup/allとLinux/Windows×Python3.11/3.14/3.15の6環境合格。製品E2Eは対象外。<br>2026-10-13 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/fa79b626be6093d25f5ba19a5201c477d6ff25b4/workspace-management/tool-integration-kit-20261013.1.zip) |
 | 設定整合性・直接リンク更新<br>登録漏れ修正・重複と時間制限の検査・配布のlink\_mode=directを追加 | 20261014.1 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キットの実CLI適用後に管理143件と公開支援112件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。生成後にカタログ内のシンボリックリンクなし。製品E2Eは対象外。<br>2026-10-14 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/903fd41b8a8dad4e375a27d3ff24974a625002a1/workspace-management/catalogue-update-20261014.1.zip) |
 | ツール統合・導入キット 20261014.1<br>基準ZIP・24ファイル更新・検証ヘルパーを一括導入 | 20261014.1 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キットの実CLI適用後に管理143件と公開支援112件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。生成後にカタログ内のシンボリックリンクなし。製品E2Eは対象外。<br>2026-10-14 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/903fd41b8a8dad4e375a27d3ff24974a625002a1/workspace-management/tool-integration-kit-20261014.1.zip) |
+| フラグ付き実行・設定検査更新<br>対応するPython・Nodeフラグの後の実行ファイル照合と、除外形式の記録を追加 | 20261014.2 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理151件・公開支援120件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。実Python/Nodeのフラグ付きスクリプトと生成後のカタログ内リンク状態も検査。製品E2Eは対象外。<br>2026-10-14 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/f2dfde630d6fc18a91ccc0d7a2edb7ecbeac45d7/workspace-management/catalogue-update-20261014.2.zip) |
+| ツール統合・導入キット 20261014.2<br>対応するPython・Nodeフラグの後の実行ファイル照合と、除外形式の記録を追加 | 20261014.2 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理151件・公開支援120件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。実Python/Nodeのフラグ付きスクリプトと生成後のカタログ内リンク状態も検査。製品E2Eは対象外。<br>2026-10-14 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/f2dfde630d6fc18a91ccc0d7a2edb7ecbeac45d7/workspace-management/tool-integration-kit-20261014.2.zip) |
 
 ## 前回からの変更
 
 前の公開ソースZIP 20261012.1 内の本文・版との比較
 
-追加 5件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
+追加 7件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
 - 共通ツール・ソースZIP：20261012.1 → 20261012.2
 
 ## サイズ・SHA256
@@ -187,7 +189,7 @@
 
 `8b0774fcdae3bf9420b49835a766a8af6ff6dea3bd7f1b0102b3af18086557a1`
 
-基準ZIP20261012.2が必要。24ファイル更新。ZIP内一覧は作成時点15件、現在の一覧は新版キットを含む17件。
+基準ZIP20261012.2が必要。24ファイル更新。ZIP内一覧は作成時点15件、現在の一覧は新版キットを含む19件。
 
 </details>
 
@@ -198,6 +200,26 @@
 `41136d2914216db668c3480a394360614376ba19c3b9e332297d2f9ed2b2da76`
 
 同梱CLIで新規work/作業先を用意し、新規仮想環境でsetup/allを実行。未取得製品本体は含まず、更新ZIP内一覧は作成時点15件。
+
+</details>
+
+<details><summary>フラグ付き実行・設定検査更新</summary>
+
+91,830 bytes
+
+`1c20be0134eadb09c94bf77acda8030311e1a165ff8ee47936596e5ffb71134d`
+
+旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点17件、現在の公開一覧は19件。製品本体は別途必要。基準ZIP20261012.2と最新版ヘルパーが必要。
+
+</details>
+
+<details><summary>ツール統合・導入キット 20261014.2</summary>
+
+590,429 bytes
+
+`b85bd6ffc2c2cc94bf7d4695ad2f2eb8c64db8236a143782eb9c052721ded112`
+
+旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点17件、現在の公開一覧は19件。製品本体は別途必要。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。
 
 </details>
 

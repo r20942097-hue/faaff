@@ -170,7 +170,7 @@ def main():
         assert page.locator('article:visible').count() == sum(a['publication']['stage'] == 'pr' for a in artifacts)
         checks.append('artifact overview filters PR publications')
         page.select_option('#kind', 'snapshot')
-        assert page.locator('article:visible').count() == 3
+        assert page.locator('article:visible').count() == 4
         assert 'ツール統合・導入キット' in page.locator('.grid').inner_text()
         checks.append('artifact overview combines stage and kind filters including integration kit')
         page.fill('#query', 'no-matching-artifact-123456')
