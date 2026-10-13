@@ -1,16 +1,16 @@
 # 成果物一覧の見方・統合更新
 
-更新：2026-10-14（日本時間）。[成果物一覧](artifacts.html)は19件です。管理17機能・標準18検査・10製品の取得状況を、配布物の一覧と分けて確認できます。製品本体は9件未取得です。
+更新：2026-10-14（日本時間）。[成果物一覧](artifacts.html)は21件です。管理17機能・標準18検査・10製品の取得状況を、配布物の一覧と分けて確認できます。製品本体は9件未取得です。
 
 ## 最初に選ぶもの
 
 | 状況 | 選択 | 含まれるもの |
 |---|---|---|
-| 初回導入 | ツール統合・導入キット20261014.2 | 基準ZIP・24ファイル更新・検証ヘルパー・手順書 |
-| 基準ZIPと最新版ヘルパーがある | 管理更新ZIP20261014.2 | 管理コード24ファイル、91,830bytes |
+| 初回導入 | ツール統合・導入キット20261014.3 | 基準ZIP・24ファイル更新・検証ヘルパー・手順書 |
+| 基準ZIPと最新版ヘルパーがある | 管理更新ZIP20261014.3 | 管理コード24ファイル、94,448bytes |
 | 過去の版を再現する | 一覧に残した固定版ZIPと検証記録 | 作成時点の内容。現行コードとは区別 |
 
-キットは590,429bytesです。SHA256と固定公開先は成果物一覧から確認してください。基準ZIPは20261012.2を使用します。ファイル名workspace-source-20261011.zipは公開互換名で、実内容の版は一覧の版・ハッシュで確認します。更新ZIP内の一覧は作成時点17件、現在の一覧は新しい更新ZIPとキットを加えた19件です。
+キットは593,302bytesです。SHA256と固定公開先は成果物一覧から確認してください。基準ZIPは20261012.2を使用します。ファイル名workspace-source-20261011.zipは公開互換名で、実内容の版は一覧の版・ハッシュで確認します。更新ZIP内の一覧・説明は作成時点19件の固定記録です。その時点の導入先として旧版20261014.2の記述も保持します。最新版20261014.3の導入は、同梱KIT-README.mdまたはこの公開ガイドを使います。現在の一覧は新しい更新ZIPとキットを加えた21件です。
 
 ## 一覧の見方
 
@@ -38,7 +38,7 @@ HTML・Markdown・CSV・JSONは同じ正本から生成します。CSVはUTF-8�
 基準ZIPと最新版ヘルパーがある場合は、リポジトリルートで実行します。
 
 ```sh
-python workspace-management/apply_catalogue_update.py --base workspace-management/workspace-source-20261011.zip --update workspace-management/catalogue-update-20261014.2.zip --update-sha256 1c20be0134eadb09c94bf77acda8030311e1a165ff8ee47936596e5ffb71134d --output work/integrated-tools-20261014-2
+python workspace-management/apply_catalogue_update.py --base workspace-management/workspace-source-20261011.zip --update workspace-management/catalogue-update-20261014.3.zip --update-sha256 e2a68613c0c855237cc4b713ed8c2cc1ac5bab5bf04a4eeb80fea1582b7cc4de --output work/integrated-tools-20261014-3
 ```
 
 展開・適用はパス・CRC・全内容ハッシュ・基準版を照合します。その後、新規作業先で仮想環境を作成してsetup/allを実行します。setupはネットワークを使用します。配布設定はlink_mode=directで、生成後にもカタログ内のシンボリックリンクがないことを検査します。旧版ZIPは固定履歴として保持します。
@@ -77,3 +77,19 @@ python tools/check_artifact_publication.py --candidate work/artifacts-proposal.j
 新規ファイル名を指定します。固定公開本文のサイズ・SHA256、現在のmainとPR状態を観測し、変更前後を表にします。正本は自動変更しません。不完全な通信・古い正本への観測からは提案を作りません。確認後に公開状態が変わるため、採用前に再観測します。本文の版・ハッシュ・動作検証日は別途レビューが必要です。
 
 [統合・改良案](TOOL-IMPROVEMENTS.md) · [共有入力](SHARED-INPUTS.md) · [PR #15](https://github.com/r20942097-hue/faaff/pull/15)
+
+## 本文・版を更新する候補のレビュー（20261014.3）
+
+全体の成果物JSONをwork/へ複製し、更新する版・サイズ・SHA256・固定公開先を編集します。新規・本文・版・種類・原本パスを変更する対象はverification.statusをpendingにします。古いpassedを新SHAへ付け替えた候補は拒否します。
+
+```sh
+python tools/check_artifact_publication.py --review work/artifacts-proposed.json --candidate work/artifacts-checked.json --preview work/artifacts-review.md
+```
+
+全対象の固定公開本文を新規取得して照合し、変更前後をMarkdown表、確認済み候補を新規JSONへ出力します。正本と入力候補は上書きしません。新規・変更対象はmatched（公開本文一致）として記録し、本文確認では動作合格を付与しません。変更していない動作検証は保持します。確認日は本文一致の確認日です。
+
+正本・候補の変更をネットワーク処理後に再確認し、15分より古い観測・未来の不正時刻・不完全な本文確認は拒否します。基準比較・scope・共有ルールの根拠の変更は、このレビューでは扱いません。共有ルール変更は別の根拠確認が必要です。公開状態だけの候補作成は従来の--candidate/--previewを引き続き使えます。
+
+採用前は正本との差分と必要な動作検証を確認します。確認済み候補は採用操作ではなく、一覧の登録解除も原本削除ではありません。一方の出力後に別の書込みが失敗した場合は全体を失敗とし、残った候補を採用済みとは扱いません。
+
+[実ファイルで確認した比較例（未採用）](ARTIFACT-REVIEW-EXAMPLE.md)

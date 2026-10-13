@@ -398,7 +398,7 @@
       "version": "20261014.1",
       "kind": "update",
       "purpose": "登録漏れ修正・重複と時間制限の検査・配布のlink_mode=directを追加",
-      "notes": "基準ZIP20261012.2が必要。24ファイル更新。ZIP内一覧は作成時点15件、現在の一覧は新版キットを含む19件。",
+      "notes": "基準ZIP20261012.2が必要。24ファイル更新。ZIP内一覧は作成時点15件、現在の一覧は新版キットを含む21件。",
       "local_path": "work/releases/catalogue-update-20261014.1.zip",
       "sha256": "8b0774fcdae3bf9420b49835a766a8af6ff6dea3bd7f1b0102b3af18086557a1",
       "bytes": 88988,
@@ -450,7 +450,7 @@
       "version": "20261014.2",
       "kind": "update",
       "purpose": "対応するPython・Nodeフラグの後の実行ファイル照合と、除外形式の記録を追加",
-      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点17件、現在の公開一覧は19件。製品本体は別途必要。基準ZIP20261012.2と最新版ヘルパーが必要。",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点17件、現在の公開一覧は21件。製品本体は別途必要。基準ZIP20261012.2と最新版ヘルパーが必要。",
       "local_path": "work/releases/catalogue-update-20261014.2.zip",
       "sha256": "1c20be0134eadb09c94bf77acda8030311e1a165ff8ee47936596e5ffb71134d",
       "bytes": 91830,
@@ -476,7 +476,7 @@
       "version": "20261014.2",
       "kind": "snapshot",
       "purpose": "対応するPython・Nodeフラグの後の実行ファイル照合と、除外形式の記録を追加",
-      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点17件、現在の公開一覧は19件。製品本体は別途必要。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点17件、現在の公開一覧は21件。製品本体は別途必要。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
       "local_path": "work/releases/tool-integration-kit-20261014.2.zip",
       "sha256": "b85bd6ffc2c2cc94bf7d4695ad2f2eb8c64db8236a143782eb9c052721ded112",
       "bytes": 590429,
@@ -495,6 +495,58 @@
       },
       "local_state": "unchecked",
       "actual_sha256": null
+    },
+    {
+      "id": "management-update-20261014-3",
+      "name": "制作物の本文更新・候補レビュー",
+      "version": "20261014.3",
+      "kind": "update",
+      "purpose": "制作物の本文・版・登録順を比較し、新規公開本文を確認して候補を出力",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点19件、現在の公開一覧は21件。正本の自動採用や動作合格の自動付与はしない。基準ZIP20261012.2と最新版ヘルパーが必要。",
+      "local_path": "work/releases/catalogue-update-20261014.3.zip",
+      "sha256": "e2a68613c0c855237cc4b713ed8c2cc1ac5bab5bf04a4eeb80fea1582b7cc4de",
+      "bytes": 94448,
+      "publication": {
+        "stage": "pr",
+        "commit": "7cdc873c9b43fd587274391a4fd1c83296863e20",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/7cdc873c9b43fd587274391a4fd1c83296863e20/workspace-management/catalogue-update-20261014.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "e2a68613c0c855237cc4b713ed8c2cc1ac5bab5bf04a4eeb80fea1582b7cc4de",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キットの実CLI適用後に管理164件・公開支援133件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。新規展開先のsetup/all、生成後のカタログ内リンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38440322517"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null
+    },
+    {
+      "id": "tool-integration-kit-20261014-3",
+      "name": "ツール統合・導入キット 20261014.3",
+      "version": "20261014.3",
+      "kind": "snapshot",
+      "purpose": "制作物の本文・版・登録順を比較し、新規公開本文を確認して候補を出力",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点19件、現在の公開一覧は21件。正本の自動採用や動作合格の自動付与はしない。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
+      "local_path": "work/releases/tool-integration-kit-20261014.3.zip",
+      "sha256": "c0646a42894f9bedac1b48f31454a5583eb3a93a48d659233c24a2dd8b390d09",
+      "bytes": 593302,
+      "publication": {
+        "stage": "pr",
+        "commit": "7cdc873c9b43fd587274391a4fd1c83296863e20",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/7cdc873c9b43fd587274391a4fd1c83296863e20/workspace-management/tool-integration-kit-20261014.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "c0646a42894f9bedac1b48f31454a5583eb3a93a48d659233c24a2dd8b390d09",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キットの実CLI適用後に管理164件・公開支援133件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。新規展開先のsetup/all、生成後のカタログ内リンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38440322517"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null
     }
   ],
   "changes": {
@@ -504,9 +556,11 @@
       "管理ツール統合更新 20261013.1",
       "設定整合性・直接リンク更新",
       "フラグ付き実行・設定検査更新",
+      "制作物の本文更新・候補レビュー",
       "ツール統合・導入キット",
       "ツール統合・導入キット 20261014.1",
-      "ツール統合・導入キット 20261014.2"
+      "ツール統合・導入キット 20261014.2",
+      "ツール統合・導入キット 20261014.3"
     ],
     "removed": [],
     "changed": [
