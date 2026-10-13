@@ -37,5 +37,8 @@
   "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
   "extracted_hashes": true,
   "applied_to_fresh_base": true,
-  "scope": "Checked update to the unchanged 20261012.2 source ZIP; not a recording product distribution."
+  "scope": "Checked update to the unchanged 20261012.2 source ZIP; not a recording product distribution.",
+  "ci": "passed actual 20261014.3 kit preparation and fresh setup/all on all six Linux/Windows Python 3.11/3.14/3.15 environments",
+  "validation_commit": "7cdc873c9b43fd587274391a4fd1c83296863e20",
+  "validation_run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38440322517"
 }

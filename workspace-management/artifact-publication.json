@@ -1,8 +1,8 @@
 {
   "schema": "artifact-publication-observation/v1",
   "passed": true,
-  "catalogue_identity": "285838590c8249227f08cc7a08d605f2d39ce251d44a6e05cfa17aff651285b9",
-  "checked_at_utc": "2026-10-13T16:35:58.738236+00:00",
+  "catalogue_identity": "8d0658f2ace1e00d4a641f25ca7f3b1b09e4b726fc6594bfbd82de49d09352fc",
+  "checked_at_utc": "2026-10-13T17:43:49.043239+00:00",
   "main_commits": {
     "r20942097-hue/faaff": "873f7bd5dc68443e2ef0d49a458f0222af6f588d",
     "r20942097-hue/s": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
@@ -270,6 +270,38 @@
       "proposal": null,
       "observed_main_commit": "873f7bd5dc68443e2ef0d49a458f0222af6f588d",
       "main_url": "https://raw.githubusercontent.com/r20942097-hue/faaff/873f7bd5dc68443e2ef0d49a458f0222af6f588d/workspace-management/tool-integration-kit-20261014.2.zip",
+      "main_state": "missing",
+      "pr_observation": {
+        "merged": false,
+        "state": "open",
+        "base": "codex/update-tools-20261011"
+      }
+    },
+    {
+      "id": "management-update-20261014-3",
+      "passed": true,
+      "public_bytes_match": true,
+      "main_bytes_match": false,
+      "stage": "pr",
+      "proposal": null,
+      "observed_main_commit": "873f7bd5dc68443e2ef0d49a458f0222af6f588d",
+      "main_url": "https://raw.githubusercontent.com/r20942097-hue/faaff/873f7bd5dc68443e2ef0d49a458f0222af6f588d/workspace-management/catalogue-update-20261014.3.zip",
+      "main_state": "missing",
+      "pr_observation": {
+        "merged": false,
+        "state": "open",
+        "base": "codex/update-tools-20261011"
+      }
+    },
+    {
+      "id": "tool-integration-kit-20261014-3",
+      "passed": true,
+      "public_bytes_match": true,
+      "main_bytes_match": false,
+      "stage": "pr",
+      "proposal": null,
+      "observed_main_commit": "873f7bd5dc68443e2ef0d49a458f0222af6f588d",
+      "main_url": "https://raw.githubusercontent.com/r20942097-hue/faaff/873f7bd5dc68443e2ef0d49a458f0222af6f588d/workspace-management/tool-integration-kit-20261014.3.zip",
       "main_state": "missing",
       "pr_observation": {
         "merged": false,
