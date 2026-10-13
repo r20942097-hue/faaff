@@ -553,5 +553,69 @@
       ],
       "timeout_seconds": 120
     }
+  ],
+  "input_groups": [
+    {
+      "id": "common-runner",
+      "name": "共通実行・診断・登録設定",
+      "tools": [
+        "catalogue",
+        "filters",
+        "candidates",
+        "engine",
+        "browser",
+        "workflows",
+        "recording",
+        "governance",
+        "control-plane",
+        "security-intake",
+        "suite-audit",
+        "control-plane-next",
+        "python-environment",
+        "firefox-extension",
+        "source-integrity",
+        "artifact-publication"
+      ],
+      "files": [
+        "tools/registry.py",
+        "tools/doctor.py",
+        "tools/manage.py",
+        "tools/registry.json",
+        "tools/configuration.py",
+        "catalog/config.json"
+      ]
+    },
+    {
+      "id": "python-verification",
+      "name": "Python検証依存と導入",
+      "tools": [
+        "browser",
+        "workflows",
+        "suite-audit",
+        "python-environment"
+      ],
+      "files": [
+        "tools/check_python_lock.py",
+        "tools/setup_verification.py",
+        "tools/python-lock.json",
+        "tools/requirements-verification.lock.txt",
+        "tools/requirements-build.lock.txt",
+        "tools/python-build-lock.json",
+        "tools/requirements-verification.txt"
+      ]
+    },
+    {
+      "id": "filter-shared-source",
+      "name": "共有フィルター正本と生成",
+      "tools": [
+        "filters",
+        "engine",
+        "firefox-extension"
+      ],
+      "files": [
+        "s/scripts/generate_lists.py",
+        "s/filter-profiles.json"
+      ]
+    }
   ]
 }

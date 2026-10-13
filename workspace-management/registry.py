@@ -95,6 +95,24 @@ def load(path=REGISTRY):
                 raise ValueError('invalid dependency name')
         for command in item['commands']:
             argv(command)
+    groups = data.get('input_groups', [])
+    if not isinstance(groups, list):
+        raise ValueError('input_groups must be an array')
+    group_ids = set()
+    for group in groups:
+        if (not isinstance(group, dict) or not isinstance(group.get('id'), str)
+                or not re.fullmatch('[a-z][a-z0-9-]*', group['id']) or group['id'] in group_ids
+                or not isinstance(group.get('name'), str) or not group['name']):
+            raise ValueError('invalid or duplicate input group')
+        group_ids.add(group['id'])
+        members, files = group.get('tools'), group.get('files')
+        if (not isinstance(members, list) or not members or not all(isinstance(m, str) and m in seen for m in members)
+                or len(set(members)) != len(members) or not isinstance(files, list) or not files):
+            raise ValueError('invalid input group members or files')
+        for name in files:
+            relative_path(name)
+        if len(set(files)) != len(files):
+            raise ValueError('duplicate input group file')
     names = set()
     for item in data['checks']:
         if not isinstance(item, dict) or not isinstance(item.get('name'), str) or item['name'] in names:
@@ -140,17 +158,27 @@ def child_environment():
     return environment
 
 
-def input_identity(root, tool):
+def selected_groups(tool, registry=None):
+    return [group for group in (registry or {}).get('input_groups', []) if tool.get('id') in group['tools']]
+
+
+def registered_files(tool, registry=None):
+    return sorted(set(tool['files']) | {name for group in selected_groups(tool, registry) for name in group['files']})
+
+
+def input_identity(root, tool, registry=None):
     """Identify registered files and tool configuration, not every runtime input."""
     files = {}
-    for name in tool['files']:
+    groups = selected_groups(tool, registry)
+    for name in registered_files(tool, registry):
         try:
             path = safe_path(root, name)
             with path.open('rb') as stream:
                 files[name] = hashlib.file_digest(stream, 'sha256').hexdigest()
         except (ValueError, OSError):
             files[name] = None
-    definition = json.dumps(tool, sort_keys=True, ensure_ascii=True, separators=(',', ':')).encode('utf-8')
+    definition_value = {'tool': tool, 'input_groups': groups} if groups else tool
+    definition = json.dumps(definition_value, sort_keys=True, ensure_ascii=True, separators=(',', ':')).encode('utf-8')
     return {'schema': 'registered-tool-inputs/v1', 'tool_definition_sha256': hashlib.sha256(definition).hexdigest(),
             'files': files, 'scope': 'Registered files and tool definition only; external services, binaries and all transitive inputs are not fingerprinted.'}
 
@@ -183,7 +211,7 @@ def run_tool(root, key):
               'started_at_utc': datetime.now(timezone.utc).isoformat(), 'status': 'running', 'passed': False,
               'python': {'executable': sys.executable, 'version': sys.version.split()[0]}, 'checks': []}
     write_report(destination, report)
-    report['inputs_before'] = input_identity(root, tool)
+    report['inputs_before'] = input_identity(root, tool, data)
     write_report(destination, report)
     ready = next(item for item in inspect(root, registry=data)['tools'] if item['id'] == key)
     if ready['status'] != 'ready' or not tool['commands']:
@@ -206,7 +234,7 @@ def run_tool(root, key):
     passed = all(result['exit_code'] == 0 for result in results)
     report.update(checks=results, passed=passed, status='interrupted' if results[-1].get('interrupted') else 'passed' if passed else 'failed',
                   finished_at_utc=datetime.now(timezone.utc).isoformat())
-    report['inputs_after'] = input_identity(root, tool)
+    report['inputs_after'] = input_identity(root, tool, data)
     report['inputs_unchanged_during_run'] = report['inputs_before'] == report['inputs_after']
     write_report(destination, report)
     return results[-1]['exit_code']

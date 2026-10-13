@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
-from verify_catalogue_update import apply_update, BASE_SHA256, FILES
+from verify_catalogue_update import apply_update, BASE_SHA256, FILES, V2_FILES
 
 
 class CandidateTests(unittest.TestCase):
@@ -77,3 +77,26 @@ class CandidateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'not a regular file'):
             apply_update(self.source, self.target, BASE_SHA256)
         self.assertEqual(sorted(p.relative_to(self.target).as_posix() for p in self.target.rglob('*')), before)
+
+    def test_v2_exact_extended_set_is_applied(self):
+        self.manifest['schema'] = 'catalogue-development-update/v2'
+        for name in V2_FILES - FILES:
+            path=self.source/name;path.parent.mkdir(parents=True,exist_ok=True);body=('v2 '+name).encode();path.write_bytes(body)
+            self.manifest['files'][name]=hashlib.sha256(body).hexdigest()
+        self.save_manifest()
+        self.assertEqual(apply_update(self.source,self.target,BASE_SHA256),len(V2_FILES))
+
+    def test_v1_cannot_smuggle_v2_files_and_unknown_schema_is_rejected(self):
+        for schema, extra in [('catalogue-development-update/v1', True), ('unknown', False)]:
+            self.manifest['schema']=schema
+            if extra:self.manifest['files']['tools/doctor.py']='a'*64
+            self.save_manifest()
+            with self.assertRaisesRegex(ValueError,'manifest'):
+                apply_update(self.source,self.target,BASE_SHA256)
+            self.unchanged()
+
+    def test_v2_requires_all_twenty_files(self):
+        self.manifest['schema']='catalogue-development-update/v2';self.save_manifest()
+        with self.assertRaisesRegex(ValueError,'manifest'):
+            apply_update(self.source,self.target,BASE_SHA256)
+        self.unchanged()
