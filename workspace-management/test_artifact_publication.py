@@ -9,7 +9,7 @@ from unittest.mock import patch
 from urllib.error import HTTPError
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from check_artifact_publication import candidate, observe
+from check_artifact_publication import candidate, observe, preview
 import check_artifact_publication
 
 
@@ -149,3 +149,47 @@ class PublicationTests(unittest.TestCase):
                 self.assertEqual(check_artifact_publication.main(), 0)
             self.assertEqual(original.read_bytes(), before)
             self.assertEqual(json.loads((root / 'work/proposal.json').read_text())['artifacts'][0]['publication']['stage'], 'main')
+
+    def test_preview_shows_publication_changes_without_rewriting_verification(self):
+        before = copy.deepcopy(self.data)
+        report = self.check()
+        text = preview(self.data, report)
+        self.assertIn('| fixture | 公開段階 | pr | main |', text)
+        self.assertIn(self.fixed, text)
+        self.assertIn(self.head, text)
+        self.assertIn('1件 / 全1件', text)
+        self.assertEqual(self.data, before)
+        self.assertIn('確認日は変更しません', text)
+
+    def test_preview_no_change_does_not_claim_new_runtime_pass(self):
+        self.responses[self.raw + self.head + '/file.txt'] = HTTPError('fixture', 404, 'missing', {}, None)
+        text = preview(self.data, self.check())
+        self.assertIn('変更候補はありません', text)
+        self.assertIn('新たに検証されたという意味ではありません', text)
+
+    def test_preview_rejects_failed_partial_and_stale_catalogue_observations(self):
+        report = self.check()
+        for change in [{'passed': False}, {'checks': []}, {'catalogue_identity': 'different'}]:
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                preview(self.data, {**report, **change})
+
+    def test_preview_escapes_table_fields(self):
+        self.row['name'] = '<fixture>|next\nrow'
+        text = preview(self.data, self.check())
+        self.assertIn('&lt;fixture&gt;&#124;next<br>row', text)
+        self.assertNotIn('<fixture>', text)
+
+    def test_cli_preview_creates_separate_markdown_and_refuses_overwrite(self):
+        report = self.check()
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'catalog').mkdir()
+            original = root / 'catalog/artifacts.json'
+            original.write_text(json.dumps(self.data))
+            before = original.read_bytes()
+            with patch.object(check_artifact_publication, 'ROOT', root), patch.object(sys, 'argv', ['check', '--preview', 'work/preview.md']), patch('check_artifact_publication.observe', return_value=report):
+                self.assertEqual(check_artifact_publication.main(), 0)
+                with self.assertRaises(SystemExit):
+                    check_artifact_publication.main()
+            self.assertEqual(original.read_bytes(), before)
+            self.assertIn('公開段階', (root / 'work/preview.md').read_text())

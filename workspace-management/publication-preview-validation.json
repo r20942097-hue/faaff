@@ -1,0 +1,15 @@
+{
+  "date_jst": "2026-10-13",
+  "scope": "Development publication-state preview, frozen ZIP unchanged",
+  "focused_tests": 19,
+  "focused_passed": true,
+  "management_test_passed": true,
+  "build_check_passed": true,
+  "live_public_artifacts": 13,
+  "live_public_check_passed": true,
+  "publication_proposals": 0,
+  "canonical_catalogue_modified": false,
+  "prior_ci_head": "90d5534c3aded7622cac245d4e1fe64c403a68e0",
+  "prior_ci_all_passed": true,
+  "new_head_ci": "not yet observed"
+}

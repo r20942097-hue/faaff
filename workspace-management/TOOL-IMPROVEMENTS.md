@@ -48,3 +48,7 @@
 | 検証の限界 | CIには固定配布ZIPの適用検証と公開候補の単体検証がある。録画・AI等の実機E2Eや、後続コードの配布ZIP収録を保証しない |
 
 [6環境CIの結果](https://github.com/r20942097-hue/faaff/actions/runs/38323672191)。照合対象が同じでも、外部サービス・実行バイナリ・すべての間接依存まで同一とは判定しません。
+
+## 公開状態の比較：実装済み（開発候補）
+
+`check_artifact_publication.py --candidate work/proposal.json --preview work/preview.md` で新規JSONとMarkdown比較表を生成します。19件の単体検証と全体回帰が合格。公開13件の本文一致を再確認し、今回の状態変更候補は0件でした。[実際の比較表](publication-preview-example.md)は観測時点の記録です。自動採用・本体の動作検証・配布ZIPへの収録は行っていません。優先項目2の公開状態比較を実装し、任意の本文更新や採用操作の比較は今後の対象です。

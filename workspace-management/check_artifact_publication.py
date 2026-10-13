@@ -4,6 +4,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import copy
 from datetime import datetime, timezone
 import hashlib
+import html
 import json
 from pathlib import Path
 import re
@@ -139,9 +140,40 @@ def candidate(data, report):
     return validate(updated)
 
 
+
+def preview(data, report):
+    """Compare a validated publication proposal without adopting it."""
+    proposed = candidate(data, report)
+    def cell(value):
+        text = html.escape(str(value)).replace('\\', '\\\\')
+        for character in ('*', '_', '[', ']', '`'):
+            text = text.replace(character, '\\' + character)
+        return text.replace('|', '&#124;').replace('\r', '').replace('\n', '<br>')
+    lines = ['# 成果物の公開状態・更新候補', '',
+             '公開本文とmainの観測に基づく提案です。正本は未変更です。観測後の公開状態は再確認が必要です。', '',
+             '観測日時（UTC）：' + cell(report.get('checked_at_utc', '未記録')), '',
+             '| 成果物 | 項目 | 現在 | 更新候補 |', '|---|---|---|---|']
+    changed = 0
+    fields = [('stage', '公開段階'), ('commit', '固定コミット'), ('url', '取得先'), ('pr_url', 'PR参照')]
+    for before, after in zip(data['artifacts'], proposed['artifacts']):
+        differences = [(key, label) for key, label in fields if before['publication'].get(key) != after['publication'].get(key)]
+        if differences:
+            changed += 1
+            for key, label in differences:
+                lines.append('| ' + ' | '.join(cell(v) for v in [before['name'], label,
+                             before['publication'].get(key, ''), after['publication'].get(key, '')]) + ' |')
+    lines += ['', '公開記録の変更候補：' + str(changed) + '件 / 全' + str(len(data['artifacts'])) + '件。', '',
+              '本文のSHA256・サイズ・版・動作検証の範囲・確認日は変更しません。公開本文の一致は新しい動作検証の合格ではありません。', '',
+              '採用前に公開段階・固定コミット・取得先を確認し、更新候補JSONを正本と比較してください。観測が古い場合は再確認します。']
+    if not changed:
+        lines += ['', '公開記録の変更候補はありません。製品動作が新たに検証されたという意味ではありません。']
+    return '\n'.join(lines) + '\n'
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--candidate', help='Write a proposed catalogue under work/; never replace the canonical catalogue.')
+    parser.add_argument('--preview', help='Write a comparison table to a new Markdown file under work/.')
     args = parser.parse_args()
     output = None
     if args.candidate:
@@ -153,6 +185,16 @@ def main():
             parser.error(str(error))
         if output.suffix != '.json' or output.exists():
             parser.error('candidate must be a new JSON file')
+    preview_output = None
+    if args.preview:
+        if not args.preview.startswith('work/'):
+            parser.error('preview must be a new Markdown file under work/')
+        try:
+            preview_output = safe_path(ROOT, args.preview)
+        except (ValueError, OSError) as error:
+            parser.error(str(error))
+        if preview_output.suffix != '.md' or preview_output.exists():
+            parser.error('preview must be a new Markdown file')
     destination = ROOT / 'catalog/results/artifact-publication.json'
     running = {'schema': 'artifact-publication-observation/v1', 'status': 'running', 'passed': False, 'checks': []}
     write_report(destination, running)
@@ -171,6 +213,12 @@ def main():
                 json.dump(proposal, stream, ensure_ascii=False, indent=2)
                 stream.write('\n')
             report['candidate'] = args.candidate
+        if preview_output is not None and report['passed']:
+            comparison = preview(data, report)
+            preview_output.parent.mkdir(parents=True, exist_ok=True)
+            with preview_output.open('x', encoding='utf-8', newline='') as stream:
+                stream.write(comparison)
+            report['preview'] = args.preview
     except (OSError, ValueError, KeyboardInterrupt) as error:
         running.update(status='interrupted' if isinstance(error, KeyboardInterrupt) else 'failed', error=type(error).__name__, finished_at_utc=datetime.now(timezone.utc).isoformat())
         write_report(destination, running)
