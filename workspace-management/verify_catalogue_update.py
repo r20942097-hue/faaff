@@ -16,6 +16,8 @@ FILES = frozenset({
 
 V2_FILES = FILES | {'tools/registry.py', 'tools/doctor.py', 'tools/tests/test_doctor.py'}
 
+V3_FILES = V2_FILES | {'tools/check_settings.py', 'tools/tests/test_settings.py', 'tools/configuration.py', 'tools/tests/test_configuration.py'}
+
 def apply_update(source, target, snapshot_sha256):
     source, target = Path(source), Path(target)
     if source.is_symlink() or target.is_symlink() or not source.is_dir() or not target.is_dir():
@@ -25,7 +27,7 @@ def apply_update(source, target, snapshot_sha256):
     if safe_path(target, 'catalog/results/catalogue-development-update.json').exists():
         raise ValueError('candidate update already applied')
     manifest = load_json(safe_path(source, 'manifest.json'))
-    schemas = {'catalogue-development-update/v1': FILES, 'catalogue-development-update/v2': V2_FILES}
+    schemas = {'catalogue-development-update/v1': FILES, 'catalogue-development-update/v2': V2_FILES, 'catalogue-development-update/v3': V3_FILES}
     allowed = schemas.get(manifest.get('schema')) if isinstance(manifest, dict) and isinstance(manifest.get('schema'), str) else None
     if (not isinstance(manifest, dict) or allowed is None
             or snapshot_sha256 != BASE_SHA256 or manifest.get('base_snapshot_sha256') != BASE_SHA256

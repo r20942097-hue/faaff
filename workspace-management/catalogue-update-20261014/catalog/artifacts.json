@@ -1,0 +1,460 @@
+{
+  "schema": "deliverable-catalog/v1",
+  "scope": "配布・購読対象の一覧。全ファイル一覧や製品本体の完成状況とは別の一覧です。公開版検証・公開状況・生成時の手元照合を分けて表示します。",
+  "baseline": {
+    "label": "前の公開ソースZIP 20261012.1 内の本文・版との比較",
+    "items": [
+      {
+        "id": "workspace-source",
+        "name": "共通ツール・ソースZIP",
+        "version": "20261012.1",
+        "sha256": "632b30a6ef0b154fb1fb96641ee8a257b3568d21e1c00e1657ef335182a8301c"
+      },
+      {
+        "id": "faaff-browser-filter-lists-filters-universal-web-ad-filter",
+        "name": "faaff広告リスト",
+        "version": "20261011.1",
+        "sha256": "3d745b279511c6a6ccaab900119ebab55c5f3ae0cf8c1e4afe98b44da6bb3ce7"
+      },
+      {
+        "id": "faaff-browser-filter-lists-filters-universal-web-tracking-filter",
+        "name": "faaff追跡リスト",
+        "version": "20261011.1",
+        "sha256": "f1922570d92147721703e4872ab85bc416cd9f8c0acd3c07291b3aba7edbcfe5"
+      },
+      {
+        "id": "s-ad-ubo",
+        "name": "広告ブロック・uBO版",
+        "version": "20261011.1",
+        "sha256": "6586b4e1141c0da176af9e421f136740d301be81e5b4aeea3aa1e57858ce0c53"
+      },
+      {
+        "id": "s-ad",
+        "name": "広告ブロック・共通版",
+        "version": "20261011.1",
+        "sha256": "453fa321e72e134edda1b5b31fb73014eb14edce2e9856ced3631e259fb35754"
+      },
+      {
+        "id": "s-japanese-text-softener-deep",
+        "name": "日本語表示・Deep",
+        "version": "20261011.1",
+        "sha256": "2724cf9dfd86429a95372cb7f6fe841b1ab2df3bc35e20277635cc52f9b17e0b"
+      },
+      {
+        "id": "s-japanese-text-softener",
+        "name": "日本語表示・標準",
+        "version": "20261011.1",
+        "sha256": "b0ce0a92ee288221aee09465918c70bc644ca105e13b2a778b3b108df51b70ec"
+      },
+      {
+        "id": "s-tracking",
+        "name": "追跡ブロック",
+        "version": "20261011.1",
+        "sha256": "6fc8af3e2561957c878c579743e48b1ae7971b199eed714980aa3c8bc4849897"
+      },
+      {
+        "id": "s-twitch-custom-optional",
+        "name": "Twitch追加設定",
+        "version": "20261011.1",
+        "sha256": "9db3d4c96f753eb8209ea5db62b1b0191fe8f0ea73f732a4b32e95583dc89a94"
+      },
+      {
+        "id": "s-v2-ad",
+        "name": "広告ブロック・v2候補",
+        "version": "20261011.1",
+        "sha256": "e8e98ace0d6a40845151252e6f345140a7722f060bda347e94be39a4986d3e52"
+      },
+      {
+        "id": "s-v2-strict",
+        "name": "Strict候補",
+        "version": "20261011.1",
+        "sha256": "b512273dc5f5514bed2096214f906f69c64b1f215d4afea6f8a18c6ec888c961"
+      },
+      {
+        "id": "s-v2-tracking",
+        "name": "追跡ブロック・v2候補",
+        "version": "20261011.1",
+        "sha256": "302dd7841140b0712ee499cda88190a57f1f6c19912ee96d9c2ad6cace6530cf"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "id": "workspace-source",
+      "name": "共通ツール・ソースZIP",
+      "kind": "snapshot",
+      "version": "20261012.2",
+      "purpose": "15機能の管理コード・設定・一覧を保存",
+      "notes": "ソース保存用。録画等の製品本体の完成版ではありません。",
+      "local_path": "work/releases/workspace-source-20261012.2.zip",
+      "bytes": 515953,
+      "sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/eaa3160e31c8955d8c4b50fc98203faf1f5a10aa/workspace-management/workspace-source-20261011.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15",
+        "commit": "eaa3160e31c8955d8c4b50fc98203faf1f5a10aa"
+      },
+      "verification": {
+        "status": "passed",
+        "checked_on": "2026-10-12",
+        "sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "summary": "Linux回帰302件・依存照合9件、Linux/Windowsの6環境CI合格。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38189349276"
+      }
+    },
+    {
+      "id": "catalogue-update",
+      "name": "成果物一覧・管理コード更新ZIP",
+      "kind": "update",
+      "version": "20261012.1",
+      "purpose": "基準ZIP20261012.2へ16機能の管理更新を適用",
+      "notes": "17候補ファイルの更新。新規展開先へ適用します。ZIP内の一覧は作成時点の12対象、最新公開一覧は13対象です。",
+      "local_path": "work/releases/catalogue-update-20261012.1.zip",
+      "bytes": 61068,
+      "sha256": "010c64b23b6c8a66adadf9c43c8711f293d7ea4c2fe3f336c951682b37ec0fde",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/f8288e48a77666aae4eb6aacb65bd898055f8f32/workspace-management/catalogue-update-20261012.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15",
+        "commit": "f8288e48a77666aae4eb6aacb65bd898055f8f32"
+      },
+      "verification": {
+        "status": "passed",
+        "checked_on": "2026-10-12",
+        "sha256": "010c64b23b6c8a66adadf9c43c8711f293d7ea4c2fe3f336c951682b37ec0fde",
+        "summary": "二重ビルド・全内容ハッシュ・新規適用、Linux回帰339件・公開支援55件、配布ZIPの6環境CI合格。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38196233061"
+      }
+    },
+    {
+      "id": "faaff-browser-filter-lists-filters-universal-web-ad-filter",
+      "name": "faaff広告リスト",
+      "kind": "filter",
+      "version": "20261011.1",
+      "purpose": "広告または追跡通信を遮断",
+      "notes": "フィルターの選択・対応エンジンは比較表で確認してください。",
+      "local_path": "faaff/browser_filter_lists/filters/universal-web-ad-filter.txt",
+      "bytes": 1149,
+      "sha256": "3d745b279511c6a6ccaab900119ebab55c5f3ae0cf8c1e4afe98b44da6bb3ce7",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/filters/universal-web-ad-filter.txt",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/14",
+        "commit": "c00d72829bdb772ba4db18cded78c1838ec0f254"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "3d745b279511c6a6ccaab900119ebab55c5f3ae0cf8c1e4afe98b44da6bb3ce7",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/pull/14"
+      }
+    },
+    {
+      "id": "faaff-browser-filter-lists-filters-universal-web-tracking-filter",
+      "name": "faaff追跡リスト",
+      "kind": "filter",
+      "version": "20261011.1",
+      "purpose": "広告または追跡通信を遮断",
+      "notes": "フィルターの選択・対応エンジンは比較表で確認してください。",
+      "local_path": "faaff/browser_filter_lists/filters/universal-web-tracking-filter.txt",
+      "bytes": 880,
+      "sha256": "f1922570d92147721703e4872ab85bc416cd9f8c0acd3c07291b3aba7edbcfe5",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/filters/universal-web-tracking-filter.txt",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/14",
+        "commit": "c00d72829bdb772ba4db18cded78c1838ec0f254"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "f1922570d92147721703e4872ab85bc416cd9f8c0acd3c07291b3aba7edbcfe5",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/pull/14"
+      }
+    },
+    {
+      "id": "s-ad-ubo",
+      "name": "広告ブロック・uBO版",
+      "kind": "filter",
+      "version": "20261011.1",
+      "purpose": "広告または追跡通信を遮断",
+      "notes": "フィルターの選択・対応エンジンは比較表で確認してください。",
+      "local_path": "s/ad-ubo.txt",
+      "bytes": 1424,
+      "sha256": "6586b4e1141c0da176af9e421f136740d301be81e5b4aeea3aa1e57858ce0c53",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/ad-ubo.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "6586b4e1141c0da176af9e421f136740d301be81e5b4aeea3aa1e57858ce0c53",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      }
+    },
+    {
+      "id": "s-ad",
+      "name": "広告ブロック・共通版",
+      "kind": "filter",
+      "version": "20261011.1",
+      "purpose": "広告または追跡通信を遮断",
+      "notes": "フィルターの選択・対応エンジンは比較表で確認してください。",
+      "local_path": "s/ad.txt",
+      "bytes": 1314,
+      "sha256": "453fa321e72e134edda1b5b31fb73014eb14edce2e9856ced3631e259fb35754",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/ad.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "453fa321e72e134edda1b5b31fb73014eb14edce2e9856ced3631e259fb35754",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      }
+    },
+    {
+      "id": "s-japanese-text-softener-deep",
+      "name": "日本語表示・Deep",
+      "kind": "font",
+      "version": "20261011.1",
+      "purpose": "日本語の表示を読みやすくする",
+      "notes": "日本語の見た目を調整。PR #5の変更はmain未反映です。",
+      "local_path": "s/japanese-text-softener-deep.txt",
+      "bytes": 1189,
+      "sha256": "2724cf9dfd86429a95372cb7f6fe841b1ab2df3bc35e20277635cc52f9b17e0b",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/b354d679624502b0242c444812e88f7f15d69be3/japanese-text-softener-deep.txt",
+        "pr_url": "https://github.com/r20942097-hue/s/pull/5",
+        "commit": "b354d679624502b0242c444812e88f7f15d69be3"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "2724cf9dfd86429a95372cb7f6fe841b1ab2df3bc35e20277635cc52f9b17e0b",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": "https://github.com/r20942097-hue/s/pull/5"
+      }
+    },
+    {
+      "id": "s-japanese-text-softener",
+      "name": "日本語表示・標準",
+      "kind": "font",
+      "version": "20261011.1",
+      "purpose": "日本語の表示を読みやすくする",
+      "notes": "日本語の見た目を調整。PR #5の変更はmain未反映です。",
+      "local_path": "s/japanese-text-softener.txt",
+      "bytes": 5619,
+      "sha256": "b0ce0a92ee288221aee09465918c70bc644ca105e13b2a778b3b108df51b70ec",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/b354d679624502b0242c444812e88f7f15d69be3/japanese-text-softener.txt",
+        "pr_url": "https://github.com/r20942097-hue/s/pull/5",
+        "commit": "b354d679624502b0242c444812e88f7f15d69be3"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "b0ce0a92ee288221aee09465918c70bc644ca105e13b2a778b3b108df51b70ec",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": "https://github.com/r20942097-hue/s/pull/5"
+      }
+    },
+    {
+      "id": "s-tracking",
+      "name": "追跡ブロック",
+      "kind": "filter",
+      "version": "20261011.1",
+      "purpose": "広告または追跡通信を遮断",
+      "notes": "フィルターの選択・対応エンジンは比較表で確認してください。",
+      "local_path": "s/tracking.txt",
+      "bytes": 791,
+      "sha256": "6fc8af3e2561957c878c579743e48b1ae7971b199eed714980aa3c8bc4849897",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/tracking.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "6fc8af3e2561957c878c579743e48b1ae7971b199eed714980aa3c8bc4849897",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      }
+    },
+    {
+      "id": "s-twitch-custom-optional",
+      "name": "Twitch追加設定",
+      "kind": "optional",
+      "version": "20261011.1",
+      "purpose": "Twitch向け追加設定",
+      "notes": "外部リソース等の追加設定が必要です。",
+      "local_path": "s/twitch-custom-optional.txt",
+      "bytes": 810,
+      "sha256": "9db3d4c96f753eb8209ea5db62b1b0191fe8f0ea73f732a4b32e95583dc89a94",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/twitch-custom-optional.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "9db3d4c96f753eb8209ea5db62b1b0191fe8f0ea73f732a4b32e95583dc89a94",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      }
+    },
+    {
+      "id": "s-v2-ad",
+      "name": "広告ブロック・v2候補",
+      "kind": "candidate",
+      "version": "20261011.1",
+      "purpose": "強い遮断等を検討する候補",
+      "notes": "候補として公開。通常版への自動採用は行いません。",
+      "local_path": "s/v2/ad.txt",
+      "bytes": 3489,
+      "sha256": "e8e98ace0d6a40845151252e6f345140a7722f060bda347e94be39a4986d3e52",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/v2/ad.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "e8e98ace0d6a40845151252e6f345140a7722f060bda347e94be39a4986d3e52",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      }
+    },
+    {
+      "id": "s-v2-strict",
+      "name": "Strict候補",
+      "kind": "candidate",
+      "version": "20261011.1",
+      "purpose": "強い遮断等を検討する候補",
+      "notes": "候補として公開。通常版への自動採用は行いません。",
+      "local_path": "s/v2/strict.txt",
+      "bytes": 1368,
+      "sha256": "b512273dc5f5514bed2096214f906f69c64b1f215d4afea6f8a18c6ec888c961",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/v2/strict.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "b512273dc5f5514bed2096214f906f69c64b1f215d4afea6f8a18c6ec888c961",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      }
+    },
+    {
+      "id": "s-v2-tracking",
+      "name": "追跡ブロック・v2候補",
+      "kind": "candidate",
+      "version": "20261011.1",
+      "purpose": "強い遮断等を検討する候補",
+      "notes": "候補として公開。通常版への自動採用は行いません。",
+      "local_path": "s/v2/tracking.txt",
+      "bytes": 2024,
+      "sha256": "302dd7841140b0712ee499cda88190a57f1f6c19912ee96d9c2ad6cace6530cf",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/v2/tracking.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "302dd7841140b0712ee499cda88190a57f1f6c19912ee96d9c2ad6cace6530cf",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      }
+    },
+    {
+      "id": "management-update-20261013",
+      "name": "管理ツール統合更新 20261013.1",
+      "version": "20261013.1",
+      "purpose": "並べ替え・診断・公開状態比較・共通入力照合を基準ZIPへ追加",
+      "notes": "20ファイルの更新。基準ZIP20261012.2が必要。新規作業先へ適用。ZIP内の成果物一覧は作成時点13件、現在の一覧はこのZIPを加えた14件。",
+      "kind": "update",
+      "local_path": "work/releases/catalogue-update-20261013.1.zip",
+      "sha256": "c96d05659fce7815b240daa7d3a99a454fd96e5850783b4f4a8ea2d5a17848ae",
+      "bytes": 80292,
+      "publication": {
+        "stage": "pr",
+        "commit": "df3163a0e0ddc59f98c883c2dc68cd2df16826fc",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/df3163a0e0ddc59f98c883c2dc68cd2df16826fc/workspace-management/catalogue-update-20261013.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "c96d05659fce7815b240daa7d3a99a454fd96e5850783b4f4a8ea2d5a17848ae",
+        "checked_on": "2026-10-13",
+        "summary": "全内容ハッシュ・二重ビルド一致、新規基準版へ適用後の管理129件と公開支援92件、Linux/Windows×Python3.11/3.14/3.15の6環境合格。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38349008086"
+      }
+    },
+    {
+      "id": "tool-integration-kit",
+      "name": "ツール統合・導入キット",
+      "version": "20261013.1",
+      "purpose": "基準ZIP・最新20ファイル更新・検証ヘルパーを1つのダウンロードに統合",
+      "notes": "キットフォルダのapply_catalogue_update.pyで新規work/作業先を用意します。適用先で新規仮想環境・setup/allが必要。更新ZIP内の一覧は作成時点13件、現在の一覧はキットを含む15件です。未取得の製品本体は含みません。",
+      "kind": "snapshot",
+      "local_path": "work/releases/tool-integration-kit-20261013.1.zip",
+      "sha256": "efd1992664cdb7c947e6d86a65eaf388236f0e3ae8ab3b41f61bda81835c8c5e",
+      "bytes": 578644,
+      "publication": {
+        "stage": "pr",
+        "commit": "fa79b626be6093d25f5ba19a5201c477d6ff25b4",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/fa79b626be6093d25f5ba19a5201c477d6ff25b4/workspace-management/tool-integration-kit-20261013.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "efd1992664cdb7c947e6d86a65eaf388236f0e3ae8ab3b41f61bda81835c8c5e",
+        "checked_on": "2026-10-13",
+        "summary": "二重ビルド・全内容ハッシュ・公開本文一致。同梱CLIで準備した作業先のsetup/allとLinux/Windows×Python3.11/3.14/3.15の6環境合格。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38350217673"
+      }
+    }
+  ],
+  "rule_groups": [
+    {
+      "id": "tracking-shared",
+      "name": "追跡ブロックの共有ルール",
+      "comparison": "ordered-rule-and-control-lines",
+      "members": [
+        "faaff-browser-filter-lists-filters-universal-web-tracking-filter",
+        "s-tracking"
+      ],
+      "sha256": "3755da1c333d48ec4eff639d2467bdaccc1b1447ee72865622808fcf500b562c",
+      "lines": 9,
+      "source_sha256": {
+        "faaff-browser-filter-lists-filters-universal-web-tracking-filter": "f1922570d92147721703e4872ab85bc416cd9f8c0acd3c07291b3aba7edbcfe5",
+        "s-tracking": "6fc8af3e2561957c878c579743e48b1ae7971b199eed714980aa3c8bc4849897"
+      }
+    }
+  ]
+}

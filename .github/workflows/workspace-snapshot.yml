@@ -10,6 +10,7 @@ on:
       - 'workspace-management/artifacts*'
       - 'workspace-management/catalogue-update/**'
       - 'workspace-management/catalogue-update-20261013/**'
+      - 'workspace-management/catalogue-update-20261014/**'
       - 'workspace-management/registry.json'
       - 'workspace-management/.gitattributes'
       - '.github/workflows/workspace-snapshot.yml'
@@ -49,6 +50,7 @@ jobs:
         run: |
           import os
           import json
+          import hashlib
           from pathlib import Path
           import subprocess
           import sys
@@ -74,9 +76,9 @@ jobs:
           kit_expected = kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
           kit_root = Path('work/kit')
           assert extract(kit, kit_expected, kit_root) == 8
-          for name in ['workspace-source-20261011.zip', 'catalogue-update-20261013.1.zip',
-                       'apply_catalogue_update.py', 'verify_catalogue_update.py', 'extract_snapshot.py', 'registry.py', 'KIT-README.md']:
-              assert (kit_root / name).read_bytes() == (Path('workspace-management') / name).read_bytes(), 'kit member differs from fixed public file: ' + name
+          kit_record = json.loads(Path('workspace-management/tool-integration-kit-package.json').read_text(encoding='utf-8'))
+          for name, digest in kit_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'retained kit member differs from fixed source identity: ' + name
           update_expected = (Path('workspace-management/catalogue-update-20261013.1.zip.sha256')).read_text(encoding='utf-8').split()[0]
           subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
                           '--update', 'catalogue-update-20261013.1.zip', '--update-sha256', update_expected,

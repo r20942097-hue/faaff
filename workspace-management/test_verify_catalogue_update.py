@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
-from verify_catalogue_update import apply_update, BASE_SHA256, FILES, V2_FILES
+from verify_catalogue_update import apply_update, BASE_SHA256, FILES, V2_FILES, V3_FILES
 
 
 class CandidateTests(unittest.TestCase):
@@ -100,3 +100,14 @@ class CandidateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'manifest'):
             apply_update(self.source,self.target,BASE_SHA256)
         self.unchanged()
+
+    def test_v3_exact_set_is_applied_and_older_version_rejects_it(self):
+        self.manifest['schema']='catalogue-development-update/v3'
+        for name in V3_FILES-FILES:
+            path=self.source/name;path.parent.mkdir(parents=True,exist_ok=True);body=('v3 '+name).encode();path.write_bytes(body);self.manifest['files'][name]=hashlib.sha256(body).hexdigest()
+        self.save_manifest()
+        self.manifest['schema']='catalogue-development-update/v2';self.save_manifest()
+        with self.assertRaisesRegex(ValueError,'manifest'):apply_update(self.source,self.target,BASE_SHA256)
+        self.unchanged()
+        self.manifest['schema']='catalogue-development-update/v3';self.save_manifest()
+        self.assertEqual(apply_update(self.source,self.target,BASE_SHA256),len(V3_FILES))

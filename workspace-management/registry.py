@@ -73,7 +73,7 @@ def validate_command(item):
         raise ValueError('timeout_seconds must be an integer from 1 to 600')
 
 
-def load(path=REGISTRY):
+def load(path=REGISTRY, check_consistency=True):
     data = load_json(path)
     if not isinstance(data, dict) or data.get('schema') != 'workspace-tools/v1' or not isinstance(data.get('tools'), list) or not isinstance(data.get('checks'), list):
         raise ValueError('invalid tools registry schema')
@@ -120,6 +120,11 @@ def load(path=REGISTRY):
         names.add(item['name'])
         validate_command(item)
         argv(item['argv'])
+    if check_consistency:
+        from check_settings import audit
+        report = audit(data)
+        if not report['passed']:
+            raise ValueError('inconsistent tool registry: ' + '; '.join(report['errors']))
     return data
 
 
