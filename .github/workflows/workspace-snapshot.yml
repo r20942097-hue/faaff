@@ -9,6 +9,8 @@ on:
       - 'workspace-management/dependencies/**'
       - 'workspace-management/artifacts*'
       - 'workspace-management/catalogue-update/**'
+      - 'workspace-management/catalogue-update-20261013/**'
+      - 'workspace-management/registry.json'
       - 'workspace-management/.gitattributes'
       - '.github/workflows/workspace-snapshot.yml'
   workflow_dispatch:
@@ -62,10 +64,18 @@ jobs:
           update = Path('workspace-management/catalogue-update-20261012.1.zip')
           update_expected = update.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
           count = prepare(Path.cwd(), source, update, update_expected, target.as_posix())
-          from verify_catalogue_update import FILES, BASE_SHA256
+          from verify_catalogue_update import FILES, V2_FILES, BASE_SHA256
           assert expected == BASE_SHA256, 'unexpected base checksum'
           for name in FILES:
               assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update') / name).read_bytes(), 'update ZIP differs from candidate file: ' + name
+          print('Verified retained v1 update:', count, 'files', flush=True)
+          target = Path('work/validated-workspace-v2')
+          update = Path('workspace-management/catalogue-update-20261013.1.zip')
+          update_expected = update.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          count = prepare(Path.cwd(), source, update, update_expected, target.as_posix())
+          assert count == len(V2_FILES)
+          for name in V2_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261013') / name).read_bytes(), 'v2 update ZIP differs from frozen candidate: ' + name
           from verify_dependencies import audit
           evidence = audit(Path('workspace-management'), target)
           (target / 'dependency-mirror-check.json').write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
