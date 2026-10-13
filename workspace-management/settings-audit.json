@@ -1,0 +1,43 @@
+{
+  "schema": "workspace-settings-audit/v1",
+  "passed": true,
+  "errors": [],
+  "warnings": [],
+  "tools": 17,
+  "standard_checks": 18,
+  "unique_invocations": 30,
+  "excluded_entries": [
+    {
+      "owner": "governance",
+      "mode": "module"
+    },
+    {
+      "owner": "security-intake",
+      "mode": "module"
+    },
+    {
+      "owner": "check: s: regression tests",
+      "mode": "module"
+    },
+    {
+      "owner": "check: faaff: regression tests",
+      "mode": "module"
+    },
+    {
+      "owner": "check: management: regression tests",
+      "mode": "module"
+    },
+    {
+      "owner": "check: プロジェクト・配布監査 2",
+      "mode": "module"
+    },
+    {
+      "owner": "check: 依存・検証根拠の確認 1",
+      "mode": "module"
+    }
+  ],
+  "scope": "Declared inputs, Python/Node script ownership after supported interpreter flags, exact cwd/argv duplicate and timeout consistency only. Module resolution, test-directory contents and all transitive dependencies are not inferred.",
+  "status": "passed",
+  "started_at_utc": "2026-10-13T16:35:49.392459+00:00",
+  "finished_at_utc": "2026-10-13T16:35:49.395329+00:00"
+}
