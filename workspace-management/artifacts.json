@@ -339,12 +339,39 @@
       },
       "local_state": "unchecked",
       "actual_sha256": null
+    },
+    {
+      "id": "management-update-20261013",
+      "name": "管理ツール統合更新 20261013.1",
+      "version": "20261013.1",
+      "purpose": "並べ替え・診断・公開状態比較・共通入力照合を基準ZIPへ追加",
+      "notes": "20ファイルの更新。基準ZIP20261012.2が必要。新規作業先へ適用。ZIP内の成果物一覧は作成時点13件、現在の一覧はこのZIPを加えた14件。",
+      "kind": "update",
+      "local_path": "work/releases/catalogue-update-20261013.1.zip",
+      "sha256": "c96d05659fce7815b240daa7d3a99a454fd96e5850783b4f4a8ea2d5a17848ae",
+      "bytes": 80292,
+      "publication": {
+        "stage": "pr",
+        "commit": "df3163a0e0ddc59f98c883c2dc68cd2df16826fc",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/df3163a0e0ddc59f98c883c2dc68cd2df16826fc/workspace-management/catalogue-update-20261013.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "c96d05659fce7815b240daa7d3a99a454fd96e5850783b4f4a8ea2d5a17848ae",
+        "checked_on": "2026-10-13",
+        "summary": "全内容ハッシュ・二重ビルド一致、新規基準版へ適用後の管理129件と公開支援92件、Linux/Windows×Python3.11/3.14/3.15の6環境合格。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38349008086"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null
     }
   ],
   "changes": {
     "baseline": "前の公開ソースZIP 20261012.1 内の本文・版との比較",
     "added": [
-      "成果物一覧・管理コード更新ZIP"
+      "成果物一覧・管理コード更新ZIP",
+      "管理ツール統合更新 20261013.1"
     ],
     "removed": [],
     "changed": [
