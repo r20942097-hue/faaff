@@ -38,5 +38,12 @@
   "management_unit_tests": 129,
   "browser_checks": 55,
   "browser_scope": "Local catalogue UI, not product E2E",
-  "ci": "pending for v2 distribution"
+  "ci": {
+    "source_commit": "df3163a0e0ddc59f98c883c2dc68cd2df16826fc",
+    "run_id": 38349008086,
+    "environments": 6,
+    "all_passed": true,
+    "public_support_unit_tests": 92,
+    "overlap_with_management_tests": 70
+  }
 }

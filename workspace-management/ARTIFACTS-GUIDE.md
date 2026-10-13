@@ -1,6 +1,6 @@
 # 成果物一覧の見方・更新方法
 
-[成果物一覧](artifacts.html)では、配布ZIPと広告・追跡・日本語表示等の13成果物を探せます。全ファイル・管理機能・10製品の一覧は別の目的の表です。録画等の未取得本体を完成品として数えません。
+[成果物一覧](artifacts.html)では、配布ZIPと広告・追跡・日本語表示等の14成果物を探せます。全ファイル・管理機能・10製品の一覧は別の目的の表です。録画等の未取得本体を完成品として数えません。
 
 ## 見方
 
@@ -94,4 +94,18 @@ python tools/check_artifact_publication.py --candidate work/artifacts-proposal.j
 
 観測後の公開状態は変わるため、古い比較表だけで採用せず公開確認を再実行してください。JSON・Markdownの一方を書いた後に別の書込みが失敗する可能性があります。その場合の全体結果は失敗で、残った候補を採用済みとして扱いません。出力は原本から独立しています。
 
-最新の並べ替え・診断案内・公開状態比較は開発ソース候補です。公開済み更新ZIP20261012.1には含まれません。管理ワークスペースのtools/入口を利用します。
+## 共通コード・依存変更の影響
+
+registryのinput_groupsに、共通実行6ファイル（16機能）、Python検証依存7ファイル（4機能）、フィルター正本2ファイル（3機能）を登録しました。doctorの「共通入力の影響範囲」で参照先を確認できます。登録済み共通ファイルが変わると前回合格の利用側を再検証待ちにし、欠落・シンボリックリンクは実行前に止めます。以前の合格記録に共通入力の照合がなければ、再実行が必要です。
+
+外部通信・未登録の間接依存・全ての製品能力を自動検証する機能ではありません。新しい共通入力を追加したら、利用ツールをinput_groupsへ明示登録してください。
+
+## 最新の統合更新ZIP 20261013.1
+
+基準ZIP20261012.2へ20ファイルを適用する更新版です。並べ替え・再検証案内・公開状態比較・共通入力照合を含みます。以前の更新ZIP20261012.1も保持します。新しいZIP内の一覧は作成時点の13件、現在の公開一覧は新ZIPを加えた14件です。
+
+```sh
+python workspace-management/apply_catalogue_update.py --base workspace-management/workspace-source-20261011.zip --update workspace-management/catalogue-update-20261013.1.zip --update-sha256 c96d05659fce7815b240daa7d3a99a454fd96e5850783b4f4a8ea2d5a17848ae --output work/integrated-tools-20261013
+```
+
+リポジトリルートで、同じPRの最新版apply_catalogue_update.py/verify_catalogue_update.py/extract_snapshot.py/registry.pyを使います。旧検証ヘルパーは新しいv2形式を受け付けません。既存作業先へ上書きせず、新規先で仮想環境を作成してsetup/allを実行してください。基準ZIPを含む単独配布や、録画等の完成品ではありません。
