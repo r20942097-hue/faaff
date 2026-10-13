@@ -230,11 +230,24 @@ def review_preview(current, proposed, report):
             continue
         changed += 1
         if left is None or right is None:
-            lines.append('| ' + ' | '.join(cell(v) for v in [key, '追加' if left is None else '一覧から解除', left, right]) + ' |')
+            def summary(row):
+                return '—' if row is None else row['name'] + ' / 版 ' + row['version'] + ' / SHA256 ' + row['sha256']
+            lines.append('| ' + ' | '.join(cell(v) for v in [key, '追加' if left is None else '一覧から解除', summary(left), summary(right)]) + ' |')
             continue
+        labels = {'name': '名前', 'version': '版 (version)', 'sha256': '本文SHA256 (sha256)',
+                  'bytes': 'サイズ', 'purpose': '用途', 'notes': '補足', 'kind': '種類', 'local_path': '原本パス',
+                  'stage': '公開段階', 'commit': '固定コミット', 'url': '取得先', 'pr_url': 'PR参照',
+                  'status': '検証状態', 'checked_on': '確認日', 'summary': '検証範囲', 'evidence_url': '検証根拠'}
         for field in dict.fromkeys([*left, *right]):
-            if left.get(field) != right.get(field):
-                lines.append('| ' + ' | '.join(cell(v) for v in [key, field, left.get(field), right.get(field)]) + ' |')
+            if left.get(field) == right.get(field):
+                continue
+            if field in {'publication', 'verification'}:
+                for subfield in dict.fromkeys([*left[field], *right[field]]):
+                    if left[field].get(subfield) != right[field].get(subfield):
+                        label = ('公開：' if field == 'publication' else '検証：') + labels.get(subfield, subfield)
+                        lines.append('| ' + ' | '.join(cell(v) for v in [key, label, left[field].get(subfield), right[field].get(subfield)]) + ' |')
+            else:
+                lines.append('| ' + ' | '.join(cell(v) for v in [key, labels.get(field, field), left.get(field), right.get(field)]) + ' |')
     if [row['id'] for row in current['artifacts']] != [row['id'] for row in reviewed['artifacts']]:
         lines += ['', '登録順の変更：' + cell([row['id'] for row in current['artifacts']]) + ' → ' + cell([row['id'] for row in reviewed['artifacts']])]
     lines += ['', '変更対象：' + str(changed) + '件。追加・一覧から解除は原本の作成・削除ではありません。', '',
