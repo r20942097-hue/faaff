@@ -69,11 +69,20 @@ jobs:
           for name in FILES:
               assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update') / name).read_bytes(), 'update ZIP differs from candidate file: ' + name
           print('Verified retained v1 update:', count, 'files', flush=True)
-          target = Path('work/validated-workspace-v2')
-          update = Path('workspace-management/catalogue-update-20261013.1.zip')
-          update_expected = update.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
-          count = prepare(Path.cwd(), source, update, update_expected, target.as_posix())
-          assert count == len(V2_FILES)
+          from extract_snapshot import extract
+          kit = Path('workspace-management/tool-integration-kit-20261013.1.zip')
+          kit_expected = kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit')
+          assert extract(kit, kit_expected, kit_root) == 8
+          for name in ['workspace-source-20261011.zip', 'catalogue-update-20261013.1.zip',
+                       'apply_catalogue_update.py', 'verify_catalogue_update.py', 'extract_snapshot.py', 'registry.py', 'KIT-README.md']:
+              assert (kit_root / name).read_bytes() == (Path('workspace-management') / name).read_bytes(), 'kit member differs from fixed public file: ' + name
+          update_expected = (Path('workspace-management/catalogue-update-20261013.1.zip.sha256')).read_text(encoding='utf-8').split()[0]
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261013.1.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          count = len(V2_FILES)
           for name in V2_FILES:
               assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261013') / name).read_bytes(), 'v2 update ZIP differs from frozen candidate: ' + name
           from verify_dependencies import audit
