@@ -27,6 +27,16 @@
   "actual_cli_preparation_passed": true,
   "applied_candidate_files": 24,
   "same_validated_v3_payload": true,
-  "ci": "pending actual kit route",
+  "ci": {
+    "source_commit": "903fd41b8a8dad4e375a27d3ff24974a625002a1",
+    "run_id": 38425363944,
+    "environments": 6,
+    "all_passed": true,
+    "actual_kit_installation_route": true,
+    "catalogue_symlinks_after_all": false,
+    "management_tests": 143,
+    "public_support_tests": 112,
+    "overlap": 89
+  },
   "scope": "Single-download management source preparation, not missing product bodies."
 }
