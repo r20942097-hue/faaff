@@ -18,12 +18,13 @@
 | Strict候補<br>強い遮断等を検討する候補 | 20261011.1 | main反映済み | 固定公開版と本文SHA256が一致。動作検証は更新表参照。<br>2026-10-12 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/v2/strict.txt) |
 | 追跡ブロック・v2候補<br>強い遮断等を検討する候補 | 20261011.1 | main反映済み | 固定公開版と本文SHA256が一致。動作検証は更新表参照。<br>2026-10-12 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/v2/tracking.txt) |
 | 管理ツール統合更新 20261013.1<br>並べ替え・診断・公開状態比較・共通入力照合を基準ZIPへ追加 | 20261013.1 | PR公開・main未反映 | 全内容ハッシュ・二重ビルド一致、新規基準版へ適用後の管理129件と公開支援92件、Linux/Windows×Python3.11/3.14/3.15の6環境合格。製品E2Eは対象外。<br>2026-10-13 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/df3163a0e0ddc59f98c883c2dc68cd2df16826fc/workspace-management/catalogue-update-20261013.1.zip) |
+| ツール統合・導入キット<br>基準ZIP・最新20ファイル更新・検証ヘルパーを1つのダウンロードに統合 | 20261013.1 | PR公開・main未反映 | 二重ビルド・全内容ハッシュ・公開本文一致。同梱CLIで準備した作業先のsetup/allとLinux/Windows×Python3.11/3.14/3.15の6環境合格。製品E2Eは対象外。<br>2026-10-13 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/fa79b626be6093d25f5ba19a5201c477d6ff25b4/workspace-management/tool-integration-kit-20261013.1.zip) |
 
 ## 前回からの変更
 
 前の公開ソースZIP 20261012.1 内の本文・版との比較
 
-追加 2件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
+追加 3件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
 - 共通ツール・ソースZIP：20261012.1 → 20261012.2
 
 ## サイズ・SHA256
@@ -165,6 +166,16 @@
 `c96d05659fce7815b240daa7d3a99a454fd96e5850783b4f4a8ea2d5a17848ae`
 
 20ファイルの更新。基準ZIP20261012.2が必要。新規作業先へ適用。ZIP内の成果物一覧は作成時点13件、現在の一覧はこのZIPを加えた14件。
+
+</details>
+
+<details><summary>ツール統合・導入キット</summary>
+
+578,644 bytes
+
+`efd1992664cdb7c947e6d86a65eaf388236f0e3ae8ab3b41f61bda81835c8c5e`
+
+キットフォルダのapply\_catalogue\_update.pyで新規work/作業先を用意します。適用先で新規仮想環境・setup/allが必要。更新ZIP内の一覧は作成時点13件、現在の一覧はキットを含む15件です。未取得の製品本体は含みません。
 
 </details>
 

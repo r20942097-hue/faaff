@@ -1,0 +1,375 @@
+{
+  "checked_date_jst": "2026-10-13",
+  "branch_count": 23,
+  "scope": "Public branch trees and specific source-directory anchors only; no claim of exhaustive product discovery or archive contents",
+  "trees": [
+    {
+      "repository": "faaff",
+      "commit": "2ef0b4051e10b5a4b4cb8bb060a61b81830dfb55",
+      "branches": [
+        "browser-filter-evidence-hardening"
+      ],
+      "file_count": 30,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "49bd723de2aeb199fb7e5e2b0c34e69ddba1dc79",
+      "branches": [
+        "codex/ucs-control-plane-phase2"
+      ],
+      "file_count": 30,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "64cf03a41529d885ed15116d3db5d1d2bbbc1837",
+      "branches": [
+        "codex/delta-v4-canary-empty-test-fix"
+      ],
+      "file_count": 42,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "69d5fb36326f4ab39b4ee711d19cbe85c219062b",
+      "branches": [
+        "browser-filter-lists-hardening"
+      ],
+      "file_count": 26,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "7f030dbf13aebacba3016528f22f87bfd7c2663d",
+      "branches": [
+        "codex/control-plane-v9.1-completion-2026-10-05"
+      ],
+      "file_count": 97,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "873f7bd5dc68443e2ef0d49a458f0222af6f588d",
+      "branches": [
+        "main"
+      ],
+      "file_count": 32,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "97cd7a5a49573109f7e90bc8edf7d3afb08f9d4f",
+      "branches": [
+        "browser-filter-lists-polish"
+      ],
+      "file_count": 21,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "9dbe385037b3445f915dd0286bf51b2f92edc120",
+      "branches": [
+        "dependabot/github_actions/actions/checkout-7"
+      ],
+      "file_count": 32,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "a321cb9f1a6975ed4fa98ddd6680f23cac2b86a5",
+      "branches": [
+        "codex/project-index-2026-10-05"
+      ],
+      "file_count": 75,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "b49dd9f13a97e6f96faf879ec5547c3fbb03ed51",
+      "branches": [
+        "codex/universal-control-suite"
+      ],
+      "file_count": 22,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "c00d72829bdb772ba4db18cded78c1838ec0f254",
+      "branches": [
+        "codex/update-tools-20261011"
+      ],
+      "file_count": 35,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "c8dc96751b5634b1deaa8190696326263c798865",
+      "branches": [
+        "codex/workspace-management-20261011"
+      ],
+      "file_count": 123,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "ce0e8571f5797ee62e4d1c5685e7cae196450560",
+      "branches": [
+        "browser-filter-cross-source-gates"
+      ],
+      "file_count": 32,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "d3b12dd7fbedd38c5d49907c91c7c231e567195c",
+      "branches": [
+        "dependabot/github_actions/actions/setup-python-7"
+      ],
+      "file_count": 32,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "dea95bb1f3610ec6e7b04a3e0f65544e9c33f8d6",
+      "branches": [
+        "codex/ucs-control-plane-phase3-security"
+      ],
+      "file_count": 44,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "dff28efed202204ba980dfa559870a40b9d6bc92",
+      "branches": [
+        "browser-filter-lists-publish"
+      ],
+      "file_count": 21,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "faaff",
+      "commit": "e894b0215100dd740a7bcdb35c250a049b69a19a",
+      "branches": [
+        "browser-filter-delta-v4"
+      ],
+      "file_count": 38,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "s",
+      "commit": "0aab1901e5a478415591a096ef6b4d2952688493",
+      "branches": [
+        "codex/weekly-filter-overlap-review"
+      ],
+      "file_count": 17,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "s",
+      "commit": "36e72e898326e4ba70a8cc86d8fa5d3ab0684fea",
+      "branches": [
+        "dependabot/github_actions/actions/setup-node-7.1.0"
+      ],
+      "file_count": 31,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "s",
+      "commit": "40a46997d79c794a61622b8f3f1848f689dfa731",
+      "branches": [
+        "codex/update-tools-20261011"
+      ],
+      "file_count": 31,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "s",
+      "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75",
+      "branches": [
+        "main"
+      ],
+      "file_count": 31,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "s",
+      "commit": "b354d679624502b0242c444812e88f7f15d69be3",
+      "branches": [
+        "codex/font-default-scope-20261011"
+      ],
+      "file_count": 31,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    },
+    {
+      "repository": "s",
+      "commit": "d1020b856b443db9972d900454437f86f4b7750c",
+      "branches": [
+        "codex/adblock-v2-validation"
+      ],
+      "file_count": 13,
+      "source_candidates": {
+        "recording": [],
+        "ai": [],
+        "windows": [],
+        "browser": [],
+        "youtube": [],
+        "wp10": []
+      }
+    }
+  ]
+}
