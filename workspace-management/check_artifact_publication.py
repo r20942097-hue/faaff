@@ -2,7 +2,7 @@
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import copy
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import hashlib
 import html
 import json
@@ -170,11 +170,97 @@ def preview(data, report):
     return '\n'.join(lines) + '\n'
 
 
+def review_candidate(current, proposed, report):
+    """Review new content using fresh bytes; never infer new runtime verification."""
+    validate(current)
+    validate(proposed)
+    if not isinstance(report, dict) or report.get('base_catalogue_identity') != catalogue_identity(current):
+        raise ValueError('review refers to a different base catalogue')
+    try:
+        checked = datetime.fromisoformat(report['checked_at_utc'])
+        if checked.tzinfo is None:
+            raise ValueError('observation must have a timezone')
+        age = (datetime.now(timezone.utc) - checked).total_seconds()
+    except (KeyError, TypeError, ValueError) as error:
+        raise ValueError('invalid review observation time') from error
+    if not -60 <= age <= 900:
+        raise ValueError('review requires a fresh observation within 15 minutes')
+    updated = candidate(proposed, report)
+    old = {row['id']: row for row in current['artifacts']}
+    sensitive = ('sha256', 'bytes', 'version', 'kind', 'local_path')
+    for row in updated['artifacts']:
+        previous = old.get(row['id'])
+        needs_verification = (previous is None
+                              or any(row[key] != previous[key] for key in sensitive)
+                              or row['verification'] != previous['verification'])
+        if needs_verification:
+            if row['verification']['status'] == 'passed':
+                raise ValueError('new or changed content cannot inherit runtime verification: ' + row['id'])
+            row['verification'] = {
+                'status': 'matched', 'sha256': row['sha256'],
+                'checked_on': checked.astimezone(timezone(timedelta(hours=9))).date().isoformat(),
+                'summary': '固定公開版のサイズ・SHA256を新規照合。本文・版等の更新後の動作検証は未確認。',
+                'evidence_url': '',
+            }
+    # Do not silently replace the comparison baseline or shared-rule evidence.
+    for key in ('scope', 'baseline', 'rule_groups'):
+        if current.get(key) != proposed.get(key):
+            raise ValueError('review cannot change catalogue context: ' + key)
+    return validate(updated)
+
+
+def review_preview(current, proposed, report):
+    reviewed = review_candidate(current, proposed, report)
+    def cell(value):
+        if not isinstance(value, str):
+            value = json.dumps(value, ensure_ascii=False, sort_keys=True)
+        text = html.escape(value).replace('\\', '\\\\')
+        for character in ('*', '_', '[', ']', '`'):
+            text = text.replace(character, '\\' + character)
+        return text.replace('|', '&#124;').replace('\r', '').replace('\n', '<br>')
+    lines = ['# 制作物の本文更新・比較レビュー', '',
+             '正本は未変更です。固定公開本文の一致を確認した候補です。動作検証の合格は新たに付与しません。', '',
+             '| 制作物ID | 項目 | 現在 | 確認済み候補 |', '|---|---|---|---|']
+    before = {row['id']: row for row in current['artifacts']}
+    after = {row['id']: row for row in reviewed['artifacts']}
+    changed = 0
+    for key in dict.fromkeys([*before, *after]):
+        left, right = before.get(key), after.get(key)
+        if left == right:
+            continue
+        changed += 1
+        if left is None or right is None:
+            lines.append('| ' + ' | '.join(cell(v) for v in [key, '追加' if left is None else '一覧から解除', left, right]) + ' |')
+            continue
+        for field in dict.fromkeys([*left, *right]):
+            if left.get(field) != right.get(field):
+                lines.append('| ' + ' | '.join(cell(v) for v in [key, field, left.get(field), right.get(field)]) + ' |')
+    if [row['id'] for row in current['artifacts']] != [row['id'] for row in reviewed['artifacts']]:
+        lines += ['', '登録順の変更：' + cell([row['id'] for row in current['artifacts']]) + ' → ' + cell([row['id'] for row in reviewed['artifacts']])]
+    lines += ['', '変更対象：' + str(changed) + '件。追加・一覧から解除は原本の作成・削除ではありません。', '',
+              '本文・版等が変わる候補は公開本文一致までの確認です。新しい動作検証・製品完成を保証しません。',
+              '採用前に候補JSONと正本を比較し、公開本文と正本の変更を再確認してください。']
+    return '\n'.join(lines) + '\n'
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--candidate', help='Write a proposed catalogue under work/; never replace the canonical catalogue.')
     parser.add_argument('--preview', help='Write a comparison table to a new Markdown file under work/.')
+    parser.add_argument('--review', help='Review a proposed catalogue JSON under work/ against current canonical data.')
     args = parser.parse_args()
+    review_input = None
+    if args.review:
+        if not args.preview:
+            parser.error('review requires a new Markdown preview')
+        if not args.review.startswith('work/'):
+            parser.error('review must be a JSON file under work/')
+        try:
+            review_input = safe_path(ROOT, args.review)
+        except (ValueError, OSError) as error:
+            parser.error(str(error))
+        if review_input.suffix != '.json' or not review_input.is_file():
+            parser.error('review must be an existing JSON file')
     output = None
     if args.candidate:
         if not args.candidate.startswith('work/'):
@@ -199,22 +285,37 @@ def main():
     running = {'schema': 'artifact-publication-observation/v1', 'status': 'running', 'passed': False, 'checks': []}
     write_report(destination, running)
     try:
-        data = load(ROOT / 'catalog/artifacts.json')
+        base = load(ROOT / 'catalog/artifacts.json')
+        data = load(review_input) if review_input is not None else base
         def progress(checks):
             running['checks'] = checks
             write_report(destination, running)
             print('Observed', len(checks), '/', len(data['artifacts']), flush=True)
         report = observe(data, progress=progress)
+        if review_input is not None:
+            report['base_catalogue_identity'] = catalogue_identity(base)
+            report['review_input'] = args.review
+            if report['passed']:
+                # Re-read both inputs after the network operation to detect concurrent edits.
+                if catalogue_identity(load(ROOT / 'catalog/artifacts.json')) != catalogue_identity(base):
+                    raise ValueError('base catalogue changed during review')
+                if catalogue_identity(load(review_input)) != catalogue_identity(data):
+                    raise ValueError('review input changed during observation')
+                proposal = review_candidate(base, data, report)
+                report['reviewed_catalogue_identity'] = catalogue_identity(proposal)
+                comparison = review_preview(base, data, report)
         report['status'] = 'passed' if report['passed'] else 'failed'
         if output is not None and report['passed']:
-            proposal = candidate(data, report)
+            if review_input is None:
+                proposal = candidate(data, report)
             output.parent.mkdir(parents=True, exist_ok=True)
             with output.open('x', encoding='utf-8', newline='') as stream:
                 json.dump(proposal, stream, ensure_ascii=False, indent=2)
                 stream.write('\n')
             report['candidate'] = args.candidate
         if preview_output is not None and report['passed']:
-            comparison = preview(data, report)
+            if review_input is None:
+                comparison = preview(data, report)
             preview_output.parent.mkdir(parents=True, exist_ok=True)
             with preview_output.open('x', encoding='utf-8', newline='') as stream:
                 stream.write(comparison)

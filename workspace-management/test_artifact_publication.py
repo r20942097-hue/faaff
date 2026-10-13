@@ -4,12 +4,13 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from datetime import datetime, timezone, timedelta
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 from urllib.error import HTTPError
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from check_artifact_publication import candidate, observe, preview
+from check_artifact_publication import candidate, observe, preview, review_candidate, review_preview, catalogue_identity
 import check_artifact_publication
 
 
@@ -193,3 +194,130 @@ class PublicationTests(unittest.TestCase):
                     check_artifact_publication.main()
             self.assertEqual(original.read_bytes(), before)
             self.assertIn('公開段階', (root / 'work/preview.md').read_text())
+
+
+class ContentReviewTests(unittest.TestCase):
+    setUp = PublicationTests.setUp
+    fetch = PublicationTests.fetch
+    check = PublicationTests.check
+    # Inherit fixtures only, not a second copy of the publication test methods.
+    def proposal(self):
+        target = copy.deepcopy(self.data)
+        row = target['artifacts'][0]
+        row.update(version='2.0', sha256=hashlib.sha256(b'new content').hexdigest(), bytes=11)
+        row['verification'].update(status='pending', sha256='', summary='runtime not checked')
+        self.responses[self.raw + self.fixed + '/file.txt'] = b'new content'
+        self.responses[self.raw + self.head + '/file.txt'] = HTTPError('fixture', 404, 'missing', {}, None)
+        self.addCleanup(self.responses[self.raw + self.head + '/file.txt'].close)
+        report = observe(target, fetch=self.fetch, fetch_metadata=self.meta.__getitem__)
+        report['base_catalogue_identity'] = catalogue_identity(self.data)
+        return target, report
+
+    def test_content_update_is_matched_without_old_runtime_claim(self):
+        target, report = self.proposal();before = copy.deepcopy(target)
+        reviewed = review_candidate(self.data, target, report)
+        verification = reviewed['artifacts'][0]['verification']
+        self.assertEqual(verification['status'], 'matched')
+        self.assertEqual(verification['sha256'], target['artifacts'][0]['sha256'])
+        self.assertEqual(verification['evidence_url'], '')
+        self.assertNotIn('previous runtime test', verification['summary'])
+        self.assertEqual(target, before)
+        self.assertIn('sha256', review_preview(self.data, target, report))
+        self.assertIn('version', review_preview(self.data, target, report))
+
+    def test_retargeted_passed_hash_does_not_reuse_runtime_pass(self):
+        target, _ = self.proposal();row = target['artifacts'][0]
+        row['verification'].update(status='passed',sha256=row['sha256'])
+        report = observe(target, fetch=self.fetch, fetch_metadata=self.meta.__getitem__)
+        report['base_catalogue_identity'] = catalogue_identity(self.data)
+        with self.assertRaisesRegex(ValueError, 'inherit runtime'):
+            review_candidate(self.data, target, report)
+
+    def test_unchanged_runtime_evidence_remains_unchanged(self):
+        report = self.check();report['base_catalogue_identity'] = catalogue_identity(self.data)
+        reviewed = review_candidate(self.data, self.data, report)
+        self.assertEqual(reviewed['artifacts'][0]['verification'], self.row['verification'])
+
+    def test_added_and_removed_rows_are_visible_and_not_runtime_passed(self):
+        target, report = self.proposal();target['artifacts'][0]['id']='added'
+        report = observe(target, fetch=self.fetch, fetch_metadata=self.meta.__getitem__)
+        report['base_catalogue_identity'] = catalogue_identity(self.data)
+        text = review_preview(self.data, target, report)
+        self.assertIn('一覧から解除',text);self.assertIn('追加',text)
+        self.assertEqual(review_candidate(self.data,target,report)['artifacts'][0]['verification']['status'],'matched')
+        target['artifacts'][0]['verification'].update(status='passed',sha256=target['artifacts'][0]['sha256'])
+        report=observe(target,fetch=self.fetch,fetch_metadata=self.meta.__getitem__);report['base_catalogue_identity']=catalogue_identity(self.data)
+        with self.assertRaisesRegex(ValueError,'inherit runtime'):review_candidate(self.data,target,report)
+
+    def test_base_target_partial_and_failed_observations_are_rejected(self):
+        target, report = self.proposal()
+        for change in [{'base_catalogue_identity':'stale'}, {'catalogue_identity':'stale'}, {'passed':False}, {'checks':[]}]:
+            with self.subTest(change=change),self.assertRaises(ValueError):review_candidate(self.data,target,{**report,**change})
+
+    def test_old_future_naive_and_missing_observation_time_are_rejected(self):
+        target, report = self.proposal()
+        now=datetime.now(timezone.utc)
+        for time in [(now-timedelta(minutes=16)).isoformat(),(now+timedelta(minutes=2)).isoformat(),now.replace(tzinfo=None).isoformat(),None]:
+            with self.subTest(time=time),self.assertRaises(ValueError):review_candidate(self.data,target,{**report,'checked_at_utc':time})
+
+    def test_comparison_context_changes_are_not_silently_adopted(self):
+        target,_=self.proposal();target['baseline']={'label':'new baseline','items':[]}
+        report=observe(target,fetch=self.fetch,fetch_metadata=self.meta.__getitem__);report['base_catalogue_identity']=catalogue_identity(self.data)
+        with self.assertRaisesRegex(ValueError,'catalogue context'):review_candidate(self.data,target,report)
+
+    def test_review_escapes_new_metadata_and_marks_order_changes(self):
+        target,_=self.proposal();target['artifacts'][0]['notes']='<new>|line\nnext'
+        report=observe(target,fetch=self.fetch,fetch_metadata=self.meta.__getitem__);report['base_catalogue_identity']=catalogue_identity(self.data)
+        text=review_preview(self.data,target,report)
+        self.assertIn('&lt;new&gt;&#124;line',text);self.assertNotIn('<new>',text)
+
+    def test_cli_review_writes_two_new_outputs_without_changing_inputs(self):
+        target,report=self.proposal()
+        with TemporaryDirectory() as directory:
+            root=Path(directory);(root/'catalog').mkdir();(root/'work').mkdir()
+            canonical=root/'catalog/artifacts.json';source=root/'work/source.json'
+            canonical.write_text(json.dumps(self.data));source.write_text(json.dumps(target));before=(canonical.read_bytes(),source.read_bytes())
+            with patch.object(check_artifact_publication,'ROOT',root),patch.object(sys,'argv',['check','--review','work/source.json','--candidate','work/checked.json','--preview','work/compare.md']),patch('check_artifact_publication.observe',return_value=report):
+                self.assertEqual(check_artifact_publication.main(),0)
+                with self.assertRaises(SystemExit):check_artifact_publication.main()
+            self.assertEqual((canonical.read_bytes(),source.read_bytes()),before)
+            self.assertEqual(json.loads((root/'work/checked.json').read_text())['artifacts'][0]['verification']['status'],'matched')
+            self.assertIn('sha256',(root/'work/compare.md').read_text())
+
+    def test_cli_concurrent_input_edit_fails_without_proposal(self):
+        for changed in ['work/source.json','catalog/artifacts.json']:
+            target,report=self.proposal()
+            with self.subTest(changed=changed),TemporaryDirectory() as directory:
+                root=Path(directory);(root/'catalog').mkdir();(root/'work').mkdir()
+                (root/'catalog/artifacts.json').write_text(json.dumps(self.data));(root/'work/source.json').write_text(json.dumps(target))
+                def edit(*args,**kwargs):
+                    value=json.loads((root/changed).read_text());value['artifacts'][0]['notes']='concurrent edit';(root/changed).write_text(json.dumps(value));return report
+                with patch.object(check_artifact_publication,'ROOT',root),patch.object(sys,'argv',['check','--review','work/source.json','--candidate','work/checked.json','--preview','work/compare.md']),patch('check_artifact_publication.observe',side_effect=edit):
+                    self.assertEqual(check_artifact_publication.main(),1)
+                self.assertFalse((root/'work/checked.json').exists());self.assertFalse((root/'work/compare.md').exists())
+                self.assertFalse(json.loads((root/'catalog/results/artifact-publication.json').read_text())['passed'])
+
+    def test_cli_missing_preview_and_symlink_input_are_rejected(self):
+        with TemporaryDirectory() as directory:
+            root=Path(directory);(root/'work').mkdir();(root/'real.json').write_text(json.dumps(self.data))
+            (root/'work/link.json').symlink_to(root/'real.json')
+            for argv in [['--review','work/link.json'],['--review','work/link.json','--preview','work/compare.md']]:
+                with self.subTest(argv=argv),patch.object(check_artifact_publication,'ROOT',root),patch.object(sys,'argv',['check',*argv]),self.assertRaises(SystemExit):check_artifact_publication.main()
+
+
+    def test_registration_reordering_is_compared_without_changing_runtime_claims(self):
+        other=copy.deepcopy(self.row);other['id']='second';self.data['artifacts'].append(other)
+        target=copy.deepcopy(self.data);target['artifacts'].reverse()
+        report=observe(target,fetch=self.fetch,fetch_metadata=self.meta.__getitem__);report['base_catalogue_identity']=catalogue_identity(self.data)
+        text=review_preview(self.data,target,report)
+        self.assertIn('登録順の変更',text)
+        self.assertEqual([r['id'] for r in review_candidate(self.data,target,report)['artifacts']],['second','fixture'])
+        self.assertTrue(all(r['verification']['status']=='passed' for r in target['artifacts']))
+
+    def test_changed_version_or_runtime_summary_requires_separate_runtime_evidence(self):
+        for change in ['version','verification']:
+            target=copy.deepcopy(self.data)
+            if change=='version':target['artifacts'][0]['version']='different release label'
+            else:target['artifacts'][0]['verification']['summary']='fabricated new pass'
+            report=observe(target,fetch=self.fetch,fetch_metadata=self.meta.__getitem__);report['base_catalogue_identity']=catalogue_identity(self.data)
+            with self.subTest(change=change),self.assertRaisesRegex(ValueError,'inherit runtime'):review_candidate(self.data,target,report)
