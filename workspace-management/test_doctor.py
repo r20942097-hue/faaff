@@ -186,3 +186,30 @@ class ReadinessTests(unittest.TestCase):
             result=last_run(root,'fixture',tool,data)
             self.assertIn('再検証',result['label'])
             self.assertEqual(result['changed_files'],['shared.py'])
+
+
+class ModuleInputReadinessTests(unittest.TestCase):
+    def fixture(self):
+        return {'tools':[{'id':'fixture','name':'fixture','cwd':'.','timeout_seconds':120,'files':[],'binaries':[],'modules':[],
+                         'commands':[['{python}','-m','pkg.cli']],'module_inputs':[{'module':'pkg.cli','files':['pkg/cli.py']}]}]}
+
+    def test_missing_mapped_source_blocks_readiness_without_importing_it(self):
+        data=self.fixture()
+        with TemporaryDirectory() as directory:
+            report=inspect(directory,registry=data);self.assertEqual(report['tools'][0]['status'],'blocked')
+            self.assertIn('file: pkg/cli.py',report['tools'][0]['missing'])
+            self.assertEqual(report['tools'][0]['module_inputs'],data['tools'][0]['module_inputs'])
+
+    def test_mapping_source_change_invalidates_pass_and_is_shown_in_both_views(self):
+        from doctor import render
+        data=self.fixture();tool=data['tools'][0]
+        with TemporaryDirectory() as directory:
+            root=Path(directory);(root/'pkg').mkdir();source=root/'pkg/cli.py';source.write_text('pass')
+            identity=input_identity(root,tool,data);dest=root/'catalog/results/tool-fixture.json';dest.parent.mkdir(parents=True)
+            dest.write_text(json.dumps({'schema':'workspace-tool-run/v1','tool':'fixture','status':'passed','passed':True,
+                'started_at_utc':'2026-10-14T12:00:00+00:00','inputs_before':identity,'inputs_after':identity,
+                'inputs_unchanged_during_run':True,'python':{'version':sys.version.split()[0]}}))
+            source.write_text('# changed');report=inspect(root,registry=data)
+            self.assertEqual(report['tools'][0]['last_run']['changed_files'],['pkg/cli.py'])
+            for text in [render(report),overview(root,report)]:
+                self.assertIn('pkg.cli',text);self.assertIn('pkg/cli.py',text);self.assertIn('import',text)

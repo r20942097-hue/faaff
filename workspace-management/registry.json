@@ -131,9 +131,7 @@
     {
       "id": "workflows",
       "name": "CI設定検証",
-      "files": [
-        "tools/check_workflows.py"
-      ],
+      "files": [],
       "binaries": [],
       "modules": [
         "yaml"
@@ -141,11 +139,20 @@
       "commands": [
         [
           "{python}",
-          "tools/check_workflows.py"
+          "-m",
+          "tools.check_workflows"
         ]
       ],
       "cwd": ".",
-      "timeout_seconds": 120
+      "timeout_seconds": 120,
+      "module_inputs": [
+        {
+          "module": "tools.check_workflows",
+          "files": [
+            "tools/check_workflows.py"
+          ]
+        }
+      ]
     },
     {
       "id": "recording",
