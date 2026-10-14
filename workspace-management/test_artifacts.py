@@ -202,3 +202,42 @@ class ArtifactTests(unittest.TestCase):
         result = views(self.data)['artifacts.md']
         self.assertNotIn('[unexpected](', result)
         self.assertIn('%29%5Bunexpected%5D%28', result)
+
+
+class ReleaseSelectionTests(unittest.TestCase):
+    setUp=ArtifactTests.setUp
+
+    def test_optional_fields_preserve_existing_current_targets(self):
+        row=records(self.data)[0];self.assertEqual(row['release_state'],'current')
+        self.assertEqual(row['verification'],self.row['verification'])
+        self.assertEqual(row['publication'],self.row['publication'])
+
+    def test_explicit_selection_does_not_use_version_or_confirmation_date(self):
+        old=copy.deepcopy(self.row);old.update(id='old',version='9999',release_family='kit',recommended=False)
+        new=copy.deepcopy(self.row);new.update(id='new',version='1',release_family='kit',recommended=True)
+        self.data['artifacts']=[old,new];rows=records(self.data)
+        self.assertEqual([r['release_state'] for r in rows],['history','recommended'])
+        self.assertEqual(rows[1]['verification'],new['verification'])
+
+    def test_ambiguous_and_malformed_selection_is_rejected(self):
+        for change in [{'release_family':'kit'}, {'recommended':True}, {'release_family':'../kit','recommended':True}, {'release_family':'kit','recommended':'true'}, {'release_family':'kit','recommended':1}]:
+            with self.subTest(change=change),self.assertRaises(ValueError):validate({**self.data,'artifacts':[{**self.row,**change}]})
+        one={**self.row,'release_family':'kit','recommended':True};two={**one,'id':'second'}
+        with self.assertRaisesRegex(ValueError,'multiple recommended'):validate({**self.data,'artifacts':[one,two]})
+
+    def test_retired_family_does_not_automatically_promote_history(self):
+        self.row.update(release_family='retired-kit',recommended=False)
+        self.assertEqual(records(self.data)[0]['release_state'],'history')
+        self.assertEqual(len(self.data['artifacts']),1)
+
+    def test_all_four_views_show_the_same_release_choice(self):
+        self.row.update(release_family='kit',recommended=True);result=views(self.data)
+        for name in ['artifacts.md','artifacts.csv','artifacts.html']:self.assertIn('推奨版',result[name])
+        self.assertEqual(json.loads(result['artifacts.json'])['artifacts'][0]['release_state'],'recommended')
+        self.assertIn('data-release="recommended"',result['artifacts.html'])
+        self.assertIn('id="release"',result['artifacts.html'])
+
+    def test_recommendation_is_not_new_verification_or_main_publication(self):
+        self.row.update(release_family='kit',recommended=True);self.row['verification'].update(status='pending',sha256='',summary='no runtime proof')
+        row=records(self.data)[0];self.assertEqual(row['verification']['status'],'pending');self.assertEqual(row['publication']['stage'],'pr')
+        self.assertIn('公開状況・動作合格とは別',views(self.data)['artifacts.html'])

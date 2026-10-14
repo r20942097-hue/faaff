@@ -329,3 +329,23 @@ class SharedDirectoryTests(unittest.TestCase):
             (root/'tests/test_one.py').unlink();(root/'tests').rmdir()
             with patch('registry.load',return_value=data),patch('registry.execute') as execute_mock:
                 self.assertEqual(run_tool(root,'fixture'),2);execute_mock.assert_not_called()
+
+
+class RepositoryDirectoryTests(unittest.TestCase):
+    def test_registry_attaches_repository_roots_only_to_named_consumers(self):
+        data=load();by_id={t['id']:t for t in data['tools']}
+        self.assertIn('s/tests',selected_directories(by_id['filters'],data))
+        self.assertIn('faaff/browser_filter_lists/scripts',selected_directories(by_id['candidates'],data))
+        self.assertNotIn('s/tests',selected_directories(by_id['engine'],data))
+        self.assertNotIn('faaff/browser_filter_lists/scripts',selected_directories(by_id['engine'],data))
+
+    def test_repository_source_addition_requires_retest_without_mutating_originals(self):
+        data=load();tool=next(t for t in data['tools'] if t['id']=='candidates')
+        with TemporaryDirectory() as d:
+            root=Path(d)
+            for name in registered_files(tool,data):
+                path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.touch()
+            folder=root/'faaff/browser_filter_lists/scripts';before=input_identity(root,tool,data)
+            (folder/'added_test.py').write_text('pass')
+            after=input_identity(root,tool,data);self.assertNotEqual(before,after)
+            self.assertIn('faaff/browser_filter_lists/scripts/added_test.py',after['files'])
