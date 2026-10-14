@@ -1,0 +1,32 @@
+{
+  "schema": "public-integration-kit/v1",
+  "source_commit": "0c0243d1f516901068ab4a75f6ba346e5dedab0e",
+  "source_paths": [
+    "workspace-source-20261011.zip",
+    "catalogue-update-20261014.7.zip",
+    "apply_catalogue_update.py",
+    "verify_catalogue_update.py",
+    "extract_snapshot.py",
+    "registry.py",
+    "KIT-README.md"
+  ],
+  "source_hashes": {
+    "workspace-source-20261011.zip": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+    "catalogue-update-20261014.7.zip": "be1ef4eab4e303ae685b6c561224934b0985d7685c5b2915825f3a426ab65617",
+    "apply_catalogue_update.py": "623f5eabf4ade7786e5c327d6c4c46fc8145cdb109d0ac2c1a83f07ba265bce0",
+    "verify_catalogue_update.py": "8b16e9676c4c1e8336375cf94cf98a90d93356b5b68c5f0bd0e4cab65dbff596",
+    "extract_snapshot.py": "dda8d8dc184fb7fa8912d49255c4ba7cfc0ee28d27496da698040e991168c6c7",
+    "registry.py": "2f215adb8b6669396f98afca0d0c0473c67e7fbb666c2833814084c20c61ee04",
+    "KIT-README.md": "0f2742274e56ab844d46aa13af6e4251406153d0624e1b89f712bd656c1c225f"
+  },
+  "all_contents_from_public_fixed_commit": true,
+  "reproducible_frozen_inputs": true,
+  "bytes": 605272,
+  "sha256": "a87b09566beb14b6434ef40b83556913180e4e61dd6fcb660b931bf4039ca69d",
+  "extracted_hashes": true,
+  "actual_cli_preparation_passed": true,
+  "applied_candidate_files": 24,
+  "same_validated_v3_payload": true,
+  "ci": "pending actual kit route",
+  "scope": "Single-download management source preparation, not missing product bodies."
+}
