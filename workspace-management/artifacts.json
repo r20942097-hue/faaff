@@ -26,7 +26,8 @@
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38189349276"
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "catalogue-update",
@@ -51,8 +52,11 @@
         "summary": "二重ビルド・全内容ハッシュ・新規適用、Linux回帰339件・公開支援55件、配布ZIPの6環境CI合格。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38196233061"
       },
+      "release_family": "management-update",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "faaff-browser-filter-lists-filters-universal-web-ad-filter",
@@ -78,7 +82,8 @@
         "evidence_url": "https://github.com/r20942097-hue/faaff/pull/14"
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "faaff-browser-filter-lists-filters-universal-web-tracking-filter",
@@ -104,7 +109,8 @@
         "evidence_url": "https://github.com/r20942097-hue/faaff/pull/14"
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "s-ad-ubo",
@@ -130,7 +136,8 @@
         "evidence_url": ""
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "s-ad",
@@ -156,7 +163,8 @@
         "evidence_url": ""
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "s-japanese-text-softener-deep",
@@ -182,7 +190,8 @@
         "evidence_url": "https://github.com/r20942097-hue/s/pull/5"
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "s-japanese-text-softener",
@@ -208,7 +217,8 @@
         "evidence_url": "https://github.com/r20942097-hue/s/pull/5"
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "s-tracking",
@@ -234,7 +244,8 @@
         "evidence_url": ""
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "s-twitch-custom-optional",
@@ -260,7 +271,8 @@
         "evidence_url": ""
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "s-v2-ad",
@@ -286,7 +298,8 @@
         "evidence_url": ""
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "s-v2-strict",
@@ -312,7 +325,8 @@
         "evidence_url": ""
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "s-v2-tracking",
@@ -338,7 +352,8 @@
         "evidence_url": ""
       },
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "current"
     },
     {
       "id": "management-update-20261013",
@@ -363,8 +378,11 @@
         "summary": "全内容ハッシュ・二重ビルド一致、新規基準版へ適用後の管理129件と公開支援92件、Linux/Windows×Python3.11/3.14/3.15の6環境合格。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38349008086"
       },
+      "release_family": "management-update",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "tool-integration-kit",
@@ -389,8 +407,11 @@
         "summary": "二重ビルド・全内容ハッシュ・公開本文一致。同梱CLIで準備した作業先のsetup/allとLinux/Windows×Python3.11/3.14/3.15の6環境合格。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38350217673"
       },
+      "release_family": "integration-kit",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "management-update-20261014",
@@ -415,8 +436,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キットの実CLI適用後に管理143件と公開支援112件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。生成後にカタログ内のシンボリックリンクなし。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38425363944"
       },
+      "release_family": "management-update",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "tool-integration-kit-20261014",
@@ -441,8 +465,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キットの実CLI適用後に管理143件と公開支援112件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。生成後にカタログ内のシンボリックリンクなし。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38425363944"
       },
+      "release_family": "integration-kit",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "management-update-20261014-2",
@@ -467,8 +494,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理151件・公開支援120件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。実Python/Nodeのフラグ付きスクリプトと生成後のカタログ内リンク状態も検査。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38431238200"
       },
+      "release_family": "management-update",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "tool-integration-kit-20261014-2",
@@ -493,8 +523,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理151件・公開支援120件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。実Python/Nodeのフラグ付きスクリプトと生成後のカタログ内リンク状態も検査。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38431238200"
       },
+      "release_family": "integration-kit",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "management-update-20261014-3",
@@ -519,8 +552,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キットの実CLI適用後に管理164件・公開支援133件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。新規展開先のsetup/all、生成後のカタログ内リンク状態を検査。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38440322517"
       },
+      "release_family": "management-update",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "tool-integration-kit-20261014-3",
@@ -545,8 +581,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キットの実CLI適用後に管理164件・公開支援133件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。新規展開先のsetup/all、生成後のカタログ内リンク状態を検査。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38440322517"
       },
+      "release_family": "integration-kit",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "management-update-20261014-4",
@@ -571,8 +610,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理172件・公開支援141件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。監査2系統の入力フォルダを照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38514385604"
       },
+      "release_family": "management-update",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "tool-integration-kit-20261014-4",
@@ -597,8 +639,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理172件・公開支援141件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。監査2系統の入力フォルダを照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38514385604"
       },
+      "release_family": "integration-kit",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "management-update-20261014-5",
@@ -623,8 +668,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理179件・公開支援148件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。共通管理テストの利用先を照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38517735026"
       },
+      "release_family": "management-update",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "tool-integration-kit-20261014-5",
@@ -649,8 +697,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理179件・公開支援148件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。共通管理テストの利用先を照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38517735026"
       },
+      "release_family": "integration-kit",
+      "recommended": false,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "history"
     },
     {
       "id": "management-update-20261014-6",
@@ -675,8 +726,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理179件・公開支援148件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。共通管理テストの利用先を照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38519074120"
       },
+      "release_family": "management-update",
+      "recommended": true,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "recommended"
     },
     {
       "id": "tool-integration-kit-20261014-6",
@@ -701,8 +755,11 @@
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理179件・公開支援148件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。共通管理テストの利用先を照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38519074120"
       },
+      "release_family": "integration-kit",
+      "recommended": true,
       "local_state": "unchecked",
-      "actual_sha256": null
+      "actual_sha256": null,
+      "release_state": "recommended"
     }
   ],
   "changes": {

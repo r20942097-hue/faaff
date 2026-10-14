@@ -665,6 +665,28 @@
       "directories": [
         "tools/tests"
       ]
+    },
+    {
+      "id": "s-tests",
+      "name": "sの検証用ソース",
+      "tools": [
+        "filters"
+      ],
+      "files": [],
+      "directories": [
+        "s/tests"
+      ]
+    },
+    {
+      "id": "faaff-scripts",
+      "name": "faaffの候補・検証用ソース",
+      "tools": [
+        "candidates"
+      ],
+      "files": [],
+      "directories": [
+        "faaff/browser_filter_lists/scripts"
+      ]
     }
   ]
 }

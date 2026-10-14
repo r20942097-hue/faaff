@@ -107,7 +107,7 @@ def main():
         page.locator('tbody tr').first.locator('summary').click()
         checks.append('tool retest instructions expand on demand')
         groups = diagnosis.get('input_groups', [])
-        assert len(groups) == 4
+        assert len(groups) == 6
         assert '共通入力の影響範囲' in page.locator('main').inner_text()
         group_section = page.locator('section').filter(has=page.get_by_role('heading', name='共通入力の影響範囲'))
         group_section.locator('details').first.locator('summary').click()
@@ -116,12 +116,15 @@ def main():
         group_section.locator('details').first.locator('summary').click()
         checks.append('shared input groups and consumers render and fit mobile viewport')
         directory_section = page.locator('section').filter(has=page.get_by_role('heading', name='明示登録したテストフォルダ'))
-        assert directory_section.locator('details').count() == 4
+        assert directory_section.locator('details').count() == 6
         for detail in directory_section.locator('details').all():
             detail.evaluate('(element) => { element.open = true; }')
         assert 'portfolio/tests' in directory_section.inner_text()
         assert 'security/tests' in directory_section.inner_text()
         assert 'tools/tests' in directory_section.inner_text()
+        assert 's/tests' in directory_section.inner_text()
+        assert 'faaff/browser_filter_lists/scripts' in directory_section.inner_text()
+        checks.append('repository test-directory scopes are displayed for filters and candidates')
         checks.append('management test-directory group and its two consumers are displayed')
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
         checks.append('explicit test-directory scopes render for both registered audit tools on mobile')
@@ -174,6 +177,18 @@ def main():
         artifacts = artifact_data['artifacts']
         assert page.locator('article').count() == len(artifacts)
         checks.append('artifact overview matches canonical deliverables')
+        page.select_option('#release', 'current')
+        assert page.locator('article:visible').count() == sum(a.get('recommended', True) for a in artifacts)
+        checks.append('artifact current-choice filter hides historical releases')
+        page.select_option('#kind', 'snapshot')
+        assert page.locator('article:visible').count() == sum(a['kind']=='snapshot' and a.get('recommended',True) for a in artifacts)
+        checks.append('current-choice and kind filters combine')
+        page.click('#reset')
+        page.select_option('#release','history')
+        assert page.locator('article:visible').count() == sum(a.get('recommended') is False for a in artifacts)
+        page.click('#reset')
+        assert page.locator('#release').input_value() == ''
+        checks.append('historical releases remain searchable and reset restores every release')
         assert '生成時の手元' in page.locator('main').inner_text()
         assert '公開版の検証' in page.locator('main').inner_text()
         checks.append('artifact publication and local verification are distinct')
@@ -211,6 +226,7 @@ def main():
         assert '9行' in page.locator('#relations').inner_text()
         checks.append('artifact overview shows shared rules while keeping both sources')
         page.fill('#query', 'Deep')
+        page.select_option('#release','history')
         page.locator('#relations a').last.click()
         assert page.locator('article:visible').count() == len(artifacts)
         assert page.locator('#query').input_value() == ''
