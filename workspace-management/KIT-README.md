@@ -1,90 +1,57 @@
-# ツール統合・導入キット 20261014.7
+# ツール統合・導入キット 20261015.1
 
-基準ソースZIP20261012.2・最新の管理更新ZIP20261014.7・検証ヘルパー4ファイルをまとめた導入キットです。公開済み固定版のファイルだけを使用します。管理17機能のソースを用意するもので、未取得の録画・AI・Windows等の製品本体は含みません。
+更新：2026-10-15（日本時間）。基準ソースZIP20261012.2、管理更新ZIP20261015.1、検証ヘルパー4ファイルをまとめた導入キットです。公開済み固定版から構築します。管理17機能の準備用で、未取得の製品本体9件を含みません。
 
-## 準備
+## 準備と導入
 
-公開チェックサムとキットZIPのSHA256を照合し、新しいフォルダへ展開します。既存リポジトリへの上書きはしません。Python 3.11・3.14・3.15を使用できます。
-
-展開先のキットフォルダで実行します。
+公開チェックサムでキットZIPのSHA256を照合し、新しいフォルダへ展開します。Python 3.11・3.14・3.15を使用できます。キットの展開先で実行します。
 
 ```sh
-python apply_catalogue_update.py --base workspace-source-20261011.zip --update catalogue-update-20261014.7.zip --update-sha256 be1ef4eab4e303ae685b6c561224934b0985d7685c5b2915825f3a426ab65617 --output work/integrated-tools
+python apply_catalogue_update.py --base workspace-source-20261011.zip --update catalogue-update-20261015.1.zip --update-sha256 f2a92f089a8c179b5ab3120d52c38d022cda031c5a317184349142298c4f84c2 --output work/integrated-tools
 ```
 
-基準ZIP・更新ZIPのパス・CRC・全内容ハッシュを検証してから、新規のwork/integrated-toolsへ展開・適用します。既存出力先は拒否します。途中で失敗した場合は、この処理が作った作業先だけを整理します。
+パス・CRC・全内容ハッシュ・基準版を検査して、新規のwork/integrated-toolsへ24ファイルを適用します。既存の出力先は拒否します。失敗時はこの処理が作った作業先だけを整理します。基準ZIPの公開互換名workspace-source-20261011.zipは、実内容20261012.2を指します。
 
-## 検証して使う
+## 検証
 
-work/integrated-toolsへ移動して、新しい仮想環境を作ります。
+work/integrated-toolsへ移動して、新規仮想環境を作ります。
 
 ```sh
 python -m venv work/verify-env
 ```
 
-Linuxの場合：
+Linux：
 
 ```sh
 work/verify-env/bin/python tools/manage.py setup
 work/verify-env/bin/python tools/manage.py doctor
 work/verify-env/bin/python tools/manage.py all
+work/verify-env/bin/python tools/manage.py run --tool workflows
 ```
 
-Windowsの場合：
+Windows：
 
 ```powershell
 .\work\verify-env\Scripts\python.exe tools/manage.py setup
 .\work\verify-env\Scripts\python.exe tools/manage.py doctor
 .\work\verify-env\Scripts\python.exe tools/manage.py all
+.\work\verify-env\Scripts\python.exe tools/manage.py run --tool workflows
 ```
 
-setupはネットワークを使用してハッシュ固定依存を導入します。グローバルPythonへの導入は停止します。doctorのreadyは準備の判定で、製品本体の動作合格ではありません。エンジン・ブラウザー実体・録画等のE2Eは別途必要です。
+setupはネットワークを使用し、版・SHA256を固定した依存を導入します。グローバルPythonへの導入は停止します。doctorのreadyは準備判定です。製品E2E・実エンジン・Firefox実拡張・録画の実機検証は別途必要です。ブラウザー検査には別途Chromiumの準備が必要で、キャッシュは同梱しません。
 
-## 内容と一覧
+## 一覧と入力変更
 
-基準ZIPの192ソースへ、管理更新24ファイルを適用します。共有コードと直接登録した依存の変更を検知し、再検証を案内します。更新ZIP内の成果物一覧は作成時点27件です。現在の公開一覧は更新ZIPやこの導入キットを追加した状態で、作成時点の記録とは区別します。
+catalog/generated/artifacts.htmlが成果物、tools.htmlが管理機能、projects.htmlが製品本体の取得状況です。HTML・Markdown・CSV・JSONは同じ正本から生成します。配布設定はlink_mode=directで、生成後のカタログ内のシンボリックリンクを検査します。
 
-catalog/generated/artifacts.htmlが成果物、tools.htmlが管理機能、projects.htmlが製品本体の取得状況です。一覧はPython標準ライブラリで生成でき、ブラウザーで閲覧します。ローカルの生成結果は閲覧端末の診断結果とは異なります。
+更新ZIP内の成果物一覧は作成時点29件です。現在の公開一覧は新しい更新ZIP・キットを追加した31件です。固定ZIP内の説明・推奨指定は作成時点の記録として扱い、最新版の導入はこの同梱手順を使います。推奨・現行と履歴の表示は、本文一致・動作検証・main反映とは別です。
 
-## 設定検査と直接リンク
+共通入力6グループ・フォルダ照合6ツールを維持します。s/testsはfilters、faaff/browser_filter_lists/scriptsはcandidatesへ接続済みです。明示登録した.py集合の追加・変更・削除を再検証へ反映します。生成__pycache__は除外します。symlink・隠しディレクトリ・特殊ファイル・欠落・空集合を拒否し、1利用先32フォルダ、1フォルダ4096項目・深さ32に制限します。
 
-`tools/manage.py run --tool settings-consistency` で登録漏れ・重複・時間制限の不整合を検査できます。共通入口で設定エラーが出る場合は `tools/check_settings.py` を実行します。配布設定はlink_mode=directで、一覧生成後にカタログ内のシンボリックリンクがないことを検証します。旧版のlayout設定とは区別します。
+## Pythonモジュール入力
 
-## フラグ付き実行の検査
+CI設定検証をpython -m tools.check_workflowsで実行します。registryのmodule_inputsでtools/check_workflows.pyを明示登録し、既存modules（インストール済み依存）と区別します。doctorとツール一覧に対応を表示します。
 
-Pythonの-B/-I/-W/-XやNodeの--no-warningsなど、対応するフラグの後のスクリプトも登録入力と照合します。未対応オプションはエラーにします。モジュール・インライン・標準入力・情報表示・Node inspectは除外種別として記録し、本文や引数値は記録しません。全CLI文法やオプション値の妥当性、実行成功の保証ではありません。
+module_inputsは各ツールまたは共通input_groupsへ登録できます。モジュール名と、ワークスペース相対の.pyファイルを指定します。同じ対応は統合し、競合・重複・未使用・cwdに対応する入口ソースの欠落を拒否します。1利用先32対応、1対応128ファイルまでです。ローカル対応では-I/-Pを拒否します。未登録モジュールと標準検査のモジュール実行は除外表示を維持します。
 
-## 本文更新候補のレビュー
-
-制作物の版・本文を変更する場合は、入力候補をwork/へ用意し、check_artifact_publication.pyの--review/--candidate/--previewで比較・本文確認します。新規や変更対象はpendingで用意し、古いpassedを引き継ぎません。実行後も正本は変更されません。詳細は公開ARTIFACTS-GUIDE.mdを参照してください。
-
-
-## 明示登録したテストフォルダ（20261014.7）
-
-取得済みのプロジェクト監査・セキュリティ監査の2ツールへ、directoriesを登録しました。Pythonファイルの本文ハッシュとファイル集合を実行前後で照合し、追加・削除・変更を再検証の対象にします。モジュールのimport先や全ての間接依存は推論しません。
-
-フォルダ内を再帰的に探索し、生成された__pycache__を除外します。シンボリックリンク、隠しディレクトリ、特殊ファイル、空のPythonソース集合、欠落・参照不可は実行前に停止します。1フォルダ4096項目・深さ32、1ツール32フォルダまでです。実行前および各コマンド終了後に入力を再照合し、変更時は後続コマンドを止めて失敗を記録します。検査と読取りをOS上で完全に原子的に固定する仕組みではなく、一時的に変更して元へ戻す全ケースを検知する保証はありません。
-
-doctorは前回合格と現在の追加・削除・変更ファイルを比較し、ツール一覧へ登録フォルダとPythonファイル数を表示します。readyは準備判定で、動作合格とは別です。filesだけの既存登録、共通input_groupsの3グループは維持します。
-
-
-## 共通テストフォルダと利用先（20261014.7）
-
-input_groupsにもdirectoriesを登録できます。filesだけの既存3グループを維持し、共通管理テストtools/testsのグループを追加しました。利用先はcatalogueとsettings-consistencyの2ツールです。登録先の利用ツールだけがフォルダ集合・本文ハッシュの変更を検知します。
-
-個別登録とグループ登録の重複フォルダは1回だけ列挙し、1ツールの合算でも32フォルダを上限にします。欠落・空集合・symlink・探索上限の異常は、共通グループでも実行を止めます。実行中の変更では後続を停止して終了コード3を記録し、停止理由をコンソールにも表示します。
-
-フォルダ内の対象は拡張子.pyのソースです。生成__pycache__は除外し、全import先や全ての間接依存は推論しません。読取りと実行をOS上で原子的に固定する仕組みではなく、変化して元に戻る全ケースを検知する保証はありません。共通グループ4件・フォルダ照合の利用ツール4件をdoctorで確認できます。
-
-## 再実行後の画面検査
-
-前版の画面検査は再検証案内のdoctorという文言に依存し、実行済み・入力変更なしの正しい状態でも失敗していました。新版は登録された再実行コマンドを確認し、未実行・変更あり・入力同一の案内へ対応します。古いZIPは不変のまま、新版の検査で確認します。
-
-
-## 推奨・現行と履歴を分ける（20261014.7）
-
-成果物一覧の「版の選び方」で推奨・現行対象、履歴版、全ての版を切り替えます。用途ごとのrelease_familyとrecommendedを正本に明示し、同じ系列に複数の推奨版は登録できません。確認日や版文字列から自動で推奨を決めず、本文SHA256・動作検証・main反映の記録とは別に扱います。単独用途の対象は現行対象として残し、履歴の本文や取得URLは削除しません。
-
-HTML・Markdown・CSV・JSONに同じ選択状態を表示します。検索・種類・公開状態との組合せ、条件解除、共有ルールへの移動にも対応します。新しい配布版を推奨へ切り替える場合は、同じ正本更新で前の推奨を履歴へ戻します。
-
-共通入力は6グループ、フォルダ照合の利用ツールは6件です。s/testsはfiltersへ、faaff/browser_filter_lists/scriptsはcandidatesへ明示登録しました。後者はテストと検証実装の両方の.pyソースを含みます。追加・変更・削除を登録した利用先の再検証へ接続します。全import先の自動解決や未取得製品本体の完成判定ではありません。
+実行前後に対応ソースを照合し、変化した場合は後続を停止して失敗を記録します。欠落・symlinkは準備不可です。これは登録ソースの変更検知であり、環境のsys.path・PYTHONPATH・インストール済みパッケージを含む実行時import先の保証ではありません。全import先や全間接依存を自動追跡しません。読取りと実行をOS上で原子的に固定する保証はありません。
