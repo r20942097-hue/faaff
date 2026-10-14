@@ -727,10 +727,10 @@
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38519074120"
       },
       "release_family": "management-update",
-      "recommended": true,
+      "recommended": false,
       "local_state": "unchecked",
       "actual_sha256": null,
-      "release_state": "recommended"
+      "release_state": "history"
     },
     {
       "id": "tool-integration-kit-20261014-6",
@@ -756,6 +756,64 @@
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38519074120"
       },
       "release_family": "integration-kit",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "management-update-20261014-7",
+      "name": "成果物の推奨・履歴表示とs/faaff入力照合",
+      "version": "20261014.7",
+      "kind": "update",
+      "purpose": "推奨・現行と履歴を用途別に選択し、s/faaffの登録フォルダ変更を再検証へ接続",
+      "notes": "24ファイル更新。更新ZIP内の一覧は作成時点27件、現在の公開一覧は29件。推奨表示と公開・動作検証を分けます。基準ZIP20261012.2と最新版ヘルパーが必要。",
+      "local_path": "work/releases/catalogue-update-20261014.7.zip",
+      "sha256": "be1ef4eab4e303ae685b6c561224934b0985d7685c5b2915825f3a426ab65617",
+      "bytes": 103850,
+      "publication": {
+        "stage": "pr",
+        "commit": "2cbfafb8d41c213400abf9889d58be3d2bdb132a",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/2cbfafb8d41c213400abf9889d58be3d2bdb132a/workspace-management/catalogue-update-20261014.7.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "be1ef4eab4e303ae685b6c561224934b0985d7685c5b2915825f3a426ab65617",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理187件・公開支援156件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。s/faaffの登録入力・明示推奨の異常と4形式を検証。新規仮想環境のsetup/all、生成後のリンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38538320718"
+      },
+      "release_family": "management-update",
+      "recommended": true,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "recommended"
+    },
+    {
+      "id": "tool-integration-kit-20261014-7",
+      "name": "ツール統合・導入キット 20261014.7",
+      "version": "20261014.7",
+      "kind": "snapshot",
+      "purpose": "推奨・現行と履歴を用途別に選択し、s/faaffの登録フォルダ変更を再検証へ接続",
+      "notes": "24ファイル更新。更新ZIP内の一覧は作成時点27件、現在の公開一覧は29件。推奨表示と公開・動作検証を分けます。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
+      "local_path": "work/releases/tool-integration-kit-20261014.7.zip",
+      "sha256": "a87b09566beb14b6434ef40b83556913180e4e61dd6fcb660b931bf4039ca69d",
+      "bytes": 605272,
+      "publication": {
+        "stage": "pr",
+        "commit": "2cbfafb8d41c213400abf9889d58be3d2bdb132a",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/2cbfafb8d41c213400abf9889d58be3d2bdb132a/workspace-management/tool-integration-kit-20261014.7.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "a87b09566beb14b6434ef40b83556913180e4e61dd6fcb660b931bf4039ca69d",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理187件・公開支援156件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。s/faaffの登録入力・明示推奨の異常と4形式を検証。新規仮想環境のsetup/all、生成後のリンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38538320718"
+      },
+      "release_family": "integration-kit",
       "recommended": true,
       "local_state": "unchecked",
       "actual_sha256": null,
@@ -773,13 +831,15 @@
       "テストフォルダの入力照合・実行保護",
       "共通テストフォルダ・利用先の入力照合",
       "共通フォルダ・再実行後の画面検査修正",
+      "成果物の推奨・履歴表示とs/faaff入力照合",
       "ツール統合・導入キット",
       "ツール統合・導入キット 20261014.1",
       "ツール統合・導入キット 20261014.2",
       "ツール統合・導入キット 20261014.3",
       "ツール統合・導入キット 20261014.4",
       "ツール統合・導入キット 20261014.5",
-      "ツール統合・導入キット 20261014.6"
+      "ツール統合・導入キット 20261014.6",
+      "ツール統合・導入キット 20261014.7"
     ],
     "removed": [],
     "changed": [
