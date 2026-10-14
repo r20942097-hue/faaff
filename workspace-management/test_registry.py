@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from registry import load, load_json, safe_path, execute, expand, run_tool, input_identity, registered_files
+from registry import load, load_json, safe_path, execute, expand, run_tool, input_identity, registered_files, directory_files
 
 
 class RegistryTests(unittest.TestCase):
@@ -185,3 +185,80 @@ class RegistryTests(unittest.TestCase):
             tool = {'id': 'fixture', 'files': []}
             data = {'input_groups': [{'id': 'fixture', 'tools': ['fixture'], 'files': ['link.py', 'missing.py']}]}
             self.assertEqual(input_identity(root, tool, data)['files'], {'link.py': None, 'missing.py': None})
+
+
+class DirectoryInputTests(unittest.TestCase):
+    def fixture(self, root):
+        folder=root/'tests';folder.mkdir();(folder/'test_one.py').write_text('one')
+        return {'id':'fixture','name':'fixture','cwd':'.','files':[],'directories':['tests'],'binaries':[],'modules':[], 'commands':[['{python}','-c','pass'],['{python}','-c','pass']], 'timeout_seconds':120}
+
+    def test_add_change_remove_and_nonpython_files_affect_only_registered_scope(self):
+        with TemporaryDirectory() as d:
+            root=Path(d);tool=self.fixture(root);first=input_identity(root,tool)
+            (root/'tests/readme.txt').write_text('ignored');self.assertEqual(first,input_identity(root,tool))
+            (root/'tests/test_two.py').write_text('two');added=input_identity(root,tool)
+            self.assertNotEqual(first,added);self.assertIn('tests/test_two.py',added['files'])
+            (root/'tests/test_one.py').write_text('changed');self.assertNotEqual(added,input_identity(root,tool))
+            (root/'tests/test_two.py').unlink();self.assertNotIn('tests/test_two.py',input_identity(root,tool)['files'])
+
+    def test_recursive_order_and_generated_cache_exclusion(self):
+        with TemporaryDirectory() as d:
+            root=Path(d);tool=self.fixture(root)
+            (root/'tests/sub').mkdir();(root/'tests/sub/z.py').write_text('z')
+            (root/'tests/__pycache__').mkdir();(root/'tests/__pycache__/generated.py').write_text('ignored')
+            self.assertEqual(directory_files(root,'tests'),['tests/sub/z.py','tests/test_one.py'])
+            self.assertEqual(registered_files(tool,root=root),['tests/sub/z.py','tests/test_one.py'])
+
+    def test_missing_empty_hidden_and_symlink_directories_block(self):
+        for kind in ['missing','empty','hidden','symlink','cache-link']:
+            with self.subTest(kind=kind),TemporaryDirectory() as d:
+                root=Path(d);tool=self.fixture(root)
+                if kind=='missing':(root/'tests/test_one.py').unlink();(root/'tests').rmdir()
+                elif kind=='empty':(root/'tests/test_one.py').unlink()
+                elif kind=='hidden':(root/'tests/.git').mkdir()
+                else:(root/'tests'/('__pycache__' if kind=='cache-link' else 'link.py')).symlink_to(root/'tests/test_one.py')
+                identity=input_identity(root,tool);self.assertIn('tests',identity['directory_errors'])
+                with self.assertRaises(ValueError):registered_files(tool,root=root)
+
+    def test_depth_and_entry_limits_are_errors(self):
+        with TemporaryDirectory() as d:
+            root=Path(d);tool=self.fixture(root);folder=root/'tests'
+            for _ in range(34):folder/= 'sub';folder.mkdir()
+            self.assertIn('depth limit',input_identity(root,tool)['directory_errors']['tests'])
+        with TemporaryDirectory() as d:
+            root=Path(d);tool=self.fixture(root)
+            for i in range(4097):(root/'tests'/('f'+str(i))).touch()
+            self.assertIn('entry limit',input_identity(root,tool)['directory_errors']['tests'])
+
+    def test_invalid_directory_definitions_fail_load(self):
+        original=load()
+        for value in [None,{},[1],['tests','tests'],['.'],['../tests'],['.git/tests'],['hidden/.aws'],['C:/tests']]:
+            with self.subTest(value=value),TemporaryDirectory() as d:
+                data=copy.deepcopy(original);data['tools'][0]['directories']=value
+                path=Path(d)/'registry.json';path.write_text(json.dumps(data))
+                with self.assertRaises(ValueError):load(path)
+
+    def test_added_source_during_execution_stops_remaining_commands(self):
+        with TemporaryDirectory() as d:
+            root=Path(d);tool=self.fixture(root);data={'tools':[tool]}
+            def execute_probe(*args):
+                (root/'tests/added.py').write_text('added');return {'exit_code':0,'output':'fixture passed'}
+            with patch('registry.load',return_value=data),patch('registry.execute',side_effect=execute_probe) as execute_mock:
+                self.assertEqual(run_tool(root,'fixture'),3);self.assertEqual(execute_mock.call_count,1)
+            report=load_json(root/'catalog/results/tool-fixture.json');self.assertFalse(report['passed']);self.assertFalse(report['inputs_unchanged_during_run'])
+
+    def test_invalid_directory_does_not_execute_command(self):
+        with TemporaryDirectory() as d:
+            root=Path(d);tool=self.fixture(root);(root/'tests/link.py').symlink_to(root/'tests/test_one.py')
+            with patch('registry.load',return_value={'tools':[tool]}),patch('registry.execute') as execute_mock:
+                self.assertEqual(run_tool(root,'fixture'),2);execute_mock.assert_not_called()
+
+    def test_doctor_invalidates_previous_pass_and_names_added_removed_sources(self):
+        from doctor import last_run, inspect, overview
+        with TemporaryDirectory() as d:
+            root=Path(d);tool=self.fixture(root);identity=input_identity(root,tool)
+            report={'schema':'workspace-tool-run/v1','tool':'fixture','status':'passed','passed':True,'started_at_utc':'2026-10-14T00:00:00+00:00','inputs_before':identity,'inputs_after':identity,'inputs_unchanged_during_run':True,'python':{'version':sys.version.split()[0]}}
+            path=root/'catalog/results/tool-fixture.json';path.parent.mkdir(parents=True);path.write_text(json.dumps(report))
+            (root/'tests/test_one.py').unlink();(root/'tests/new.py').write_text('new')
+            old=last_run(root,'fixture',tool);self.assertIn('再検証',old['label']);self.assertEqual(old['changed_files'],['tests/new.py','tests/test_one.py'])
+            view=inspect(root,registry={'tools':[tool]});self.assertIn('明示登録したテストフォルダ',overview(root,view))

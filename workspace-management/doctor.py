@@ -72,7 +72,9 @@ def inspect(root, executable=shutil.which, module=importlib.util.find_spec, regi
     for tool in registry['tools']:
         key, label = tool['id'], tool['name']
         missing = []
-        for relative in registered_files(tool, registry):
+        identity = input_identity(root, tool, registry)
+        missing.extend('directory: ' + name + ' (' + reason + ')' for name, reason in identity.get('directory_errors', {}).items())
+        for relative in identity['files']:
             try:
                 present = safe_path(root, relative).is_file()
             except ValueError:
@@ -88,6 +90,7 @@ def inspect(root, executable=shutil.which, module=importlib.util.find_spec, regi
         previous['retest_advice'] = retest_advice(previous, command, missing)
         results.append({'id': key, 'name': label, 'status': 'blocked' if missing else 'ready',
                         'missing': missing, 'command': command, 'last_run': previous,
+                        'directories': identity.get('directories', {}),
                         'input_groups': [{'id': group['id'], 'name': group['name'], 'files': group['files']}
                                          for group in selected_groups(tool, registry)]})
     return {'schema': 'workspace-readiness/v1',
@@ -152,6 +155,15 @@ const query=document.querySelector('#query'),state=document.querySelector('#stat
     note = '<p>診断時のPython：<code>' + html.escape(environment.get('executable', '未記録')) + '</code>（' + html.escape(environment.get('version', '未記録')) + '）。環境を変更したらdoctorを再実行してください。</p>'
     page = page.replace('<th>共通コマンド</th>', '<th>前回の実行結果・日時</th><th>共通コマンド</th>')
     note += '<p>前回の結果は診断時の記録です。実行後はdoctorを再実行すると更新されます。</p>'
+    directory_tools = [tool for tool in report['tools'] if tool.get('directories')]
+    if directory_tools:
+        note += '<section><h2>明示登録したテストフォルダ</h2>'
+        for tool in directory_tools:
+            note += '<details><summary>' + html.escape(tool['name']) + '</summary>'
+            for name, files in tool['directories'].items():
+                note += '<p><code>' + html.escape(name) + '</code>（Python ' + str(len(files)) + 'ファイル）</p>'
+            note += '</details>'
+        note += '</section>'
     note += '<p>照合対象は登録ファイル・実行設定・Python版です。外部サービス、実行バイナリ、間接依存すべての同一性は判定しません。</p>'
     groups = report.get('input_groups', [])
     if groups:
