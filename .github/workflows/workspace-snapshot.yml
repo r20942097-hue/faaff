@@ -14,6 +14,7 @@ on:
       - 'workspace-management/catalogue-update-20261014-2/**'
       - 'workspace-management/catalogue-update-20261014-3-final/**'
       - 'workspace-management/catalogue-update-20261014-4/**'
+      - 'workspace-management/catalogue-update-20261014-5/**'
       - 'workspace-management/registry.json'
       - 'workspace-management/.gitattributes'
       - '.github/workflows/workspace-snapshot.yml'
@@ -158,6 +159,21 @@ jobs:
           target = kit_root / 'work/tools'
           for name in V3_FILES:
               assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261014-4') / name).read_bytes(), 'installed v3 kit payload differs: ' + name
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          update_expected = Path('workspace-management/catalogue-update-20261014.5.zip.sha256').read_text(encoding='utf-8').split()[0]
+          latest_kit = Path('workspace-management/tool-integration-kit-20261014.5.zip')
+          latest_kit_expected = latest_kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit-v3-shared-directories')
+          assert extract(latest_kit, latest_kit_expected, kit_root) == 8
+          latest_record = json.loads(Path('workspace-management/tool-integration-kit-20261014-5-package.json').read_text(encoding='utf-8'))
+          for name, digest in latest_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'v3 kit member differs from fixed source identity: ' + name
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261014.5.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          for name in V3_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261014-5') / name).read_bytes(), 'installed v3 kit payload differs: ' + name
           assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
           from verify_dependencies import audit
           evidence = audit(Path('workspace-management'), target)
