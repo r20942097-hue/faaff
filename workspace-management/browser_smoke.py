@@ -125,6 +125,12 @@ def main():
         assert 's/tests' in directory_section.inner_text()
         assert 'faaff/browser_filter_lists/scripts' in directory_section.inner_text()
         checks.append('repository test-directory scopes are displayed for filters and candidates')
+        module_section = page.locator('#module-inputs')
+        assert module_section.locator('details').count() == 1
+        module_section.locator('summary').click()
+        assert 'tools.check_workflows' in module_section.inner_text()
+        assert 'tools/check_workflows.py' in module_section.inner_text()
+        checks.append('explicit Python module source mapping and scope are displayed')
         checks.append('management test-directory group and its two consumers are displayed')
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
         checks.append('explicit test-directory scopes render for both registered audit tools on mobile')

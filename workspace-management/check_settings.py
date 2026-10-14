@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from datetime import datetime, timezone
 
-from registry import load, relative_path, registered_files, write_report
+from registry import load, relative_path, registered_files, selected_module_inputs, write_report
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -17,6 +17,7 @@ def command_entry(command, cwd):
                   '--inspect', '--inspect-brk'}
     node_values = {'--input-type', '--max-old-space-size'}
     index = 1
+    local_path_disabled = False
     while index < len(command):
         token = command[index]
         if token == '--':
@@ -45,14 +46,22 @@ def command_entry(command, cwd):
             for position, character in enumerate(chars):
                 if character in 'h?V':
                     return {'mode': 'information', 'path': None}
+                if character in 'IP':
+                    local_path_disabled = True
                 if character in 'cmWX':
                     attached = chars[position + 1:]
                     if not attached:
                         if index + 1 >= len(command):
                             raise ValueError('Python option requires a value')
                         index += 1
-                    if character in 'cm':
-                        return {'mode': 'inline' if character == 'c' else 'module', 'path': None}
+                    if character == 'c':
+                        return {'mode': 'inline', 'path': None}
+                    if character == 'm':
+                        name = attached or command[index]
+                        import re
+                        if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*', name):
+                            raise ValueError('invalid Python module name')
+                        return {'mode': 'module', 'path': None, 'module': name, 'local_path_disabled': local_path_disabled}
                     break
                 if character not in python_flags:
                     raise ValueError('unsupported Python option')
@@ -102,7 +111,7 @@ def script_path(command, cwd):
 
 def audit(data):
     # Callers obtain structurally validated registry data; this adds semantic checks.
-    errors, warnings, entries, owners, excluded = [], [], {}, {}, []
+    errors, warnings, entries, owners, excluded, mapped = [], [], {}, {}, [], []
     for tool in data['tools']:
         key = tool['id']
         for field in ('files', 'binaries', 'modules'):
@@ -110,6 +119,8 @@ def audit(data):
                 errors.append(f'{key}: duplicate {field}')
         seen = set()
         declared = set(registered_files(tool, data))
+        mappings = {entry['module']: entry['files'] for entry in selected_module_inputs(tool, data)}
+        used_mappings = set()
         for command in tool['commands']:
             signature = (tool['cwd'], tuple(command))
             if signature in seen:
@@ -118,7 +129,18 @@ def audit(data):
             try:
                 entry = command_entry(command, tool['cwd'])
                 path = entry['path']
-                if entry['mode'] != 'script':
+                if entry['mode'] == 'module' and entry['module'] in mappings:
+                    name = entry['module']
+                    used_mappings.add(name)
+                    prefix = '' if tool['cwd'] == '.' else tool['cwd'] + '/'
+                    source = prefix + name.replace('.', '/')
+                    if entry['local_path_disabled']:
+                        errors.append(f'{key}: local module mapping is incompatible with Python -I/-P')
+                    elif not ({source + '.py', source + '/__main__.py'} & set(mappings[name])):
+                        errors.append(f'{key}: module mapping has no entry source under its cwd')
+                    else:
+                        mapped.append({'owner': key, 'module': name, 'files': mappings[name]})
+                elif entry['mode'] != 'script':
                     excluded.append({'owner': key, 'mode': entry['mode']})
             except ValueError as error:
                 errors.append(f'{key}: command entry cannot be checked: {error}')
@@ -127,6 +149,8 @@ def audit(data):
                 errors.append(f'{key}: command script is not a registered input: {path}')
             entries.setdefault(signature, []).append((key, tool['timeout_seconds']))
             owners.setdefault(signature, set()).add(key)
+        if set(mappings) != used_mappings:
+            errors.append(f'{key}: unused module input mapping')
     seen_checks = set()
     for check in data['checks']:
         signature = (check['cwd'], tuple(check['argv']))
@@ -148,8 +172,8 @@ def audit(data):
     return {'schema': 'workspace-settings-audit/v1', 'passed': not errors,
             'errors': sorted(set(errors)), 'warnings': sorted(set(warnings)),
             'tools': len(data['tools']), 'standard_checks': len(data['checks']),
-            'unique_invocations': len(entries), 'excluded_entries': excluded,
-            'scope': 'Declared inputs, Python/Node script ownership after supported interpreter flags, exact cwd/argv duplicate and timeout consistency only. Module resolution, test-directory contents and all transitive dependencies are not inferred.'}
+            'unique_invocations': len(entries), 'excluded_entries': excluded, 'module_input_entries': mapped,
+            'scope': 'Declared inputs, Python/Node script ownership after supported interpreter flags, exact cwd/argv duplicate and timeout consistency only. Local module inputs are explicit source declarations, not proof of runtime import resolution; unregistered modules and all transitive dependencies are not inferred.'}
 
 
 def main():

@@ -8,7 +8,7 @@ import sys
 from datetime import datetime, timedelta, timezone
 
 
-from registry import load, load_json, safe_path, input_identity, registered_files, selected_groups
+from registry import load, load_json, safe_path, input_identity, registered_files, selected_groups, selected_module_inputs
 
 RUN_LABELS = {'passed': '合格', 'failed': '失敗', 'running': '実行中・中断の可能性', 'blocked': '実行不可', 'interrupted': '中断'}
 
@@ -91,7 +91,8 @@ def inspect(root, executable=shutil.which, module=importlib.util.find_spec, regi
         results.append({'id': key, 'name': label, 'status': 'blocked' if missing else 'ready',
                         'missing': missing, 'command': command, 'last_run': previous,
                         'directories': identity.get('directories', {}),
-                        'input_groups': [{'id': group['id'], 'name': group['name'], 'files': group['files'], 'directories': group.get('directories', [])}
+                        'module_inputs': selected_module_inputs(tool, registry),
+                        'input_groups': [{'id': group['id'], 'name': group['name'], 'files': group['files'], 'directories': group.get('directories', []), 'module_inputs': group.get('module_inputs', [])}
                                          for group in selected_groups(tool, registry)]})
     return {'schema': 'workspace-readiness/v1',
             'python': {'version': sys.version.split()[0], 'executable': sys.executable},
@@ -120,6 +121,14 @@ def render(report):
                                       item.get('last_run', {}).get('label', '未記録') + '<br>' + item.get('last_run', {}).get('time', '—') + '<br>' + item.get('last_run', {}).get('detail', '') + '<br>' + html.escape(retest_detail(item.get('last_run', {}))).replace('|', '&#124;'),
                                       '`' + item['command'] + '`' if item['command'] else 'ソース復元後に接続',
                                       '<br>'.join(item['missing']) or 'なし']) + ' |')
+    mapped = [(tool, entry) for tool in report['tools'] for entry in tool.get('module_inputs', [])]
+    if mapped:
+        lines += ['', '## 明示登録したPythonモジュール入力', '',
+                  '登録ソースの変更照合です。実行時import先の保証や全間接依存の追跡ではありません。', '',
+                  '| 利用ツール | モジュール | 登録ソース |', '|---|---|---|']
+        for tool, entry in mapped:
+            values = [tool['name'], entry['module'], ' / '.join(entry['files'])]
+            lines.append('| ' + ' | '.join(html.escape(value).replace('|', '&#124;') for value in values) + ' |')
     groups = report.get('input_groups', [])
     if groups:
         lines += ['', '## 共通入力の影響範囲', '',
@@ -127,7 +136,7 @@ def render(report):
                   '| 共通入力 | 利用ツール | 登録ファイル |', '|---|---|---|']
         names = {item['id']: item['name'] for item in report['tools']}
         for group in groups:
-            values = [group['name'], ' / '.join(names[key] for key in group['tools']), ' / '.join(group['files'] + ['フォルダ: ' + name for name in group.get('directories', [])])]
+            values = [group['name'], ' / '.join(names[key] for key in group['tools']), ' / '.join(group['files'] + ['フォルダ: ' + name for name in group.get('directories', [])] + ['モジュール: ' + entry['module'] + ' → ' + ', '.join(entry['files']) for entry in group.get('module_inputs', [])])]
             lines.append('| ' + ' | '.join(html.escape(value).replace('|', '&#124;') for value in values) + ' |')
     return '\n'.join(lines) + '\n'
 
@@ -164,13 +173,22 @@ const query=document.querySelector('#query'),state=document.querySelector('#stat
                 note += '<p><code>' + html.escape(name) + '</code>（Python ' + str(len(files)) + 'ファイル）</p>'
             note += '</details>'
         note += '</section>'
+    module_tools = [tool for tool in report['tools'] if tool.get('module_inputs')]
+    if module_tools:
+        note += '<section id="module-inputs"><h2>明示登録したPythonモジュール入力</h2><p>登録ソースの変更照合です。実行時import先の保証や全間接依存の追跡ではありません。</p>'
+        for tool in module_tools:
+            note += '<details><summary>' + html.escape(tool['name']) + '</summary>'
+            for entry in tool['module_inputs']:
+                note += '<p><code>' + html.escape(entry['module']) + '</code> → <code>' + html.escape(' / '.join(entry['files'])) + '</code></p>'
+            note += '</details>'
+        note += '</section>'
     note += '<p>照合対象は登録ファイル・実行設定・Python版です。外部サービス、実行バイナリ、間接依存すべての同一性は判定しません。</p>'
     groups = report.get('input_groups', [])
     if groups:
         names = {item['id']: item['name'] for item in report['tools']}
         note += '<section><h2>共通入力の影響範囲</h2><p>明示登録した共通入力の一覧です。未登録の間接依存・外部状態を網羅しません。</p>'
         for group in groups:
-            note += '<details><summary>' + html.escape(group['name']) + '（' + str(len(group['tools'])) + '機能）</summary><p>' + html.escape(' / '.join(names[key] for key in group['tools'])) + '</p><p><code>' + html.escape(' / '.join(group['files'] + ['フォルダ: ' + name for name in group.get('directories', [])])) + '</code></p></details>'
+            note += '<details><summary>' + html.escape(group['name']) + '（' + str(len(group['tools'])) + '機能）</summary><p>' + html.escape(' / '.join(names[key] for key in group['tools'])) + '</p><p><code>' + html.escape(' / '.join(group['files'] + ['フォルダ: ' + name for name in group.get('directories', [])] + ['モジュール: ' + entry['module'] + ' → ' + ', '.join(entry['files']) for entry in group.get('module_inputs', [])])) + '</code></p></details>'
         note += '</section>'
     return page.replace('<div class="toolbar">', note + '<div class="toolbar">', 1)
 

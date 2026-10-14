@@ -148,3 +148,45 @@ class SettingsTests(unittest.TestCase):
                 command=['node',*flags,'tool.cjs']
                 result=subprocess.run([node,*command[1:]],cwd=root,capture_output=True,text=True,timeout=10,check=True)
                 with self.subTest(flags=flags):self.assertEqual(result.stdout.strip(),script_path(command,'.'))
+
+
+class ModuleMappingSettingsTests(unittest.TestCase):
+    fixture=SettingsTests.fixture
+
+    def mapped(self,command=None):
+        data=self.fixture();data['tools'][0].update(files=[],commands=[command or ['{python}','-m','pkg.cli']],
+           module_inputs=[{'module':'pkg.cli','files':['pkg/cli.py']}]);return data
+
+    def test_split_attached_and_flagged_module_entries_use_explicit_mapping(self):
+        for command in [['{python}','-m','pkg.cli'],['{python}','-mpkg.cli'],['{python}','-Bm','pkg.cli'],
+                        ['{python}','-W','ignore','-Xutf8','-m','pkg.cli']]:
+            report=audit(self.mapped(command))
+            with self.subTest(command=command):
+                self.assertTrue(report['passed'],report['errors']);self.assertEqual(report['excluded_entries'],[])
+                self.assertEqual(report['module_input_entries'][0]['module'],'pkg.cli')
+                self.assertIsNone(script_path(command,'.'))
+
+    def test_isolated_or_safe_path_mode_cannot_claim_cwd_module_inputs(self):
+        for flags in [['-I'],['-P'],['-BIP']]:
+            report=audit(self.mapped(['{python}',*flags,'-m','pkg.cli']))
+            with self.subTest(flags=flags):self.assertFalse(report['passed']);self.assertIn('-I/-P',str(report['errors']))
+
+    def test_declared_entry_must_match_module_path_under_cwd(self):
+        data=self.mapped();data['tools'][0]['cwd']='sub';self.assertFalse(audit(data)['passed'])
+        data['tools'][0]['module_inputs'][0]['files']=['sub/pkg/cli.py'];self.assertTrue(audit(data)['passed'])
+        data=self.mapped(['{python}','-m','pkg']);data['tools'][0]['module_inputs']=[{'module':'pkg','files':['pkg/__main__.py','pkg/__init__.py']}]
+        self.assertTrue(audit(data)['passed'])
+
+    def test_unused_mapping_fails_and_external_module_remains_excluded(self):
+        data=self.mapped(['{python}','-m','unittest']);self.assertFalse(audit(data)['passed'])
+        data['tools'][0].pop('module_inputs');report=audit(data);self.assertTrue(report['passed'])
+        self.assertEqual(report['excluded_entries'],[{'owner':'fixture','mode':'module'}]);self.assertNotIn('unittest',str(report))
+
+    def test_invalid_module_name_is_rejected_without_echoing_payload(self):
+        for name in ['../private-fixture','pkg..cli','pkg/cli','private-fixture=secret']:
+            data=self.fixture();data['tools'][0]['commands']=[['{python}','-m',name]];report=audit(data)
+            with self.subTest(name=name):self.assertFalse(report['passed']);self.assertNotIn(name,str(report))
+
+    def test_standard_module_checks_stay_excluded_without_source_claim(self):
+        data=self.mapped();data['checks']=[{'name':'module-check','cwd':'.','argv':['{python}','-m','unittest'],'timeout_seconds':120}]
+        report=audit(data);self.assertTrue(report['passed']);self.assertEqual(report['excluded_entries'],[{'owner':'check: module-check','mode':'module'}])

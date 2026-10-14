@@ -84,6 +84,40 @@ def validate_directories(directories):
             raise ValueError('invalid input directory path')
 
 
+def validate_module_inputs(entries):
+    if not isinstance(entries, list) or len(entries) > 32:
+        raise ValueError('module_inputs must be an array of at most 32 mappings')
+    seen = set()
+    for entry in entries:
+        if not isinstance(entry, dict) or set(entry) != {'module', 'files'}:
+            raise ValueError('module input requires module and files only')
+        name, files = entry['module'], entry['files']
+        if (not isinstance(name, str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*', name)
+                or name in seen):
+            raise ValueError('invalid or duplicate module input name')
+        seen.add(name)
+        if (not isinstance(files, list) or not 1 <= len(files) <= 128
+                or not all(isinstance(name, str) for name in files) or len(set(files)) != len(files)):
+            raise ValueError('module input requires unique Python source files')
+        for name in files:
+            relative_path(name)
+            if not name.endswith('.py') or ':' in name or any(part.startswith('.') for part in name.split('/')):
+                raise ValueError('module input must be a portable Python source path')
+
+
+def selected_module_inputs(tool, registry=None):
+    entries = {}
+    for owner in [tool, *selected_groups(tool, registry)]:
+        for entry in owner.get('module_inputs', []):
+            name, files = entry['module'], sorted(entry['files'])
+            if name in entries and entries[name] != files:
+                raise ValueError('conflicting module input mappings')
+            entries[name] = files
+    if len(entries) > 32:
+        raise ValueError('too many combined module input mappings')
+    return [{'module': name, 'files': files} for name, files in sorted(entries.items())]
+
+
 def load(path=REGISTRY, check_consistency=True):
     data = load_json(path)
     if not isinstance(data, dict) or data.get('schema') != 'workspace-tools/v1' or not isinstance(data.get('tools'), list) or not isinstance(data.get('checks'), list):
@@ -100,6 +134,7 @@ def load(path=REGISTRY, check_consistency=True):
             if not isinstance(item.get(key), list):
                 raise ValueError('missing tool list: ' + key)
         validate_directories(item.get('directories', []))
+        validate_module_inputs(item.get('module_inputs', []))
         for name in item['files']:
             relative_path(name)
         for name in item['binaries'] + item['modules']:
@@ -120,14 +155,16 @@ def load(path=REGISTRY, check_consistency=True):
         members, files = group.get('tools'), group.get('files')
         directories = group.get('directories', [])
         validate_directories(directories)
+        validate_module_inputs(group.get('module_inputs', []))
         if (not isinstance(members, list) or not members or not all(isinstance(m, str) and m in seen for m in members)
-                or len(set(members)) != len(members) or not isinstance(files, list) or not (files or directories)):
+                or len(set(members)) != len(members) or not isinstance(files, list) or not (files or directories or group.get('module_inputs'))):
             raise ValueError('invalid input group members or files')
         for name in files:
             relative_path(name)
         if len(set(files)) != len(files):
             raise ValueError('duplicate input group file')
     for tool in data['tools']:
+        selected_module_inputs(tool, data)
         if len(selected_directories(tool, data)) > 32:
             raise ValueError('too many combined input directories')
     names = set()
@@ -238,6 +275,7 @@ def directory_inventory(root, tool, registry=None):
 
 def registered_files(tool, registry=None, root=None):
     declared = set(tool['files']) | {name for group in selected_groups(tool, registry) for name in group['files']}
+    declared.update(name for entry in selected_module_inputs(tool, registry) for name in entry['files'])
     if root is not None:
         inventory, errors = directory_inventory(root, tool, registry)
         if errors:
@@ -264,6 +302,8 @@ def input_identity(root, tool, registry=None):
     definition = json.dumps(definition_value, sort_keys=True, ensure_ascii=True, separators=(',', ':')).encode('utf-8')
     identity = {'schema': 'registered-tool-inputs/v1', 'tool_definition_sha256': hashlib.sha256(definition).hexdigest(),
                 'files': files, 'scope': 'Declared files, Python sources in explicit directories and tool definition only; external services, binaries and all transitive inputs are not fingerprinted.'}
+    if selected_module_inputs(tool, registry):
+        identity['module_inputs'] = selected_module_inputs(tool, registry)
     if selected_directories(tool, registry):
         identity.update(directories=inventory, directory_errors=errors)
     return identity
@@ -306,10 +346,11 @@ def run_tool(root, key):
         print('BLOCKED: ' + tool['name'] + '; ' + ', '.join(ready['missing']))
         return 2
     results = []
+    guarded_inputs = bool(selected_directories(tool, data) or selected_module_inputs(tool, data))
     for command in tool['commands']:
-        if selected_directories(tool, data) and report['inputs_before'] != input_identity(root, tool, data):
+        if guarded_inputs and report['inputs_before'] != input_identity(root, tool, data):
             print('INPUT CHANGED: stopping before the next command')
-            results.append({'exit_code': 3, 'output': 'registered directory inputs changed before execution'})
+            results.append({'exit_code': 3, 'output': 'registered directory or module inputs changed before execution'})
             break
         try:
             result = execute(command, root, tool['cwd'], tool['timeout_seconds'])
@@ -321,18 +362,18 @@ def run_tool(root, key):
         print(result['output'], end='' if result['output'].endswith('\n') else '\n')
         if result['exit_code']:
             break
-        if selected_directories(tool, data) and report['inputs_before'] != input_identity(root, tool, data):
+        if guarded_inputs and report['inputs_before'] != input_identity(root, tool, data):
             print('INPUT CHANGED: stopping remaining commands')
-            results.append({'exit_code': 3, 'output': 'registered directory inputs changed during execution'})
+            results.append({'exit_code': 3, 'output': 'registered directory or module inputs changed during execution'})
             break
     passed = all(result['exit_code'] == 0 for result in results)
     report.update(checks=results, passed=passed, status='interrupted' if results[-1].get('interrupted') else 'passed' if passed else 'failed',
                   finished_at_utc=datetime.now(timezone.utc).isoformat())
     report['inputs_after'] = input_identity(root, tool, data)
     report['inputs_unchanged_during_run'] = report['inputs_before'] == report['inputs_after']
-    if selected_directories(tool, data) and not report['inputs_unchanged_during_run'] and report['passed']:
+    if guarded_inputs and not report['inputs_unchanged_during_run'] and report['passed']:
         print('INPUT CHANGED: final input check failed')
         report.update(passed=False, status='failed')
-        report['checks'].append({'exit_code': 3, 'output': 'registered directory inputs changed during execution'})
+        report['checks'].append({'exit_code': 3, 'output': 'registered directory or module inputs changed during execution'})
     write_report(destination, report)
     return report['checks'][-1]['exit_code']

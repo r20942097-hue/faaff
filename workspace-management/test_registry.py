@@ -349,3 +349,95 @@ class RepositoryDirectoryTests(unittest.TestCase):
             (folder/'added_test.py').write_text('pass')
             after=input_identity(root,tool,data);self.assertNotEqual(before,after)
             self.assertIn('faaff/browser_filter_lists/scripts/added_test.py',after['files'])
+
+
+class ModuleInputTests(unittest.TestCase):
+    def fixture(self):
+        return {'schema':'workspace-tools/v1','tools':[{'id':'fixture','name':'fixture','cwd':'.','timeout_seconds':120,
+                'files':[],'modules':[],'binaries':[],'commands':[['{python}','-m','pkg.cli']],
+                'module_inputs':[{'module':'pkg.cli','files':['pkg/cli.py']}]}],'checks':[]}
+
+    def validated(self, data):
+        import json
+        with TemporaryDirectory() as directory:
+            path=Path(directory)/'registry.json';path.write_text(json.dumps(data))
+            return load(path)
+
+    def test_module_only_inputs_are_registered_and_source_changes_identity(self):
+        data=self.validated(self.fixture());tool=data['tools'][0]
+        with TemporaryDirectory() as directory:
+            root=Path(directory);(root/'pkg').mkdir();source=root/'pkg/cli.py';source.write_text('print(1)')
+            before=input_identity(root,tool,data)
+            self.assertEqual(registered_files(tool,data),['pkg/cli.py'])
+            source.write_text('print(2)');self.assertNotEqual(before,input_identity(root,tool,data))
+            source.unlink();self.assertIsNone(input_identity(root,tool,data)['files']['pkg/cli.py'])
+
+    def test_module_mapping_schema_rejects_ambiguous_or_unsafe_sources(self):
+        import copy
+        for entries in [None,{},[{}],[{'module':'pkg.cli','files':[]}],
+             [{'module':'pkg.cli','files':['pkg/cli.py','pkg/cli.py']}],
+             [{'module':'../pkg','files':['pkg/cli.py']}],
+             [{'module':'pkg.cli','files':['../cli.py']}],
+             [{'module':'pkg.cli','files':['pkg/cli.txt']}],
+             [{'module':'pkg.cli','files':['.hidden/cli.py']}],
+             [{'module':'pkg.cli','files':['C:/cli.py']}],
+             [{'module':'pkg.cli','files':['pkg/cli.py'],'extra':True}]]:
+            data=self.fixture();data['tools'][0]['module_inputs']=copy.deepcopy(entries)
+            with self.subTest(entries=entries),self.assertRaises(ValueError):self.validated(data)
+        data=self.fixture();data['tools'][0]['module_inputs']*=2
+        with self.assertRaises(ValueError):self.validated(data)
+
+    def test_shared_module_inputs_only_affect_declared_consumers(self):
+        import copy
+        data=self.fixture();mapping=data['tools'][0].pop('module_inputs')
+        other=copy.deepcopy(data['tools'][0]);other.update(id='other',commands=[['{python}','-c','pass']])
+        data['tools'].append(other);data['input_groups']=[{'id':'shared','name':'shared','tools':['fixture'],'files':[],'module_inputs':mapping}]
+        self.validated(data)
+        self.assertEqual(registered_files(data['tools'][0],data),['pkg/cli.py'])
+        self.assertEqual(registered_files(other,data),[])
+
+    def test_conflicting_shared_mappings_fail_and_identical_mappings_deduplicate(self):
+        import copy
+        data=self.fixture();mapping=copy.deepcopy(data['tools'][0]['module_inputs'])
+        data['input_groups']=[{'id':'shared','name':'shared','tools':['fixture'],'files':[],'module_inputs':mapping}]
+        self.validated(data);self.assertEqual(registered_files(data['tools'][0],data),['pkg/cli.py'])
+        mapping[0]['files'].append('pkg/helper.py')
+        with self.assertRaisesRegex(ValueError,'conflicting'):self.validated(data)
+
+    def test_mapping_count_limits_apply_before_and_after_group_merge(self):
+        data=self.fixture();data['tools'][0]['module_inputs']=[{'module':'pkg.m'+str(n),'files':['pkg/m'+str(n)+'.py']} for n in range(33)]
+        with self.assertRaises(ValueError):self.validated(data)
+        data=self.fixture();data['input_groups']=[{'id':'shared','name':'shared','tools':['fixture'],'files':[],
+             'module_inputs':[{'module':'pkg.m'+str(n),'files':['pkg/m'+str(n)+'.py']} for n in range(32)]}]
+        with self.assertRaisesRegex(ValueError,'combined'):self.validated(data)
+        data=self.fixture();data['tools'][0]['module_inputs'][0]['files']=['pkg/f'+str(n)+'.py' for n in range(129)]
+        with self.assertRaises(ValueError):self.validated(data)
+
+    def test_real_module_run_records_mapping_and_unchanged_source(self):
+        from unittest.mock import patch
+        data=self.validated(self.fixture())
+        with TemporaryDirectory() as directory:
+            root=Path(directory);(root/'pkg').mkdir();(root/'pkg/cli.py').write_text('print("module fixture passed")')
+            with patch('registry.load',return_value=data):self.assertEqual(run_tool(root,'fixture'),0)
+            record=load_json(root/'catalog/results/tool-fixture.json')
+            self.assertTrue(record['passed']);self.assertTrue(record['inputs_unchanged_during_run'])
+            self.assertEqual(record['inputs_after']['module_inputs'],data['tools'][0]['module_inputs'])
+
+    def test_module_source_changed_during_real_run_stops_remaining_commands(self):
+        from unittest.mock import patch
+        data=self.fixture();data['tools'][0]['commands'].append(['{python}','-c','from pathlib import Path;Path("should-not-run").touch()'])
+        self.validated(data)
+        with TemporaryDirectory() as directory:
+            root=Path(directory);(root/'pkg').mkdir();(root/'pkg/cli.py').write_text('from pathlib import Path\np=Path(__file__);p.write_text(p.read_text()+"\\n# changed")\n')
+            with patch('registry.load',return_value=data):self.assertEqual(run_tool(root,'fixture'),3)
+            self.assertFalse((root/'should-not-run').exists());record=load_json(root/'catalog/results/tool-fixture.json')
+            self.assertFalse(record['passed']);self.assertFalse(record['inputs_unchanged_during_run'])
+
+    def test_symlink_module_source_is_not_accepted_as_ready(self):
+        from doctor import inspect
+        data=self.fixture()
+        with TemporaryDirectory() as directory:
+            root=Path(directory);(root/'pkg').mkdir();(root/'actual.py').write_text('pass')
+            try:(root/'pkg/cli.py').symlink_to(root/'actual.py')
+            except OSError:self.skipTest('symlink creation unavailable')
+            self.assertEqual(inspect(root,registry=data)['tools'][0]['status'],'blocked')
