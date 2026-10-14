@@ -251,7 +251,9 @@
       "name": "Suite配布監査の回帰検証",
       "cwd": ".",
       "files": [
-        "library-files/tool-sources/security/tools/audit_suite_release.py"
+        "library-files/tool-sources/security/tools/audit_suite_release.py",
+        "library-files/tool-sources/security/tests/test_audit_suite_release.py",
+        "library-files/tool-sources/security/SOURCE-ORIGIN.json"
       ],
       "binaries": [],
       "modules": [
@@ -272,7 +274,8 @@
             "tools/check_suite_audit.py"
           ]
         }
-      ]
+      ],
+      "interrupt_grace_seconds": 8
     },
     {
       "id": "control-plane-next",

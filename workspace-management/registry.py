@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
+import signal
+import time
 import sys
 from tempfile import NamedTemporaryFile
 import uuid
@@ -71,6 +73,9 @@ def validate_command(item):
     seconds = item['timeout_seconds']
     if type(seconds) is not int or not 1 <= seconds <= 600:
         raise ValueError('timeout_seconds must be an integer from 1 to 600')
+    grace = item.get('interrupt_grace_seconds', 0)
+    if type(grace) is not int or not 0 <= grace <= 10 or grace >= seconds:
+        raise ValueError('interrupt_grace_seconds must be 0 to 10 and below the timeout')
 
 
 def validate_directories(directories):
@@ -174,6 +179,8 @@ def load(path=REGISTRY, check_consistency=True):
         names.add(item['name'])
         validate_command(item)
         argv(item['argv'])
+        if item.get('interrupt_grace_seconds', 0):
+            raise ValueError('interrupt grace is supported on registered tools only')
     if check_consistency:
         from check_settings import audit
         report = audit(data)
@@ -187,19 +194,23 @@ def expand(command, root):
     return [part.replace('{root}', str(Path(root).resolve())).replace('{python}', sys.executable) for part in command]
 
 
-def execute(command, root, cwd='.', timeout=120):
+def execute(command, root, cwd='.', timeout=120, interrupt_grace=0):
     directory = safe_path(root, cwd, allow_dot=True)
-    return run_process(expand(command, root), directory, timeout)
+    return run_process(expand(command, root), directory, timeout, interrupt_grace=interrupt_grace)
 
 
-def run_process(command, directory, timeout=120, environment=None):
+def run_process(command, directory, timeout=120, environment=None, interrupt_grace=0):
     """Capture a trusted argv without a shell; retain partial timeout diagnostics."""
+    if interrupt_grace:
+        return run_captured_process(command, directory, timeout, environment, interrupt_grace)
     try:
         result = subprocess.run(command, cwd=directory, capture_output=True, text=True,
                                 encoding='utf-8', errors='backslashreplace',
                                 env=child_environment() if environment is None else environment,
                                 timeout=timeout, check=False, shell=False)
-        return {'exit_code': result.returncode, 'output': result.stdout + result.stderr}
+        report = {'exit_code': result.returncode, 'output': result.stdout + result.stderr}
+        if result.returncode == 130:report['interrupted'] = True
+        return report
     except subprocess.TimeoutExpired as error:
         def decoded(value):
             return value.decode('utf-8', errors='backslashreplace') if isinstance(value, bytes) else value or ''
@@ -208,6 +219,61 @@ def run_process(command, directory, timeout=120, environment=None):
                 'output': partial + ('\n' if partial and not partial.endswith('\n') else '') + f'timeout after {timeout} seconds'}
     except OSError as error:
         return {'exit_code': 127, 'error': type(error).__name__, 'output': str(error)}
+
+
+def communicate_process(process,timeout):
+    deadline=time.monotonic()+timeout
+    partial=None
+    while True:
+        remaining=deadline-time.monotonic()
+        if remaining<=0:
+            raise subprocess.TimeoutExpired(process.args,timeout,
+                output=getattr(partial,'stdout',None),stderr=getattr(partial,'stderr',None))
+        try:return process.communicate(timeout=min(0.1,remaining))
+        except subprocess.TimeoutExpired as error:partial=error
+
+
+def run_captured_process(command,directory,timeout,environment,interrupt_grace):
+    """Let a supervising child finish its cleanup before forcing its termination."""
+    options={'cwd':directory,'stdout':subprocess.PIPE,'stderr':subprocess.PIPE,'text':True,
+             'encoding':'utf-8','errors':'backslashreplace',
+             'env':child_environment() if environment is None else environment}
+    if os.name=='nt':options['creationflags']=subprocess.CREATE_NEW_PROCESS_GROUP
+    try:process=subprocess.Popen(command,**options)
+    except OSError as error:return {'exit_code':127,'error':type(error).__name__,'output':str(error)}
+    interrupted,timed_out,forced=False,False,False
+    handlers={}
+    try:
+        stdout,stderr=communicate_process(process,timeout)
+    except (KeyboardInterrupt,subprocess.TimeoutExpired) as error:
+        interrupted=isinstance(error,KeyboardInterrupt);timed_out=not interrupted
+        for name in ['SIGINT','SIGBREAK']:
+            value=getattr(signal,name,None)
+            if value is not None:
+                try:handlers[value]=signal.signal(value,signal.SIG_IGN)
+                except ValueError:pass
+        try:
+            try:process.send_signal(signal.CTRL_BREAK_EVENT if os.name=='nt' else signal.SIGINT)
+            except OSError:
+                forced=True
+                try:process.terminate()
+                except OSError:pass
+            try:stdout,stderr=communicate_process(process,interrupt_grace)
+            except subprocess.TimeoutExpired:
+                forced=True;process.kill()
+                try:stdout,stderr=communicate_process(process,5)
+                except subprocess.TimeoutExpired as remaining:
+                    def decoded(value):return value.decode('utf-8','backslashreplace') if isinstance(value,bytes) else value or ''
+                    stdout,stderr=decoded(remaining.stdout),decoded(remaining.stderr)
+        finally:
+            for value,handler in handlers.items():signal.signal(value,handler)
+    report={'exit_code':130 if interrupted else 124 if timed_out else process.returncode,
+            'output':stdout+stderr,'controller_forced':forced}
+    if interrupted or report['exit_code']==130:report['interrupted']=True
+    if timed_out:
+        report['error']='TimeoutExpired'
+        report['output']+='\n'+f'timeout after {timeout} seconds'
+    return report
 
 
 def child_environment():
@@ -353,7 +419,10 @@ def run_tool(root, key):
             results.append({'exit_code': 3, 'output': 'registered directory or module inputs changed before execution'})
             break
         try:
-            result = execute(command, root, tool['cwd'], tool['timeout_seconds'])
+            if tool.get('interrupt_grace_seconds', 0):
+                result = execute(command, root, tool['cwd'], tool['timeout_seconds'], interrupt_grace=tool['interrupt_grace_seconds'])
+            else:
+                result = execute(command, root, tool['cwd'], tool['timeout_seconds'])
         except KeyboardInterrupt:
             result = {'exit_code': 130, 'output': 'interrupted by user', 'interrupted': True}
         results.append(result)
