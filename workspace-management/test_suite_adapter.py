@@ -13,7 +13,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 import check_suite_audit as adapter
 
 
-class SuiteAdapterTests(unittest.TestCase):
+class SuiteIsolationTests(unittest.TestCase):
     def test_parent_execution_uses_same_python_and_direct_child_without_shell(self):
         with patch.object(adapter.subprocess,'run',return_value=SimpleNamespace(returncode=0)) as run:
             self.assertEqual(adapter.main([]),0)
@@ -60,5 +60,37 @@ class SuiteAdapterTests(unittest.TestCase):
                 adapter.run_suite()
             chdir.assert_not_called()
 
+
+from pathlib import Path
+import sys
+from tempfile import TemporaryDirectory
+from types import SimpleNamespace
+import unittest
+from unittest.mock import Mock
+from zipfile import ZipFile
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from check_suite_audit import make_zip, install_raw_path_check
+
+
+class SuiteAdapterTests(unittest.TestCase):
+    def test_fixture_retains_literal_archive_spelling(self):
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / 'unsafe.zip'
+            make_zip(path, [('dir\\file', b'data')])
+            with ZipFile(path) as archive:
+                self.assertEqual(archive.infolist()[0].orig_filename, 'dir\\file')
+
+    def test_normalized_filename_cannot_hide_unsafe_original(self):
+        inspect_original = Mock()
+        module = SimpleNamespace(_inspect_bundle=inspect_original,
+                                 _unsafe_name=lambda value, **kwargs: 'backslash in path' if '\\' in value else None)
+        install_raw_path_check(module)
+        entry = SimpleNamespace(orig_filename='dir\\file', filename='dir/file', is_dir=lambda: False)
+        result = SimpleNamespace(findings=[])
+        bundle = SimpleNamespace(infolist=lambda: [entry])
+        module._inspect_bundle(bundle, result, object())
+        self.assertIn('backslash in path', result.findings[0])
+        inspect_original.assert_called_once()
 
 if __name__=='__main__':unittest.main()
