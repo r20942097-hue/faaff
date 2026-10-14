@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
-from verify_catalogue_update import apply_update, BASE_SHA256, FILES, V2_FILES, V3_FILES
+from verify_catalogue_update import apply_update, BASE_SHA256, FILES, V2_FILES, V3_FILES, V4_FILES
 
 
 class CandidateTests(unittest.TestCase):
@@ -111,3 +111,22 @@ class CandidateTests(unittest.TestCase):
         self.unchanged()
         self.manifest['schema']='catalogue-development-update/v3';self.save_manifest()
         self.assertEqual(apply_update(self.source,self.target,BASE_SHA256),len(V3_FILES))
+
+    def test_v4_requires_exact_extended_set_and_rejects_older_schema(self):
+        for name in V4_FILES - FILES:
+            path=self.source/name;path.parent.mkdir(parents=True,exist_ok=True);body=('v4 '+name).encode();path.write_bytes(body);self.manifest['files'][name]=hashlib.sha256(body).hexdigest()
+        self.manifest['schema']='catalogue-development-update/v3';self.save_manifest()
+        with self.assertRaisesRegex(ValueError,'manifest'):apply_update(self.source,self.target,BASE_SHA256)
+        self.unchanged()
+        self.manifest['schema']='catalogue-development-update/v4';self.save_manifest()
+        self.assertEqual(apply_update(self.source,self.target,BASE_SHA256),26)
+
+    def test_v4_missing_or_tampered_adapter_stops_before_any_write(self):
+        self.manifest['schema']='catalogue-development-update/v4';self.save_manifest()
+        with self.assertRaisesRegex(ValueError,'manifest'):apply_update(self.source,self.target,BASE_SHA256)
+        self.unchanged()
+        for name in V4_FILES-FILES:
+            path=self.source/name;path.parent.mkdir(parents=True,exist_ok=True);body=('v4 '+name).encode();path.write_bytes(body);self.manifest['files'][name]=hashlib.sha256(body).hexdigest()
+        self.save_manifest();(self.source/'tools/check_suite_audit.py').write_text('tampered')
+        with self.assertRaisesRegex(ValueError,'SHA256 mismatch'):apply_update(self.source,self.target,BASE_SHA256)
+        self.unchanged()
