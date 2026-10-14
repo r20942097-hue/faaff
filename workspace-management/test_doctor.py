@@ -6,7 +6,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from doctor import inspect, last_run, retest_advice, retest_detail, overview
-from registry import load, input_identity, registered_files
+from registry import load, input_identity, registered_files, selected_directories
 
 
 class ReadinessTests(unittest.TestCase):
@@ -99,7 +99,7 @@ class ReadinessTests(unittest.TestCase):
                     path.parent.mkdir(parents=True, exist_ok=True)
                     path.touch()
             for tool in load()['tools']:
-                for name in tool.get('directories', []):
+                for name in selected_directories(tool, load()):
                     folder=root/name;folder.mkdir(parents=True,exist_ok=True);(folder/'fixture.py').touch()
             report = inspect(root, executable=lambda name: '/bin/' + name, module=lambda name: object())
             self.assertTrue(all(row['status'] == 'ready' for row in report['tools'] if row['id'] != 'recording'))

@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from registry import load, load_json, safe_path, execute, expand, run_tool, input_identity, registered_files, directory_files
+from registry import load, load_json, safe_path, execute, expand, run_tool, input_identity, registered_files, directory_files, selected_directories
 
 
 class RegistryTests(unittest.TestCase):
@@ -109,6 +109,8 @@ class RegistryTests(unittest.TestCase):
                 path = root / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
+            for name in selected_directories(tool, load()):
+                folder=root/name;folder.mkdir(parents=True,exist_ok=True);(folder/'fixture.py').touch()
             def execute_probe(*args, **kwargs):
                 report = load_json(root / 'catalog/results/tool-catalogue.json')
                 self.assertFalse(report['passed'])
@@ -132,6 +134,8 @@ class RegistryTests(unittest.TestCase):
                 path = root / name
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.touch()
+            for name in selected_directories(tool, load()):
+                folder=root/name;folder.mkdir(parents=True,exist_ok=True);(folder/'fixture.py').touch()
             destination = root / 'catalog/results/tool-catalogue.json'
             def interrupt_after_checkpoint(*args):
                 record = load_json(destination)
@@ -262,3 +266,66 @@ class DirectoryInputTests(unittest.TestCase):
             (root/'tests/test_one.py').unlink();(root/'tests/new.py').write_text('new')
             old=last_run(root,'fixture',tool);self.assertIn('再検証',old['label']);self.assertEqual(old['changed_files'],['tests/new.py','tests/test_one.py'])
             view=inspect(root,registry={'tools':[tool]});self.assertIn('明示登録したテストフォルダ',overview(root,view))
+
+
+class SharedDirectoryTests(unittest.TestCase):
+    fixture = DirectoryInputTests.fixture
+
+    def shared(self, root):
+        tool=self.fixture(root);tool['directories']=[]
+        group={'id':'shared-tests','name':'shared tests','tools':['fixture'],'files':[],'directories':['tests']}
+        return tool,{'tools':[tool],'input_groups':[group]}
+
+    def test_shared_change_invalidates_consumers_without_affecting_other_tools(self):
+        with TemporaryDirectory() as d:
+            root=Path(d);tool,data=self.shared(root);other={**tool,'id':'other'}
+            before=input_identity(root,tool,data);other_before=input_identity(root,other,data)
+            (root/'tests/new.py').write_text('new')
+            self.assertNotEqual(before,input_identity(root,tool,data));self.assertEqual(other_before,input_identity(root,other,data))
+            self.assertIn('tests/new.py',registered_files(tool,data,root))
+
+    def test_group_and_direct_directory_overlap_is_scanned_once(self):
+        with TemporaryDirectory() as d:
+            root=Path(d);tool,data=self.shared(root);tool['directories']=['tests']
+            with patch('registry.directory_files',wraps=directory_files) as scan:
+                identity=input_identity(root,tool,data);self.assertEqual(scan.call_count,1)
+            self.assertEqual(list(identity['directories']),['tests'])
+
+    def test_group_membership_change_invalidates_only_affected_definition(self):
+        with TemporaryDirectory() as d:
+            root=Path(d);tool,data=self.shared(root);before=input_identity(root,tool,data)
+            changed=copy.deepcopy(data);changed['input_groups'][0]['tools']=[]
+            self.assertNotEqual(before,input_identity(root,tool,changed));self.assertNotIn('directories',input_identity(root,tool,changed))
+
+    def test_empty_inputs_invalid_group_paths_and_types_rejected(self):
+        for directories in [[],None,{},[1],['tests','tests'],['../outside'],['.git/tests']]:
+            with self.subTest(directories=directories),TemporaryDirectory() as d:
+                data=copy.deepcopy(load());data['input_groups'].append({'id':'probe','name':'probe','tools':['catalogue'],'files':[],'directories':directories})
+                path=Path(d)/'registry.json';path.write_text(json.dumps(data))
+                with self.assertRaises(ValueError):load(path)
+
+    def test_combined_directory_limit_prevents_multiple_group_overflow(self):
+        with TemporaryDirectory() as d:
+            data=copy.deepcopy(load());data['tools'][0]['directories']=['dir'+str(i) for i in range(32)]
+            path=Path(d)/'registry.json';path.write_text(json.dumps(data))
+            with self.assertRaisesRegex(ValueError,'combined'):load(path)
+
+    def test_actual_group_child_source_change_stops_and_reports_reason(self):
+        from contextlib import redirect_stdout
+        import io
+        with TemporaryDirectory() as d:
+            root=Path(d);tool,data=self.shared(root)
+            tool['commands']=[['{python}','-c',"from pathlib import Path; Path('tests/added.py').write_text('pass')"],['{python}','-c',"from pathlib import Path; Path('should-not-run').touch()"]]
+            console=io.StringIO()
+            with patch('registry.load',return_value=data),redirect_stdout(console):self.assertEqual(run_tool(root,'fixture'),3)
+            self.assertIn('INPUT CHANGED',console.getvalue());self.assertFalse((root/'should-not-run').exists())
+            report=load_json(root/'catalog/results/tool-fixture.json');self.assertFalse(report['passed']);self.assertIn('tests/added.py',report['inputs_after']['files'])
+
+    def test_shared_group_missing_directory_blocks_and_renders_scope(self):
+        from doctor import inspect,overview,render
+        with TemporaryDirectory() as d:
+            root=Path(d);tool,data=self.shared(root);view=inspect(root,registry=data)
+            self.assertIn('フォルダ: tests',overview(root,view));self.assertIn('フォルダ: tests',render(view))
+            (root/'tests/test_one.py').unlink();(root/'tests').rmdir()
+            with patch('registry.load',return_value=data),patch('registry.execute') as execute_mock:
+                self.assertEqual(run_tool(root,'fixture'),2);execute_mock.assert_not_called()

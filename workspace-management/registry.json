@@ -653,6 +653,18 @@
         "s/scripts/generate_lists.py",
         "s/filter-profiles.json"
       ]
+    },
+    {
+      "id": "management-tests",
+      "name": "共通管理の回帰テスト",
+      "tools": [
+        "catalogue",
+        "settings-consistency"
+      ],
+      "files": [],
+      "directories": [
+        "tools/tests"
+      ]
     }
   ]
 }
