@@ -833,7 +833,7 @@
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38650124108"
       },
       "release_family": "management-update",
-      "recommended": true
+      "recommended": false
     },
     {
       "id": "tool-integration-kit-20261015-1",
@@ -857,6 +857,58 @@
         "checked_on": "2026-10-15",
         "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理203件・公開支援172件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。明示モジュール入力・変更時の後続停止・新規仮想環境のsetup/all・リンク状態を検査。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38650124108"
+      },
+      "release_family": "integration-kit",
+      "recommended": false
+    },
+    {
+      "id": "management-update-20261015-2",
+      "name": "Suite監査の実行分離・v4統合更新",
+      "version": "20261015.2",
+      "kind": "update",
+      "purpose": "Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続",
+      "notes": "v4の26ファイル更新。更新ZIP内の一覧は作成時点31件、現在の公開一覧は33件。監査原本・既存ZIPパス検査を維持。基準ZIP20261012.2とv4対応の最新版ヘルパーが必要。",
+      "local_path": "work/releases/catalogue-update-20261015.2.zip",
+      "sha256": "ad0ecfe2ef803543e111bb2f3fc44b01ff3d06c23c1ead5d69a13b37cd329401",
+      "bytes": 109873,
+      "publication": {
+        "stage": "pr",
+        "commit": "4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/catalogue-update-20261015.2.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "ad0ecfe2ef803543e111bb2f3fc44b01ff3d06c23c1ead5d69a13b37cd329401",
+        "checked_on": "2026-10-15",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38652955604"
+      },
+      "release_family": "management-update",
+      "recommended": true
+    },
+    {
+      "id": "tool-integration-kit-20261015-2",
+      "name": "ツール統合・導入キット 20261015.2",
+      "version": "20261015.2",
+      "kind": "snapshot",
+      "purpose": "Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続",
+      "notes": "v4の26ファイル更新。更新ZIP内の一覧は作成時点31件、現在の公開一覧は33件。監査原本・既存ZIPパス検査を維持。基準ZIP・v4更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
+      "local_path": "work/releases/tool-integration-kit-20261015.2.zip",
+      "sha256": "3d7b3729ce92da69eb7b4fa107a0f785967746b9fbb751badd2aea9e8fe39b93",
+      "bytes": 610683,
+      "publication": {
+        "stage": "pr",
+        "commit": "4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/tool-integration-kit-20261015.2.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "3d7b3729ce92da69eb7b4fa107a0f785967746b9fbb751badd2aea9e8fe39b93",
+        "checked_on": "2026-10-15",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38652955604"
       },
       "release_family": "integration-kit",
       "recommended": true

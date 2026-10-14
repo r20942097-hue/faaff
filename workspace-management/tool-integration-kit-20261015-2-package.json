@@ -27,6 +27,8 @@
   "actual_cli_preparation_passed": true,
   "applied_candidate_files": 26,
   "same_validated_v4_payload": true,
-  "ci": "pending actual kit route",
-  "scope": "Single-download management source preparation, not missing product bodies."
+  "ci": "passed actual finalized 20261015.2 v4 kit preparation and fresh setup/all/Suite on all six Linux/Windows Python 3.11/3.14/3.15 environments",
+  "scope": "Single-download management source preparation, not missing product bodies.",
+  "validation_commit": "4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7",
+  "validation_run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38652955604"
 }

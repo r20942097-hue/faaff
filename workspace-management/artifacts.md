@@ -33,14 +33,16 @@
 | ツール統合・導入キット 20261014.6<br>共通テストフォルダの入力照合と、再実行済み・変更なし状態に対応した画面検査 | 20261014.6 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理179件・公開支援148件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。共通管理テストの利用先を照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。<br>2026-10-14 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/396239cc24b2130a59908bc923b329b34bbf5db7/workspace-management/tool-integration-kit-20261014.6.zip) | 履歴版 |
 | 成果物の推奨・履歴表示とs/faaff入力照合<br>推奨・現行と履歴を用途別に選択し、s/faaffの登録フォルダ変更を再検証へ接続 | 20261014.7 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理187件・公開支援156件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。s/faaffの登録入力・明示推奨の異常と4形式を検証。新規仮想環境のsetup/all、生成後のリンク状態を検査。製品E2Eは対象外。<br>2026-10-14 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/2cbfafb8d41c213400abf9889d58be3d2bdb132a/workspace-management/catalogue-update-20261014.7.zip) | 履歴版 |
 | ツール統合・導入キット 20261014.7<br>推奨・現行と履歴を用途別に選択し、s/faaffの登録フォルダ変更を再検証へ接続 | 20261014.7 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理187件・公開支援156件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。s/faaffの登録入力・明示推奨の異常と4形式を検証。新規仮想環境のsetup/all、生成後のリンク状態を検査。製品E2Eは対象外。<br>2026-10-14 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/2cbfafb8d41c213400abf9889d58be3d2bdb132a/workspace-management/tool-integration-kit-20261014.7.zip) | 履歴版 |
-| Pythonモジュール入力・変更検知の統合更新<br>明示したPython -m入力の変更を検知し、実行・診断・画面・配布へ接続 | 20261015.1 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理203件・公開支援172件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。明示モジュール入力・変更時の後続停止・新規仮想環境のsetup/all・リンク状態を検査。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/02bf49c7053f9ccce769b75e9145085317b23d9b/workspace-management/catalogue-update-20261015.1.zip) | 推奨版 |
-| ツール統合・導入キット 20261015.1<br>明示したPython -m入力の変更を検知し、実行・診断・画面・配布へ接続 | 20261015.1 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理203件・公開支援172件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。明示モジュール入力・変更時の後続停止・新規仮想環境のsetup/all・リンク状態を検査。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/02bf49c7053f9ccce769b75e9145085317b23d9b/workspace-management/tool-integration-kit-20261015.1.zip) | 推奨版 |
+| Pythonモジュール入力・変更検知の統合更新<br>明示したPython -m入力の変更を検知し、実行・診断・画面・配布へ接続 | 20261015.1 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理203件・公開支援172件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。明示モジュール入力・変更時の後続停止・新規仮想環境のsetup/all・リンク状態を検査。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/02bf49c7053f9ccce769b75e9145085317b23d9b/workspace-management/catalogue-update-20261015.1.zip) | 履歴版 |
+| ツール統合・導入キット 20261015.1<br>明示したPython -m入力の変更を検知し、実行・診断・画面・配布へ接続 | 20261015.1 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理203件・公開支援172件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。明示モジュール入力・変更時の後続停止・新規仮想環境のsetup/all・リンク状態を検査。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/02bf49c7053f9ccce769b75e9145085317b23d9b/workspace-management/tool-integration-kit-20261015.1.zip) | 履歴版 |
+| Suite監査の実行分離・v4統合更新<br>Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続 | 20261015.2 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/catalogue-update-20261015.2.zip) | 推奨版 |
+| ツール統合・導入キット 20261015.2<br>Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続 | 20261015.2 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/tool-integration-kit-20261015.2.zip) | 推奨版 |
 
 ## 前回からの変更
 
 前の公開ソースZIP 20261012.1 内の本文・版との比較
 
-追加 19件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
+追加 21件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
 - 共通ツール・ソースZIP：20261012.1 → 20261012.2
 
 ## サイズ・SHA256
@@ -352,6 +354,26 @@
 `bf54b0cfa3856ced75904a45019ba407f37e515a4fd7c6bf695081e5f6c264a8`
 
 24ファイル更新。更新ZIP内の一覧は作成時点29件、現在の公開一覧は31件。CI設定検証を-mで実行。登録入力の照合と、実行時import先の保証は別です。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。
+
+</details>
+
+<details><summary>Suite監査の実行分離・v4統合更新</summary>
+
+109,873 bytes
+
+`ad0ecfe2ef803543e111bb2f3fc44b01ff3d06c23c1ead5d69a13b37cd329401`
+
+v4の26ファイル更新。更新ZIP内の一覧は作成時点31件、現在の公開一覧は33件。監査原本・既存ZIPパス検査を維持。基準ZIP20261012.2とv4対応の最新版ヘルパーが必要。
+
+</details>
+
+<details><summary>ツール統合・導入キット 20261015.2</summary>
+
+610,683 bytes
+
+`3d7b3729ce92da69eb7b4fa107a0f785967746b9fbb751badd2aea9e8fe39b93`
+
+v4の26ファイル更新。更新ZIP内の一覧は作成時点31件、現在の公開一覧は33件。監査原本・既存ZIPパス検査を維持。基準ZIP・v4更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。
 
 </details>
 
