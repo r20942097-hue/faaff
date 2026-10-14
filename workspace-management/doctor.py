@@ -91,7 +91,7 @@ def inspect(root, executable=shutil.which, module=importlib.util.find_spec, regi
         results.append({'id': key, 'name': label, 'status': 'blocked' if missing else 'ready',
                         'missing': missing, 'command': command, 'last_run': previous,
                         'directories': identity.get('directories', {}),
-                        'input_groups': [{'id': group['id'], 'name': group['name'], 'files': group['files']}
+                        'input_groups': [{'id': group['id'], 'name': group['name'], 'files': group['files'], 'directories': group.get('directories', [])}
                                          for group in selected_groups(tool, registry)]})
     return {'schema': 'workspace-readiness/v1',
             'python': {'version': sys.version.split()[0], 'executable': sys.executable},
@@ -127,7 +127,7 @@ def render(report):
                   '| 共通入力 | 利用ツール | 登録ファイル |', '|---|---|---|']
         names = {item['id']: item['name'] for item in report['tools']}
         for group in groups:
-            values = [group['name'], ' / '.join(names[key] for key in group['tools']), ' / '.join(group['files'])]
+            values = [group['name'], ' / '.join(names[key] for key in group['tools']), ' / '.join(group['files'] + ['フォルダ: ' + name for name in group.get('directories', [])])]
             lines.append('| ' + ' | '.join(html.escape(value).replace('|', '&#124;') for value in values) + ' |')
     return '\n'.join(lines) + '\n'
 
@@ -170,7 +170,7 @@ const query=document.querySelector('#query'),state=document.querySelector('#stat
         names = {item['id']: item['name'] for item in report['tools']}
         note += '<section><h2>共通入力の影響範囲</h2><p>明示登録した共通入力の一覧です。未登録の間接依存・外部状態を網羅しません。</p>'
         for group in groups:
-            note += '<details><summary>' + html.escape(group['name']) + '（' + str(len(group['tools'])) + '機能）</summary><p>' + html.escape(' / '.join(names[key] for key in group['tools'])) + '</p><p><code>' + html.escape(' / '.join(group['files'])) + '</code></p></details>'
+            note += '<details><summary>' + html.escape(group['name']) + '（' + str(len(group['tools'])) + '機能）</summary><p>' + html.escape(' / '.join(names[key] for key in group['tools'])) + '</p><p><code>' + html.escape(' / '.join(group['files'] + ['フォルダ: ' + name for name in group.get('directories', [])])) + '</code></p></details>'
         note += '</section>'
     return page.replace('<div class="toolbar">', note + '<div class="toolbar">', 1)
 
