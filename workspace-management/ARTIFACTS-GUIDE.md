@@ -78,7 +78,7 @@ python tools/check_artifact_publication.py --candidate work/artifacts-proposal.j
 
 [統合・改良案](TOOL-IMPROVEMENTS.md) · [共有入力](SHARED-INPUTS.md) · [PR #15](https://github.com/r20942097-hue/faaff/pull/15)
 
-## 本文・版を更新する候補のレビュー（20261014.7）
+## 本文・版を更新する候補のレビュー
 
 全体の成果物JSONをwork/へ複製し、更新する版・サイズ・SHA256・固定公開先を編集します。新規・本文・版・種類・原本パスを変更する対象はverification.statusをpendingにします。古いpassedを新SHAへ付け替えた候補は拒否します。
 
@@ -95,7 +95,7 @@ python tools/check_artifact_publication.py --review work/artifacts-proposed.json
 [実ファイルで確認した比較例（未採用）](ARTIFACT-REVIEW-EXAMPLE.md)
 
 
-## 明示登録したテストフォルダ（20261014.7）
+## 明示登録したテストフォルダ
 
 取得済みのプロジェクト監査・セキュリティ監査の2ツールへ、directoriesを登録しました。拡張子.pyのファイルの本文ハッシュとファイル集合を実行前後で照合し、追加・削除・変更を再検証の対象にします。モジュールのimport先や全ての間接依存は推論しません。
 
@@ -104,13 +104,13 @@ python tools/check_artifact_publication.py --review work/artifacts-proposed.json
 doctorは前回合格と現在の追加・削除・変更ファイルを比較し、ツール一覧へ登録フォルダとPythonファイル数を表示します。readyは準備判定で、動作合格とは別です。filesだけの既存登録、共通input_groupsの3グループは維持します。
 
 
-## 共通テストフォルダと利用先（20261014.7）
+## 共通テストフォルダと利用先
 
 input_groupsにもdirectoriesを登録できます。filesだけの既存3グループを維持し、共通管理テストtools/testsのグループを追加しました。利用先はcatalogueとsettings-consistencyの2ツールです。登録先の利用ツールだけがフォルダ集合・本文ハッシュの変更を検知します。
 
 個別登録とグループ登録の重複フォルダは1回だけ列挙し、1ツールの合算でも32フォルダを上限にします。欠落・空集合・symlink・探索上限の異常は、共通グループでも実行を止めます。実行中の変更では後続を停止して終了コード3を記録し、停止理由をコンソールにも表示します。
 
-フォルダ内の対象は拡張子.pyのソースです。生成__pycache__は除外し、全import先や全ての間接依存は推論しません。読取りと実行をOS上で原子的に固定する仕組みではなく、変化して元に戻る全ケースを検知する保証はありません。共通グループ4件・フォルダ照合の利用ツール4件をdoctorで確認できます。
+フォルダ内の対象は拡張子.pyのソースです。生成__pycache__は除外し、全import先や全ての間接依存は推論しません。読取りと実行をOS上で原子的に固定する仕組みではなく、変化して元に戻る全ケースを検知する保証はありません。この共通管理テスト接続にs/faaffの2グループを加え、現行版は共通6グループ・フォルダ照合6ツールです。doctorで登録利用先を確認できます。
 
 ## 再実行済み状態の画面検査修正
 
