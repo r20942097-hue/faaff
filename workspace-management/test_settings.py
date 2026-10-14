@@ -190,3 +190,18 @@ class ModuleMappingSettingsTests(unittest.TestCase):
     def test_standard_module_checks_stay_excluded_without_source_claim(self):
         data=self.mapped();data['checks']=[{'name':'module-check','cwd':'.','argv':['{python}','-m','unittest'],'timeout_seconds':120}]
         report=audit(data);self.assertTrue(report['passed']);self.assertEqual(report['excluded_entries'],[{'owner':'check: module-check','mode':'module'}])
+
+
+class InterruptGraceSettingsTests(unittest.TestCase):
+    def test_same_command_with_conflicting_interrupt_grace_fails(self):
+        data=SettingsTests().fixture();data['tools'][0]['interrupt_grace_seconds']=4
+        data['tools'].append(dict(data['tools'][0],id='alias',interrupt_grace_seconds=8))
+        self.assertIn('conflicting interrupt grace',str(audit(data)['errors']))
+
+    def test_standard_checks_cannot_declare_unimplemented_interrupt_grace(self):
+        data=SettingsTests().fixture();data['checks']=[{'name':'fixture','cwd':'.','argv':['{python}','tool.py'],
+                            'timeout_seconds':120,'interrupt_grace_seconds':8}]
+        self.assertFalse(audit(data)['passed'])
+        with TemporaryDirectory() as directory:
+            f=Path(directory)/'registry.json';f.write_text(json.dumps(data))
+            with self.assertRaisesRegex(ValueError,'registered tools only'):load(f)

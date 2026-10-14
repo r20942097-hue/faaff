@@ -112,6 +112,7 @@ def script_path(command, cwd):
 def audit(data):
     # Callers obtain structurally validated registry data; this adds semantic checks.
     errors, warnings, entries, owners, excluded, mapped = [], [], {}, {}, [], []
+    interrupt_graces = {}
     for tool in data['tools']:
         key = tool['id']
         for field in ('files', 'binaries', 'modules'):
@@ -147,12 +148,15 @@ def audit(data):
                 path = None
             if path is not None and path not in declared:
                 errors.append(f'{key}: command script is not a registered input: {path}')
+            interrupt_graces.setdefault(signature, set()).add(tool.get('interrupt_grace_seconds', 0))
             entries.setdefault(signature, []).append((key, tool['timeout_seconds']))
             owners.setdefault(signature, set()).add(key)
         if set(mappings) != used_mappings:
             errors.append(f'{key}: unused module input mapping')
     seen_checks = set()
     for check in data['checks']:
+        if check.get('interrupt_grace_seconds', 0):
+            errors.append('interrupt grace is supported on registered tools only')
         signature = (check['cwd'], tuple(check['argv']))
         if signature in seen_checks:
             errors.append('duplicate standard check command: ' + check['name'])
@@ -163,8 +167,11 @@ def audit(data):
                 excluded.append({'owner': 'check: ' + check['name'], 'mode': entry['mode']})
         except ValueError as error:
             errors.append('check: ' + check['name'] + ': command entry cannot be checked: ' + str(error))
+        interrupt_graces.setdefault(signature, set()).add(check.get('interrupt_grace_seconds', 0))
         entries.setdefault(signature, []).append(('check: ' + check['name'], check['timeout_seconds']))
     for signature, definitions in entries.items():
+        if len(interrupt_graces.get(signature, set())) > 1:
+            errors.append('conflicting interrupt grace for same cwd/argv: ' + ', '.join(name for name, _ in definitions))
         if len({timeout for _, timeout in definitions}) > 1:
             errors.append('conflicting timeout for same cwd/argv: ' + ', '.join(name for name, _ in definitions))
         if len(owners.get(signature, set())) > 1:

@@ -441,3 +441,79 @@ class ModuleInputTests(unittest.TestCase):
             try:(root/'pkg/cli.py').symlink_to(root/'actual.py')
             except OSError:self.skipTest('symlink creation unavailable')
             self.assertEqual(inspect(root,registry=data)['tools'][0]['status'],'blocked')
+
+
+class SuiteRecoveryIntegrationTests(unittest.TestCase):
+    def test_exit_130_is_marked_interrupted_by_common_process_runner(self):
+        result=execute(['{python}','-c','raise SystemExit(130)'],Path.cwd())
+        self.assertEqual(result['exit_code'],130);self.assertTrue(result['interrupted'])
+
+    def test_registered_interrupt_stops_following_commands_and_saves_interrupted(self):
+        with TemporaryDirectory() as directory:
+            root=Path(directory);tool={'id':'fixture','name':'fixture','cwd':'.','timeout_seconds':120,'files':[],
+                 'modules':[],'binaries':[],'commands':[['{python}','-c','print("interrupted fixture");raise SystemExit(130)'],
+                 ['{python}','-c','from pathlib import Path;Path("should-not-run").touch()']]}
+            with patch('registry.load',return_value={'tools':[tool]}):self.assertEqual(run_tool(root,'fixture'),130)
+            record=load_json(root/'catalog/results/tool-fixture.json');self.assertEqual(record['status'],'interrupted')
+            self.assertFalse(record['passed']);self.assertFalse((root/'should-not-run').exists())
+
+    def test_suite_test_and_origin_changes_are_registered_without_affecting_workflows(self):
+        data=load();suite=next(t for t in data['tools'] if t['id']=='suite-audit');workflow=next(t for t in data['tools'] if t['id']=='workflows')
+        names=['library-files/tool-sources/security/tests/test_audit_suite_release.py','library-files/tool-sources/security/SOURCE-ORIGIN.json']
+        self.assertTrue(set(names).issubset(registered_files(suite,data)))
+        with TemporaryDirectory() as directory:
+            root=Path(directory)
+            for name in names:
+                f=root/name;f.parent.mkdir(parents=True,exist_ok=True);f.write_text('before')
+            first=input_identity(root,suite,data);other=input_identity(root,workflow,data)
+            for name in names:(root/name).write_text('changed')
+            current=input_identity(root,suite,data);self.assertNotEqual(first,current)
+            self.assertEqual(other,input_identity(root,workflow,data))
+            self.assertTrue(all(first['files'][name]!=current['files'][name] for name in names))
+
+
+class CommonRecoveryTests(unittest.TestCase):
+    def test_real_common_interrupt_allows_suite_controller_cleanup_and_keeps_logs(self):
+        import _thread,threading,time
+        import test_suite_adapter as fixtures
+        from registry import run_process
+        helper=fixtures.SuiteRecoveryTests()
+        with TemporaryDirectory() as directory:
+            root=Path(directory);runner=helper.fixture(root,'external');cancel=threading.Event()
+            def interrupt():
+                deadline=time.monotonic()+5
+                while not (root/'heartbeat').exists() and time.monotonic()<deadline:
+                    if cancel.wait(.01):return
+                if (root/'heartbeat').exists() and not cancel.is_set():_thread.interrupt_main()
+            thread=threading.Thread(target=interrupt,daemon=True);thread.start()
+            try:result=run_process([sys.executable,str(runner)],root,timeout=10,interrupt_grace=8)
+            finally:cancel.set();thread.join(timeout=6)
+            self.assertEqual(result['exit_code'],130,result);self.assertTrue(result['interrupted'])
+            self.assertIn('partial stdout fixture',result['output']);self.assertIn('partial stderr fixture',result['output'])
+            self.assertFalse(helper.alive(int((root/'worker.pid').read_text())))
+            self.assertFalse(helper.alive(int((root/'descendant.pid').read_text())))
+            if (root/'result.json').exists():self.assertEqual(load_json(root/'result.json')['exit_code'],130)
+            else:self.assertTrue(result['controller_forced'])
+
+    def test_common_timeout_keeps_partial_output_and_reason(self):
+        from registry import run_process
+        command=[sys.executable,'-c','import time;print("partial timeout fixture",flush=True);time.sleep(10)']
+        result=run_process(command,Path.cwd(),timeout=1,interrupt_grace=1)
+        self.assertEqual(result['exit_code'],124);self.assertEqual(result['error'],'TimeoutExpired')
+        self.assertIn('partial timeout fixture',result['output']);self.assertIn('timeout after 1 seconds',result['output'])
+
+    def test_invalid_interrupt_grace_is_rejected_in_registry(self):
+        original=load()
+        for value in [-1,11,True,120,'8']:
+            data=copy.deepcopy(original);data['tools'][0]['interrupt_grace_seconds']=value
+            with self.subTest(value=value),TemporaryDirectory() as directory:
+                f=Path(directory)/'registry.json';f.write_text(json.dumps(data))
+                with self.assertRaisesRegex(ValueError,'interrupt_grace_seconds'):load(f)
+
+    def test_registered_grace_uses_capture_runner_and_saves_result(self):
+        with TemporaryDirectory() as directory:
+            root=Path(directory);tool={'id':'fixture','name':'fixture','cwd':'.','files':[],'modules':[],'binaries':[],
+              'timeout_seconds':10,'interrupt_grace_seconds':1,'commands':[['{python}','-c','print("grace fixture")']]}
+            with patch('registry.load',return_value={'tools':[tool]}):self.assertEqual(run_tool(root,'fixture'),0)
+            record=load_json(root/'catalog/results/tool-fixture.json');self.assertTrue(record['passed'])
+            self.assertFalse(record['checks'][0]['controller_forced'])
