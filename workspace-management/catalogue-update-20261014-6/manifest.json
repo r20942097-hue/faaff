@@ -1,0 +1,31 @@
+{
+  "base_snapshot_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+  "files": {
+    "README.md": "2f75da8a5ae8b485039a56453925cf3054cd46180f7c27db41ab8b019ba3d987",
+    "catalog/ARTIFACTS.md": "89f1fae719cc5821ba2dd557e229da3bdd9b091d454b6c7e4b37191c54314a07",
+    "catalog/INTEGRATION.md": "622b7bdedebd6e0fd616695ab022c442510790b869d9db75088308c8f831e500",
+    "catalog/README.md": "ddaa30523a53835f1300f68457839639fd784bd69dbbd36b88ed43b52c14cb64",
+    "catalog/REPORT.md": "7fb72f5807b1bd6d1c96d1e7b6cce117e7199eedd6d58a49114f5c3d67a7244c",
+    "catalog/artifacts.json": "de2e95ba5a44f6220f2ae4a59e47b3bb938f0b5850b972308e1190439b146459",
+    "catalog/config.json": "ee30db86530426e700a2e16a1ea49ba31dcb756be8b9fa0c0edc41f0d981719d",
+    "catalog/projects.json": "a230577cf57556ee8ba3a25ca85972455a4eea4dc419ae64618aa1f29cdeaf2f",
+    "tools/artifacts.py": "db234738684678eecb4c011c79feaa5912a18f141ba244bcc09fd95a981480c5",
+    "tools/browser_smoke.py": "e8f45bd4d6e77fe188f0b80dbbd0ed604c316d4fb9b4342497dbbd664c3f8e96",
+    "tools/check_artifact_publication.py": "c3621148511f94e8f7f3e6112c2da6df2ee4a541048eff50372c3dd37e894e4f",
+    "tools/check_settings.py": "35173752ef38f3330dda5de291ac34eff428286b4b4bf59ff86dfb7cbfcc53c8",
+    "tools/configuration.py": "80039838ffd2b513ad658f0fae77842efa60668d9c41abe8a78349024f133a07",
+    "tools/doctor.py": "7ca1d9a443131cf2422423d9541a36330aec95fa8252f92f9549219e23060e6c",
+    "tools/manage.py": "c196bad515e010d6659a715d5b0649f2fe8d4e3ff3b603bf0241326cbc51540e",
+    "tools/registry.json": "95e68b0d18d96875f5a131ffac24225e01a301d113ffc97da967f63c7c0f75e6",
+    "tools/registry.py": "2f215adb8b6669396f98afca0d0c0473c67e7fbb666c2833814084c20c61ee04",
+    "tools/tests/test_artifact_publication.py": "e67bfe58924d30f184d0a1cd8055b47ba57323679361841982464714a543f364",
+    "tools/tests/test_artifacts.py": "967e7bcb8fee0262159bcf2e873c3084cb5bf7f9fcdc4976dad74116ebb67a24",
+    "tools/tests/test_configuration.py": "35c40f7b1870f5e52533aa9395ee544f5ee506f2f660d5e844125c9c62be9e3b",
+    "tools/tests/test_doctor.py": "147002969ec82141ec8390afdc1387812090037b791877d52b2d384085b03f68",
+    "tools/tests/test_manage.py": "883a51c7c178731a7c1f06d5a69d9514d81053506f6f634ddac5cd5ee96f1568",
+    "tools/tests/test_registry.py": "12401a93bdf6fe03abdf9648c9b3b0ae8b1e58ea5ffad5152b69910ca648928a",
+    "tools/tests/test_settings.py": "2c9859df16e88563257ca3b331752d2b1ca4175fbbefa560e447d7779be8dcad"
+  },
+  "link_mode": "direct",
+  "schema": "catalogue-development-update/v3"
+}

@@ -103,7 +103,7 @@ def main():
             assert page.locator('tbody tr').nth(index).bounding_box()['height'] < 180
         checks.append('mobile tool rows remain readable without character-by-character wrapping')
         page.locator('tbody tr').first.locator('summary').click()
-        assert 'doctor' in page.locator('tbody tr').first.locator('details').inner_text()
+        assert diagnosis['tools'][0]['command'] in page.locator('tbody tr').first.locator('details').inner_text()
         page.locator('tbody tr').first.locator('summary').click()
         checks.append('tool retest instructions expand on demand')
         groups = diagnosis.get('input_groups', [])
