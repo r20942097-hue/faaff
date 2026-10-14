@@ -188,7 +188,10 @@
           "-v"
         ]
       ],
-      "timeout_seconds": 120
+      "timeout_seconds": 120,
+      "directories": [
+        "library-files/tool-sources/portfolio/tests"
+      ]
     },
     {
       "id": "control-plane",
@@ -231,7 +234,10 @@
           "-v"
         ]
       ],
-      "timeout_seconds": 120
+      "timeout_seconds": 120,
+      "directories": [
+        "library-files/tool-sources/security/tests"
+      ]
     },
     {
       "id": "suite-audit",

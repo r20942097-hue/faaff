@@ -98,6 +98,9 @@ class ReadinessTests(unittest.TestCase):
                     path = root / name
                     path.parent.mkdir(parents=True, exist_ok=True)
                     path.touch()
+            for tool in load()['tools']:
+                for name in tool.get('directories', []):
+                    folder=root/name;folder.mkdir(parents=True,exist_ok=True);(folder/'fixture.py').touch()
             report = inspect(root, executable=lambda name: '/bin/' + name, module=lambda name: object())
             self.assertTrue(all(row['status'] == 'ready' for row in report['tools'] if row['id'] != 'recording'))
             self.assertEqual(next(row for row in report['tools'] if row['id'] == 'recording')['status'], 'blocked')

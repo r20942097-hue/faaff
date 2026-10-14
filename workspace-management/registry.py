@@ -88,6 +88,17 @@ def load(path=REGISTRY, check_consistency=True):
         for key in ['files', 'binaries', 'modules', 'commands']:
             if not isinstance(item.get(key), list):
                 raise ValueError('missing tool list: ' + key)
+        directories = item.get('directories', [])
+        if not isinstance(directories, list) or not all(isinstance(name, str) for name in directories):
+            raise ValueError('directories must be a path array')
+        if len(directories) > 32:
+            raise ValueError('too many input directories')
+        if len(set(directories)) != len(directories):
+            raise ValueError('duplicate input directory')
+        for name in directories:
+            relative_path(name)
+            if ':' in name or any(part.startswith('.') or part == '__pycache__' for part in name.split('/')):
+                raise ValueError('invalid input directory path')
         for name in item['files']:
             relative_path(name)
         for name in item['binaries'] + item['modules']:
@@ -167,15 +178,72 @@ def selected_groups(tool, registry=None):
     return [group for group in (registry or {}).get('input_groups', []) if tool.get('id') in group['tools']]
 
 
-def registered_files(tool, registry=None):
-    return sorted(set(tool['files']) | {name for group in selected_groups(tool, registry) for name in group['files']})
+def directory_files(root, name):
+    """Enumerate explicitly declared Python sources; no symlink traversal or imports."""
+    root = Path(root).resolve()
+    directory = safe_path(root, name)
+    if not directory.is_dir():
+        raise ValueError('input directory missing or not a directory')
+    pending, files, entries = [(directory, 0)], [], 0
+    while pending:
+        current, depth = pending.pop()
+        if depth > 32:
+            raise ValueError('input directory exceeds depth limit 32')
+        safe_path(root, current.relative_to(root).as_posix())
+        with os.scandir(current) as stream:
+            for entry in stream:
+                entries += 1
+                if entries > 4096:
+                    raise ValueError('input directory exceeds entry limit 4096')
+                if entry.is_symlink():
+                    raise ValueError('symlink in input directory')
+                if entry.is_dir(follow_symlinks=False):
+                    if entry.name == '__pycache__':
+                        continue
+                    if entry.name.startswith('.'):
+                        raise ValueError('hidden directory in input directory')
+                    pending.append((Path(entry.path), depth + 1))
+                elif entry.is_file(follow_symlinks=False):
+                    if entry.name.endswith('.py'):
+                        relative = Path(entry.path).relative_to(Path(root)).as_posix()
+                        safe_path(root, relative)
+                        files.append(relative)
+                else:
+                    raise ValueError('nonregular entry in input directory')
+    if not files:
+        raise ValueError('input directory has no Python sources')
+    return sorted(files)
+
+
+def directory_inventory(root, tool):
+    inventory, errors = {}, {}
+    for name in tool.get('directories', []):
+        try:
+            inventory[name] = directory_files(root, name)
+        except (OSError, ValueError) as error:
+            inventory[name] = []
+            errors[name] = str(error) if isinstance(error, ValueError) else type(error).__name__
+    return inventory, errors
+
+
+def registered_files(tool, registry=None, root=None):
+    declared = set(tool['files']) | {name for group in selected_groups(tool, registry) for name in group['files']}
+    if root is not None:
+        inventory, errors = directory_inventory(root, tool)
+        if errors:
+            raise ValueError('invalid registered directories: ' + ', '.join(sorted(errors)))
+        declared.update(name for members in inventory.values() for name in members)
+    return sorted(declared)
 
 
 def input_identity(root, tool, registry=None):
-    """Identify registered files and tool configuration, not every runtime input."""
+    """Identify declared files, Python directory membership and configuration."""
+    root = Path(root).resolve()
     files = {}
     groups = selected_groups(tool, registry)
-    for name in registered_files(tool, registry):
+    inventory, errors = directory_inventory(root, tool)
+    names = set(registered_files(tool, registry)) | {name for members in inventory.values() for name in members}
+    for name in sorted(names):
         try:
             path = safe_path(root, name)
             with path.open('rb') as stream:
@@ -184,8 +252,11 @@ def input_identity(root, tool, registry=None):
             files[name] = None
     definition_value = {'tool': tool, 'input_groups': groups} if groups else tool
     definition = json.dumps(definition_value, sort_keys=True, ensure_ascii=True, separators=(',', ':')).encode('utf-8')
-    return {'schema': 'registered-tool-inputs/v1', 'tool_definition_sha256': hashlib.sha256(definition).hexdigest(),
-            'files': files, 'scope': 'Registered files and tool definition only; external services, binaries and all transitive inputs are not fingerprinted.'}
+    identity = {'schema': 'registered-tool-inputs/v1', 'tool_definition_sha256': hashlib.sha256(definition).hexdigest(),
+                'files': files, 'scope': 'Declared files, Python sources in explicit directories and tool definition only; external services, binaries and all transitive inputs are not fingerprinted.'}
+    if tool.get('directories'):
+        identity.update(directories=inventory, directory_errors=errors)
+    return identity
 
 
 def write_report(destination, report):
@@ -226,6 +297,9 @@ def run_tool(root, key):
         return 2
     results = []
     for command in tool['commands']:
+        if tool.get('directories') and report['inputs_before'] != input_identity(root, tool, data):
+            results.append({'exit_code': 3, 'output': 'registered directory inputs changed before execution'})
+            break
         try:
             result = execute(command, root, tool['cwd'], tool['timeout_seconds'])
         except KeyboardInterrupt:
@@ -236,10 +310,16 @@ def run_tool(root, key):
         print(result['output'], end='' if result['output'].endswith('\n') else '\n')
         if result['exit_code']:
             break
+        if tool.get('directories') and report['inputs_before'] != input_identity(root, tool, data):
+            results.append({'exit_code': 3, 'output': 'registered directory inputs changed during execution'})
+            break
     passed = all(result['exit_code'] == 0 for result in results)
     report.update(checks=results, passed=passed, status='interrupted' if results[-1].get('interrupted') else 'passed' if passed else 'failed',
                   finished_at_utc=datetime.now(timezone.utc).isoformat())
     report['inputs_after'] = input_identity(root, tool, data)
     report['inputs_unchanged_during_run'] = report['inputs_before'] == report['inputs_after']
+    if tool.get('directories') and not report['inputs_unchanged_during_run'] and report['passed']:
+        report.update(passed=False, status='failed')
+        report['checks'].append({'exit_code': 3, 'output': 'registered directory inputs changed during execution'})
     write_report(destination, report)
-    return results[-1]['exit_code']
+    return report['checks'][-1]['exit_code']
