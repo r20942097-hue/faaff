@@ -109,11 +109,20 @@ def main():
         groups = diagnosis.get('input_groups', [])
         assert len(groups) == 3
         assert '共通入力の影響範囲' in page.locator('main').inner_text()
-        page.locator('section details').first.locator('summary').click()
-        assert 'tools/registry.py' in page.locator('section details').first.inner_text()
+        group_section = page.locator('section').filter(has=page.get_by_role('heading', name='共通入力の影響範囲'))
+        group_section.locator('details').first.locator('summary').click()
+        assert 'tools/registry.py' in group_section.locator('details').first.inner_text()
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
-        page.locator('section details').first.locator('summary').click()
+        group_section.locator('details').first.locator('summary').click()
         checks.append('shared input groups and consumers render and fit mobile viewport')
+        directory_section = page.locator('section').filter(has=page.get_by_role('heading', name='明示登録したテストフォルダ'))
+        assert directory_section.locator('details').count() == 2
+        for detail in directory_section.locator('details').all():
+            detail.evaluate('(element) => { element.open = true; }')
+        assert 'portfolio/tests' in directory_section.inner_text()
+        assert 'security/tests' in directory_section.inner_text()
+        assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
+        checks.append('explicit test-directory scopes render for both registered audit tools on mobile')
         assert any(t['id']=='settings-consistency' for t in diagnosis['tools'])
         assert '設定・実行入口の重複と整合性' in page.locator('main').inner_text()
         checks.append('settings consistency tool is available from the common catalogue')
@@ -170,7 +179,7 @@ def main():
         assert page.locator('article:visible').count() == sum(a['publication']['stage'] == 'pr' for a in artifacts)
         checks.append('artifact overview filters PR publications')
         page.select_option('#kind', 'snapshot')
-        assert page.locator('article:visible').count() == 5
+        assert page.locator('article:visible').count() == 6
         assert 'ツール統合・導入キット' in page.locator('.grid').inner_text()
         checks.append('artifact overview combines stage and kind filters including integration kit')
         page.fill('#query', 'no-matching-artifact-123456')
