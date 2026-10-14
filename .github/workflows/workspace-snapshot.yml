@@ -243,7 +243,7 @@ jobs:
           evidence = audit(Path('workspace-management'), target)
           (target / 'dependency-mirror-check.json').write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
           print(json.dumps(evidence, indent=2), flush=True)
-          print('Prepared verified base with catalogue update:', count, 'candidate files', flush=True)
+          print('Prepared verified base with catalogue update:', len(V4_FILES), 'candidate files', flush=True)
           subprocess.run([sys.executable, '-m', 'venv', str(target / 'work/verify-env')], check=True)
           python = (target / 'work/verify-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')).absolute()
           # Keep the venv executable path: resolve() follows its symlink to global Python.
