@@ -20,6 +20,7 @@ on:
       - 'workspace-management/catalogue-update-20261015-1/**'
       - 'workspace-management/catalogue-update-20261015-2-final/**'
       - 'workspace-management/catalogue-update-20261015-3/**'
+      - 'workspace-management/catalogue-update-20261015-4/**'
       - 'workspace-management/registry.json'
       - 'workspace-management/.gitattributes'
       - '.github/workflows/workspace-snapshot.yml'
@@ -255,6 +256,12 @@ jobs:
           for name in V4_FILES:
               assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261015-3') / name).read_bytes(), 'installed v4 kit payload differs: ' + name
           assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          # Validate the corrected source before publishing a new immutable kit.
+          from verify_catalogue_update import apply_update
+          target = Path('work/validated-workspace-v4-suspended')
+          assert extract(source, expected, target) > 0
+          count = apply_update(Path('workspace-management/catalogue-update-20261015-4'), target, BASE_SHA256)
+          assert count == len(V4_FILES)
           from verify_dependencies import audit
           evidence = audit(Path('workspace-management'), target)
           (target / 'dependency-mirror-check.json').write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
