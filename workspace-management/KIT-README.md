@@ -1,4 +1,4 @@
-# ツール統合・導入キット 20261015.3
+# ツール統合・導入キット 20261015.4
 
 更新：2026-10-15（日本時間）。基準ソースZIP20261012.2・管理更新26ファイル・検証ヘルパーをまとめたキットです。管理17機能を準備します。未取得の製品本体9件は含みません。
 
@@ -7,7 +7,7 @@
 公開チェックサムでキットZIPを照合し、新しいフォルダへ展開します。Python 3.11・3.14・3.15を使用できます。キットの展開先で実行します。
 
 ```sh
-python apply_catalogue_update.py --base workspace-source-20261011.zip --update catalogue-update-20261015.3.zip --update-sha256 a070ebbf6fc0b141dd0ae33fbb6372fdfcd62201e0fc4a1d5a1f6e558e79a77e --output work/integrated-tools
+python apply_catalogue_update.py --base workspace-source-20261011.zip --update catalogue-update-20261015.4.zip --update-sha256 c340b7ac8c229707c38f931eac661997e542685c050fa92be361de0fffdf30ea --output work/integrated-tools
 ```
 
 パス・CRC・全内容ハッシュ・基準版を検査し、新規work/integrated-toolsへ26ファイルを適用します。既存出力先は拒否します。失敗時はこの処理が作った作業先だけを整理します。基準ZIPの公開互換名workspace-source-20261011.zipは実内容20261012.2を指します。
@@ -60,10 +60,14 @@ POSIXの対象は同じプロセスグループ、WindowsはJobへ割り当て�
 
 ## 一覧と入力照合
 
-成果物はcatalog/generated/artifacts.html、管理機能はtools.html、製品の取得状況はprojects.htmlです。更新ZIP内の一覧は作成時点33件、キット登録後の公開一覧は35件です。固定ZIP内の説明は作成時点の記録で、最新版の導入は同梱の手順を使います。
+成果物はcatalog/generated/artifacts.html、管理機能はtools.html、製品の取得状況はprojects.htmlです。更新ZIP内の一覧は作成時点33件、キット登録後の公開一覧は37件です。固定ZIP内の説明は作成時点の記録で、最新版の導入は同梱の手順を使います。
 
 共通入力6グループ・フォルダ照合6ツール、モジュール対応2入口を維持します。Suiteの監査原本・テスト・SOURCE-ORIGIN.jsonも明示入力へ含めました。module_inputsは.pyソースの変更検知で、既存modulesはインストール済み依存の確認用です。全import先の解決や原子的な読取り固定ではありません。
 
 v4は26ファイルの厳密な集合です。旧v1～v3も従来の固定集合で検査し、不正混在・欠落・改変を拒否します。同梱の最新版ヘルパーを使います。配布設定はlink_mode=directで、生成後のカタログ内のシンボリックリンクを検査します。
 
 Suite監査原本のハッシュ確認、既存のZIPパス検査、監査26テストは維持します。製品E2E・実エンジン・Firefox実拡張・録画の実機検証は別途必要です。
+
+## Windows起動順の修正
+
+WindowsではCREATE_SUSPENDEDで起動し、Jobへ登録してから初期スレッドを再開します。仮想環境の起動プログラムがPython本体を先に作る競合を防ぎます。登録・再開失敗時は監査を始めず、停止状態を記録します。旧版20261015.3は停止試験で不合格を検出したため推奨しません。
