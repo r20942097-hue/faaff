@@ -105,6 +105,46 @@ class WindowsJob:
         except BaseException:
             self.close();raise
 
+    def resume(self, process):
+        """Resume the initial thread only after Job assignment.
+
+        A venv redirector may spawn Python before its stdin gate is read.
+        CREATE_SUSPENDED prevents that descendant from escaping assignment.
+        Popen closes the initial thread handle, so reopen it with documented
+        Toolhelp APIs while the suspended process has exactly one thread.
+        """
+        import ctypes
+        from ctypes import wintypes
+        class ThreadEntry(ctypes.Structure):
+            _fields_ = [('size',wintypes.DWORD),('usage',wintypes.DWORD),
+                        ('tid',wintypes.DWORD),('pid',wintypes.DWORD),
+                        ('priority',wintypes.LONG),('delta',wintypes.LONG),('flags',wintypes.DWORD)]
+        signatures = {
+            'CreateToolhelp32Snapshot': ([wintypes.DWORD,wintypes.DWORD],wintypes.HANDLE),
+            'Thread32First': ([wintypes.HANDLE,ctypes.POINTER(ThreadEntry)],wintypes.BOOL),
+            'Thread32Next': ([wintypes.HANDLE,ctypes.POINTER(ThreadEntry)],wintypes.BOOL),
+            'OpenThread': ([wintypes.DWORD,wintypes.BOOL,wintypes.DWORD],wintypes.HANDLE),
+            'ResumeThread': ([wintypes.HANDLE],wintypes.DWORD)}
+        for name,(arguments,result) in signatures.items():
+            function=getattr(self.api,name);function.argtypes=arguments;function.restype=result
+        snapshot=self.api.CreateToolhelp32Snapshot(4,0)  # TH32CS_SNAPTHREAD
+        if snapshot==ctypes.c_void_p(-1).value:raise ctypes.WinError(ctypes.get_last_error())
+        thread=None
+        try:
+            entry=ThreadEntry();entry.size=ctypes.sizeof(entry)
+            present=self.api.Thread32First(snapshot,ctypes.byref(entry))
+            while present:
+                if entry.pid==process.pid:
+                    thread=self.api.OpenThread(2,False,entry.tid)  # THREAD_SUSPEND_RESUME
+                    if not thread:raise ctypes.WinError(ctypes.get_last_error())
+                    break
+                present=self.api.Thread32Next(snapshot,ctypes.byref(entry))
+            if not thread:raise OSError('suspended worker thread not found')
+            if self.api.ResumeThread(thread)==0xffffffff:raise ctypes.WinError(ctypes.get_last_error())
+        finally:
+            if thread:self.api.CloseHandle(thread)
+            self.api.CloseHandle(snapshot)
+
     def close(self):
         if self.handle:
             if not self.api.CloseHandle(self.handle):raise OSError('Windows Job handle close failed')
@@ -162,10 +202,12 @@ def _run_worker(command, cwd, timeout=90, grace=2):
             'cleanup_scope':'Windows Job' if os.name=='nt' else 'POSIX process group'}
     try:
         options={'stdin':subprocess.PIPE,'cwd':cwd}
-        if os.name=='nt':options['creationflags']=subprocess.CREATE_NEW_PROCESS_GROUP
+        if os.name=='nt':options['creationflags']=subprocess.CREATE_NEW_PROCESS_GROUP | 0x00000004  # CREATE_SUSPENDED
         else:options['start_new_session']=True
         process=subprocess.Popen(command,**options)
-        if os.name=='nt':job=WindowsJob(process)
+        if os.name=='nt':
+            job=WindowsJob(process)
+            job.resume(process)
         result['ownership_established']=True
         process.stdin.write(b'run\n');process.stdin.flush();process.stdin.close()
         result['worker_pid']=process.pid

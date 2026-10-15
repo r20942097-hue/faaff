@@ -193,6 +193,14 @@ class SuiteRecoveryTests(unittest.TestCase):
                 result=adapter.run_worker(command,root,timeout=1,grace=.1)
             self.assertEqual(result['exit_code'],127);self.assertFalse(marker.exists());self.assertTrue(result['cleanup_complete'])
 
+    @unittest.skipUnless(os.name=='nt','native suspended-start failure test')
+    def test_resume_failure_stops_suspended_worker_without_opening_gate(self):
+        with TemporaryDirectory() as directory:
+            root=Path(directory);marker=root/'started'
+            with patch.object(adapter.WindowsJob,'resume',side_effect=OSError('fixture')):
+                result=adapter.run_worker([sys.executable,'-c',"from pathlib import Path;import sys;Path(sys.argv[1]).touch()",str(marker)],root,timeout=1,grace=.1)
+            self.assertEqual(result['exit_code'],127);self.assertFalse(marker.exists());self.assertTrue(result['cleanup_complete'])
+
     @unittest.skipIf(os.name=='nt','POSIX signal return-code normalization')
     def test_signal_exit_is_normalized_to_shell_exit_status(self):
         result=adapter.run_worker([sys.executable,'-c','import os,signal,sys;sys.stdin.readline();os.kill(os.getpid(),signal.SIGTERM)'],Path.cwd(),timeout=2)
