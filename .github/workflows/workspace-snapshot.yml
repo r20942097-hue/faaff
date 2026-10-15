@@ -1,0 +1,293 @@
+name: Workspace catalogue and snapshot checks
+
+on:
+  pull_request:
+    paths:
+      - 'workspace-management/*.py'
+      - 'workspace-management/*.zip'
+      - 'workspace-management/*.zip.sha256'
+      - 'workspace-management/dependencies/**'
+      - 'workspace-management/artifacts*'
+      - 'workspace-management/catalogue-update/**'
+      - 'workspace-management/catalogue-update-20261013/**'
+      - 'workspace-management/catalogue-update-20261014/**'
+      - 'workspace-management/catalogue-update-20261014-2/**'
+      - 'workspace-management/catalogue-update-20261014-3-final/**'
+      - 'workspace-management/catalogue-update-20261014-4/**'
+      - 'workspace-management/catalogue-update-20261014-5/**'
+      - 'workspace-management/catalogue-update-20261014-6/**'
+      - 'workspace-management/catalogue-update-20261014-7/**'
+      - 'workspace-management/catalogue-update-20261015-1/**'
+      - 'workspace-management/catalogue-update-20261015-2-final/**'
+      - 'workspace-management/catalogue-update-20261015-3/**'
+      - 'workspace-management/catalogue-update-20261015-4/**'
+      - 'workspace-management/registry.json'
+      - 'workspace-management/.gitattributes'
+      - '.github/workflows/workspace-snapshot.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  snapshot:
+    name: Management candidate / ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.14', '3.15']
+    env:
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+    steps:
+      - name: Checkout fixed revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Verify snapshot, install hashed dependencies and run checks
+        shell: python
+        run: |
+          import os
+          import json
+          import hashlib
+          from pathlib import Path
+          import subprocess
+          import sys
+          sys.path.insert(0, str(Path('workspace-management').resolve()))
+          source = Path('workspace-management/workspace-source-20261011.zip')
+          expected = source.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          target = Path('work/validated-workspace')
+          subprocess.run([sys.executable, '-m', 'unittest', 'discover', '-s', 'workspace-management', '-p', 'test_*.py'], check=True)
+          from artifacts import load as load_artifacts, views as artifact_views
+          for name, content in artifact_views(load_artifacts(Path('workspace-management/artifacts-source.json')), standalone=True).items():
+              assert (Path('workspace-management') / name).read_bytes() == content.encode('utf-8'), 'stale standalone artifact view: ' + name
+          from apply_catalogue_update import prepare
+          update = Path('workspace-management/catalogue-update-20261012.1.zip')
+          update_expected = update.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          count = prepare(Path.cwd(), source, update, update_expected, target.as_posix())
+          from verify_catalogue_update import FILES, V2_FILES, V3_FILES, V4_FILES, BASE_SHA256
+          assert expected == BASE_SHA256, 'unexpected base checksum'
+          for name in FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update') / name).read_bytes(), 'update ZIP differs from candidate file: ' + name
+          print('Verified retained v1 update:', count, 'files', flush=True)
+          from extract_snapshot import extract
+          kit = Path('workspace-management/tool-integration-kit-20261013.1.zip')
+          kit_expected = kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit')
+          assert extract(kit, kit_expected, kit_root) == 8
+          kit_record = json.loads(Path('workspace-management/tool-integration-kit-package.json').read_text(encoding='utf-8'))
+          for name, digest in kit_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'retained kit member differs from fixed source identity: ' + name
+          update_expected = (Path('workspace-management/catalogue-update-20261013.1.zip.sha256')).read_text(encoding='utf-8').split()[0]
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261013.1.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          count = len(V2_FILES)
+          for name in V2_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261013') / name).read_bytes(), 'v2 update ZIP differs from frozen candidate: ' + name
+          print('Retained v2 kit preparation verified:', count, 'files', flush=True)
+          target = Path('work/validated-workspace-v3')
+          update = Path('workspace-management/catalogue-update-20261014.1.zip')
+          update_expected = update.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          count = prepare(Path.cwd(), source, update, update_expected, target.as_posix())
+          assert count == len(V3_FILES)
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          for name in V3_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261014') / name).read_bytes(), 'v3 update differs from frozen candidate: ' + name
+          print('Retained v3 update preparation verified:', count, 'files', flush=True)
+          latest_kit = Path('workspace-management/tool-integration-kit-20261014.1.zip')
+          latest_kit_expected = latest_kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit-v3')
+          assert extract(latest_kit, latest_kit_expected, kit_root) == 8
+          latest_record = json.loads(Path('workspace-management/tool-integration-kit-20261014-package.json').read_text(encoding='utf-8'))
+          for name, digest in latest_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'v3 kit member differs from fixed source identity: ' + name
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261014.1.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          for name in V3_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261014') / name).read_bytes(), 'installed v3 kit payload differs: ' + name
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          update_expected = Path('workspace-management/catalogue-update-20261014.2.zip.sha256').read_text(encoding='utf-8').split()[0]
+          latest_kit = Path('workspace-management/tool-integration-kit-20261014.2.zip')
+          latest_kit_expected = latest_kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit-v3-flags')
+          assert extract(latest_kit, latest_kit_expected, kit_root) == 8
+          latest_record = json.loads(Path('workspace-management/tool-integration-kit-20261014-2-package.json').read_text(encoding='utf-8'))
+          for name, digest in latest_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'v3 kit member differs from fixed source identity: ' + name
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261014.2.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          for name in V3_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261014-2') / name).read_bytes(), 'installed v3 kit payload differs: ' + name
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          update_expected = Path('workspace-management/catalogue-update-20261014.3.zip.sha256').read_text(encoding='utf-8').split()[0]
+          latest_kit = Path('workspace-management/tool-integration-kit-20261014.3.zip')
+          latest_kit_expected = latest_kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit-v3-review')
+          assert extract(latest_kit, latest_kit_expected, kit_root) == 8
+          latest_record = json.loads(Path('workspace-management/tool-integration-kit-20261014-3-package.json').read_text(encoding='utf-8'))
+          for name, digest in latest_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'v3 kit member differs from fixed source identity: ' + name
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261014.3.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          for name in V3_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261014-3-final') / name).read_bytes(), 'installed v3 kit payload differs: ' + name
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          update_expected = Path('workspace-management/catalogue-update-20261014.4.zip.sha256').read_text(encoding='utf-8').split()[0]
+          latest_kit = Path('workspace-management/tool-integration-kit-20261014.4.zip')
+          latest_kit_expected = latest_kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit-v3-directories')
+          assert extract(latest_kit, latest_kit_expected, kit_root) == 8
+          latest_record = json.loads(Path('workspace-management/tool-integration-kit-20261014-4-package.json').read_text(encoding='utf-8'))
+          for name, digest in latest_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'v3 kit member differs from fixed source identity: ' + name
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261014.4.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          for name in V3_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261014-4') / name).read_bytes(), 'installed v3 kit payload differs: ' + name
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          update_expected = Path('workspace-management/catalogue-update-20261014.5.zip.sha256').read_text(encoding='utf-8').split()[0]
+          latest_kit = Path('workspace-management/tool-integration-kit-20261014.5.zip')
+          latest_kit_expected = latest_kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit-v3-shared-directories')
+          assert extract(latest_kit, latest_kit_expected, kit_root) == 8
+          latest_record = json.loads(Path('workspace-management/tool-integration-kit-20261014-5-package.json').read_text(encoding='utf-8'))
+          for name, digest in latest_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'v3 kit member differs from fixed source identity: ' + name
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261014.5.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          for name in V3_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261014-5') / name).read_bytes(), 'installed v3 kit payload differs: ' + name
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          update_expected = Path('workspace-management/catalogue-update-20261014.6.zip.sha256').read_text(encoding='utf-8').split()[0]
+          latest_kit = Path('workspace-management/tool-integration-kit-20261014.6.zip')
+          latest_kit_expected = latest_kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit-v3-ui-state')
+          assert extract(latest_kit, latest_kit_expected, kit_root) == 8
+          latest_record = json.loads(Path('workspace-management/tool-integration-kit-20261014-6-package.json').read_text(encoding='utf-8'))
+          for name, digest in latest_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'v3 kit member differs from fixed source identity: ' + name
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261014.6.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          for name in V3_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261014-6') / name).read_bytes(), 'installed v3 kit payload differs: ' + name
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          update_expected = Path('workspace-management/catalogue-update-20261014.7.zip.sha256').read_text(encoding='utf-8').split()[0]
+          latest_kit = Path('workspace-management/tool-integration-kit-20261014.7.zip')
+          latest_kit_expected = latest_kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit-v3-release-selection')
+          assert extract(latest_kit, latest_kit_expected, kit_root) == 8
+          latest_record = json.loads(Path('workspace-management/tool-integration-kit-20261014-7-package.json').read_text(encoding='utf-8'))
+          for name, digest in latest_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'v3 kit member differs from fixed source identity: ' + name
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261014.7.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          for name in V3_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261014-7') / name).read_bytes(), 'installed v3 kit payload differs: ' + name
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          update_expected = Path('workspace-management/catalogue-update-20261015.1.zip.sha256').read_text(encoding='utf-8').split()[0]
+          latest_kit = Path('workspace-management/tool-integration-kit-20261015.1.zip')
+          latest_kit_expected = latest_kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit-v3-module-inputs')
+          assert extract(latest_kit, latest_kit_expected, kit_root) == 8
+          latest_record = json.loads(Path('workspace-management/tool-integration-kit-20261015-1-package.json').read_text(encoding='utf-8'))
+          for name, digest in latest_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'v3 kit member differs from fixed source identity: ' + name
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261015.1.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          for name in V3_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261015-1') / name).read_bytes(), 'installed v3 kit payload differs: ' + name
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          update_expected = Path('workspace-management/catalogue-update-20261015.2.zip.sha256').read_text(encoding='utf-8').split()[0]
+          latest_kit = Path('workspace-management/tool-integration-kit-20261015.2.zip')
+          latest_kit_expected = latest_kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit-v4-suite-isolation')
+          assert extract(latest_kit, latest_kit_expected, kit_root) == 8
+          latest_record = json.loads(Path('workspace-management/tool-integration-kit-20261015-2-package.json').read_text(encoding='utf-8'))
+          for name, digest in latest_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'v4 kit member differs from fixed source identity: ' + name
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261015.2.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          for name in V4_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261015-2-final') / name).read_bytes(), 'installed v4 kit payload differs: ' + name
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          update_expected = Path('workspace-management/catalogue-update-20261015.3.zip.sha256').read_text(encoding='utf-8').split()[0]
+          latest_kit = Path('workspace-management/tool-integration-kit-20261015.3.zip')
+          latest_kit_expected = latest_kit.with_suffix('.zip.sha256').read_text(encoding='utf-8').split()[0]
+          kit_root = Path('work/kit-v4-suite-recovery')
+          assert extract(latest_kit, latest_kit_expected, kit_root) == 8
+          latest_record = json.loads(Path('workspace-management/tool-integration-kit-20261015-3-package.json').read_text(encoding='utf-8'))
+          for name, digest in latest_record['source_hashes'].items():
+              assert hashlib.sha256((kit_root / name).read_bytes()).hexdigest() == digest, 'v4 kit member differs from fixed source identity: ' + name
+          subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
+                          '--update', 'catalogue-update-20261015.3.zip', '--update-sha256', update_expected,
+                          '--output', 'work/tools'], cwd=kit_root, check=True)
+          target = kit_root / 'work/tools'
+          for name in V4_FILES:
+              assert (target / name).read_bytes() == (Path('workspace-management/catalogue-update-20261015-3') / name).read_bytes(), 'installed v4 kit payload differs: ' + name
+          assert json.loads((target / 'catalog/config.json').read_text(encoding='utf-8'))['link_mode'] == 'direct'
+          # Validate the corrected source before publishing a new immutable kit.
+          from verify_catalogue_update import apply_update
+          target = Path('work/validated-workspace-v4-suspended')
+          assert extract(source, expected, target) > 0
+          count = apply_update(Path('workspace-management/catalogue-update-20261015-4'), target, BASE_SHA256)
+          assert count == len(V4_FILES)
+          from verify_dependencies import audit
+          evidence = audit(Path('workspace-management'), target)
+          (target / 'dependency-mirror-check.json').write_text(json.dumps(evidence, indent=2) + '\n', encoding='utf-8')
+          print(json.dumps(evidence, indent=2), flush=True)
+          print('Prepared verified base with catalogue update:', len(V4_FILES), 'candidate files', flush=True)
+          subprocess.run([sys.executable, '-m', 'venv', str(target / 'work/verify-env')], check=True)
+          python = (target / 'work/verify-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')).absolute()
+          # Keep the venv executable path: resolve() follows its symlink to global Python.
+          subprocess.run([str(python), '-c', 'import sys; assert sys.prefix != sys.base_prefix'], cwd=target, check=True)
+          subprocess.run([str(python), 'tools/manage.py', 'setup'], cwd=target, check=True)
+          for command in [
+              ['tools/manage.py', 'doctor'],
+              ['tools/manage.py', 'all'],
+              ['tools/manage.py', 'run', '--tool', 'python-environment'],
+              ['tools/manage.py', 'run', '--tool', 'suite-audit'],
+              ['tools/manage.py', 'run', '--tool', 'workflows'],
+              ['tools/manage.py', 'check'],
+          ]:
+              completed = subprocess.run([str(python), *command], cwd=target, check=False)
+              if completed.returncode:
+                  report = target / 'catalog/results/latest.json'
+                  if report.is_file():
+                      for check in json.loads(report.read_text(encoding='utf-8')).get('checks', []):
+                          if check.get('exit_code'):
+                              print('FAILED CHECK:', check['name'], flush=True)
+                              print(check.get('output', ''), flush=True)
+                  raise SystemExit(completed.returncode)
+          assert not any(path.is_symlink() for path in (target / 'catalog').rglob('*')), 'catalogue must use direct links after build/all'
+          print('Catalogue candidate management regressions passed after verification of the unchanged base ZIP. No Windows recording, real browser operation or product acceptance is claimed.', flush=True)

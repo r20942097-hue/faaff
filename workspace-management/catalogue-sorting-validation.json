@@ -1,0 +1,10 @@
+{
+  "scope": "Standalone catalogue sorting and manual retest guide; frozen distribution ZIP unchanged",
+  "browser_checks": 53,
+  "browser_passed": true,
+  "management_test_command": "tools/manage.py test",
+  "management_test_passed": true,
+  "generated_views_check_passed": true,
+  "distribution_sorting_included": false,
+  "automatic_retest_selection_implemented": false
+}

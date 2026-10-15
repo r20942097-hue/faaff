@@ -1,0 +1,27 @@
+{
+  "base_snapshot_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+  "files": {
+    "README.md": "2f75da8a5ae8b485039a56453925cf3054cd46180f7c27db41ab8b019ba3d987",
+    "catalog/ARTIFACTS.md": "70cad01fd7f78f420a5491ee80cb39f86efd8b2462aedfde9e00d8b33b7f3aef",
+    "catalog/INTEGRATION.md": "4ff8a37ce1973bbb85311b7152b10ec3d500952129dd3d3211239cae100314f5",
+    "catalog/README.md": "ddaa30523a53835f1300f68457839639fd784bd69dbbd36b88ed43b52c14cb64",
+    "catalog/REPORT.md": "e58fb9842af1464a48bbfe9c15006b9a5fa345009b43c9a80ab8059bdd885733",
+    "catalog/artifacts.json": "e8f77d899e6824cb83b2c5b45f939107078f868f792ab0018420124ec1d25fc2",
+    "catalog/config.json": "4fe85fdf889e6fa02912be3919975bf666f47f48f59297a882704e3b1a011232",
+    "catalog/projects.json": "a230577cf57556ee8ba3a25ca85972455a4eea4dc419ae64618aa1f29cdeaf2f",
+    "tools/artifacts.py": "db234738684678eecb4c011c79feaa5912a18f141ba244bcc09fd95a981480c5",
+    "tools/browser_smoke.py": "5535a4becea51d14961670741b38d3397c6d9b75e36744baf6ea8d476c2c96f2",
+    "tools/check_artifact_publication.py": "b48a39729b24e635f3756c23881c2c88550ead869e6c78d76c3a7cb86c2404bf",
+    "tools/doctor.py": "acf77ab6b3c245b5a85e91c469823fe0b9615e3abbf71f42a0a9162058e22cee",
+    "tools/manage.py": "c196bad515e010d6659a715d5b0649f2fe8d4e3ff3b603bf0241326cbc51540e",
+    "tools/registry.json": "7c0af0c079f2797afbf4698c825f120e4d5a718dac7b90a837b0d3d898fc635f",
+    "tools/registry.py": "99955b8c12db7d4e7225b0b4e68c1ad735b10166797c680358452c3fcfe515d6",
+    "tools/tests/test_artifact_publication.py": "a2ff43c716fa21a420cb0bce3f6a50692add10da721399b852d171d672aced85",
+    "tools/tests/test_artifacts.py": "967e7bcb8fee0262159bcf2e873c3084cb5bf7f9fcdc4976dad74116ebb67a24",
+    "tools/tests/test_doctor.py": "f1c60587b709312619e74c258162de397ff96a5f134a8cebc74a84bc34447370",
+    "tools/tests/test_manage.py": "883a51c7c178731a7c1f06d5a69d9514d81053506f6f634ddac5cd5ee96f1568",
+    "tools/tests/test_registry.py": "53d31499079c55b907bb57da1a3845c4c6ad8d37b69d66fff902a39bf7fcdf5d"
+  },
+  "layout": "direct",
+  "schema": "catalogue-development-update/v2"
+}

@@ -1,0 +1,34 @@
+{
+  "schema": "public-integration-kit/v1",
+  "source_commit": "f1ec88c64a16e0b6fb60db01ace667a627922201",
+  "source_paths": [
+    "workspace-source-20261011.zip",
+    "catalogue-update-20261014.4.zip",
+    "apply_catalogue_update.py",
+    "verify_catalogue_update.py",
+    "extract_snapshot.py",
+    "registry.py",
+    "KIT-README.md"
+  ],
+  "source_hashes": {
+    "workspace-source-20261011.zip": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+    "catalogue-update-20261014.4.zip": "ca6f4ecd03dfd1d47e7f4b1aa4311ec7a0fce91b2be6268311d50c6042375589",
+    "apply_catalogue_update.py": "623f5eabf4ade7786e5c327d6c4c46fc8145cdb109d0ac2c1a83f07ba265bce0",
+    "verify_catalogue_update.py": "8b16e9676c4c1e8336375cf94cf98a90d93356b5b68c5f0bd0e4cab65dbff596",
+    "extract_snapshot.py": "dda8d8dc184fb7fa8912d49255c4ba7cfc0ee28d27496da698040e991168c6c7",
+    "registry.py": "69fcd5ad10f69c6c8ebe2cde4cffef642a904b0950655d04917f715d1ebfd920",
+    "KIT-README.md": "2e0408e7b82ea18dc46ba60ece64fc0141e47dc58953692de7ab1c90f5e2b233"
+  },
+  "all_contents_from_public_fixed_commit": true,
+  "reproducible_frozen_inputs": true,
+  "bytes": 599379,
+  "sha256": "82f0e87d1e0497f68a7fa14c54ed3839f5a7a8c4b05f3ccfadfe816ebff50d53",
+  "extracted_hashes": true,
+  "actual_cli_preparation_passed": true,
+  "applied_candidate_files": 24,
+  "same_validated_v3_payload": true,
+  "ci": "passed actual 20261014.4 kit preparation and fresh setup/all on all six Linux/Windows Python 3.11/3.14/3.15 environments",
+  "scope": "Single-download management source preparation, not missing product bodies.",
+  "validation_commit": "0afb841bd2651429affd752449f7ee97c83d8355",
+  "validation_run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38514385604"
+}
