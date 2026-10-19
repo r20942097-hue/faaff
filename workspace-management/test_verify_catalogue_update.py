@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
-from verify_catalogue_update import apply_update, BASE_SHA256, FILES, V2_FILES, V3_FILES, V4_FILES, V5_FILES
+from verify_catalogue_update import apply_update, BASE_SHA256, FILES, V2_FILES, V3_FILES, V4_FILES, V5_FILES, V6_FILES
 
 
 class CandidateTests(unittest.TestCase):
@@ -28,6 +28,29 @@ class CandidateTests(unittest.TestCase):
         self.manifest['files']['tools/portfolio_status.py'] = expected
         self.save_manifest()
         self.assertEqual(apply_update(self.source, self.target, BASE_SHA256), len(V5_FILES))
+
+    def test_v6_requires_both_helpers_and_tests_with_the_new_schema(self):
+        for name in V6_FILES - FILES:
+            path = self.source / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            body = ('v6 ' + name).encode()
+            path.write_bytes(body)
+            self.manifest['files'][name] = hashlib.sha256(body).hexdigest()
+        self.manifest['schema'] = 'catalogue-development-update/v5'
+        self.save_manifest()
+        with self.assertRaisesRegex(ValueError, 'manifest'):
+            apply_update(self.source, self.target, BASE_SHA256)
+        self.unchanged()
+        self.manifest['schema'] = 'catalogue-development-update/v6'
+        for name in sorted(V6_FILES - V5_FILES):
+            digest = self.manifest['files'].pop(name)
+            self.save_manifest()
+            with self.assertRaisesRegex(ValueError, 'manifest'):
+                apply_update(self.source, self.target, BASE_SHA256)
+            self.unchanged()
+            self.manifest['files'][name] = digest
+        self.save_manifest()
+        self.assertEqual(apply_update(self.source, self.target, BASE_SHA256), len(V6_FILES))
 
     def setUp(self):
         self.directory = TemporaryDirectory()

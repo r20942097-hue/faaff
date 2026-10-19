@@ -431,6 +431,25 @@
       ],
       "cwd": ".",
       "timeout_seconds": 120
+    },
+    {
+      "id": "module-search",
+      "name": "Pythonモジュール検索先の診断",
+      "files": [
+        "tools/inspect_module_search.py",
+        "tools/check_workflows.py",
+        "tools/check_suite_audit.py"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/inspect_module_search.py"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120
     }
   ],
   "checks": [
@@ -638,6 +657,15 @@
         "tools/portfolio_status.py"
       ],
       "timeout_seconds": 120
+    },
+    {
+      "name": "Python mapped module standard-path lookup",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "tools/inspect_module_search.py"
+      ],
+      "timeout_seconds": 120
     }
   ],
   "input_groups": [
@@ -662,7 +690,8 @@
         "source-integrity",
         "artifact-publication",
         "settings-consistency",
-        "portfolio"
+        "portfolio",
+        "module-search"
       ],
       "files": [
         "tools/registry.py",
@@ -671,7 +700,9 @@
         "tools/registry.json",
         "tools/configuration.py",
         "catalog/config.json",
-        "tools/check_settings.py"
+        "tools/check_settings.py",
+        "tools/bounded_process.py",
+        "tools/check_suite_audit.py"
       ]
     },
     {

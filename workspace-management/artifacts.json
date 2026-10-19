@@ -1028,21 +1028,22 @@
       "kind": "update",
       "version": "20261019.1",
       "purpose": "全成果物・10製品・次の改良を集計し、生成・検証・診断の不具合を修正する",
-      "notes": "ローカル開発候補。LinuxのPython3.11/3.14/3.15で新規導入・標準検査を確認。公開GitHubへ未送信、Windows CI未実施。ZIP内一覧は作成時点36件、今回の2候補を含む外部一覧は38件。",
+      "notes": "PR #16へ固定ZIPを保存済み。Windowsでの一覧メタデータ処理に既知の不具合があり推奨対象にしない。ZIP内部の未公開表示は作成時の記録。",
       "local_path": "work/releases/catalogue-update-20261019.1.zip",
       "sha256": "f480132144a2651c6f0be130c19c6ae455f584b1becb0f33a50492ec16f572a5",
       "bytes": 147475,
       "publication": {
-        "stage": "local",
-        "url": "",
-        "pr_url": ""
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/bf6a76baba136222617726f1433a10e7f8ba03c5/workspace-management/catalogue-update-20261019.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "bf6a76baba136222617726f1433a10e7f8ba03c5"
       },
       "verification": {
-        "status": "passed",
+        "status": "pending",
         "sha256": "f480132144a2651c6f0be130c19c6ae455f584b1becb0f33a50492ec16f572a5",
         "checked_on": "2026-10-19",
-        "summary": "固定基準ZIPへの37ファイル適用、二重ビルド一致、実キットCLI適用、新規仮想環境のsetup/all、LinuxのPython3.11/3.14/3.15で成功。画面64項目、合成DOM12項目を確認。製品本体のE2E・Windows受入は対象外。",
-        "evidence_url": ""
+        "summary": "Linux Python3.11/3.14/3.15で新規導入と全検査に成功。Windows CIはCRLFのメタデータ混入で失敗したため全環境合格ではない。修正は次の20261019.2候補で検証する。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39225388059"
       },
       "local_state": "unchecked",
       "actual_sha256": null,
@@ -1054,20 +1055,73 @@
       "kind": "snapshot",
       "version": "20261019.1",
       "purpose": "全成果物・10製品・次の改良を集計し、生成・検証・診断の不具合を修正する",
-      "notes": "ローカル開発候補。LinuxのPython3.11/3.14/3.15で新規導入・標準検査を確認。公開GitHubへ未送信、Windows CI未実施。ZIP内一覧は作成時点36件、今回の2候補を含む外部一覧は38件。",
+      "notes": "PR #16へ固定ZIPを保存済み。Windowsでの一覧メタデータ処理に既知の不具合があり推奨対象にしない。ZIP内部の未公開表示は作成時の記録。",
       "local_path": "work/releases/tool-integration-kit-20261019.1.zip",
       "sha256": "4e97d3d7098866ca179689987ba63cb53bf2b105d056c7818ddc9785aeb42c06",
       "bytes": 647335,
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/bf6a76baba136222617726f1433a10e7f8ba03c5/workspace-management/tool-integration-kit-20261019.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "bf6a76baba136222617726f1433a10e7f8ba03c5"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "4e97d3d7098866ca179689987ba63cb53bf2b105d056c7818ddc9785aeb42c06",
+        "checked_on": "2026-10-19",
+        "summary": "Linux Python3.11/3.14/3.15で新規導入と全検査に成功。Windows CIはCRLFのメタデータ混入で失敗したため全環境合格ではない。修正は次の20261019.2候補で検証する。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39225388059"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "management-update-20261019-2",
+      "name": "改行・実行管理・検索先診断の更新候補",
+      "kind": "update",
+      "version": "20261019.2",
+      "purpose": "一覧メタデータの改行混入を修正し、通常実行の出力保持上限と停止処理、Python標準検索先の診断を追加する",
+      "notes": "独立したv6開発候補。実キット42ファイルの展開・適用とハッシュ照合を確認。Windows/Linuxの追加検証中。ZIP内部一覧38件、今回の2候補を含む外部一覧40件。",
+      "local_path": "work/releases/catalogue-update-20261019.2.zip",
+      "sha256": "c560bb5ccb4290c89d18f36b8743eb4a11f8c0ccb67e1bd945272127d38c5887",
+      "bytes": 160612,
       "publication": {
         "stage": "local",
         "url": "",
         "pr_url": ""
       },
       "verification": {
-        "status": "passed",
-        "sha256": "4e97d3d7098866ca179689987ba63cb53bf2b105d056c7818ddc9785aeb42c06",
+        "status": "pending",
+        "sha256": "c560bb5ccb4290c89d18f36b8743eb4a11f8c0ccb67e1bd945272127d38c5887",
         "checked_on": "2026-10-19",
-        "summary": "固定基準ZIPへの37ファイル適用、二重ビルド一致、実キットCLI適用、新規仮想環境のsetup/all、LinuxのPython3.11/3.14/3.15で成功。画面64項目、合成DOM12項目を確認。製品本体のE2E・Windows受入は対象外。",
+        "summary": "実キット42ファイル照合・新規適用、新規venvのsetup、管理278件中273成功・5skip、標準20＋CI設定1検査、Suite26件がLinux/Python3.12で成功。Windows/Linuxの3版CIを確認中。製品E2Eは対象外。",
+        "evidence_url": ""
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "tool-integration-kit-20261019-2",
+      "name": "改行・実行管理・検索先診断の導入キット候補",
+      "kind": "snapshot",
+      "version": "20261019.2",
+      "purpose": "一覧メタデータの改行混入を修正し、通常実行の出力保持上限と停止処理、Python標準検索先の診断を追加する",
+      "notes": "独立したv6開発候補。実キット42ファイルの展開・適用とハッシュ照合を確認。Windows/Linuxの追加検証中。ZIP内部一覧38件、今回の2候補を含む外部一覧40件。",
+      "local_path": "work/releases/tool-integration-kit-20261019.2.zip",
+      "sha256": "6fe6ed5e9d64fee6e6e6548b6e3a32412ceda4029783f2c25a693d2c1ae95553",
+      "bytes": 660392,
+      "publication": {
+        "stage": "local",
+        "url": "",
+        "pr_url": ""
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "6fe6ed5e9d64fee6e6e6548b6e3a32412ceda4029783f2c25a693d2c1ae95553",
+        "checked_on": "2026-10-19",
+        "summary": "実キット42ファイル照合・新規適用、新規venvのsetup、管理278件中273成功・5skip、標準20＋CI設定1検査、Suite26件がLinux/Python3.12で成功。Windows/Linuxの3版CIを確認中。製品E2Eは対象外。",
         "evidence_url": ""
       },
       "local_state": "unchecked",
@@ -1092,6 +1146,7 @@
       "Suite監査の停止・復旧更新（履歴）",
       "Windows起動順を修正したSuite監査更新",
       "全成果物集計・検証改善の更新候補",
+      "改行・実行管理・検索先診断の更新候補",
       "ツール統合・導入キット",
       "ツール統合・導入キット 20261014.1",
       "ツール統合・導入キット 20261014.2",
@@ -1103,7 +1158,8 @@
       "ツール統合・導入キット 20261015.1",
       "ツール統合・導入キット 20261015.2",
       "ツール統合・導入キット20261015.3（非推奨）",
-      "全成果物集計・検証改善の導入キット候補"
+      "全成果物集計・検証改善の導入キット候補",
+      "改行・実行管理・検索先診断の導入キット候補"
     ],
     "removed": [],
     "changed": [
