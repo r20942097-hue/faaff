@@ -51,13 +51,66 @@ class BoundedProcessTests(unittest.TestCase):
                     process.kill()
                 process.wait(timeout=5)
 
-    def test_temporary_storage_failure_is_reported_without_launching(self):
-        with patch('bounded_process.tempfile.TemporaryFile', side_effect=OSError('fixture storage failure')), \
-             patch('bounded_process.subprocess.Popen') as launch:
-            result = capture([sys.executable, '-c', 'pass'], Path.cwd())
-        launch.assert_not_called()
-        self.assertEqual(result['exit_code'], 127)
-        self.assertIn('fixture storage failure', result['output'])
+    def test_capture_works_without_temporary_log_storage(self):
+        with patch('tempfile.TemporaryFile', side_effect=OSError('fixture storage unavailable')):
+            result = capture([sys.executable, '-c', 'print("no disk spool")'], Path.cwd())
+        self.assertEqual(result['exit_code'], 0, result)
+        self.assertEqual(result['output'].strip(), 'no disk spool')
+        self.assertEqual(result['disk_spool_bytes'], 0)
+        self.assertEqual(result['capture_transport'], 'bounded-pipes')
+
+    def test_both_flooding_streams_have_bounded_retention_and_no_spool(self):
+        source = ('import os,threading;'
+                  't=threading.Thread(target=lambda:os.write(2,b"e"*1000000));t.start();'
+                  'os.write(1,b"o"*1000000);t.join()')
+        result = capture([sys.executable, '-c', source], Path.cwd(), output_limit=4096)
+        self.assertEqual(result['exit_code'], 125, result)
+        self.assertEqual(result['disk_spool_bytes'], 0)
+        self.assertLess(len(result['output']), 8400)
+        self.assertTrue(result['cleanup_complete'])
+        self.assertEqual(result['output_byte_counts'], 'observed')
+
+    def test_noisy_cooperative_cleanup_can_finish_after_overflow(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            sig = 'SIGBREAK' if os.name == 'nt' else 'SIGINT'
+            source = ('import os,signal,time;from pathlib import Path\n'
+                      'def cleanup(*args):\n'
+                      ' for _ in range(32):os.write(2,b"e"*4096)\n'
+                      ' Path("cleaned").touch()\n'
+                      ' raise SystemExit(0)\n'
+                      'signal.signal(signal.' + sig + ',cleanup)\n'
+                      'os.write(1,b"x"*5000)\n'
+                      'while True:time.sleep(.01)\n')
+            result = capture([sys.executable, '-c', source], root, output_limit=4096, interrupt_grace=5)
+            self.assertEqual(result['exit_code'], 125, result)
+            self.assertTrue((root / 'cleaned').exists(), result)
+            self.assertFalse(result['controller_forced'], result)
+            self.assertLess(len(result['output']), 8400)
+            self.assertEqual(result['disk_spool_bytes'], 0)
+
+    @unittest.skipIf(os.name == 'nt', 'POSIX session outside ownership scope')
+    def test_detached_pipe_holder_cannot_block_controller_or_leave_reader_threads(self):
+        import threading
+        before = {thread.ident for thread in threading.enumerate()}
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            child = 'import time;time.sleep(30)'
+            source = ('import subprocess,sys;from pathlib import Path;'
+                      'child=subprocess.Popen([sys.executable,"-c",' + repr(child) + '],start_new_session=True);'
+                      'Path("external.pid").write_text(str(child.pid));print("leader done",flush=True)')
+            started = time.monotonic()
+            try:
+                result = capture([sys.executable, '-c', source], root, timeout=2)
+                self.assertEqual(result['exit_code'], 0, result)
+                self.assertIn('leader done', result['output'])
+                self.assertLess(time.monotonic() - started, 3)
+                self.assertEqual(before, {thread.ident for thread in threading.enumerate()})
+                self.assertEqual(result['output_pipe_eof'], [False, False])
+            finally:
+                if (root / 'external.pid').exists():
+                    try:os.kill(int((root / 'external.pid').read_text()),signal.SIGKILL)
+                    except ProcessLookupError:pass
 
     def test_missing_executable_preserves_startup_reason(self):
         with TemporaryDirectory() as directory:
@@ -150,23 +203,32 @@ class BoundedProcessTests(unittest.TestCase):
         self.assertGreater(result['stdout_bytes'], 4096)
 
     def test_late_output_during_cleanup_cannot_leave_a_success(self):
-        launch = subprocess.Popen
-        streams = []
-        def remember(*args, **kwargs):
-            streams.append(kwargs['stdout'])
-            return launch(*args, **kwargs)
-        def cleanup(*args, **kwargs):
-            completed = stop_worker(*args, **kwargs)
-            streams[0].write(b'x' * 5000)
-            streams[0].flush()
-            return completed
-        with patch('bounded_process.subprocess.Popen', side_effect=remember), \
-             patch('bounded_process.stop_worker', side_effect=cleanup):
-            result = capture([sys.executable, '-c', 'pass'], Path.cwd(), output_limit=4096)
-        self.assertEqual(result['exit_code'], 125)
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            child = ("import os,time;from pathlib import Path;Path('ready').touch();"
+                     "deadline=time.monotonic()+5\n"
+                     "while not Path('release').exists() and time.monotonic()<deadline:time.sleep(.01)\n"
+                     "os.write(1,b'x'*2048);Path('wrote').touch();time.sleep(30)")
+            source = ("import subprocess,sys,time;from pathlib import Path;"
+                      "subprocess.Popen([sys.executable,'-c'," + repr(child) + "]);"
+                      "deadline=time.monotonic()+5\n"
+                      "while not Path('ready').exists() and time.monotonic()<deadline:time.sleep(.01)\n"
+                      "assert Path('ready').exists()")
+            def cleanup(*args, **kwargs):
+                (root / 'release').touch()
+                deadline = time.monotonic() + 3
+                while not (root / 'wrote').exists() and time.monotonic() < deadline:
+                    time.sleep(.01)
+                wrote = (root / 'wrote').exists()
+                completed = stop_worker(*args, **kwargs)
+                self.assertTrue(wrote, 'late output fixture did not finish')
+                return completed
+            with patch('bounded_process.stop_worker', side_effect=cleanup):
+                result = capture([sys.executable, '-c', source], root, output_limit=1024)
+        self.assertEqual(result['exit_code'], 125, result)
         self.assertEqual(result['error'], 'OutputLimitExceeded')
         self.assertTrue(result['truncated'])
-        self.assertEqual(result['stdout_bytes'], 5000)
+        self.assertEqual(result['stdout_bytes'], 2048)
 
     def test_stdout_overflow_keeps_stderr_diagnostics(self):
         source = 'import sys;sys.stderr.write("important stderr fixture");sys.stderr.flush();sys.stdout.buffer.write(b"x"*100000)'

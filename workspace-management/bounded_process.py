@@ -4,7 +4,6 @@ import math
 import signal
 import sys
 import subprocess
-import tempfile
 import time
 
 if __package__:
@@ -59,7 +58,7 @@ def job_active_processes(job):
     return accounting.active
 
 
-def allow_controller_cleanup(process, grace, job=None):
+def allow_controller_cleanup(process, grace, job=None, drain=None):
     """Notify a supervisor once and observe its owned Job as well as its leader."""
     report = {'controller_forced': False, 'grace_signal_sent': False,
               'grace_signal_method': 'isolated-console-helper' if os.name == 'nt' else 'SIGINT'}
@@ -68,7 +67,7 @@ def allow_controller_cleanup(process, grace, job=None):
     if not pending():
         return report
     deadline = time.monotonic() + grace
-    # Keep spooling while the supervisor closes separately owned worker groups.
+    # Drain/discard overflow while the supervisor closes separately owned workers.
     with cleanup_interrupts():
         try:
             if os.name == 'nt':
@@ -84,20 +83,88 @@ def allow_controller_cleanup(process, grace, job=None):
                           grace_signal_error_message=str(error)[:1024])
             return report
         while pending():
+            progress = drain() if drain is not None else 0
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 report['controller_forced'] = True
                 return report
-            time.sleep(min(.02,remaining))
+            time.sleep(min(.001 if progress else .01, remaining))
     return report
 
 
-def _capture(command, directory, timeout=120, environment=None, output_limit=DEFAULT_OUTPUT_LIMIT, interrupt_grace=0):
-    """Spool to temporary files, poll size, then retain only a bounded prefix.
+class PipeLogs:
+    """Poll finite OS pipes, retaining prefixes and discarding excess in memory.
 
-    Spool files can exceed the limit between polls; this is a retained-output
-    and memory bound, not an instantaneous disk quota. Detached POSIX sessions,
-    external daemons and controller SIGKILL are outside the ownership scope.
+    No reader threads or temporary files. Reads never wait for EOF from a
+    descendant holding an inherited pipe. Windows 3.11 uses PeekNamedPipe;
+    POSIX uses nonblocking file descriptors.
+    """
+    def __init__(self, process, limit):
+        self.limit = limit
+        self.streams = [process.stdout, process.stderr]
+        self.prefixes = [bytearray(), bytearray()]
+        self.counts = [0, 0]
+        self.eof = [False, False]
+        if os.name == 'nt':
+            import ctypes
+            from ctypes import wintypes
+            import msvcrt
+            self.api = ctypes.WinDLL('kernel32', use_last_error=True)
+            self.peek = self.api.PeekNamedPipe
+            self.peek.argtypes = [wintypes.HANDLE, ctypes.c_void_p, wintypes.DWORD,
+                                  ctypes.c_void_p, ctypes.POINTER(wintypes.DWORD), ctypes.c_void_p]
+            self.peek.restype = wintypes.BOOL
+            self.handles = [msvcrt.get_osfhandle(stream.fileno()) for stream in self.streams]
+        else:
+            for stream in self.streams:
+                os.set_blocking(stream.fileno(), False)
+
+    def drain(self):
+        progress = 0
+        for index, stream in enumerate(self.streams):
+            # Bound each turn, even when an unrelated writer continuously fills
+            # an inherited pipe. Both streams and the deadline get a turn.
+            budget = 256 * 1024
+            while budget and not self.eof[index]:
+                size = min(65536, budget)
+                if os.name == 'nt':
+                    import ctypes
+                    from ctypes import wintypes
+                    available = wintypes.DWORD()
+                    if not self.peek(self.handles[index], None, 0, None, ctypes.byref(available), None):
+                        code = ctypes.get_last_error()
+                        if code in (109, 232):  # Broken pipe / closing pipe.
+                            self.eof[index] = True
+                            break
+                        raise ctypes.WinError(code)
+                    if not available.value:
+                        break
+                    size = min(size, available.value)
+                try:
+                    body = os.read(stream.fileno(), size)
+                except BlockingIOError:
+                    break
+                if not body:
+                    self.eof[index] = True
+                    break
+                budget -= len(body)
+                progress += len(body)
+                self.counts[index] += len(body)
+                retain = self.limit - len(self.prefixes[index])
+                if retain > 0:
+                    self.prefixes[index].extend(body[:retain])
+        return progress
+
+    def overflow(self):
+        return max(self.counts) > self.limit
+
+
+def _capture(command, directory, timeout=120, environment=None, output_limit=DEFAULT_OUTPUT_LIMIT, interrupt_grace=0):
+    """Capture bounded prefixes through pipes without temporary disk spools.
+
+    Continue draining overflow during cooperative cleanup. Counts are bytes
+    observed, not bytes a worker attempted to write. Detached POSIX sessions,
+    external daemons and controller SIGKILL remain outside the ownership scope.
     """
     if type(output_limit) is not int or not 1024 <= output_limit <= 64 * 1024 * 1024:
         raise ValueError('output_limit must be 1024..67108864 bytes per stream')
@@ -105,90 +172,94 @@ def _capture(command, directory, timeout=120, environment=None, output_limit=DEF
         raise ValueError('timeout must be finite and greater than zero, up to 600 seconds')
     if type(interrupt_grace) not in (int, float) or not math.isfinite(interrupt_grace) or not 0 <= interrupt_grace <= 10:
         raise ValueError('interrupt_grace must be finite and 0..10 seconds')
-    process, job = None, None
+    process, job, logs = None, None, None
     result = {'exit_code': 127, 'output': '', 'cleanup_complete': True, 'ownership_established': False,
               'cleanup_scope': 'Windows Job' if os.name == 'nt' else 'POSIX process group',
-              'output_limit_bytes_per_stream': output_limit}
+              'output_limit_bytes_per_stream': output_limit, 'capture_transport': 'bounded-pipes',
+              'disk_spool_bytes': 0, 'output_byte_counts': 'observed'}
     if interrupt_grace:
         result['controller_forced'] = False
-    with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
-        try:
-            options = {'cwd': directory, 'env': environment, 'stdin': subprocess.DEVNULL,
-                       'stdout': stdout, 'stderr': stderr, 'shell': False}
-            if os.name == 'nt':
-                options['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP | 0x00000004
-                if interrupt_grace:
-                    # A dedicated hidden console makes Ctrl-Break independent of
-                    # the parent's console, including headless CI and venv launchers.
-                    options['creationflags'] |= subprocess.CREATE_NEW_CONSOLE
-                    startup = subprocess.STARTUPINFO()
-                    startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                    startup.wShowWindow = 0
-                    options['startupinfo'] = startup
-            else:
-                options['start_new_session'] = True
-            process = subprocess.Popen(command, **options)
-            if os.name == 'nt':
-                job = WindowsJob(process)
-                job.resume(process)
-            result['ownership_established'] = True
-            deadline = time.monotonic() + timeout
-            while True:
-                if any(os.fstat(stream.fileno()).st_size > output_limit for stream in (stdout, stderr)):
-                    raise OutputLimitExceeded()
-                code = process.poll()
-                if code is not None:
-                    # Check once more after observing exit, including very fast bursts.
-                    if any(os.fstat(stream.fileno()).st_size > output_limit for stream in (stdout, stderr)):
-                        raise OutputLimitExceeded()
-                    result['exit_code'] = 128 - code if code < 0 else code
-                    break
-                remaining = deadline - time.monotonic()
-                if remaining <= 0:
-                    raise subprocess.TimeoutExpired(command, timeout)
+    try:
+        options = {'cwd': directory, 'env': environment, 'stdin': subprocess.DEVNULL,
+                   'stdout': subprocess.PIPE, 'stderr': subprocess.PIPE, 'bufsize': 0, 'shell': False}
+        if os.name == 'nt':
+            options['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP | 0x00000004
+            if interrupt_grace:
+                options['creationflags'] |= subprocess.CREATE_NEW_CONSOLE
+                startup = subprocess.STARTUPINFO()
+                startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startup.wShowWindow = 0
+                options['startupinfo'] = startup
+        else:
+            options['start_new_session'] = True
+        process = subprocess.Popen(command, **options)
+        if os.name == 'nt':
+            job = WindowsJob(process)
+            job.resume(process)
+        result['ownership_established'] = True
+        logs = PipeLogs(process, output_limit)
+        deadline = time.monotonic() + timeout
+        while True:
+            progress = logs.drain()
+            if logs.overflow():
+                raise OutputLimitExceeded()
+            code = process.poll()
+            if code is not None:
+                result['exit_code'] = 128 - code if code < 0 else code
+                break
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise subprocess.TimeoutExpired(command, timeout)
+            time.sleep(min(.001 if progress else .01, remaining))
+    except OutputLimitExceeded:
+        result.update(exit_code=125, error='OutputLimitExceeded', truncated=True)
+    except subprocess.TimeoutExpired:
+        result.update(exit_code=124, error='TimeoutExpired')
+    except KeyboardInterrupt:
+        result.update(exit_code=130, interrupted=True)
+    except OSError as error:
+        result.update(exit_code=127, error=type(error).__name__, error_message=(str(command[0]) + ': ' + str(error))[:4096])
+    finally:
+        if process is not None:
+            if interrupt_grace and result['ownership_established'] and result['exit_code'] in (124, 125, 130):
                 try:
-                    process.wait(timeout=min(0.02, remaining))
-                except subprocess.TimeoutExpired:
-                    pass
-        except OutputLimitExceeded:
-            result.update(exit_code=125, error='OutputLimitExceeded', truncated=True)
-        except subprocess.TimeoutExpired:
-            result.update(exit_code=124, error='TimeoutExpired')
-        except KeyboardInterrupt:
-            result.update(exit_code=130, interrupted=True)
-        except OSError as error:
-            result.update(exit_code=127, error=type(error).__name__, error_message=(str(command[0]) + ': ' + str(error))[:4096])
-        finally:
-            if process is not None:
-                if interrupt_grace and result['ownership_established'] and result['exit_code'] in (124, 125, 130):
-                    try:
-                        result.update(allow_controller_cleanup(process, interrupt_grace, job))
-                    except OSError as error:
-                        result.update(controller_forced=True, graceful_cleanup_error=type(error).__name__)
-                try:
-                    result['cleanup_complete'] = stop_worker(process, job, grace=0.3)
+                    result.update(allow_controller_cleanup(process, interrupt_grace, job, logs.drain if logs else None))
                 except OSError as error:
-                    result.update(cleanup_complete=False, cleanup_error=type(error).__name__)
-                if not result['cleanup_complete']:
-                    result.update(exit_code=125, error='CleanupIncomplete')
-            result['stdout_bytes'] = os.fstat(stdout.fileno()).st_size
-            result['stderr_bytes'] = os.fstat(stderr.fileno()).st_size
-            # Descendants can write between the parent's exit and group cleanup.
-            if max(result['stdout_bytes'], result['stderr_bytes']) > output_limit:
+                    result.update(controller_forced=True, graceful_cleanup_error=type(error).__name__)
+            try:
+                result['cleanup_complete'] = stop_worker(process, job, grace=0.3)
+            except OSError as error:
+                result.update(cleanup_complete=False, cleanup_error=type(error).__name__)
+            if not result['cleanup_complete']:
+                result.update(exit_code=125, error='CleanupIncomplete')
+            if logs is not None:
+                try:
+                    # Finite post-cleanup draining: detached writers cannot hold
+                    # this controller hostage. Prefix storage remains bounded.
+                    for _ in range(16):
+                        if not logs.drain():
+                            break
+                    else:
+                        result.update(exit_code=125, error='CaptureDrainLimitExceeded')
+                except OSError as error:
+                    result.update(exit_code=125, error='CaptureReadFailed', capture_error=type(error).__name__)
+            for stream in (process.stdout, process.stderr):
+                if stream is not None:
+                    stream.close()
+        result['stdout_bytes'], result['stderr_bytes'] = logs.counts if logs is not None else (0, 0)
+        result['output_pipe_eof'] = logs.eof if logs is not None else [False, False]
+        if logs is not None:
+            if logs.overflow():
                 result['truncated'] = True
                 if result['exit_code'] == 0:
                     result.update(exit_code=125, error='OutputLimitExceeded')
-            chunks = []
-            for stream in (stdout, stderr):
-                stream.seek(0)
-                chunks.append(stream.read(output_limit).decode('utf-8', errors='backslashreplace'))
-            result['output'] = ''.join(chunks)
-            if not result['output'] and result.get('error_message'):
-                result['output'] = result['error_message']
-            if result.get('error') == 'TimeoutExpired':
-                result['output'] += ('\n' if result['output'] and not result['output'].endswith('\n') else '') + f'timeout after {timeout} seconds'
-            elif result.get('error') == 'OutputLimitExceeded':
-                result['output'] += '\noutput exceeded the retained diagnostic limit'
+            result['output'] = ''.join(body.decode('utf-8', errors='backslashreplace') for body in logs.prefixes)
+        if not result['output'] and result.get('error_message'):
+            result['output'] = result['error_message']
+        if result.get('error') == 'TimeoutExpired':
+            result['output'] += ('\n' if result['output'] and not result['output'].endswith('\n') else '') + f'timeout after {timeout} seconds'
+        elif result.get('error') == 'OutputLimitExceeded':
+            result['output'] += '\noutput exceeded the retained diagnostic limit'
     return result
 
 
