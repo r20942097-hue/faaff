@@ -205,7 +205,8 @@ class BoundedProcessTests(unittest.TestCase):
         signal_name = 'SIGBREAK' if os.name == 'nt' else 'SIGINT'
         source = ('import signal,sys,time;'
                   'signal.signal(signal.' + signal_name + ',lambda *args: (print("cleanup complete",flush=True),sys.exit(0)));'
-                  'print("partial before timeout",flush=True);time.sleep(30)')
+                  'print("partial before timeout",flush=True);deadline=time.monotonic()+30\n'
+                  'while time.monotonic()<deadline:time.sleep(.02)')
         result = capture([sys.executable, '-c', source], Path.cwd(), timeout=1, interrupt_grace=2)
         self.assertEqual(result['exit_code'], 124)
         self.assertEqual(result['error'], 'TimeoutExpired')
@@ -219,7 +220,8 @@ class BoundedProcessTests(unittest.TestCase):
         signal_name = 'SIGBREAK' if os.name == 'nt' else 'SIGINT'
         source = ('import signal,sys,time;'
                   'signal.signal(signal.' + signal_name + ',lambda *args: (print("overflow cleanup",file=sys.stderr,flush=True),sys.exit(0)));'
-                  'sys.stdout.buffer.write(b"x"*100000);sys.stdout.flush();time.sleep(30)')
+                  'sys.stdout.buffer.write(b"x"*100000);sys.stdout.flush();deadline=time.monotonic()+30\n'
+                  'while time.monotonic()<deadline:time.sleep(.02)')
         result = capture([sys.executable, '-c', source], Path.cwd(), interrupt_grace=2, output_limit=4096)
         self.assertEqual(result['exit_code'], 125)
         self.assertEqual(result['error'], 'OutputLimitExceeded')
