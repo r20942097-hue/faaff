@@ -1,0 +1,158 @@
+{
+  "schema": "portfolio-development-verification/v1",
+  "checked_on_jst": "2026-10-19",
+  "version": "20261019.4",
+  "package_records_are_build_time_snapshots": true,
+  "kit": {
+    "bytes": 665456,
+    "file": "tool-integration-kit-20261019.4.zip",
+    "publication": "local_only",
+    "reproducible_frozen_inputs": true,
+    "schema": "local-integration-kit/v1",
+    "scope": "Independent v7 development candidate; not missing product bodies.",
+    "sha256": "09f6e558c68ddfdd7a67d28f9c28938357e4393d135d47572c09fbe5071a20b9",
+    "source_hashes": {
+      "KIT-README.md": "9e2c55d158d5f30862b7731240b68d001b7fd25d88ccc6c3369cbdaf144af702",
+      "apply_catalogue_update.py": "623f5eabf4ade7786e5c327d6c4c46fc8145cdb109d0ac2c1a83f07ba265bce0",
+      "catalogue-update-20261019.4.zip": "b3a683daf48a201f15be9b7daa45ac71f6674d3dbfd37e033e851cc27f9be44a",
+      "extract_snapshot.py": "dda8d8dc184fb7fa8912d49255c4ba7cfc0ee28d27496da698040e991168c6c7",
+      "registry.py": "5fceed3b558230c0c9c8b471a2c0d0663a6671aeb17ec48678677f7e52761b64",
+      "verify_catalogue_update.py": "020a20f352bd1661cda56306f0a5b229211f9be80f61bdf662d04bf8ff9ba35b",
+      "workspace-source-20261011.zip": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9"
+    },
+    "version": "20261019.4"
+  },
+  "update": {
+    "schema": "local-catalogue-update-package/v1",
+    "version": "20261019.4",
+    "file": "catalogue-update-20261019.4.zip",
+    "sha256": "b3a683daf48a201f15be9b7daa45ac71f6674d3dbfd37e033e851cc27f9be44a",
+    "bytes": 165931,
+    "candidate_files": 43,
+    "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+    "reproducible_frozen_inputs": true,
+    "source_revision_s": "93e39a8b351b6b1519b56d2a8d36b093735a4281",
+    "source_base_faaff": "716acfeed0bb8d8ca7dd3674a130b5fe63cae768",
+    "publication": "local_only",
+    "scope": "Independent v7 candidate; Prior v1-v7 packages retained without modification."
+  },
+  "local": {
+    "python": "3.12.14",
+    "platform": "Linux",
+    "management_tests": 290,
+    "passed": 285,
+    "skipped": 5,
+    "support_source_tests": 291,
+    "support_passed": 286,
+    "support_skipped": 5,
+    "standard_checks": 20,
+    "additional_workflow_checks": 1,
+    "suite_audit_tests": 26,
+    "filter_generation_tests": 50,
+    "actual_kit_extraction": true,
+    "all_43_installed_payload_files_match": true,
+    "fresh_venv_setup": true,
+    "checks": [
+      {
+        "name": "s: regression tests",
+        "exit_code": 0
+      },
+      {
+        "name": "s: metadata and includes",
+        "exit_code": 0
+      },
+      {
+        "name": "filters: canonical generation and mirrors",
+        "exit_code": 0
+      },
+      {
+        "name": "faaff: regression tests",
+        "exit_code": 0
+      },
+      {
+        "name": "faaff: stable filters",
+        "exit_code": 0
+      },
+      {
+        "name": "faaff: evidence",
+        "exit_code": 0
+      },
+      {
+        "name": "faaff: promotion gates",
+        "exit_code": 0
+      },
+      {
+        "name": "faaff: generated report",
+        "exit_code": 0
+      },
+      {
+        "name": "management: regression tests",
+        "exit_code": 0
+      },
+      {
+        "name": "catalogue: consistency",
+        "exit_code": 0
+      },
+      {
+        "name": "プロジェクト・配布監査 1",
+        "exit_code": 0
+      },
+      {
+        "name": "プロジェクト・配布監査 2",
+        "exit_code": 0
+      },
+      {
+        "name": "Control Planeの抽出・整合性 1",
+        "exit_code": 0
+      },
+      {
+        "name": "依存・検証根拠の確認 1",
+        "exit_code": 0
+      },
+      {
+        "name": "Control Plane Next: source archive and regressions",
+        "exit_code": 0
+      },
+      {
+        "name": "Python verification hash lock structure",
+        "exit_code": 0
+      },
+      {
+        "name": "Selected tool source identities",
+        "exit_code": 0
+      },
+      {
+        "name": "Settings and command ownership consistency",
+        "exit_code": 0
+      },
+      {
+        "name": "Portfolio status and maintenance deadlines",
+        "exit_code": 0
+      },
+      {
+        "name": "Python mapped module standard-path lookup",
+        "exit_code": 0
+      },
+      {
+        "name": "automation: workflow configuration",
+        "exit_code": 0
+      }
+    ],
+    "browser_checks": 64
+  },
+  "remote": {
+    "pull_request": "https://github.com/r20942097-hue/faaff/pull/16",
+    "source_verification_run": "https://github.com/r20942097-hue/faaff/actions/runs/39260702856",
+    "source_commit": "716acfeed0bb8d8ca7dd3674a130b5fe63cae768",
+    "source_matrix": "Windows/Linux x Python3.11/3.14/3.15",
+    "source_matrix_status": "success",
+    "actual_kit_matrix_status": "pending"
+  },
+  "limitations": [
+    "Nine product bodies are unavailable.",
+    "Product E2E is incomplete.",
+    "Output spooling can grow during polling and controller cleanup grace.",
+    "Detached POSIX sessions, external daemons, and controller SIGKILL are outside the ownership scope.",
+    "Standard module path lookup is not proof of runtime import resolution."
+  ]
+}
