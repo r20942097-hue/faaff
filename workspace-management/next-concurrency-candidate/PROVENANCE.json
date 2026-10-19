@@ -1,0 +1,13 @@
+{
+  "schema": "derived-next-io/v1",
+  "original_archive_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+  "original_io_sha256": "435681e9ef730894f33d40e904ef96fa7f9d213775e50428ef647101be97ad05",
+  "candidate_io_sha256": "26da2b8b4f7a480c2b3e132b4cf36e7f09592e49ec7af8946ea491925313231e",
+  "candidate_io_size": 3514,
+  "changes": [
+    "Bound Windows PermissionError retry to lock acquisition and the existing deadline; preserve persistent denial",
+    "Clean up exclusively created lock and fd after metadata write/fsync failure"
+  ],
+  "distribution_status": "isolated_source_candidate_not_integrated_into_kit",
+  "basis": "../next-concurrency-observation-20261020.json"
+}

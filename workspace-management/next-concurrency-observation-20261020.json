@@ -1,0 +1,260 @@
+{
+  "schema": "next-concurrent-write-observation/v1",
+  "commit": "f6506574300872ed9472cdff5d9374a482552c61",
+  "run_id": 39324508886,
+  "original_zip_unchanged": true,
+  "reports": [
+    {
+      "job_id": 118306744998,
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.14.8 (tags/v3.14.8:8e6e75d, Sep 30 2026, 18:19:33) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-2025Server-10.0.26100-SP0",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 100,
+        "completed_iterations": 100,
+        "failures": [
+          {
+            "iteration": 68,
+            "test_traceback": "Traceback (most recent call last):\n  File \"D:\\a\\faaff\\faaff\\workspace-management\\diagnose_next_concurrency.py\", line 83, in run\n    case.test_concurrent_write_serializes()\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\tests\\test_registry.py\", line 59, in test_concurrent_write_serializes\n    self.assertFalse(errs); self.assertEqual(4,len(self.reg.verify()[\"capabilities\"]))\n    ~~~~~~~~~~~~~~~~^^^^^^\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\unittest\\case.py\", line 756, in assertFalse\n    raise self.failureException(msg)\nAssertionError: [PermissionError(13, 'Permission denied')] is not false\n",
+            "raised": [
+              {
+                "thread": "Thread-274 (worker)",
+                "operation_file": "ucs_control_plane/io.py",
+                "function": "exclusive_lock",
+                "line": 80,
+                "operation": "fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)",
+                "type": "PermissionError",
+                "message": "[Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpqsxccu3j\\\\state\\\\.write.lock'",
+                "errno": 13,
+                "winerror": null,
+                "filename": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\tmpqsxccu3j\\state\\.write.lock",
+                "filename2": null,
+                "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\io.py\", line 80, in exclusive_lock\n    fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\nPermissionError: [Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpqsxccu3j\\\\state\\\\.write.lock'\n",
+                "thread_stack_at_raise": "  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1044, in _bootstrap\n    self._bootstrap_inner()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1082, in _bootstrap_inner\n    self._context.run(self.run)\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1024, in run\n    self._target(*self._args, **self._kwargs)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\tests\\test_registry.py\", line 55, in worker\n    self.reg.register_capability({\"capability_id\":cid,\"owning_product\":\"p\",\"required_evidence\":[],\"minimum_version\":\"1.0.0\",\"compatibility_constraints\":[\"offline\"],\"risk_level\":\"LOW\",\"required_release_state\":\"CANDIDATE\"})\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\registry.py\", line 174, in register_capability\n    return self.update(mut,event_type=\"CAPABILITY_REGISTERED\",actor=actor,reason=\"register capability\",new_state=rec.get(\"required_release_state\"),product_id=rec.get(\"owning_product\"))\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\registry.py\", line 149, in update\n    with exclusive_lock(self.lock):\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\contextlib.py\", line 141, in __enter__\n    return next(self.gen)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\io.py\", line 80, in exclusive_lock\n    fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\n",
+                "filename_relative_to_state": ".write.lock"
+              },
+              {
+                "thread": "Thread-274 (worker)",
+                "operation_file": "ucs_control_plane/registry.py",
+                "function": "update",
+                "line": 149,
+                "operation": "with exclusive_lock(self.lock):",
+                "type": "PermissionError",
+                "message": "[Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpqsxccu3j\\\\state\\\\.write.lock'",
+                "errno": 13,
+                "winerror": null,
+                "filename": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\tmpqsxccu3j\\state\\.write.lock",
+                "filename2": null,
+                "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\registry.py\", line 149, in update\n    with exclusive_lock(self.lock):\n         ~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\contextlib.py\", line 141, in __enter__\n    return next(self.gen)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\io.py\", line 80, in exclusive_lock\n    fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\nPermissionError: [Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpqsxccu3j\\\\state\\\\.write.lock'\n",
+                "thread_stack_at_raise": "  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1044, in _bootstrap\n    self._bootstrap_inner()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1082, in _bootstrap_inner\n    self._context.run(self.run)\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1024, in run\n    self._target(*self._args, **self._kwargs)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\tests\\test_registry.py\", line 55, in worker\n    self.reg.register_capability({\"capability_id\":cid,\"owning_product\":\"p\",\"required_evidence\":[],\"minimum_version\":\"1.0.0\",\"compatibility_constraints\":[\"offline\"],\"risk_level\":\"LOW\",\"required_release_state\":\"CANDIDATE\"})\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\registry.py\", line 174, in register_capability\n    return self.update(mut,event_type=\"CAPABILITY_REGISTERED\",actor=actor,reason=\"register capability\",new_state=rec.get(\"required_release_state\"),product_id=rec.get(\"owning_product\"))\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\registry.py\", line 149, in update\n    with exclusive_lock(self.lock):\n",
+                "filename_relative_to_state": ".write.lock"
+              },
+              {
+                "thread": "Thread-274 (worker)",
+                "operation_file": "ucs_control_plane/registry.py",
+                "function": "register_capability",
+                "line": 174,
+                "operation": "return self.update(mut,event_type=\"CAPABILITY_REGISTERED\",actor=actor,reason=\"register capability\",new_state=rec.get(\"required_release_state\"),product_id=rec.get(\"owning_product\"))",
+                "type": "PermissionError",
+                "message": "[Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpqsxccu3j\\\\state\\\\.write.lock'",
+                "errno": 13,
+                "winerror": null,
+                "filename": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\tmpqsxccu3j\\state\\.write.lock",
+                "filename2": null,
+                "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\registry.py\", line 174, in register_capability\n    return self.update(mut,event_type=\"CAPABILITY_REGISTERED\",actor=actor,reason=\"register capability\",new_state=rec.get(\"required_release_state\"),product_id=rec.get(\"owning_product\"))\n           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\registry.py\", line 149, in update\n    with exclusive_lock(self.lock):\n         ~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\contextlib.py\", line 141, in __enter__\n    return next(self.gen)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\io.py\", line 80, in exclusive_lock\n    fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\nPermissionError: [Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpqsxccu3j\\\\state\\\\.write.lock'\n",
+                "thread_stack_at_raise": "  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1044, in _bootstrap\n    self._bootstrap_inner()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1082, in _bootstrap_inner\n    self._context.run(self.run)\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1024, in run\n    self._target(*self._args, **self._kwargs)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\tests\\test_registry.py\", line 55, in worker\n    self.reg.register_capability({\"capability_id\":cid,\"owning_product\":\"p\",\"required_evidence\":[],\"minimum_version\":\"1.0.0\",\"compatibility_constraints\":[\"offline\"],\"risk_level\":\"LOW\",\"required_release_state\":\"CANDIDATE\"})\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\registry.py\", line 174, in register_capability\n    return self.update(mut,event_type=\"CAPABILITY_REGISTERED\",actor=actor,reason=\"register capability\",new_state=rec.get(\"required_release_state\"),product_id=rec.get(\"owning_product\"))\n",
+                "filename_relative_to_state": ".write.lock"
+              },
+              {
+                "thread": "Thread-274 (worker)",
+                "operation_file": "tests/test_registry.py",
+                "function": "worker",
+                "line": 55,
+                "operation": "self.reg.register_capability({\"capability_id\":cid,\"owning_product\":\"p\",\"required_evidence\":[],\"minimum_version\":\"1.0.0\",\"compatibility_constraints\":[\"offline\"],\"risk_level\":\"LOW\",\"required_release_state\":\"CANDIDATE\"})",
+                "type": "PermissionError",
+                "message": "[Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpqsxccu3j\\\\state\\\\.write.lock'",
+                "errno": 13,
+                "winerror": null,
+                "filename": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\tmpqsxccu3j\\state\\.write.lock",
+                "filename2": null,
+                "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\tests\\test_registry.py\", line 55, in worker\n    self.reg.register_capability({\"capability_id\":cid,\"owning_product\":\"p\",\"required_evidence\":[],\"minimum_version\":\"1.0.0\",\"compatibility_constraints\":[\"offline\"],\"risk_level\":\"LOW\",\"required_release_state\":\"CANDIDATE\"})\n    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\registry.py\", line 174, in register_capability\n    return self.update(mut,event_type=\"CAPABILITY_REGISTERED\",actor=actor,reason=\"register capability\",new_state=rec.get(\"required_release_state\"),product_id=rec.get(\"owning_product\"))\n           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\registry.py\", line 149, in update\n    with exclusive_lock(self.lock):\n         ~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\contextlib.py\", line 141, in __enter__\n    return next(self.gen)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\ucs_control_plane\\io.py\", line 80, in exclusive_lock\n    fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\nPermissionError: [Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpqsxccu3j\\\\state\\\\.write.lock'\n",
+                "thread_stack_at_raise": "  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1044, in _bootstrap\n    self._bootstrap_inner()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1082, in _bootstrap_inner\n    self._context.run(self.run)\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.14.8\\x64\\Lib\\threading.py\", line 1024, in run\n    self._target(*self._args, **self._kwargs)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-6y6s2too\\source\\tests\\test_registry.py\", line 55, in worker\n    self.reg.register_capability({\"capability_id\":cid,\"owning_product\":\"p\",\"required_evidence\":[],\"minimum_version\":\"1.0.0\",\"compatibility_constraints\":[\"offline\"],\"risk_level\":\"LOW\",\"required_release_state\":\"CANDIDATE\"})\n",
+                "filename_relative_to_state": ".write.lock"
+              }
+            ],
+            "state": {
+              "lock_exists": false,
+              "revision": 5,
+              "capabilities": [
+                "c0",
+                "c2",
+                "c3"
+              ],
+              "valid_snapshots": 5
+            }
+          }
+        ],
+        "status": "failure_observed"
+      }
+    },
+    {
+      "job_id": 118306745114,
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+        "platform": "Windows-10-10.0.26100-SP0",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 100,
+        "completed_iterations": 100,
+        "failures": [
+          {
+            "iteration": 72,
+            "test_traceback": "Traceback (most recent call last):\n  File \"D:\\a\\faaff\\faaff\\workspace-management\\diagnose_next_concurrency.py\", line 83, in run\n    case.test_concurrent_write_serializes()\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\tests\\test_registry.py\", line 59, in test_concurrent_write_serializes\n    self.assertFalse(errs); self.assertEqual(4,len(self.reg.verify()[\"capabilities\"]))\n    ^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\unittest\\case.py\", line 709, in assertFalse\n    raise self.failureException(msg)\nAssertionError: [PermissionError(13, 'Permission denied')] is not false\n",
+            "raised": [
+              {
+                "thread": "Thread-291 (worker)",
+                "operation_file": "ucs_control_plane/io.py",
+                "function": "exclusive_lock",
+                "line": 80,
+                "operation": "fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)",
+                "type": "PermissionError",
+                "message": "[Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpj7_lkvoo\\\\state\\\\.write.lock'",
+                "errno": 13,
+                "winerror": null,
+                "filename": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\tmpj7_lkvoo\\state\\.write.lock",
+                "filename2": null,
+                "traceback": "PermissionError: [Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpj7_lkvoo\\\\state\\\\.write.lock'\n",
+                "thread_stack_at_raise": "  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 1002, in _bootstrap\n    self._bootstrap_inner()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 1045, in _bootstrap_inner\n    self.run()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 982, in run\n    self._target(*self._args, **self._kwargs)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\tests\\test_registry.py\", line 55, in worker\n    self.reg.register_capability({\"capability_id\":cid,\"owning_product\":\"p\",\"required_evidence\":[],\"minimum_version\":\"1.0.0\",\"compatibility_constraints\":[\"offline\"],\"risk_level\":\"LOW\",\"required_release_state\":\"CANDIDATE\"})\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\ucs_control_plane\\registry.py\", line 174, in register_capability\n    return self.update(mut,event_type=\"CAPABILITY_REGISTERED\",actor=actor,reason=\"register capability\",new_state=rec.get(\"required_release_state\"),product_id=rec.get(\"owning_product\"))\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\ucs_control_plane\\registry.py\", line 149, in update\n    with exclusive_lock(self.lock):\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\ucs_control_plane\\io.py\", line 80, in exclusive_lock\n    fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\n",
+                "filename_relative_to_state": ".write.lock"
+              },
+              {
+                "thread": "Thread-291 (worker)",
+                "operation_file": "ucs_control_plane/registry.py",
+                "function": "update",
+                "line": 149,
+                "operation": "with exclusive_lock(self.lock):",
+                "type": "PermissionError",
+                "message": "[Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpj7_lkvoo\\\\state\\\\.write.lock'",
+                "errno": 13,
+                "winerror": null,
+                "filename": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\tmpj7_lkvoo\\state\\.write.lock",
+                "filename2": null,
+                "traceback": "Traceback (most recent call last):\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\ucs_control_plane\\io.py\", line 80, in exclusive_lock\n    fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpj7_lkvoo\\\\state\\\\.write.lock'\n",
+                "thread_stack_at_raise": "  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 1002, in _bootstrap\n    self._bootstrap_inner()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 1045, in _bootstrap_inner\n    self.run()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 982, in run\n    self._target(*self._args, **self._kwargs)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\tests\\test_registry.py\", line 55, in worker\n    self.reg.register_capability({\"capability_id\":cid,\"owning_product\":\"p\",\"required_evidence\":[],\"minimum_version\":\"1.0.0\",\"compatibility_constraints\":[\"offline\"],\"risk_level\":\"LOW\",\"required_release_state\":\"CANDIDATE\"})\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\ucs_control_plane\\registry.py\", line 174, in register_capability\n    return self.update(mut,event_type=\"CAPABILITY_REGISTERED\",actor=actor,reason=\"register capability\",new_state=rec.get(\"required_release_state\"),product_id=rec.get(\"owning_product\"))\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\ucs_control_plane\\registry.py\", line 149, in update\n    with exclusive_lock(self.lock):\n",
+                "filename_relative_to_state": ".write.lock"
+              },
+              {
+                "thread": "Thread-291 (worker)",
+                "operation_file": "ucs_control_plane/registry.py",
+                "function": "register_capability",
+                "line": 174,
+                "operation": "return self.update(mut,event_type=\"CAPABILITY_REGISTERED\",actor=actor,reason=\"register capability\",new_state=rec.get(\"required_release_state\"),product_id=rec.get(\"owning_product\"))",
+                "type": "PermissionError",
+                "message": "[Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpj7_lkvoo\\\\state\\\\.write.lock'",
+                "errno": 13,
+                "winerror": null,
+                "filename": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\tmpj7_lkvoo\\state\\.write.lock",
+                "filename2": null,
+                "traceback": "Traceback (most recent call last):\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\ucs_control_plane\\io.py\", line 80, in exclusive_lock\n    fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpj7_lkvoo\\\\state\\\\.write.lock'\n",
+                "thread_stack_at_raise": "  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 1002, in _bootstrap\n    self._bootstrap_inner()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 1045, in _bootstrap_inner\n    self.run()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 982, in run\n    self._target(*self._args, **self._kwargs)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\tests\\test_registry.py\", line 55, in worker\n    self.reg.register_capability({\"capability_id\":cid,\"owning_product\":\"p\",\"required_evidence\":[],\"minimum_version\":\"1.0.0\",\"compatibility_constraints\":[\"offline\"],\"risk_level\":\"LOW\",\"required_release_state\":\"CANDIDATE\"})\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\ucs_control_plane\\registry.py\", line 174, in register_capability\n    return self.update(mut,event_type=\"CAPABILITY_REGISTERED\",actor=actor,reason=\"register capability\",new_state=rec.get(\"required_release_state\"),product_id=rec.get(\"owning_product\"))\n",
+                "filename_relative_to_state": ".write.lock"
+              },
+              {
+                "thread": "Thread-291 (worker)",
+                "operation_file": "tests/test_registry.py",
+                "function": "worker",
+                "line": 55,
+                "operation": "self.reg.register_capability({\"capability_id\":cid,\"owning_product\":\"p\",\"required_evidence\":[],\"minimum_version\":\"1.0.0\",\"compatibility_constraints\":[\"offline\"],\"risk_level\":\"LOW\",\"required_release_state\":\"CANDIDATE\"})",
+                "type": "PermissionError",
+                "message": "[Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpj7_lkvoo\\\\state\\\\.write.lock'",
+                "errno": 13,
+                "winerror": null,
+                "filename": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\tmpj7_lkvoo\\state\\.write.lock",
+                "filename2": null,
+                "traceback": "Traceback (most recent call last):\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\contextlib.py\", line 137, in __enter__\n    return next(self.gen)\n           ^^^^^^^^^^^^^^\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\ucs_control_plane\\io.py\", line 80, in exclusive_lock\n    fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nPermissionError: [Errno 13] Permission denied: 'C:\\\\Users\\\\RUNNER~1\\\\AppData\\\\Local\\\\Temp\\\\tmpj7_lkvoo\\\\state\\\\.write.lock'\n",
+                "thread_stack_at_raise": "  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 1002, in _bootstrap\n    self._bootstrap_inner()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 1045, in _bootstrap_inner\n    self.run()\n  File \"C:\\hostedtoolcache\\windows\\Python\\3.11.9\\x64\\Lib\\threading.py\", line 982, in run\n    self._target(*self._args, **self._kwargs)\n  File \"C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\next-concurrency-13ndfnv7\\source\\tests\\test_registry.py\", line 55, in worker\n    self.reg.register_capability({\"capability_id\":cid,\"owning_product\":\"p\",\"required_evidence\":[],\"minimum_version\":\"1.0.0\",\"compatibility_constraints\":[\"offline\"],\"risk_level\":\"LOW\",\"required_release_state\":\"CANDIDATE\"})\n",
+                "filename_relative_to_state": ".write.lock"
+              }
+            ],
+            "state": {
+              "lock_exists": false,
+              "revision": 5,
+              "capabilities": [
+                "c0",
+                "c1",
+                "c3"
+              ],
+              "valid_snapshots": 5
+            }
+          }
+        ],
+        "status": "failure_observed"
+      }
+    },
+    {
+      "job_id": 118306745036,
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.15.0 (tags/v3.15.0:d220409, Oct  9 2026, 11:55:56) [MSC v.1951 64 bit (AMD64)]",
+        "platform": "Windows-2025Server-10.0.26100-SP0",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 100,
+        "completed_iterations": 100,
+        "failures": [],
+        "status": "no_failure_observed"
+      }
+    },
+    {
+      "job_id": 118306744649,
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.14.8 (main, Oct  1 2026, 02:38:33) [GCC 13.3.0]",
+        "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 100,
+        "completed_iterations": 100,
+        "failures": [],
+        "status": "no_failure_observed"
+      }
+    },
+    {
+      "job_id": 118306744867,
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.11.17 (main, Oct  1 2026, 14:32:31) [GCC 13.3.0]",
+        "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 100,
+        "completed_iterations": 100,
+        "failures": [],
+        "status": "no_failure_observed"
+      }
+    },
+    {
+      "job_id": 118306745033,
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.15.0 (main, Oct 10 2026, 18:50:56) [GCC 13.3.0]",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 100,
+        "completed_iterations": 100,
+        "failures": [],
+        "status": "no_failure_observed"
+      }
+    }
+  ]
+}

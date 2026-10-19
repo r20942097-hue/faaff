@@ -6,6 +6,16 @@
 
 固定原本は `ucs-control-plane-phase2-source.zip`、SHA256は `e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499` です。ZIPとその検証器・原本ピンは上書きしていません。
 
+## 追加した再現検査
+
+`diagnose_next_concurrency.py` は基準ZIPと内包するNext原本の両方の固定SHA256を検証し、一時ディレクトリに原本を展開して同じ `test_concurrent_write_serializes` を繰り返します。ファイル操作を置換せず、スレッドの例外トレースから発生行・操作・errno・winerror・対象ファイル・呼出し履歴を記録します。各回の後にチェックサム、4件の能力、スナップショット、ロック解放を確認し、失敗時も状態を保存します。
+
+Linuxの初回10回は失敗を観測せず、記録機能2テストを含む管理回帰313件は308成功・5件OS依存スキップでした。Windows/Linux × Python3.11・3.14・3.15で各100回の[再現CI](https://github.com/r20942097-hue/faaff/actions/runs/39324508886)を追加しています。トレースは実行順序に影響するため、失敗が観測されなくても修正完了にはしません。候補20261019.7の未合格記録は維持します。
+
+```sh
+python workspace-management/diagnose_next_concurrency.py --iterations 100 --output work/next-concurrency.json
+```
+
 ## 分かったことと未確定の点
 
 試験は4スレッドから同じRegistryStoreへ能力を登録し、例外がないことと4件の保存を確認します。原本の `ucs_control_plane/io.py` には、排他ロックファイルの作成・削除、fsync、os.replaceによる置換があります。ロック取得はFileExistsErrorを待ちますが、PermissionErrorの扱いはありません。
