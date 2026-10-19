@@ -203,22 +203,15 @@ def run_process(command, directory, timeout=120, environment=None, interrupt_gra
     """Capture a trusted argv without a shell; retain partial timeout diagnostics."""
     if interrupt_grace:
         return run_captured_process(command, directory, timeout, environment, interrupt_grace)
-    try:
-        result = subprocess.run(command, cwd=directory, capture_output=True, text=True,
-                                encoding='utf-8', errors='backslashreplace',
-                                env=child_environment() if environment is None else environment,
-                                timeout=timeout, check=False, shell=False)
-        report = {'exit_code': result.returncode, 'output': result.stdout + result.stderr}
-        if result.returncode == 130:report['interrupted'] = True
-        return report
-    except subprocess.TimeoutExpired as error:
-        def decoded(value):
-            return value.decode('utf-8', errors='backslashreplace') if isinstance(value, bytes) else value or ''
-        partial = decoded(error.stdout) + decoded(error.stderr)
-        return {'exit_code': 124, 'error': 'TimeoutExpired',
-                'output': partial + ('\n' if partial and not partial.endswith('\n') else '') + f'timeout after {timeout} seconds'}
-    except OSError as error:
-        return {'exit_code': 127, 'error': type(error).__name__, 'output': str(error)}
+    if __package__:
+        from .bounded_process import capture
+    else:
+        from bounded_process import capture
+    result = capture(command, directory, timeout,
+                     child_environment() if environment is None else environment)
+    if result['exit_code'] == 130:
+        result['interrupted'] = True
+    return result
 
 
 def communicate_process(process,timeout):

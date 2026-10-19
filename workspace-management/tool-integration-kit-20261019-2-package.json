@@ -1,0 +1,19 @@
+{
+  "bytes": 660392,
+  "file": "tool-integration-kit-20261019.2.zip",
+  "publication": "local_only",
+  "reproducible_frozen_inputs": true,
+  "schema": "local-integration-kit/v1",
+  "scope": "Independent v6 development candidate; not missing product bodies.",
+  "sha256": "6fe6ed5e9d64fee6e6e6548b6e3a32412ceda4029783f2c25a693d2c1ae95553",
+  "source_hashes": {
+    "KIT-README.md": "2365259c46768d7d1cb30b7e6da6141fd3993bde80a57cfd166e948ac281a40a",
+    "apply_catalogue_update.py": "623f5eabf4ade7786e5c327d6c4c46fc8145cdb109d0ac2c1a83f07ba265bce0",
+    "catalogue-update-20261019.2.zip": "c560bb5ccb4290c89d18f36b8743eb4a11f8c0ccb67e1bd945272127d38c5887",
+    "extract_snapshot.py": "dda8d8dc184fb7fa8912d49255c4ba7cfc0ee28d27496da698040e991168c6c7",
+    "registry.py": "1f0779aa4c558d62f479d40a42b22e421597a3797e97fe6b407e477713736779",
+    "verify_catalogue_update.py": "58fcddbadcb0211ad5191c923d91b8891c8bb238d041544a85addf299dd0f9dc",
+    "workspace-source-20261011.zip": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9"
+  },
+  "version": "20261019.2"
+}

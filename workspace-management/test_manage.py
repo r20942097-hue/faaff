@@ -25,6 +25,19 @@ class CatalogueTests(unittest.TestCase):
                 self.assertEqual(row[5], "'@fixture")
         self.assertTrue(any(row[2] == 'file.md' for row in parsed[1:]))
 
+    def test_metadata_line_endings_and_empty_fields_do_not_leak_headers(self):
+        target = self.root / 'repo/filter.txt'
+        for newline in ['\n', '\r\n', '\r']:
+            for version in ['20261019.2', '']:
+                with self.subTest(newline=repr(newline), version=version):
+                    body = newline.join(['! Version: \t' + version + '  ', '! License: @fixture',
+                                         '! Status: optional-external', '||example.test^', ''])
+                    target.write_bytes(body.encode())
+                    row = next(row for row in scan(self.root, self.config) if row['path'] == 'filter.txt')
+                    self.assertEqual(row['version'], version)
+                    self.assertEqual(row['license'], '@fixture')
+                    self.assertEqual(row['state'], '追加設定が必要')
+
     def test_inventory_markdown_preserves_filename_in_one_safe_cell(self):
         name = '[label]|<script>` (copy).md'
         rows = scan(self.root, self.config)

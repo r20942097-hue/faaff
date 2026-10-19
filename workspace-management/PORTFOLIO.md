@@ -4,7 +4,7 @@
 
 ローカルでの一覧・ソース取得状況・診断・確認期限。通信、製品E2E、公開状態の再検証は実行していません。
 
-成果物 38件、製品 10件（本体未取得 9件）、管理機能 18件。
+成果物 40件、製品 10件（本体未取得 9件）、管理機能 19件。
 
 ## 成果物一覧
 
@@ -48,8 +48,10 @@
 | Suite監査の停止・復旧更新（履歴） | 20261015.3 | 履歴版 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/catalogue-update-20261015.3.zip>) |
 | ツール統合・導入キット20261015.3（非推奨） | 20261015.3 | 履歴版 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/tool-integration-kit-20261015.3.zip>) |
 | Windows起動順を修正したSuite監査更新 | 20261015.4 | 推奨版 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/catalogue-update-20261015.4.zip>) |
-| 全成果物集計・検証改善の更新候補 | 20261019.1 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
-| 全成果物集計・検証改善の導入キット候補 | 20261019.1 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
+| 全成果物集計・検証改善の更新候補 | 20261019.1 | 現行対象 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/bf6a76baba136222617726f1433a10e7f8ba03c5/workspace-management/catalogue-update-20261019.1.zip>) |
+| 全成果物集計・検証改善の導入キット候補 | 20261019.1 | 現行対象 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/bf6a76baba136222617726f1433a10e7f8ba03c5/workspace-management/tool-integration-kit-20261019.1.zip>) |
+| 改行・実行管理・検索先診断の更新候補 | 20261019.2 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
+| 改行・実行管理・検索先診断の導入キット候補 | 20261019.2 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
 
 ## 製品と次の開発
 
@@ -104,12 +106,12 @@
 | 2 | 広告リスト生成・同期 | actionable | python tools/manage.py run --tool filters | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | Firefox実拡張の動作検証 | actionable | python tools/manage.py run --tool firefox-extension | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | プロジェクト・配布監査 | actionable | python tools/manage.py run --tool governance | 登録入力を変更せず検証に成功し、doctorを再実行する |
+| 2 | Pythonモジュール検索先の診断 | actionable | python tools/manage.py run --tool module-search | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | 全成果物・改良予定の集計 | actionable | python tools/manage.py run --tool portfolio | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | 固定したPython検証環境の照合 | actionable | python tools/manage.py run --tool python-environment | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | 依存・検証根拠の確認 | actionable | python tools/manage.py run --tool security-intake | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | 設定・実行入口の重複と整合性 | actionable | python tools/manage.py run --tool settings-consistency | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | 取得ツール原本の整合性 | actionable | python tools/manage.py run --tool source-integrity | 登録入力を変更せず検証に成功し、doctorを再実行する |
-| 2 | Suite配布監査の回帰検証 | actionable | python tools/manage.py run --tool suite-audit | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | CI設定検証 | actionable | python tools/manage.py run --tool workflows | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 3 | agkn.com | scheduled | 分類根拠と互換性例外を再確認し、実際の確認日と固定参照を記録する | 根拠・例外・昇格ゲートの検証が成功する。候補の自動採用は行わない |
 | 3 | amazon-adsystem.com | scheduled | 分類根拠と互換性例外を再確認し、実際の確認日と固定参照を記録する | 根拠・例外・昇格ゲートの検証が成功する。候補の自動採用は行わない |

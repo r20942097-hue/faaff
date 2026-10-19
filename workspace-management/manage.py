@@ -61,15 +61,15 @@ def scan(root, config):
                 if path.suffix == '.txt':
                     with path.open('rb') as handle:
                         text = handle.read(65536).decode('utf-8', errors='replace')
-                version = re.search(r'^! Version:\s*(.+)$', text, re.M)
-                license_match = re.search(r'^! License:\s*(.+)$', text, re.M)
+                version = re.search(r'(?:^|[\r\n])! Version:[ \t]*([^\r\n]*)', text)
+                license_match = re.search(r'(?:^|[\r\n])! License:[ \t]*([^\r\n]*)', text)
                 cls = 'ライブラリ・資料' if source.get('kind') == 'library' else category(relative)
                 state = '候補' if cls == 'フィルター' and relative.parts[0] == 'v2' else ('実験候補' if cls == '実験候補' else '現行' if cls == 'フィルター' else '資料・設定')
-                if cls == 'フィルター' and re.search(r'^! Status:\s*optional-external\s*$', text, re.M):
+                if cls == 'フィルター' and re.search(r'(?:^|[\r\n])! Status:[ \t]*optional-external[ \t]*(?=[\r\n]|$)', text):
                     state = '追加設定が必要'
                 row = {'source': source['name'], 'path': relative.as_posix(), 'category': cls,
-                       'state': state, 'version': version.group(1) if version else '',
-                       'license': license_match.group(1) if license_match else '',
+                       'state': state, 'version': version.group(1).strip(' \t') if version else '',
+                       'license': license_match.group(1).strip(' \t') if license_match else '',
                        'bytes': path.stat().st_size, 'sha256': digest,
                        'original': path.relative_to(root).as_posix(),
                        'url': f"{source['repository']}/blob/{source.get('repository_ref', 'main')}/{quote(relative.as_posix())}" if source.get('repository') else ''}
