@@ -13,7 +13,12 @@
     "interrupt during handler registration restores the old handler",
     "non-main-thread guard does not restore uninstalled handlers"
   ],
-  "native_ci": "pending",
+  "native_ci": {
+    "source_commit": "6e6407006533016d594913fa08c51daa7ca8af1b",
+    "run_id": 39273220700,
+    "runtime_jobs": "all six passed",
+    "matrix": "Windows/Linux x Python3.11,3.14,3.15"
+  },
   "source_hashes": {
     "check_suite_audit.py": "df5a833d4774eab1d7c75adf62222e41a8bd481865289a1cf5f7272c3e095693",
     "test_suite_adapter.py": "56209da3d64ce3a276d31297645dbae6a3a8fd1bd7338cc30230034a1660b983"
