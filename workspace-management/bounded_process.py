@@ -2,6 +2,7 @@
 import os
 import math
 import signal
+import sys
 import subprocess
 import tempfile
 import time
@@ -18,27 +19,77 @@ class OutputLimitExceeded(Exception):
     pass
 
 
-def allow_controller_cleanup(process, grace):
-    """Signal a supervising child once, then allow time for its own cleanup."""
-    if process.poll() is not None:
-        return False
-    # Keep spooling during grace: stopping a supervisor early can abandon its
-    # separately owned worker group. Retained logs remain bounded when read.
+WINDOWS_BREAK_HELPER = r"""
+import ctypes
+from ctypes import wintypes
+import signal
+import sys
+api = ctypes.WinDLL('kernel32', use_last_error=True)
+api.FreeConsole.argtypes = []
+api.FreeConsole.restype = wintypes.BOOL
+api.AttachConsole.argtypes = [wintypes.DWORD]
+api.AttachConsole.restype = wintypes.BOOL
+api.GenerateConsoleCtrlEvent.argtypes = [wintypes.DWORD, wintypes.DWORD]
+api.GenerateConsoleCtrlEvent.restype = wintypes.BOOL
+api.FreeConsole()
+if not api.AttachConsole(int(sys.argv[1])):
+    raise ctypes.WinError(ctypes.get_last_error())
+signal.signal(signal.SIGBREAK, signal.SIG_IGN)
+if not api.GenerateConsoleCtrlEvent(1, int(sys.argv[1])):
+    raise ctypes.WinError(ctypes.get_last_error())
+print('WORKSPACE_BREAK_DELIVERED', flush=True)
+"""
+
+
+def job_active_processes(job):
+    """Query the Job, including a venv's Python after its redirector exits."""
+    import ctypes
+    from ctypes import wintypes
+    class Accounting(ctypes.Structure):
+        _fields_ = [('user',ctypes.c_longlong),('kernel',ctypes.c_longlong),
+                    ('period_user',ctypes.c_longlong),('period_kernel',ctypes.c_longlong),
+                    ('page_faults',wintypes.DWORD),('total',wintypes.DWORD),
+                    ('active',wintypes.DWORD),('terminated',wintypes.DWORD)]
+    query = job.api.QueryInformationJobObject
+    query.argtypes = [wintypes.HANDLE,ctypes.c_int,ctypes.c_void_p,wintypes.DWORD,ctypes.c_void_p]
+    query.restype = wintypes.BOOL
+    accounting = Accounting()
+    if not query(job.handle,1,ctypes.byref(accounting),ctypes.sizeof(accounting),None):
+        raise ctypes.WinError(ctypes.get_last_error())
+    return accounting.active
+
+
+def allow_controller_cleanup(process, grace, job=None):
+    """Notify a supervisor once and observe its owned Job as well as its leader."""
+    report = {'controller_forced': False, 'grace_signal_sent': False,
+              'grace_signal_method': 'isolated-console-helper' if os.name == 'nt' else 'SIGINT'}
+    def pending():
+        return job_active_processes(job) > 0 if job is not None else process.poll() is None
+    if not pending():
+        return report
+    deadline = time.monotonic() + grace
+    # Keep spooling while the supervisor closes separately owned worker groups.
     with cleanup_interrupts():
         try:
-            process.send_signal(signal.CTRL_BREAK_EVENT if os.name == 'nt' else signal.SIGINT)
-        except OSError:
-            return True
-        deadline = time.monotonic() + grace
-        while process.poll() is None:
+            if os.name == 'nt':
+                notification = _capture([sys.executable,'-I','-S','-c',WINDOWS_BREAK_HELPER,str(process.pid)],
+                                        os.getcwd(),timeout=min(2,grace),output_limit=1024)
+                if notification['exit_code'] or 'WORKSPACE_BREAK_DELIVERED' not in notification['output']:
+                    raise OSError('Windows console notification failed: '+notification['output'][-512:])
+            else:
+                process.send_signal(signal.SIGINT)
+            report['grace_signal_sent'] = True
+        except OSError as error:
+            report.update(controller_forced=pending(), grace_signal_error=type(error).__name__,
+                          grace_signal_error_message=str(error)[:1024])
+            return report
+        while pending():
             remaining = deadline - time.monotonic()
             if remaining <= 0:
-                return True
-            try:
-                process.wait(timeout=min(0.02, remaining))
-            except subprocess.TimeoutExpired:
-                pass
-    return False
+                report['controller_forced'] = True
+                return report
+            time.sleep(min(.02,remaining))
+    return report
 
 
 def _capture(command, directory, timeout=120, environment=None, output_limit=DEFAULT_OUTPUT_LIMIT, interrupt_grace=0):
@@ -66,6 +117,14 @@ def _capture(command, directory, timeout=120, environment=None, output_limit=DEF
                        'stdout': stdout, 'stderr': stderr, 'shell': False}
             if os.name == 'nt':
                 options['creationflags'] = subprocess.CREATE_NEW_PROCESS_GROUP | 0x00000004
+                if interrupt_grace:
+                    # A dedicated hidden console makes Ctrl-Break independent of
+                    # the parent's console, including headless CI and venv launchers.
+                    options['creationflags'] |= subprocess.CREATE_NEW_CONSOLE
+                    startup = subprocess.STARTUPINFO()
+                    startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                    startup.wShowWindow = 0
+                    options['startupinfo'] = startup
             else:
                 options['start_new_session'] = True
             process = subprocess.Popen(command, **options)
@@ -103,8 +162,7 @@ def _capture(command, directory, timeout=120, environment=None, output_limit=DEF
             if process is not None:
                 if interrupt_grace and result['ownership_established'] and result['exit_code'] in (124, 125, 130):
                     try:
-                        result['controller_forced'] = allow_controller_cleanup(
-                            process, interrupt_grace)
+                        result.update(allow_controller_cleanup(process, interrupt_grace, job))
                     except OSError as error:
                         result.update(controller_forced=True, graceful_cleanup_error=type(error).__name__)
                 try:

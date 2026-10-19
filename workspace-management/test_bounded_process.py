@@ -7,10 +7,10 @@ import sys
 from tempfile import TemporaryDirectory
 import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 import bounded_process
-from bounded_process import capture, stop_worker
+from bounded_process import capture, stop_worker, allow_controller_cleanup
 
 
 class BoundedProcessTests(unittest.TestCase):
@@ -210,6 +210,7 @@ class BoundedProcessTests(unittest.TestCase):
         self.assertEqual(result['exit_code'], 124)
         self.assertEqual(result['error'], 'TimeoutExpired')
         self.assertFalse(result['controller_forced'], result)
+        self.assertTrue(result['grace_signal_sent'], result)
         self.assertIn('partial before timeout', result['output'])
         self.assertIn('cleanup complete', result['output'])
         self.assertTrue(result['cleanup_complete'])
@@ -223,6 +224,7 @@ class BoundedProcessTests(unittest.TestCase):
         self.assertEqual(result['exit_code'], 125)
         self.assertEqual(result['error'], 'OutputLimitExceeded')
         self.assertFalse(result['controller_forced'], result)
+        self.assertTrue(result['grace_signal_sent'], result)
         self.assertIn('overflow cleanup', result['output'])
         self.assertLess(len(result['output']), 4300)
 
@@ -236,6 +238,17 @@ class BoundedProcessTests(unittest.TestCase):
         self.assertTrue(result['controller_forced'])
         self.assertTrue(result['cleanup_complete'])
         self.assertLess(time.monotonic()-started, 5)
+
+    def test_notification_failure_is_explicit_and_still_requests_forced_cleanup(self):
+        process = Mock()
+        process.poll.return_value = None
+        process.send_signal.side_effect = OSError('fixture notification unavailable')
+        with patch('bounded_process._capture', return_value={'exit_code':127,'output':'fixture helper unavailable'}):
+            result = allow_controller_cleanup(process, .2)
+        self.assertTrue(result['controller_forced'])
+        self.assertFalse(result['grace_signal_sent'])
+        self.assertEqual(result['grace_signal_error'], 'OSError')
+        self.assertIn('fixture', result['grace_signal_error_message'])
 
     def test_invalid_grace_is_rejected_without_starting_a_process(self):
         for grace in [True, -1, float('nan'), float('inf'), 11, '1']:
