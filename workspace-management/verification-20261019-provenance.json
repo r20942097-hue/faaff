@@ -1,0 +1,51 @@
+{
+  "schema": "source-provenance-verification/v1",
+  "checked_on": "2026-10-19",
+  "runtime": "Linux Python 3.12.14",
+  "source_tests": {
+    "run": 301,
+    "passed": 296,
+    "skipped": 5,
+    "scope": "Windows-only tests skipped; overlapping suites not summed"
+  },
+  "new_tests": {
+    "run": 10,
+    "passed": 10
+  },
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "all 209 rows render",
+      "state unchanged_base",
+      "state matches_update",
+      "state modified",
+      "state missing",
+      "state added",
+      "filename search",
+      "empty result count",
+      "mobile layout",
+      "report links resolve",
+      "no javascript errors"
+    ],
+    "count": 11
+  },
+  "example": {
+    "files": 209,
+    "unchanged_base": 165,
+    "matches_update": 42,
+    "modified": 2,
+    "missing": 0,
+    "added": 0,
+    "changed_paths": [
+      "catalog/TOOLS.md",
+      "catalog/artifacts.json"
+    ],
+    "explanation": "The installed workspace has refreshed tool documentation and the external catalogue of 44 artifacts. The immutable kit contains its build-time catalogue of 42 artifacts."
+  },
+  "source_hashes": {
+    "source_provenance.py": "91def1429e24b3b11f8cf83411e6e85c85d7ab3a63cbd2232ac3b4c6f730d778",
+    "test_source_provenance.py": "c73034b8bbdb7b6952e654175249b91503689a0f3ded7e83f49584b31ce4d563",
+    "manage.py": "067a490a09bdbfedd2981b0dd5958c8debde7b8d731daa32692e5a144e67b01d"
+  },
+  "scope": "Local source and real installed kit observation; native six-environment CI pending for this added source. Published ZIPs unchanged."
+}
