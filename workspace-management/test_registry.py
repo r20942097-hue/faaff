@@ -490,8 +490,13 @@ class CommonRecoveryTests(unittest.TestCase):
             finally:cancel.set();thread.join(timeout=6)
             self.assertEqual(result['exit_code'],130,result);self.assertTrue(result['interrupted'])
             self.assertIn('partial stdout fixture',result['output']);self.assertIn('partial stderr fixture',result['output'])
-            self.assertFalse(helper.alive(int((root/'worker.pid').read_text())))
-            self.assertFalse(helper.alive(int((root/'descendant.pid').read_text())))
+            # SIGKILL dispatch and leader reap can precede descendant exit by
+            # a scheduler tick. Require observed termination within a bound.
+            deadline = time.monotonic() + 3
+            pids = [int((root/'worker.pid').read_text()), int((root/'descendant.pid').read_text())]
+            while any(helper.alive(pid) for pid in pids) and time.monotonic() < deadline:
+                time.sleep(.01)
+            self.assertTrue(all(not helper.alive(pid) for pid in pids), 'owned processes did not terminate')
             if (root/'result.json').exists():self.assertEqual(load_json(root/'result.json')['exit_code'],130)
             else:self.assertTrue(result['controller_forced'])
 
