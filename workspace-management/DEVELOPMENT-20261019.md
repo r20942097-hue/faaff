@@ -51,6 +51,14 @@ faaffは管理ブランチc65e134cb9178739609857fb2171900e39982738から、sは�
 
 最新のCI結果は [18ジョブの検証記録](verification-20261019-ci.json) と [実際のActions](https://github.com/r20942097-hue/faaff/actions/runs/39261357765) に保存しています。一般CI・フィルター検証・依存レビュー・CodeQLも同じコミットで成功しました。
 
+## 追加の取得元・差分診断
+
+[独立診断ツール](SOURCE-PROVENANCE.md)を作業ブランチへ追加しました。固定SHA256の基準ZIP・更新ZIPを検証し、想定版と現在の一覧を比較します。基準・想定・現在のSHA256、設定に記録されたGitHub参照、更新ZIPの履歴を並べます。元の一覧の「GitHubは公開mainの参照」という固定文言も、設定に記録された版への参照という正確な説明へ修正しました。
+
+追加10テスト、公開支援ソース301件中296成功・Windows専用5skip、実ブラウザー11項目が成功しました。[実測209ファイルの一覧](provenance-20261019/SOURCE-PROVENANCE.md)は、基準一致165・更新版一致42・後から変わった資料2です。2件はcatalog/TOOLS.mdの診断更新とcatalog/artifacts.jsonの外部44件一覧で、キット作成時の42件一覧と区別できています。[検証記録](verification-20261019-provenance.json)に範囲を保存しています。
+
+この追加ツールは既存20261019.4キットへ組み込んでいません。既存の固定ZIPは維持しています。GitHubへの通信照合・製品実行は行わず、参照URLを現在の内容の証明にはしません。新しいソースのWindows/Linux CIは別途確認します。
+
 ## 導入候補と履歴
 
 現在の追加候補は[キット20261019.4](tool-integration-kit-20261019.4.zip)、[SHA256](tool-integration-kit-20261019.4.zip.sha256)、[導入手順](KIT-README-20261019-4.md)です。更新だけの場合は[更新ZIP](catalogue-update-20261019.4.zip)と[SHA256](catalogue-update-20261019.4.zip.sha256)を使います。
