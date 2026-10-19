@@ -1305,49 +1305,55 @@
     },
     {
       "id": "management-update-20261019-7",
-      "name": "取得元診断・パイプ回収・中断・登録復元修正の更新候補",
+      "name": "取得元診断・パイプ回収・中断・登録復元修正の更新候補（Windows同時書込み未合格）",
       "kind": "update",
       "version": "20261019.7",
       "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する",
-      "notes": "独立したv8の48ファイル更新候補。内部一覧48件、外部一覧50件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "notes": "PR #16へ固定保存。修正元6環境と実キット5環境は成功。Windows/Python3.14で固定Control Plane Nextの同時書込み試験がPermissionErrorで失敗。導入推奨にはしない。内部48件・外部50件、以前のZIPと既存推奨は維持。",
       "local_path": "work/releases/catalogue-update-20261019.7.zip",
       "sha256": "94c673e12299a93e018c4618155dade3c82378db36f0c35141ca3cb06944cd94",
       "bytes": 183934,
       "publication": {
-        "stage": "local",
-        "url": "",
-        "pr_url": ""
+        "stage": "pr",
+        "commit": "889053e6d60ff57f095534dfbcd5512f6396c0f8",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/889053e6d60ff57f095534dfbcd5512f6396c0f8/workspace-management/catalogue-update-20261019.7.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
       },
       "verification": {
-        "status": "passed",
+        "status": "pending",
         "sha256": "94c673e12299a93e018c4618155dade3c82378db36f0c35141ca3cb06944cd94",
-        "checked_on": "2026-10-19",
-        "summary": "修正元311テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理309件中303成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
-        "evidence_url": ""
-      }
+        "checked_on": "2026-10-20",
+        "summary": "修正元311テストはWindows/Linux×Python3版の全6環境で成功。実キットは5/6環境、管理回帰検査は失敗ジョブでも成功。全18ジョブ中17成功・1失敗。Windows3.14のControl Plane Next同時書込みにPermissionErrorが残る。Linux新規導入・48ファイル・管理309件中303成功/6skip・標準21検査・Suite26件・画面64項目は成功。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39273845578"
+      },
+      "release_family": "development-update",
+      "recommended": false
     },
     {
       "id": "tool-integration-kit-20261019-7",
-      "name": "取得元診断・パイプ回収・中断・登録復元修正の導入キット候補",
+      "name": "取得元診断・パイプ回収・中断・登録復元修正の導入キット候補（Windows同時書込み未合格）",
       "kind": "snapshot",
       "version": "20261019.7",
       "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する",
-      "notes": "独立したv8の48ファイル更新候補。内部一覧48件、外部一覧50件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "notes": "PR #16へ固定保存。修正元6環境と実キット5環境は成功。Windows/Python3.14で固定Control Plane Nextの同時書込み試験がPermissionErrorで失敗。導入推奨にはしない。内部48件・外部50件、以前のZIPと既存推奨は維持。",
       "local_path": "work/releases/tool-integration-kit-20261019.7.zip",
       "sha256": "4fdfd4e4012542b7dd49f236b5b35ef305946e5a9174231bdfdf4008cde8db4e",
       "bytes": 682793,
       "publication": {
-        "stage": "local",
-        "url": "",
-        "pr_url": ""
+        "stage": "pr",
+        "commit": "889053e6d60ff57f095534dfbcd5512f6396c0f8",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/889053e6d60ff57f095534dfbcd5512f6396c0f8/workspace-management/tool-integration-kit-20261019.7.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
       },
       "verification": {
-        "status": "passed",
+        "status": "pending",
         "sha256": "4fdfd4e4012542b7dd49f236b5b35ef305946e5a9174231bdfdf4008cde8db4e",
-        "checked_on": "2026-10-19",
-        "summary": "修正元311テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理309件中303成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
-        "evidence_url": ""
-      }
+        "checked_on": "2026-10-20",
+        "summary": "修正元311テストはWindows/Linux×Python3版の全6環境で成功。実キットは5/6環境、管理回帰検査は失敗ジョブでも成功。全18ジョブ中17成功・1失敗。Windows3.14のControl Plane Next同時書込みにPermissionErrorが残る。Linux新規導入・48ファイル・管理309件中303成功/6skip・標準21検査・Suite26件・画面64項目は成功。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39273845578"
+      },
+      "release_family": "development-kit",
+      "recommended": false
     }
   ],
   "rule_groups": [
