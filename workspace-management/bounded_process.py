@@ -7,9 +7,9 @@ import subprocess
 import time
 
 if __package__:
-    from .check_suite_audit import WindowsJob, stop_worker, cleanup_interrupts
+    from .check_suite_audit import WindowsJob, stop_worker, cleanup_interrupts, controller_interrupts
 else:
-    from check_suite_audit import WindowsJob, stop_worker, cleanup_interrupts
+    from check_suite_audit import WindowsJob, stop_worker, cleanup_interrupts, controller_interrupts
 
 DEFAULT_OUTPUT_LIMIT = 2 * 1024 * 1024  # Each stream; retained JSON text is bounded too.
 
@@ -159,7 +159,7 @@ class PipeLogs:
         return max(self.counts) > self.limit
 
 
-def _capture(command, directory, timeout=120, environment=None, output_limit=DEFAULT_OUTPUT_LIMIT, interrupt_grace=0):
+def _capture(command, directory, timeout=120, environment=None, output_limit=DEFAULT_OUTPUT_LIMIT, interrupt_grace=0, interrupt_state=None):
     """Capture bounded prefixes through pipes without temporary disk spools.
 
     Continue draining overflow during cooperative cleanup. Counts are bytes
@@ -216,6 +216,8 @@ def _capture(command, directory, timeout=120, environment=None, output_limit=DEF
     except subprocess.TimeoutExpired:
         result.update(exit_code=124, error='TimeoutExpired')
     except KeyboardInterrupt:
+        if interrupt_state is not None:
+            interrupt_state['interrupted'] = True
         result.update(exit_code=130, interrupted=True)
     except OSError as error:
         result.update(exit_code=127, error=type(error).__name__, error_message=(str(command[0]) + ': ' + str(error))[:4096])
@@ -264,17 +266,9 @@ def _capture(command, directory, timeout=120, environment=None, output_limit=DEF
 
 
 def capture(command, directory, timeout=120, environment=None, output_limit=DEFAULT_OUTPUT_LIMIT, interrupt_grace=0):
-    previous = None
-    if os.name == 'nt':
+    with controller_interrupts() as state:
         try:
-            previous = signal.signal(signal.SIGBREAK, signal.default_int_handler)
-        except ValueError:
-            pass
-    try:
-        return _capture(command, directory, timeout, environment, output_limit, interrupt_grace)
-    except OSError as error:
-        return {'exit_code': 127, 'error': type(error).__name__, 'output': str(error)[:4096],
-                'cleanup_complete': False}
-    finally:
-        if previous is not None:
-            signal.signal(signal.SIGBREAK, previous)
+            return _capture(command, directory, timeout, environment, output_limit, interrupt_grace, interrupt_state=state)
+        except OSError as error:
+            return {'exit_code': 127, 'error': type(error).__name__, 'output': str(error)[:4096],
+                    'cleanup_complete': False}

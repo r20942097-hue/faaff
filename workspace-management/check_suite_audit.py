@@ -164,6 +164,38 @@ def cleanup_interrupts():
         for value,handler in handlers.items():signal.signal(value,handler)
 
 
+
+@contextmanager
+def controller_interrupts():
+    """Turn the first ordinary interrupt into cancellation, suppress reentry.
+
+    Preserve a caller's custom/ignored SIGINT handler. SIGBREAK keeps the
+    existing controller behavior on Windows. Restore every installed handler.
+    """
+    previous = {}
+    state = {'interrupted': False}
+    def interrupt_once(signum, frame):
+        if not state['interrupted']:
+            state['interrupted'] = True
+            raise KeyboardInterrupt
+    for name in ['SIGINT', 'SIGBREAK']:
+        value = getattr(signal, name, None)
+        if value is None:
+            continue
+        try:
+            original = signal.getsignal(value)
+            if name == 'SIGINT' and original is not signal.default_int_handler:
+                continue
+            previous[value] = signal.signal(value, interrupt_once)
+        except ValueError:
+            pass  # Only the main thread can install handlers.
+    try:
+        yield state
+    finally:
+        for value, handler in previous.items():
+            signal.signal(value, handler)
+
+
 def stop_worker(process, job=None, grace=2):
     with cleanup_interrupts():
         if process.stdin is not None and not process.stdin.closed:
@@ -196,7 +228,7 @@ def wait_worker(process,timeout):
         except subprocess.TimeoutExpired:pass
 
 
-def _run_worker(command, cwd, timeout=90, grace=2):
+def _run_worker(command, cwd, timeout=90, grace=2, interrupt_state=None):
     process,job=None,None
     result={'status':'failed','exit_code':127,'cleanup_complete':False,'ownership_established':False,
             'cleanup_scope':'Windows Job' if os.name=='nt' else 'POSIX process group'}
@@ -218,6 +250,8 @@ def _run_worker(command, cwd, timeout=90, grace=2):
         result.update(status='timed_out',exit_code=124)
         print('Suite worker timed out; stopping owned processes',flush=True)
     except KeyboardInterrupt:
+        if interrupt_state is not None:
+            interrupt_state['interrupted'] = True
         result.update(status='interrupted',exit_code=130)
         print('Suite worker interrupted; stopping owned processes',flush=True)
     except OSError as error:
@@ -237,13 +271,8 @@ def _run_worker(command, cwd, timeout=90, grace=2):
 
 
 def run_worker(command,cwd,timeout=90,grace=2):
-    previous=None
-    if os.name=='nt':
-        try:previous=signal.signal(signal.SIGBREAK,signal.default_int_handler)
-        except ValueError:pass
-    try:return _run_worker(command,cwd,timeout,grace)
-    finally:
-        if previous is not None:signal.signal(signal.SIGBREAK,previous)
+    with controller_interrupts() as state:
+        return _run_worker(command,cwd,timeout,grace,interrupt_state=state)
 
 
 def timeout_seconds(value):
