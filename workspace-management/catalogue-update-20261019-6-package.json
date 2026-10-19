@@ -1,0 +1,14 @@
+{
+  "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+  "bytes": 182701,
+  "candidate_files": 48,
+  "file": "catalogue-update-20261019.6.zip",
+  "publication": "local_only",
+  "reproducible_frozen_inputs": true,
+  "schema": "local-catalogue-update-package/v1",
+  "scope": "Pinned provenance comparison and bounded pipe capture; missing product bodies and product E2E excluded.",
+  "sha256": "856c552178637e07768b54389f7935c2cd24523980a462fadb24b122cb69aea1",
+  "source_base_faaff": "7dc49b37d98c694d000c0154d269dc0304cb8581",
+  "source_revision_s": "93e39a8b351b6b1519b56d2a8d36b093735a4281",
+  "version": "20261019.6"
+}

@@ -2,15 +2,15 @@
 
 `source_provenance.py` は固定SHA256の基準ZIPと任意の更新ZIPを検証し、統合ワークスペースの現在のファイルと照合します。GitHub参照、基準・想定・現在のSHA256、ZIPの更新履歴をHTML・JSON・Markdownでまとめます。
 
-20261019.4の配布ZIPは変更していません。この診断は作業ブランチの追加ツールです。現在のリポジトリの `workspace-management/` から実行します。検査先へコピー・インストールする必要はありません。
+この診断は候補20261019.6へ同梱しました。作業ブランチの `workspace-management/` からも実行できます。以前の固定ZIPは保持しています。導入した場合は同梱のcatalog/SOURCE-PROVENANCE.mdを参照してください。
 
 ```sh
 python workspace-management/source_provenance.py \
   --root /path/to/integrated-workspace \
   --baseline workspace-management/workspace-source-20261011.zip \
   --baseline-sha256 e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9 \
-  --update workspace-management/catalogue-update-20261019.4.zip \
-  --update-sha256 b3a683daf48a201f15be9b7daa45ac71f6674d3dbfd37e033e851cc27f9be44a \
+  --update workspace-management/catalogue-update-20261019.6.zip \
+  --update-sha256 856c552178637e07768b54389f7935c2cd24523980a462fadb24b122cb69aea1 \
   --output work/provenance-20261019
 ```
 

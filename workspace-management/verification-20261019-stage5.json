@@ -46,7 +46,12 @@
     "check",
     "source_provenance.py with pinned kit archives"
   ],
-  "native_kit_ci": "pending",
+  "native_kit_ci": {
+    "run_id": 39269658204,
+    "scope": "Kit jobs may pass individually; source precheck in retained snapshot job exposed an affected Suite controller failure. Do not treat .5 as verified for repeated cancellation.",
+    "failed_job": 118118293744,
+    "failure": "Second interrupt escaped while printing cancellation."
+  },
   "scope": "No missing product E2E; 44-record catalogue inside kit and 46-record external catalogue; previous ZIPs retained.",
   "catalogue-update": {
     "file": "catalogue-update-20261019.5.zip",
@@ -57,5 +62,6 @@
     "file": "tool-integration-kit-20261019.5.zip",
     "sha256": "410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b",
     "bytes": 679719
-  }
+  },
+  "release_state": "history; not for new installations"
 }
