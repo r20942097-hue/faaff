@@ -44,7 +44,7 @@
   },
   "source_hashes": {
     "source_provenance.py": "91def1429e24b3b11f8cf83411e6e85c85d7ab3a63cbd2232ac3b4c6f730d778",
-    "test_source_provenance.py": "90093f17ece3d702f194a9be393f6a6a68252945c646ccaada2cc1e476286ef6",
+    "test_source_provenance.py": "6e29305f4af229a18ee5df7dc88466ac87ce9497c5d7fbba7d0b08163ab48b37",
     "manage.py": "067a490a09bdbfedd2981b0dd5958c8debde7b8d731daa32692e5a144e67b01d",
     "test_registry.py": "da79f26221e288169c4787ff33c878cc64d6d84abd4725ed1bfb0fae870683bf"
   },
@@ -58,5 +58,10 @@
       "Linux 3.15 single-interrupt fixture observed descendant immediately after termination; require actual termination within a bounded 3-second wait, as in the repeated-interrupt fixture."
     ],
     "scope": "Test fixes only; .4 ZIP bytes remain unchanged."
+  },
+  "regression_observation": {
+    "single_interrupt_repetitions": 12,
+    "result": "passed",
+    "path_alias_fixture": "lexical alias/../path differs from resolved path on every OS"
   }
 }

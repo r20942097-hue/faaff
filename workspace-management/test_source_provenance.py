@@ -69,6 +69,10 @@ class ProvenanceTests(unittest.TestCase):
         self.assertFalse((self.root / 'work/report').exists())
 
     def test_changed_current_inputs_abort_observation(self):
+        # Exercise differing lexical/resolved spellings on every OS, including
+        # Windows temporary directories with junctions or short-name aliases.
+        (self.root.parent / 'alias').mkdir()
+        self.root = self.root.parent / 'alias' / '..' / self.root.name
         real = provenance.indexed
         def mutate_after_first_scan(root):
             result = real(root)
