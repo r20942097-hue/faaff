@@ -1,0 +1,29 @@
+{
+  "schema": "controller-reentry-verification/v1",
+  "checked_on": "2026-10-19",
+  "source_tests": {
+    "run": 309,
+    "passed": 304,
+    "skipped": 5
+  },
+  "suite_adapter_tests": {
+    "run": 23,
+    "passed": 21,
+    "skipped": 2
+  },
+  "deterministic_regression": "Raise first SIGINT from the wait, then another synchronously while printing cancellation; must return status interrupted/130 and restore handlers.",
+  "finding": {
+    "run_id": 39269658204,
+    "job_id": 118118293744,
+    "matrix": "Windows Python3.15",
+    "error": "Second interrupt during Suite cancellation print escaped the result/report path.",
+    "affected": "Suite controller source also frozen in kit .5; .5 bytes preserved as history."
+  },
+  "implementation": "Stateful first-interrupt handler ignores reentry until the result and cleanup finish; preserves caller custom/ignored SIGINT and restores installed handlers. Bounded capture uses the same guard.",
+  "native_ci": "pending",
+  "source_hashes": {
+    "check_suite_audit.py": "5c5cea5e604e0addbd22f790f85dce3968c07de3aa980c6539a0e3f95f9f6622",
+    "bounded_process.py": "7cd6ab721ff876bf58aeb326b87758ff75e43d1714c55cd835887fc09f83b2fd",
+    "test_suite_adapter.py": "408d8f406860b3555ad0363be910954acc6249b6234b323c69961b1583eec0a9"
+  }
+}

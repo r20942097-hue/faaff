@@ -178,6 +178,44 @@ class SuiteRecoveryTests(unittest.TestCase):
     def test_real_controller_interrupt_stops_owned_descendants(self):
         result=self.actual('interrupt');self.assertEqual(result['exit_code'],130)
 
+    def test_second_interrupt_during_cancel_message_still_returns_a_result(self):
+        import signal
+        process = Mock()
+        def first_interrupt(*args, **kwargs):
+            signal.raise_signal(signal.SIGINT)
+        def interrupt_during_message(*args, **kwargs):
+            signal.raise_signal(signal.SIGINT)
+        original = signal.getsignal(signal.SIGINT)
+        signal.signal(signal.SIGINT, signal.default_int_handler)
+        try:
+            with patch.object(adapter.subprocess, 'Popen', return_value=process), \
+                 patch.object(adapter, 'WindowsJob'), \
+                 patch.object(adapter, 'wait_worker', side_effect=first_interrupt), \
+                 patch.object(adapter, 'stop_worker', return_value=True) as stop, \
+                 patch('builtins.print', side_effect=interrupt_during_message):
+                result = adapter.run_worker([sys.executable, 'fixture'], Path.cwd())
+            self.assertEqual(result['exit_code'], 130)
+            self.assertEqual(result['status'], 'interrupted')
+            self.assertTrue(result['cleanup_complete'])
+            stop.assert_called_once()
+            self.assertIs(signal.getsignal(signal.SIGINT), signal.default_int_handler)
+        finally:
+            signal.signal(signal.SIGINT, original)
+
+    def test_custom_sigint_handler_is_preserved_by_controller_guard(self):
+        import signal
+        seen = []
+        def custom(*args):seen.append('called')
+        original = signal.signal(signal.SIGINT, custom)
+        try:
+            with adapter.controller_interrupts():
+                self.assertIs(signal.getsignal(signal.SIGINT), custom)
+                signal.raise_signal(signal.SIGINT)
+            self.assertEqual(seen, ['called'])
+            self.assertIs(signal.getsignal(signal.SIGINT), custom)
+        finally:
+            signal.signal(signal.SIGINT, original)
+
     def test_repeated_interrupt_during_cleanup_does_not_abandon_worker(self):
         result=self.actual('double');self.assertEqual(result['exit_code'],130)
 
