@@ -1,0 +1,46 @@
+name: Derived Next lock candidate checks
+on:
+  pull_request:
+    paths:
+      - 'workspace-management/diagnose_next_concurrency.py'
+      - 'workspace-management/test_next_lock_candidate.py'
+      - 'workspace-management/next-concurrency-candidate/**'
+      - '.github/workflows/next-lock-candidate.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate:
+    name: Candidate / ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.14', '3.15']
+    env:
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Verify failure behavior and resource cleanup
+        run: python -m unittest discover -s workspace-management -p test_next_lock_candidate.py
+      - name: Verify derived source regressions and repeat 300 concurrent writes
+        run: >-
+          python workspace-management/diagnose_next_concurrency.py --iterations 300 --regressions
+          --candidate-io workspace-management/next-concurrency-candidate/ucs_control_plane/io.py
+          --candidate-sha256 26da2b8b4f7a480c2b3e132b4cf36e7f09592e49ec7af8946ea491925313231e
+          --output work/next-lock-candidate.json
+      - name: Print complete report
+        if: always()
+        shell: python
+        run: |
+          from pathlib import Path
+          report = Path('work/next-lock-candidate.json')
+          print(report.read_text(encoding='utf-8') if report.exists() else 'Report unavailable; inspect the preceding step.')
