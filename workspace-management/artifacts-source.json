@@ -1093,21 +1093,22 @@
       "kind": "update",
       "version": "20261019.3",
       "purpose": "Windowsの起動失敗情報を補い、猶予付き実行のログを制限し、画面検証の失敗記録とルールの改行検査を強化する",
-      "notes": "v7の独立した43ファイル更新。以前の固定ZIPを保持。ZIP内の一覧40件、今回の2候補を含む外部一覧42件。Windows/Linuxの確認中。",
+      "notes": "PR #16に固定保存し、サイズ・SHA256を照合済み。OS別の協調停止・終了確認テストの差異を検出。修正したソースを6環境で先に確認してから次のキットを作る。",
       "local_path": "work/releases/catalogue-update-20261019.3.zip",
       "sha256": "8b353d3f7db365a08d0ebaa972530aa36716b369b709502cccf6b2c4a7e2eb25",
       "bytes": 164241,
       "publication": {
-        "stage": "local",
-        "url": "",
-        "pr_url": ""
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/21855c85c3dcc53fd8498880e463115150ee6d81/workspace-management/catalogue-update-20261019.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "21855c85c3dcc53fd8498880e463115150ee6d81"
       },
       "verification": {
         "status": "pending",
         "sha256": "8b353d3f7db365a08d0ebaa972530aa36716b369b709502cccf6b2c4a7e2eb25",
         "checked_on": "2026-10-19",
-        "summary": "実キット43ファイル照合・新規適用、新規venvのsetup、管理289件中284成功・5skip、標準20＋CI設定1検査、Suite26件がLinux/Python3.12で成功。Windows/Linuxの3版CIを確認中。製品E2Eは対象外。",
-        "evidence_url": ""
+        "summary": "Linux3.11/3.14とローカルの回帰検証は成功。Windowsの待機方法による協調停止試験2件と、Linux3.15の終了反映競合1件を検出したため全環境合格ではない。次の候補で修正する。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39259628537"
       }
     },
     {
@@ -1116,10 +1117,34 @@
       "kind": "snapshot",
       "version": "20261019.3",
       "purpose": "Windowsの起動失敗情報を補い、猶予付き実行のログを制限し、画面検証の失敗記録とルールの改行検査を強化する",
-      "notes": "v7の独立した43ファイル更新。以前の固定ZIPを保持。ZIP内の一覧40件、今回の2候補を含む外部一覧42件。Windows/Linuxの確認中。",
+      "notes": "PR #16に固定保存し、サイズ・SHA256を照合済み。OS別の協調停止・終了確認テストの差異を検出。修正したソースを6環境で先に確認してから次のキットを作る。",
       "local_path": "work/releases/tool-integration-kit-20261019.3.zip",
       "sha256": "6064f9d2bff0af72038283ea5ee8a800a8db59f149968897bd78bd342f810981",
       "bytes": 663549,
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/21855c85c3dcc53fd8498880e463115150ee6d81/workspace-management/tool-integration-kit-20261019.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "21855c85c3dcc53fd8498880e463115150ee6d81"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "6064f9d2bff0af72038283ea5ee8a800a8db59f149968897bd78bd342f810981",
+        "checked_on": "2026-10-19",
+        "summary": "Linux3.11/3.14とローカルの回帰検証は成功。Windowsの待機方法による協調停止試験2件と、Linux3.15の終了反映競合1件を検出したため全環境合格ではない。次の候補で修正する。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39259628537"
+      }
+    },
+    {
+      "id": "management-update-20261019-4",
+      "name": "Windows協調停止・終了確認の更新候補",
+      "kind": "update",
+      "version": "20261019.4",
+      "purpose": "Windowsの協調停止通知とJob内の終了確認を改善し、OS別の終了反映を確かめる",
+      "notes": "同一43ファイル集合の独立候補。修正元ソースをWindows/LinuxのPython3.11/3.14/3.15で先に検証。キット内一覧42件、外部一覧44件。実キットの6環境CIは確認中。",
+      "local_path": "work/releases/catalogue-update-20261019.4.zip",
+      "sha256": "b3a683daf48a201f15be9b7daa45ac71f6674d3dbfd37e033e851cc27f9be44a",
+      "bytes": 165931,
       "publication": {
         "stage": "local",
         "url": "",
@@ -1127,10 +1152,33 @@
       },
       "verification": {
         "status": "pending",
-        "sha256": "6064f9d2bff0af72038283ea5ee8a800a8db59f149968897bd78bd342f810981",
+        "sha256": "b3a683daf48a201f15be9b7daa45ac71f6674d3dbfd37e033e851cc27f9be44a",
         "checked_on": "2026-10-19",
-        "summary": "実キット43ファイル照合・新規適用、新規venvのsetup、管理289件中284成功・5skip、標準20＋CI設定1検査、Suite26件がLinux/Python3.12で成功。Windows/Linuxの3版CIを確認中。製品E2Eは対象外。",
-        "evidence_url": ""
+        "summary": "実キットの全43ファイル照合と付属CLIによる新規適用に成功。修正元ソースは6環境で成功。新規venvと実キットの6環境CIを確認中。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39260702856"
+      }
+    },
+    {
+      "id": "tool-integration-kit-20261019-4",
+      "name": "Windows協調停止・終了確認の導入キット候補",
+      "kind": "snapshot",
+      "version": "20261019.4",
+      "purpose": "Windowsの協調停止通知とJob内の終了確認を改善し、OS別の終了反映を確かめる",
+      "notes": "同一43ファイル集合の独立候補。修正元ソースをWindows/LinuxのPython3.11/3.14/3.15で先に検証。キット内一覧42件、外部一覧44件。実キットの6環境CIは確認中。",
+      "local_path": "work/releases/tool-integration-kit-20261019.4.zip",
+      "sha256": "09f6e558c68ddfdd7a67d28f9c28938357e4393d135d47572c09fbe5071a20b9",
+      "bytes": 665456,
+      "publication": {
+        "stage": "local",
+        "url": "",
+        "pr_url": ""
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "09f6e558c68ddfdd7a67d28f9c28938357e4393d135d47572c09fbe5071a20b9",
+        "checked_on": "2026-10-19",
+        "summary": "実キットの全43ファイル照合と付属CLIによる新規適用に成功。修正元ソースは6環境で成功。新規venvと実キットの6環境CIを確認中。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39260702856"
       }
     }
   ],
