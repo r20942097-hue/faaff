@@ -1,0 +1,38 @@
+name: Pinned Next concurrent-write diagnosis
+on:
+  pull_request:
+    paths:
+      - 'workspace-management/diagnose_next_concurrency.py'
+      - '.github/workflows/next-concurrency.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  observe:
+    name: Observe / ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.14', '3.15']
+    env:
+      PYTHONUTF8: '1'
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Repeat the unchanged pinned test and capture I/O failures
+        run: python workspace-management/diagnose_next_concurrency.py --iterations 100 --output work/next-concurrency.json
+      - name: Print complete diagnostic report even when the test fails
+        if: always()
+        shell: python
+        run: |
+          from pathlib import Path
+          report = Path('work/next-concurrency.json')
+          print(report.read_text(encoding='utf-8') if report.exists() else 'Report unavailable; inspect the preceding step.')
