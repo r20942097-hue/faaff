@@ -1,6 +1,6 @@
 # 全成果物・改良予定
 
-確認基準日：2026-10-19（日本時間）
+確認基準日：2026-10-20（日本時間）
 
 ローカルでの一覧・ソース取得状況・診断・確認期限。通信、製品E2E、公開状態の再検証は実行していません。
 
@@ -60,8 +60,8 @@
 | 取得元診断・パイプ回収の導入キット（連続中断に課題・履歴） | 20261019.5 | 履歴版 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/ad9541adacb4a93eb8575d1755e28fa9ab46f8d3/workspace-management/tool-integration-kit-20261019.5.zip>) |
 | 取得元診断・パイプ回収・連続中断修正の更新（登録中断に課題・履歴） | 20261019.6 | 履歴版 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/81ea535c5d93318883eb4a7f051fcfb11de44f1c/workspace-management/catalogue-update-20261019.6.zip>) |
 | 取得元診断・パイプ回収・連続中断修正の導入キット（登録中断に課題・履歴） | 20261019.6 | 履歴版 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/81ea535c5d93318883eb4a7f051fcfb11de44f1c/workspace-management/tool-integration-kit-20261019.6.zip>) |
-| 取得元診断・パイプ回収・中断・登録復元修正の更新候補 | 20261019.7 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
-| 取得元診断・パイプ回収・中断・登録復元修正の導入キット候補 | 20261019.7 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
+| 取得元診断・パイプ回収・中断・登録復元修正の更新候補（Windows同時書込み未合格） | 20261019.7 | 履歴版 | PR公開・main未反映 | 2026-10-20 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/889053e6d60ff57f095534dfbcd5512f6396c0f8/workspace-management/catalogue-update-20261019.7.zip>) |
+| 取得元診断・パイプ回収・中断・登録復元修正の導入キット候補（Windows同時書込み未合格） | 20261019.7 | 履歴版 | PR公開・main未反映 | 2026-10-20 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/889053e6d60ff57f095534dfbcd5512f6396c0f8/workspace-management/tool-integration-kit-20261019.7.zip>) |
 
 ## 製品と次の開発
 

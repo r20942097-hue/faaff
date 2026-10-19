@@ -1,0 +1,154 @@
+{
+  "schema": "stage7-native-ci-observation/v1",
+  "commit": "889053e6d60ff57f095534dfbcd5512f6396c0f8",
+  "version": "20261019.7",
+  "run_id": 39273845578,
+  "conclusion": "failure",
+  "counts": {
+    "passed": 17,
+    "failed": 1
+  },
+  "jobs": [
+    {
+      "id": 118132904350,
+      "name": "Portfolio update / ubuntu-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904525,
+      "name": "Management candidate / ubuntu-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904534,
+      "name": "Portfolio update / windows-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904560,
+      "name": "Management candidate / ubuntu-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904562,
+      "name": "Management candidate / windows-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904607,
+      "name": "Runtime source / ubuntu-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904618,
+      "name": "Runtime source / windows-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904637,
+      "name": "Management candidate / ubuntu-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904669,
+      "name": "Runtime source / ubuntu-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904670,
+      "name": "Management candidate / windows-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904685,
+      "name": "Runtime source / windows-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904707,
+      "name": "Portfolio update / ubuntu-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904855,
+      "name": "Management candidate / windows-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132904900,
+      "name": "Portfolio update / windows-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132905050,
+      "name": "Portfolio update / ubuntu-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132905096,
+      "name": "Portfolio update / windows-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 118132905142,
+      "name": "Runtime source / ubuntu-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118132905189,
+      "name": "Runtime source / windows-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "failed_check": {
+    "job_id": 118132905096,
+    "matrix": "Windows Python3.14",
+    "check": "Control Plane Next: source archive and regressions",
+    "test": "test_concurrent_write_serializes",
+    "error": "PermissionError(13, 'Permission denied')",
+    "management_regression_check": "passed",
+    "pinned_source_archive_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+    "root_cause": "Not established: worker collects exception objects without operation/path/trace. Need native instrumentation before changing lock/replace behavior."
+  },
+  "additional_workflows": [
+    {
+      "id": 39273845604,
+      "name": "CI",
+      "conclusion": "success"
+    },
+    {
+      "id": 39273845573,
+      "name": "Validate browser filter lists",
+      "conclusion": "success"
+    },
+    {
+      "id": 39273845614,
+      "name": "Dependency Review",
+      "conclusion": "success"
+    },
+    {
+      "id": 39273845588,
+      "name": "CodeQL Python",
+      "conclusion": "success"
+    }
+  ],
+  "scope": "Runtime source jobs 6/6 passed, actual kit jobs 5/6 passed, retained snapshots 6/6 passed. .7 is not fully accepted; no product E2E claim."
+}
