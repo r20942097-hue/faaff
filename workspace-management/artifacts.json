@@ -1237,6 +1237,58 @@
       "local_state": "unchecked",
       "actual_sha256": null,
       "release_state": "current"
+    },
+    {
+      "id": "management-update-20261019-5",
+      "name": "取得元診断・パイプ回収の更新候補",
+      "kind": "update",
+      "version": "20261019.5",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と後始末を管理する",
+      "notes": "独立したv8の48ファイル更新候補。内部一覧44件、外部一覧46件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "local_path": "work/releases/catalogue-update-20261019.5.zip",
+      "sha256": "6e21c44a7e6c8738a14a35630a2b73f0b3de9e04ea57b3cf81cf681b0b11d371",
+      "bytes": 181150,
+      "publication": {
+        "stage": "local",
+        "url": "",
+        "pr_url": ""
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "6e21c44a7e6c8738a14a35630a2b73f0b3de9e04ea57b3cf81cf681b0b11d371",
+        "checked_on": "2026-10-19",
+        "summary": "修正元307テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理305件中299成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
+        "evidence_url": ""
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "tool-integration-kit-20261019-5",
+      "name": "取得元診断・パイプ回収の導入キット候補",
+      "kind": "snapshot",
+      "version": "20261019.5",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と後始末を管理する",
+      "notes": "独立したv8の48ファイル更新候補。内部一覧44件、外部一覧46件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "local_path": "work/releases/tool-integration-kit-20261019.5.zip",
+      "sha256": "410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b",
+      "bytes": 679719,
+      "publication": {
+        "stage": "local",
+        "url": "",
+        "pr_url": ""
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b",
+        "checked_on": "2026-10-19",
+        "summary": "修正元307テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理305件中299成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
+        "evidence_url": ""
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
     }
   ],
   "changes": {
@@ -1259,6 +1311,7 @@
       "改行・実行管理・検索先診断の更新候補",
       "中断処理・画面記録・生成検証の更新候補",
       "Windows協調停止・終了確認の更新候補",
+      "取得元診断・パイプ回収の更新候補",
       "ツール統合・導入キット",
       "ツール統合・導入キット 20261014.1",
       "ツール統合・導入キット 20261014.2",
@@ -1273,7 +1326,8 @@
       "全成果物集計・検証改善の導入キット候補",
       "改行・実行管理・検索先診断の導入キット候補",
       "中断処理・画面記録・生成検証の導入キット候補",
-      "Windows協調停止・終了確認の導入キット候補"
+      "Windows協調停止・終了確認の導入キット候補",
+      "取得元診断・パイプ回収の導入キット候補"
     ],
     "removed": [],
     "changed": [

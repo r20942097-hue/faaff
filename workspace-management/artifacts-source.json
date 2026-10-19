@@ -1182,6 +1182,52 @@
         "summary": "固定公開ZIPのサイズ・SHA256一致。実キット43ファイル適用と新規venvのsetup/all/Suite/portfolio/checkがWindows/LinuxのPython3.11/3.14/3.15の6環境で成功。管理290件・支援291件は各環境のOS専用5件を除き成功。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39261357765"
       }
+    },
+    {
+      "id": "management-update-20261019-5",
+      "name": "取得元診断・パイプ回収の更新候補",
+      "kind": "update",
+      "version": "20261019.5",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と後始末を管理する",
+      "notes": "独立したv8の48ファイル更新候補。内部一覧44件、外部一覧46件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "local_path": "work/releases/catalogue-update-20261019.5.zip",
+      "sha256": "6e21c44a7e6c8738a14a35630a2b73f0b3de9e04ea57b3cf81cf681b0b11d371",
+      "bytes": 181150,
+      "publication": {
+        "stage": "local",
+        "url": "",
+        "pr_url": ""
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "6e21c44a7e6c8738a14a35630a2b73f0b3de9e04ea57b3cf81cf681b0b11d371",
+        "checked_on": "2026-10-19",
+        "summary": "修正元307テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理305件中299成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
+        "evidence_url": ""
+      }
+    },
+    {
+      "id": "tool-integration-kit-20261019-5",
+      "name": "取得元診断・パイプ回収の導入キット候補",
+      "kind": "snapshot",
+      "version": "20261019.5",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と後始末を管理する",
+      "notes": "独立したv8の48ファイル更新候補。内部一覧44件、外部一覧46件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "local_path": "work/releases/tool-integration-kit-20261019.5.zip",
+      "sha256": "410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b",
+      "bytes": 679719,
+      "publication": {
+        "stage": "local",
+        "url": "",
+        "pr_url": ""
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b",
+        "checked_on": "2026-10-19",
+        "summary": "修正元307テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理305件中299成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
+        "evidence_url": ""
+      }
     }
   ],
   "rule_groups": [
