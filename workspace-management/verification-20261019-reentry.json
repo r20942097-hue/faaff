@@ -20,7 +20,14 @@
     "affected": "Suite controller source also frozen in kit .5; .5 bytes preserved as history."
   },
   "implementation": "Stateful first-interrupt handler ignores reentry until the result and cleanup finish; preserves caller custom/ignored SIGINT and restores installed handlers. Bounded capture uses the same guard.",
-  "native_ci": "pending",
+  "native_ci": {
+    "source_commit": "7dc49b37d98c694d000c0154d269dc0304cb8581",
+    "source_run_id": 39270349063,
+    "runtime_source_jobs": "all six passed",
+    "actual_kit_commit": "81ea535c5d93318883eb4a7f051fcfb11de44f1c",
+    "actual_kit_run_id": 39271203958,
+    "actual_kit_jobs": "all six passed"
+  },
   "source_hashes": {
     "check_suite_audit.py": "5c5cea5e604e0addbd22f790f85dce3968c07de3aa980c6539a0e3f95f9f6622",
     "bounded_process.py": "7cd6ab721ff876bf58aeb326b87758ff75e43d1714c55cd835887fc09f83b2fd",

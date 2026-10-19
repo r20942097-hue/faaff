@@ -46,7 +46,18 @@
     "check",
     "source_provenance.py with pinned kit archives"
   ],
-  "native_kit_ci": "pending",
+  "native_kit_ci": {
+    "commit": "81ea535c5d93318883eb4a7f051fcfb11de44f1c",
+    "run_id": 39271203958,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": 18,
+    "runtime_source_jobs": 6,
+    "actual_kit_jobs": 6,
+    "retained_snapshot_jobs": 6,
+    "matrix": "Windows/Linux x Python3.11,3.14,3.15",
+    "evidence": "verification-20261019-stage6-ci.json"
+  },
   "scope": "No missing product E2E; kit catalogue is its build-time 46 records, external catalogue is 48; prior ZIPs unchanged. .5 is history with known reentrant-cancellation issue.",
   "catalogue-update": {
     "file": "catalogue-update-20261019.6.zip",
@@ -57,5 +68,28 @@
     "file": "tool-integration-kit-20261019.6.zip",
     "sha256": "5d3173dc632e75b7f6d2c4008a837f0679c06e628cec6b3eb745fb73d3d64b3c",
     "bytes": 681424
+  },
+  "browser": {
+    "external_artifacts": 48,
+    "checks": 64,
+    "status": "passed",
+    "inventory_files": 214
+  },
+  "external_catalogue_provenance": {
+    "files": 214,
+    "unchanged_base": 165,
+    "matches_update": 47,
+    "modified": 2,
+    "changed_paths": [
+      "catalog/TOOLS.md",
+      "catalog/artifacts.json"
+    ],
+    "scope": "External catalogue includes .6 records; kit contains its build-time 46 records."
+  },
+  "build_metadata_snapshot": "Package JSON publication=local_only describes creation time; current fixed PR URLs live in artifacts-source.json. Immutable ZIP bytes are not rewritten to change that creation-time field.",
+  "publication": {
+    "records": 48,
+    "public_bytes_match": 48,
+    "evidence": "publication-20261019-stage6.json"
   }
 }

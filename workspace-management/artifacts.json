@@ -1318,21 +1318,22 @@
       "kind": "update",
       "version": "20261019.6",
       "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する",
-      "notes": "独立したv8の48ファイル更新候補。内部一覧46件、外部一覧48件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "notes": "PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブが成功。内部一覧46件と作成時点のメタデータ、外部一覧48件を区別。以前の固定ZIP・既存の推奨選択は維持。",
       "local_path": "work/releases/catalogue-update-20261019.6.zip",
       "sha256": "856c552178637e07768b54389f7935c2cd24523980a462fadb24b122cb69aea1",
       "bytes": 182701,
       "publication": {
-        "stage": "local",
-        "url": "",
-        "pr_url": ""
+        "stage": "pr",
+        "commit": "81ea535c5d93318883eb4a7f051fcfb11de44f1c",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/81ea535c5d93318883eb4a7f051fcfb11de44f1c/workspace-management/catalogue-update-20261019.6.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
       },
       "verification": {
         "status": "passed",
         "sha256": "856c552178637e07768b54389f7935c2cd24523980a462fadb24b122cb69aea1",
         "checked_on": "2026-10-19",
-        "summary": "修正元309テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理307件中301成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
-        "evidence_url": ""
+        "summary": "固定48ファイルと実キット新規導入がWindows/Linux×Python3.11・3.14・3.15の全6環境で成功。連続中断・部分ログ・所有プロセス停止・取得元診断を検証。ローカル支援309件中304成功・5skip、実キット管理307件中301成功・6skip（Linux）。標準21検査・Suite26件・画面64項目が成功。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39271203958"
       },
       "local_state": "unchecked",
       "actual_sha256": null,
@@ -1344,21 +1345,22 @@
       "kind": "snapshot",
       "version": "20261019.6",
       "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する",
-      "notes": "独立したv8の48ファイル更新候補。内部一覧46件、外部一覧48件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "notes": "PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブが成功。内部一覧46件と作成時点のメタデータ、外部一覧48件を区別。以前の固定ZIP・既存の推奨選択は維持。",
       "local_path": "work/releases/tool-integration-kit-20261019.6.zip",
       "sha256": "5d3173dc632e75b7f6d2c4008a837f0679c06e628cec6b3eb745fb73d3d64b3c",
       "bytes": 681424,
       "publication": {
-        "stage": "local",
-        "url": "",
-        "pr_url": ""
+        "stage": "pr",
+        "commit": "81ea535c5d93318883eb4a7f051fcfb11de44f1c",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/81ea535c5d93318883eb4a7f051fcfb11de44f1c/workspace-management/tool-integration-kit-20261019.6.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
       },
       "verification": {
         "status": "passed",
         "sha256": "5d3173dc632e75b7f6d2c4008a837f0679c06e628cec6b3eb745fb73d3d64b3c",
         "checked_on": "2026-10-19",
-        "summary": "修正元309テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理307件中301成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
-        "evidence_url": ""
+        "summary": "固定48ファイルと実キット新規導入がWindows/Linux×Python3.11・3.14・3.15の全6環境で成功。連続中断・部分ログ・所有プロセス停止・取得元診断を検証。ローカル支援309件中304成功・5skip、実キット管理307件中301成功・6skip（Linux）。標準21検査・Suite26件・画面64項目が成功。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39271203958"
       },
       "local_state": "unchecked",
       "actual_sha256": null,

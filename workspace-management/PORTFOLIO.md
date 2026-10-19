@@ -58,8 +58,8 @@
 | Windows協調停止・終了確認の導入キット候補 | 20261019.4 | 履歴版 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/2955ae52e11553abcd599ee8870535e38523af41/workspace-management/tool-integration-kit-20261019.4.zip>) |
 | 取得元診断・パイプ回収の更新（連続中断に課題・履歴） | 20261019.5 | 履歴版 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/ad9541adacb4a93eb8575d1755e28fa9ab46f8d3/workspace-management/catalogue-update-20261019.5.zip>) |
 | 取得元診断・パイプ回収の導入キット（連続中断に課題・履歴） | 20261019.5 | 履歴版 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/ad9541adacb4a93eb8575d1755e28fa9ab46f8d3/workspace-management/tool-integration-kit-20261019.5.zip>) |
-| 取得元診断・パイプ回収・連続中断修正の更新候補 | 20261019.6 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
-| 取得元診断・パイプ回収・連続中断修正の導入キット候補 | 20261019.6 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
+| 取得元診断・パイプ回収・連続中断修正の更新候補 | 20261019.6 | 現行対象 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/81ea535c5d93318883eb4a7f051fcfb11de44f1c/workspace-management/catalogue-update-20261019.6.zip>) |
+| 取得元診断・パイプ回収・連続中断修正の導入キット候補 | 20261019.6 | 現行対象 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/81ea535c5d93318883eb4a7f051fcfb11de44f1c/workspace-management/tool-integration-kit-20261019.6.zip>) |
 
 ## 製品と次の開発
 
