@@ -38,7 +38,13 @@ class LockCandidateTests(unittest.TestCase):
 
     def test_transient_windows_acquisition_denial_retries(self):
         denial = PermissionError(13, 'denied', str(self.lock))
-        self.os_proxy.open.side_effect = [denial, os.open(self.lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)]
+        attempts = []
+        def acquire(*args):
+            attempts.append(args)
+            if len(attempts) == 1:
+                raise denial
+            return os.open(*args)
+        self.os_proxy.open.side_effect = acquire
         with self.io.exclusive_lock(self.lock):
             self.assertTrue(self.lock.exists())
         self.assertEqual(2, self.os_proxy.open.call_count)

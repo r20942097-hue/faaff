@@ -6,6 +6,8 @@
 
 [変更と検証範囲](DEVELOPMENT-20261019.md)・[残件と次の修正](CONTROL-PLANE-NEXT-FOLLOWUP.md)・[候補の保存と手順](KIT-README-20261019-7.md)を確認できます。未取得9製品の次の開発も一覧へ残しています。以前の固定ZIPと既存の推奨選択は維持しています。
 
+追加の再現検査でWindows3.11・3.14のロック作成エラーを特定し、[別のソース候補](next-concurrency-candidate/README.md)を作成しました。[6環境・計1800回の並行検査](next-lock-candidate-verification-20261020.json)は成功しました。新しいキットへの統合前の検証で、配布済み20261019.7の未合格記録は維持しています。
+
 以下は以前の説明・当時の件数と検証記録です。
 
 

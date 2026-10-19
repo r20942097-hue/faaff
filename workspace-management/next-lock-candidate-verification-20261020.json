@@ -1,0 +1,174 @@
+{
+  "schema": "derived-next-lock-candidate-observation/v1",
+  "commit": "ccec1206f042c6c19243fae05d7bb631d4745483",
+  "run_id": 39324989910,
+  "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/39324989910",
+  "conclusion": "success",
+  "candidate_io_sha256": "26da2b8b4f7a480c2b3e132b4cf36e7f09592e49ec7af8946ea491925313231e",
+  "counts": {
+    "jobs": 6,
+    "successful_jobs": 6,
+    "iterations": 1800,
+    "failed_iterations": 0
+  },
+  "scope": "Derived isolated source; not installed kit acceptance. Tracing affects scheduling; sampling does not prove absence of every race.",
+  "original_zip_unchanged": true,
+  "existing_14_archive_sidecars_match": true,
+  "local_management": {
+    "total": 319,
+    "passed": 314,
+    "skipped": 5
+  },
+  "reports": [
+    {
+      "job_id": 118308366592,
+      "name": "Candidate / ubuntu-latest / Python 3.15",
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.15.0 (main, Oct 10 2026, 18:50:56) [GCC 13.3.0]",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 300,
+        "completed_iterations": 300,
+        "failures": [],
+        "recovered_oserrors": 0,
+        "candidate_io_sha256": "26da2b8b4f7a480c2b3e132b4cf36e7f09592e49ec7af8946ea491925313231e",
+        "source_is_unchanged": false,
+        "derived_files": [
+          "ucs_control_plane/io.py",
+          "evidence/phase2-local-verification.json",
+          "SHA256SUMS.txt"
+        ],
+        "source_regressions_exit_code": 0,
+        "status": "no_failure_observed"
+      }
+    },
+    {
+      "job_id": 118308366638,
+      "name": "Candidate / windows-latest / Python 3.11",
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+        "platform": "Windows-10-10.0.26100-SP0",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 300,
+        "completed_iterations": 300,
+        "failures": [],
+        "recovered_oserrors": 3,
+        "candidate_io_sha256": "26da2b8b4f7a480c2b3e132b4cf36e7f09592e49ec7af8946ea491925313231e",
+        "source_is_unchanged": false,
+        "derived_files": [
+          "ucs_control_plane/io.py",
+          "evidence/phase2-local-verification.json",
+          "SHA256SUMS.txt"
+        ],
+        "source_regressions_exit_code": 0,
+        "status": "no_failure_observed"
+      }
+    },
+    {
+      "job_id": 118308366835,
+      "name": "Candidate / ubuntu-latest / Python 3.11",
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.11.17 (main, Oct  1 2026, 14:32:31) [GCC 13.3.0]",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 300,
+        "completed_iterations": 300,
+        "failures": [],
+        "recovered_oserrors": 0,
+        "candidate_io_sha256": "26da2b8b4f7a480c2b3e132b4cf36e7f09592e49ec7af8946ea491925313231e",
+        "source_is_unchanged": false,
+        "derived_files": [
+          "ucs_control_plane/io.py",
+          "evidence/phase2-local-verification.json",
+          "SHA256SUMS.txt"
+        ],
+        "source_regressions_exit_code": 0,
+        "status": "no_failure_observed"
+      }
+    },
+    {
+      "job_id": 118308366912,
+      "name": "Candidate / windows-latest / Python 3.14",
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.14.8 (tags/v3.14.8:8e6e75d, Sep 30 2026, 18:19:33) [MSC v.1944 64 bit (AMD64)]",
+        "platform": "Windows-2025Server-10.0.26100-SP0",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 300,
+        "completed_iterations": 300,
+        "failures": [],
+        "recovered_oserrors": 1,
+        "candidate_io_sha256": "26da2b8b4f7a480c2b3e132b4cf36e7f09592e49ec7af8946ea491925313231e",
+        "source_is_unchanged": false,
+        "derived_files": [
+          "ucs_control_plane/io.py",
+          "evidence/phase2-local-verification.json",
+          "SHA256SUMS.txt"
+        ],
+        "source_regressions_exit_code": 0,
+        "status": "no_failure_observed"
+      }
+    },
+    {
+      "job_id": 118308367063,
+      "name": "Candidate / ubuntu-latest / Python 3.14",
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.14.8 (main, Oct  1 2026, 02:38:33) [GCC 13.3.0]",
+        "platform": "Linux-6.17.0-1022-azure-x86_64-with-glibc2.39",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 300,
+        "completed_iterations": 300,
+        "failures": [],
+        "recovered_oserrors": 0,
+        "candidate_io_sha256": "26da2b8b4f7a480c2b3e132b4cf36e7f09592e49ec7af8946ea491925313231e",
+        "source_is_unchanged": false,
+        "derived_files": [
+          "ucs_control_plane/io.py",
+          "evidence/phase2-local-verification.json",
+          "SHA256SUMS.txt"
+        ],
+        "source_regressions_exit_code": 0,
+        "status": "no_failure_observed"
+      }
+    },
+    {
+      "job_id": 118308366848,
+      "name": "Candidate / windows-latest / Python 3.15",
+      "report": {
+        "schema": 1,
+        "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "source_sha256": "e0ab7fc8b7b03f5403a96856996b40d6049f639164b7b4fd71bb78ed7645a499",
+        "python": "3.15.0 (tags/v3.15.0:d220409, Oct  9 2026, 11:55:56) [MSC v.1951 64 bit (AMD64)]",
+        "platform": "Windows-2025Server-10.0.26100-SP0",
+        "tracing_changes_scheduling": true,
+        "requested_iterations": 300,
+        "completed_iterations": 300,
+        "failures": [],
+        "recovered_oserrors": 2,
+        "candidate_io_sha256": "26da2b8b4f7a480c2b3e132b4cf36e7f09592e49ec7af8946ea491925313231e",
+        "source_is_unchanged": false,
+        "derived_files": [
+          "ucs_control_plane/io.py",
+          "evidence/phase2-local-verification.json",
+          "SHA256SUMS.txt"
+        ],
+        "source_regressions_exit_code": 0,
+        "status": "no_failure_observed"
+      }
+    }
+  ]
+}
