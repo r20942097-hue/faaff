@@ -4,7 +4,7 @@
 
 ローカルでの一覧・ソース取得状況・診断・確認期限。通信、製品E2E、公開状態の再検証は実行していません。
 
-成果物 44件、製品 10件（本体未取得 9件）、管理機能 19件。
+成果物 46件、製品 10件（本体未取得 9件）、管理機能 19件。
 
 ## 成果物一覧
 
@@ -56,6 +56,8 @@
 | 中断処理・画面記録・生成検証の導入キット候補 | 20261019.3 | 現行対象 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/21855c85c3dcc53fd8498880e463115150ee6d81/workspace-management/tool-integration-kit-20261019.3.zip>) |
 | Windows協調停止・終了確認の更新候補 | 20261019.4 | 現行対象 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/2955ae52e11553abcd599ee8870535e38523af41/workspace-management/catalogue-update-20261019.4.zip>) |
 | Windows協調停止・終了確認の導入キット候補 | 20261019.4 | 現行対象 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/2955ae52e11553abcd599ee8870535e38523af41/workspace-management/tool-integration-kit-20261019.4.zip>) |
+| 取得元診断・パイプ回収の更新候補 | 20261019.5 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
+| 取得元診断・パイプ回収の導入キット候補 | 20261019.5 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
 
 ## 製品と次の開発
 
@@ -110,7 +112,6 @@
 | 2 | 広告リスト生成・同期 | actionable | python tools/manage.py run --tool filters | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | Firefox実拡張の動作検証 | actionable | python tools/manage.py run --tool firefox-extension | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | プロジェクト・配布監査 | actionable | python tools/manage.py run --tool governance | 登録入力を変更せず検証に成功し、doctorを再実行する |
-| 2 | Pythonモジュール検索先の診断 | actionable | python tools/manage.py run --tool module-search | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | 全成果物・改良予定の集計 | actionable | python tools/manage.py run --tool portfolio | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | 固定したPython検証環境の照合 | actionable | python tools/manage.py run --tool python-environment | 登録入力を変更せず検証に成功し、doctorを再実行する |
 | 2 | 依存・検証根拠の確認 | actionable | python tools/manage.py run --tool security-intake | 登録入力を変更せず検証に成功し、doctorを再実行する |
