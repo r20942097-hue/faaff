@@ -146,7 +146,10 @@
     "source_commit": "716acfeed0bb8d8ca7dd3674a130b5fe63cae768",
     "source_matrix": "Windows/Linux x Python3.11/3.14/3.15",
     "source_matrix_status": "success",
-    "actual_kit_matrix_status": "pending"
+    "actual_kit_matrix_status": "success",
+    "actual_kit_verification_run": "https://github.com/r20942097-hue/faaff/actions/runs/39261357765",
+    "tested_commit": "2955ae52e11553abcd599ee8870535e38523af41",
+    "successful_jobs": 18
   },
   "limitations": [
     "Nine product bodies are unavailable.",
@@ -154,5 +157,6 @@
     "Output spooling can grow during polling and controller cleanup grace.",
     "Detached POSIX sessions, external daemons, and controller SIGKILL are outside the ownership scope.",
     "Standard module path lookup is not proof of runtime import resolution."
-  ]
+  ],
+  "public_artifacts_verified": 44
 }
