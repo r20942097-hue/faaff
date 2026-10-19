@@ -1190,21 +1190,22 @@
       "kind": "update",
       "version": "20261019.4",
       "purpose": "Windowsの協調停止通知とJob内の終了確認を改善し、OS別の終了反映を確かめる",
-      "notes": "同一43ファイル集合の独立候補。修正元ソースをWindows/LinuxのPython3.11/3.14/3.15で先に検証。キット内一覧42件、外部一覧44件。実キットの6環境CIは確認中。",
+      "notes": "PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブで成功。ZIP内部の一覧42件と未公開表示は作成時点の記録。外部一覧44件。既存の推奨選択は自動で変更しない。",
       "local_path": "work/releases/catalogue-update-20261019.4.zip",
       "sha256": "b3a683daf48a201f15be9b7daa45ac71f6674d3dbfd37e033e851cc27f9be44a",
       "bytes": 165931,
       "publication": {
-        "stage": "local",
-        "url": "",
-        "pr_url": ""
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/2955ae52e11553abcd599ee8870535e38523af41/workspace-management/catalogue-update-20261019.4.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "2955ae52e11553abcd599ee8870535e38523af41"
       },
       "verification": {
-        "status": "pending",
+        "status": "passed",
         "sha256": "b3a683daf48a201f15be9b7daa45ac71f6674d3dbfd37e033e851cc27f9be44a",
         "checked_on": "2026-10-19",
-        "summary": "実キットの全43ファイル照合と付属CLIによる新規適用に成功。修正元ソースは6環境で成功。新規venvと実キットの6環境CIを確認中。製品E2Eは対象外。",
-        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39260702856"
+        "summary": "固定公開ZIPのサイズ・SHA256一致。実キット43ファイル適用と新規venvのsetup/all/Suite/portfolio/checkがWindows/LinuxのPython3.11/3.14/3.15の6環境で成功。管理290件・支援291件は各環境のOS専用5件を除き成功。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39261357765"
       },
       "local_state": "unchecked",
       "actual_sha256": null,
@@ -1216,21 +1217,22 @@
       "kind": "snapshot",
       "version": "20261019.4",
       "purpose": "Windowsの協調停止通知とJob内の終了確認を改善し、OS別の終了反映を確かめる",
-      "notes": "同一43ファイル集合の独立候補。修正元ソースをWindows/LinuxのPython3.11/3.14/3.15で先に検証。キット内一覧42件、外部一覧44件。実キットの6環境CIは確認中。",
+      "notes": "PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブで成功。ZIP内部の一覧42件と未公開表示は作成時点の記録。外部一覧44件。既存の推奨選択は自動で変更しない。",
       "local_path": "work/releases/tool-integration-kit-20261019.4.zip",
       "sha256": "09f6e558c68ddfdd7a67d28f9c28938357e4393d135d47572c09fbe5071a20b9",
       "bytes": 665456,
       "publication": {
-        "stage": "local",
-        "url": "",
-        "pr_url": ""
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/2955ae52e11553abcd599ee8870535e38523af41/workspace-management/tool-integration-kit-20261019.4.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "2955ae52e11553abcd599ee8870535e38523af41"
       },
       "verification": {
-        "status": "pending",
+        "status": "passed",
         "sha256": "09f6e558c68ddfdd7a67d28f9c28938357e4393d135d47572c09fbe5071a20b9",
         "checked_on": "2026-10-19",
-        "summary": "実キットの全43ファイル照合と付属CLIによる新規適用に成功。修正元ソースは6環境で成功。新規venvと実キットの6環境CIを確認中。製品E2Eは対象外。",
-        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39260702856"
+        "summary": "固定公開ZIPのサイズ・SHA256一致。実キット43ファイル適用と新規venvのsetup/all/Suite/portfolio/checkがWindows/LinuxのPython3.11/3.14/3.15の6環境で成功。管理290件・支援291件は各環境のOS専用5件を除き成功。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39261357765"
       },
       "local_state": "unchecked",
       "actual_sha256": null,

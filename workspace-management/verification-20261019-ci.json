@@ -1,0 +1,120 @@
+{
+  "schema": "portfolio-ci-verification/v1",
+  "checked_on_jst": "2026-10-19",
+  "tested_commit": "2955ae52e11553abcd599ee8870535e38523af41",
+  "workflow_run": "https://github.com/r20942097-hue/faaff/actions/runs/39261357765",
+  "kit_version": "20261019.4",
+  "environments": "Windows/Linux x Python3.11/3.14/3.15",
+  "status": "success",
+  "scope": "Current source, actual v7 kit installation and retained snapshot regressions; no missing product E2E claim.",
+  "jobs": [
+    {
+      "id": 118089541638,
+      "name": "Management candidate / ubuntu-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089541714,
+      "name": "Runtime source / ubuntu-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089541752,
+      "name": "Management candidate / ubuntu-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089541771,
+      "name": "Management candidate / ubuntu-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089541802,
+      "name": "Portfolio update / ubuntu-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089541840,
+      "name": "Portfolio update / windows-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089541846,
+      "name": "Management candidate / windows-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089541865,
+      "name": "Runtime source / ubuntu-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089541919,
+      "name": "Management candidate / windows-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089541957,
+      "name": "Portfolio update / ubuntu-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089541961,
+      "name": "Portfolio update / windows-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089541983,
+      "name": "Portfolio update / ubuntu-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089542043,
+      "name": "Management candidate / windows-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089542071,
+      "name": "Runtime source / ubuntu-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089542075,
+      "name": "Portfolio update / windows-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089542112,
+      "name": "Runtime source / windows-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089542246,
+      "name": "Runtime source / windows-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118089542302,
+      "name": "Runtime source / windows-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}
