@@ -1,0 +1,21 @@
+{
+  "schema": "interrupt-registration-verification/v1",
+  "checked_on": "2026-10-19",
+  "finding": "SIGINT immediately after handler installation can interrupt the setter before the old restoration dictionary is populated. The old context had not entered its finally yet.",
+  "original_behavior": "Reproduced deterministically: previous SIGINT handler not restored.",
+  "fix": "Register an ExitStack restoration before each install; disable only callbacks for installs rejected off the main thread. ExitStack runs remaining callbacks even if another raises.",
+  "source_tests": {
+    "run": 311,
+    "passed": 306,
+    "skipped": 5
+  },
+  "regressions": [
+    "interrupt during handler registration restores the old handler",
+    "non-main-thread guard does not restore uninstalled handlers"
+  ],
+  "native_ci": "pending",
+  "source_hashes": {
+    "check_suite_audit.py": "df5a833d4774eab1d7c75adf62222e41a8bd481865289a1cf5f7272c3e095693",
+    "test_suite_adapter.py": "56209da3d64ce3a276d31297645dbae6a3a8fd1bd7338cc30230034a1660b983"
+  }
+}

@@ -9,7 +9,7 @@ import argparse
 import subprocess
 import signal
 import time
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -167,33 +167,41 @@ def cleanup_interrupts():
 
 @contextmanager
 def controller_interrupts():
-    """Turn the first ordinary interrupt into cancellation, suppress reentry.
+    """Suppress cancellation reentry and roll back even interrupted setup.
 
-    Preserve a caller's custom/ignored SIGINT handler. SIGBREAK keeps the
-    existing controller behavior on Windows. Restore every installed handler.
+    Preserve a caller's custom/ignored SIGINT handler. ExitStack registers each
+    restoration before installing the handler and runs all restorations even
+    if another restoration raises. Non-main-thread installs remain optional.
     """
-    previous = {}
     state = {'interrupted': False}
     def interrupt_once(signum, frame):
         if not state['interrupted']:
             state['interrupted'] = True
             raise KeyboardInterrupt
-    for name in ['SIGINT', 'SIGBREAK']:
-        value = getattr(signal, name, None)
-        if value is None:
-            continue
-        try:
-            original = signal.getsignal(value)
+    with ExitStack() as restore:
+        for name in ['SIGINT', 'SIGBREAK']:
+            value = getattr(signal, name, None)
+            if value is None:
+                continue
+            try:
+                original = signal.getsignal(value)
+            except ValueError:
+                continue
             if name == 'SIGINT' and original is not signal.default_int_handler:
                 continue
-            previous[value] = signal.signal(value, interrupt_once)
-        except ValueError:
-            pass  # Only the main thread can install handlers.
-    try:
+            active = {'restore': True}
+            def restore_handler(number=value, handler=original, marker=active):
+                if marker['restore']:
+                    signal.signal(number, handler)
+            # A signal may run immediately after signal.signal installs the
+            # new handler, before that call returns to Python.
+            restore.callback(restore_handler)
+            try:
+                signal.signal(value, interrupt_once)
+            except ValueError:
+                active['restore'] = False  # No handler installed off the main thread.
         yield state
-    finally:
-        for value, handler in previous.items():
-            signal.signal(value, handler)
+
 
 
 def stop_worker(process, job=None, grace=2):

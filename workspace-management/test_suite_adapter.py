@@ -202,6 +202,41 @@ class SuiteRecoveryTests(unittest.TestCase):
         finally:
             signal.signal(signal.SIGINT, original)
 
+    def test_interrupted_handler_registration_restores_the_previous_handler(self):
+        import signal
+        real_signal = signal.signal
+        original = signal.getsignal(signal.SIGINT)
+        real_signal(signal.SIGINT, signal.default_int_handler)
+        def interrupted_registration(number, handler):
+            previous = real_signal(number, handler)
+            if number == signal.SIGINT and getattr(handler, '__name__', '') == 'interrupt_once':
+                signal.raise_signal(signal.SIGINT)
+            return previous
+        try:
+            with patch.object(adapter.signal, 'signal', side_effect=interrupted_registration):
+                with self.assertRaises(KeyboardInterrupt):
+                    with adapter.controller_interrupts():
+                        self.fail('registration interrupt must prevent entry')
+            self.assertIs(signal.getsignal(signal.SIGINT), signal.default_int_handler)
+        finally:
+            real_signal(signal.SIGINT, original)
+
+    def test_non_main_thread_guard_does_not_restore_uninstalled_handlers(self):
+        import threading
+        failures, observed = [], []
+        def enter():
+            try:
+                with adapter.controller_interrupts() as state:
+                    observed.append(state['interrupted'])
+            except BaseException as error:
+                failures.append(type(error).__name__)
+        thread = threading.Thread(target=enter)
+        thread.start()
+        thread.join(timeout=2)
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(failures, [])
+        self.assertEqual(observed, [False])
+
     def test_custom_sigint_handler_is_preserved_by_controller_guard(self):
         import signal
         seen = []
