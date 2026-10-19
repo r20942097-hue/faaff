@@ -1,0 +1,23 @@
+{
+  "schema": "pipe-capture-verification/v1",
+  "checked_on": "2026-10-19",
+  "runtime": "Linux Python 3.12.14",
+  "source_tests": {
+    "run": 304,
+    "passed": 299,
+    "skipped": 5
+  },
+  "bounded_process_tests": {
+    "run": 27,
+    "passed": 24,
+    "skipped": 3
+  },
+  "transport": "bounded-pipes",
+  "spool_bytes": 0,
+  "scope": "Current source only. Windows/Linux CI pending. Immutable kit 20261019.4 still uses temporary spools. Byte counts are observed bytes, not attempted writes.",
+  "source_hashes": {
+    "bounded_process.py": "12cc1b49fe1f677fbfb18ddb755cc4f144f7e7f3f95af1c86aaeb4677a849c63",
+    "test_bounded_process.py": "284072442378f1ab5427672e4ce8cb200a76f652d8f242a918d2a2299fb8409c",
+    "test_registry.py": "da79f26221e288169c4787ff33c878cc64d6d84abd4725ed1bfb0fae870683bf"
+  }
+}
