@@ -3,21 +3,32 @@
   "checked_on": "2026-10-19",
   "runtime": "Linux Python 3.12.14",
   "source_tests": {
-    "run": 304,
-    "passed": 299,
+    "run": 307,
+    "passed": 302,
     "skipped": 5
   },
   "bounded_process_tests": {
-    "run": 27,
-    "passed": 24,
+    "run": 29,
+    "passed": 26,
     "skipped": 3
   },
   "transport": "bounded-pipes",
   "spool_bytes": 0,
-  "scope": "Current source only. Windows/Linux CI pending. Immutable kit 20261019.4 still uses temporary spools. Byte counts are observed bytes, not attempted writes.",
+  "scope": "Current source only. Six native source jobs passed for pipe implementation. Immutable kit 20261019.4 still uses temporary spools. Preparing independent .5/v8 distribution; byte counts are observed bytes.",
   "source_hashes": {
     "bounded_process.py": "12cc1b49fe1f677fbfb18ddb755cc4f144f7e7f3f95af1c86aaeb4677a849c63",
-    "test_bounded_process.py": "284072442378f1ab5427672e4ce8cb200a76f652d8f242a918d2a2299fb8409c",
-    "test_registry.py": "da79f26221e288169c4787ff33c878cc64d6d84abd4725ed1bfb0fae870683bf"
+    "test_bounded_process.py": "ff276d59746a23a2908a51c67cc04bda39154ef10d3ced59f03f36d00f651353",
+    "test_registry.py": "da79f26221e288169c4787ff33c878cc64d6d84abd4725ed1bfb0fae870683bf",
+    "verify_catalogue_update.py": "a53c4edf3ded71edd9d9024979e878eccda1c4fd78ac8b525f993279043b3743",
+    "test_verify_catalogue_update.py": "579e5fb47b1cff946cfb3589a52a9bd88dfdd851996728633e03a1ae4efe35f4",
+    "source_provenance.py": "91def1429e24b3b11f8cf83411e6e85c85d7ab3a63cbd2232ac3b4c6f730d778",
+    "test_source_provenance.py": "899649a58198ecfffaeaa10eb5d13343cbb404e90eff26df2fc84c00c2c701c1"
+  },
+  "native_source_ci": {
+    "commit": "b6fe5c3f0c39d20a79e7c5b76943b5c1da1ceadb",
+    "run_id": 39268454748,
+    "matrix": "Windows/Linux x Python 3.11, 3.14, 3.15",
+    "runtime_jobs": "all six passed",
+    "scope": "Pipe capture production source; subsequent changes add tests and v8 distribution acceptance."
   }
 }

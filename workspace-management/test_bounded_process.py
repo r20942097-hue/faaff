@@ -59,6 +59,27 @@ class BoundedProcessTests(unittest.TestCase):
         self.assertEqual(result['disk_spool_bytes'], 0)
         self.assertEqual(result['capture_transport'], 'bounded-pipes')
 
+    def test_large_normal_output_from_both_streams_is_complete(self):
+        size = 1024 * 1024
+        source = ('import os,threading;'
+                  't=threading.Thread(target=lambda:os.write(2,b"e"*1048576));t.start();'
+                  'os.write(1,b"o"*1048576);t.join()')
+        result = capture([sys.executable, '-c', source], Path.cwd(), timeout=30, output_limit=size)
+        self.assertEqual(result['exit_code'], 0)
+        self.assertEqual(result['stdout_bytes'], size)
+        self.assertEqual(result['stderr_bytes'], size)
+        self.assertEqual(result['output'], 'o'*size + 'e'*size)
+        self.assertEqual(result['output_pipe_eof'], [True, True])
+        self.assertNotIn('truncated', result)
+
+    def test_pipe_read_failure_cannot_report_success_and_still_cleans_up(self):
+        with patch('bounded_process.PipeLogs.drain', side_effect=OSError('fixture pipe read failure')):
+            result = capture([sys.executable, '-c', 'import time;time.sleep(30)'], Path.cwd())
+        self.assertEqual(result['exit_code'], 125, result)
+        self.assertEqual(result['error'], 'CaptureReadFailed')
+        self.assertEqual(result['capture_error'], 'OSError')
+        self.assertTrue(result['cleanup_complete'])
+
     def test_both_flooding_streams_have_bounded_retention_and_no_spool(self):
         source = ('import os,threading;'
                   't=threading.Thread(target=lambda:os.write(2,b"e"*1000000));t.start();'

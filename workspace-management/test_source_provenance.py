@@ -8,12 +8,15 @@ import unittest
 from unittest.mock import patch
 import zipfile
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+MODULE = Path(__file__).resolve().parent
+if not (MODULE / 'source_provenance.py').is_file():
+    MODULE = MODULE.parent
+sys.path.insert(0, str(MODULE))
 import source_provenance as provenance
 from extract_snapshot import extract
 from verify_catalogue_update import BASE_SHA256
 
-HERE = Path(__file__).resolve().parent
+HERE = MODULE
 
 
 def archive(path, files):
@@ -127,6 +130,8 @@ class ProvenanceTests(unittest.TestCase):
 
     def test_real_update_hashes_and_local_drift(self):
         base = HERE / 'workspace-source-20261011.zip'
+        if not base.is_file():
+            self.skipTest('real distribution ZIP is tested in repository CI; installed CLI is tested separately')
         record = json.loads((HERE / 'catalogue-update-20261019-4-package.json').read_text(encoding='utf-8'))
         update = HERE / record['file']
         root = Path(self.tmp.name) / 'real'
