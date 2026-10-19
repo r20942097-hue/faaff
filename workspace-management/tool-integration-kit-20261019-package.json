@@ -1,0 +1,29 @@
+{
+  "bytes": 647335,
+  "file": "tool-integration-kit-20261019.1.zip",
+  "publication": "local_only",
+  "reproducible_frozen_inputs": true,
+  "schema": "local-integration-kit/v1",
+  "scope": "Local management and filter verification development candidate; not missing product bodies.",
+  "sha256": "4e97d3d7098866ca179689987ba63cb53bf2b105d056c7818ddc9785aeb42c06",
+  "source_hashes": {
+    "KIT-README.md": "fe1aaa99dcf9acca56069c3e26a90380fa59d3cf7f6d748c070d8d37282bf4f7",
+    "apply_catalogue_update.py": "623f5eabf4ade7786e5c327d6c4c46fc8145cdb109d0ac2c1a83f07ba265bce0",
+    "catalogue-update-20261019.1.zip": "f480132144a2651c6f0be130c19c6ae455f584b1becb0f33a50492ec16f572a5",
+    "extract_snapshot.py": "dda8d8dc184fb7fa8912d49255c4ba7cfc0ee28d27496da698040e991168c6c7",
+    "registry.py": "2b31fb83c6479ec7e759a13c27feaf07e1ea3ad5f71c47cef923d03a5873cac7",
+    "verify_catalogue_update.py": "664e46c92c22ebd69c93199914a59c842f707426e01ada1c22b7308f0bb0b47d",
+    "workspace-source-20261011.zip": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9"
+  },
+  "verification": {
+    "actual_cli_preparation_passed": true,
+    "linux_python": [
+      "3.11",
+      "3.14",
+      "3.15"
+    ],
+    "product_e2e": "not_run",
+    "windows_ci": "not_run"
+  },
+  "version": "20261019.1"
+}

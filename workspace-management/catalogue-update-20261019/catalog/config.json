@@ -1,0 +1,76 @@
+{
+  "schema": "workspace-catalog/v1",
+  "sources": [
+    {
+      "name": "s",
+      "path": "s",
+      "repository": "https://github.com/r20942097-hue/s",
+      "kind": "repository",
+      "repository_ref": "8d3d0b34076a15fac9fd2d6cb4b822a7a39d30ad"
+    },
+    {
+      "name": "faaff",
+      "path": "faaff",
+      "repository": "https://github.com/r20942097-hue/faaff",
+      "kind": "repository",
+      "repository_ref": "c00d72829bdb772ba4db18cded78c1838ec0f254"
+    },
+    {
+      "name": "library-files",
+      "path": "library-files",
+      "kind": "library"
+    },
+    {
+      "name": "downloads",
+      "path": "shared/downloads",
+      "kind": "library"
+    },
+    {
+      "name": "management",
+      "path": "tools",
+      "kind": "management"
+    },
+    {
+      "name": "catalog-docs",
+      "path": "catalog",
+      "kind": "management",
+      "include": [
+        "README.md",
+        "REPORT.md",
+        "config.json",
+        "ADBLOCK-UPDATE.md",
+        "TOOLS.md",
+        "INTEGRATION.md",
+        "BRANCHES.md",
+        "PROJECTS.md",
+        "projects.json",
+        "PYTHON.md",
+        "artifacts.json",
+        "ARTIFACTS.md"
+      ]
+    },
+    {
+      "name": "workspace-docs",
+      "path": ".",
+      "kind": "management",
+      "include": [
+        "README.md"
+      ]
+    }
+  ],
+  "filter_relationships": [
+    {
+      "base": "faaff/browser_filter_lists/filters/universal-web-tracking-filter.txt",
+      "target": "s/tracking.txt",
+      "extra_rules": []
+    },
+    {
+      "base": "faaff/browser_filter_lists/filters/universal-web-ad-filter.txt",
+      "target": "s/ad.txt",
+      "extra_rules": [
+        "||a-ads.com^$third-party"
+      ]
+    }
+  ],
+  "link_mode": "direct"
+}

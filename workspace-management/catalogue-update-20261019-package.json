@@ -1,0 +1,24 @@
+{
+  "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+  "bytes": 147475,
+  "candidate_files": 37,
+  "file": "catalogue-update-20261019.1.zip",
+  "publication": "local_only",
+  "reproducible_frozen_inputs": true,
+  "schema": "local-catalogue-update-package/v1",
+  "scope": "Locally built development update. No product E2E or public distribution claim.",
+  "sha256": "f480132144a2651c6f0be130c19c6ae455f584b1becb0f33a50492ec16f572a5",
+  "source_base_faaff": "c65e134cb9178739609857fb2171900e39982738",
+  "source_revision_s": "8d3d0b34076a15fac9fd2d6cb4b822a7a39d30ad",
+  "verification": {
+    "actual_cli_preparation_passed": true,
+    "linux_python": [
+      "3.11",
+      "3.14",
+      "3.15"
+    ],
+    "product_e2e": "not_run",
+    "windows_ci": "not_run"
+  },
+  "version": "20261019.1"
+}

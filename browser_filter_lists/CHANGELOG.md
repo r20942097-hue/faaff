@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-10-19 — Candidate type validation
+
+- Report invalid candidate category/state/risk types as validation errors instead of uncaught exceptions.
+- Add regression tests for malformed JSON enum values; stable rules and candidate decisions are unchanged.
+
 ## 2026-10-11 — shared profiles and refreshed evidence (local)
 
 - Refreshed candidate evidence from pinned current EasyList, AdGuard and uAssets snapshots.

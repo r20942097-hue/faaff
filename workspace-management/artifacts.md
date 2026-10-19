@@ -35,14 +35,19 @@
 | ツール統合・導入キット 20261014.7<br>推奨・現行と履歴を用途別に選択し、s/faaffの登録フォルダ変更を再検証へ接続 | 20261014.7 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理187件・公開支援156件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。s/faaffの登録入力・明示推奨の異常と4形式を検証。新規仮想環境のsetup/all、生成後のリンク状態を検査。製品E2Eは対象外。<br>2026-10-14 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/2cbfafb8d41c213400abf9889d58be3d2bdb132a/workspace-management/tool-integration-kit-20261014.7.zip) | 履歴版 |
 | Pythonモジュール入力・変更検知の統合更新<br>明示したPython -m入力の変更を検知し、実行・診断・画面・配布へ接続 | 20261015.1 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理203件・公開支援172件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。明示モジュール入力・変更時の後続停止・新規仮想環境のsetup/all・リンク状態を検査。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/02bf49c7053f9ccce769b75e9145085317b23d9b/workspace-management/catalogue-update-20261015.1.zip) | 履歴版 |
 | ツール統合・導入キット 20261015.1<br>明示したPython -m入力の変更を検知し、実行・診断・画面・配布へ接続 | 20261015.1 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理203件・公開支援172件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。明示モジュール入力・変更時の後続停止・新規仮想環境のsetup/all・リンク状態を検査。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/02bf49c7053f9ccce769b75e9145085317b23d9b/workspace-management/tool-integration-kit-20261015.1.zip) | 履歴版 |
-| Suite監査の実行分離・v4統合更新<br>Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続 | 20261015.2 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/catalogue-update-20261015.2.zip) | 推奨版 |
+| Suite監査の実行分離・v4統合更新<br>Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続 | 20261015.2 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/catalogue-update-20261015.2.zip) | 履歴版 |
 | ツール統合・導入キット 20261015.2<br>Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続 | 20261015.2 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/tool-integration-kit-20261015.2.zip) | 推奨版 |
+| Suite監査の停止・復旧更新（履歴）<br>Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する | 20261015.3 | PR公開・main未反映 | ZIPのサイズ・SHA256を照合。Windows停止試験の不合格記録があるため動作合格としない。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/catalogue-update-20261015.3.zip) | 履歴版 |
+| ツール統合・導入キット20261015.3（非推奨）<br>Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する | 20261015.3 | PR公開・main未反映 | ZIPのサイズ・SHA256を照合。Windows停止試験の不合格記録があるため動作合格としない。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/tool-integration-kit-20261015.3.zip) | 履歴版 |
+| Windows起動順を修正したSuite監査更新<br>Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する | 20261015.4 | PR公開・main未反映 | 今回Linuxで新規適用、標準18検査、画面64項目を確認。公開CIの修正版ソース検証も成功。製品E2E・Windows実機録画は対象外。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/catalogue-update-20261015.4.zip) | 推奨版 |
+| 全成果物集計・検証改善の更新候補<br>全成果物・10製品・次の改良を集計し、生成・検証・診断の不具合を修正する | 20261019.1 | ローカル保存 | 固定基準ZIPへの37ファイル適用、二重ビルド一致、実キットCLI適用、新規仮想環境のsetup/all、LinuxのPython3.11/3.14/3.15で成功。画面64項目、合成DOM12項目を確認。製品本体のE2E・Windows受入は対象外。<br>2026-10-19 | 手元は未照合 | — | 現行対象 |
+| 全成果物集計・検証改善の導入キット候補<br>全成果物・10製品・次の改良を集計し、生成・検証・診断の不具合を修正する | 20261019.1 | ローカル保存 | 固定基準ZIPへの37ファイル適用、二重ビルド一致、実キットCLI適用、新規仮想環境のsetup/all、LinuxのPython3.11/3.14/3.15で成功。画面64項目、合成DOM12項目を確認。製品本体のE2E・Windows受入は対象外。<br>2026-10-19 | 手元は未照合 | — | 現行対象 |
 
 ## 前回からの変更
 
 前の公開ソースZIP 20261012.1 内の本文・版との比較
 
-追加 21件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
+追加 26件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
 - 共通ツール・ソースZIP：20261012.1 → 20261012.2
 
 ## サイズ・SHA256
@@ -374,6 +379,56 @@ v4の26ファイル更新。更新ZIP内の一覧は作成時点31件、現在�
 `3d7b3729ce92da69eb7b4fa107a0f785967746b9fbb751badd2aea9e8fe39b93`
 
 v4の26ファイル更新。更新ZIP内の一覧は作成時点31件、現在の公開一覧は33件。監査原本・既存ZIPパス検査を維持。基準ZIP・v4更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。
+
+</details>
+
+<details><summary>Suite監査の停止・復旧更新（履歴）</summary>
+
+118,030 bytes
+
+`a070ebbf6fc0b141dd0ae33fbb6372fdfcd62201e0fc4a1d5a1f6e558e79a77e`
+
+Windows停止試験で不合格を検出した履歴版。導入には使用しない。固定配布物の識別と当時の内容を保存する。
+
+</details>
+
+<details><summary>ツール統合・導入キット20261015.3（非推奨）</summary>
+
+619,405 bytes
+
+`b3d6b443874cb8973e47008631743e4df82ebf10377159ebe41a5a13e64c6993`
+
+Windows停止試験で不合格を検出した履歴版。導入には使用しない。固定配布物の識別と当時の内容を保存する。
+
+</details>
+
+<details><summary>Windows起動順を修正したSuite監査更新</summary>
+
+118,648 bytes
+
+`c340b7ac8c229707c38f931eac661997e542685c050fa92be361de0fffdf30ea`
+
+CREATE\_SUSPENDEDで起動しJob登録後に再開する修正版。基準ZIP20261012.2と最新版ヘルパーへ適用。単体更新で、録画などの製品本体は含まない。
+
+</details>
+
+<details><summary>全成果物集計・検証改善の更新候補</summary>
+
+147,475 bytes
+
+`f480132144a2651c6f0be130c19c6ae455f584b1becb0f33a50492ec16f572a5`
+
+ローカル開発候補。LinuxのPython3.11/3.14/3.15で新規導入・標準検査を確認。公開GitHubへ未送信、Windows CI未実施。ZIP内一覧は作成時点36件、今回の2候補を含む外部一覧は38件。
+
+</details>
+
+<details><summary>全成果物集計・検証改善の導入キット候補</summary>
+
+647,335 bytes
+
+`4e97d3d7098866ca179689987ba63cb53bf2b105d056c7818ddc9785aeb42c06`
+
+ローカル開発候補。LinuxのPython3.11/3.14/3.15で新規導入・標準検査を確認。公開GitHubへ未送信、Windows CI未実施。ZIP内一覧は作成時点36件、今回の2候補を含む外部一覧は38件。
 
 </details>
 
