@@ -72,7 +72,7 @@ class ProvenanceTests(unittest.TestCase):
         real = provenance.indexed
         def mutate_after_first_scan(root):
             result = real(root)
-            if Path(root) == self.root:
+            if Path(root).resolve() == self.root.resolve():
                 (self.root / 'repo/change.txt').write_text('changed-during-scan')
             return result
         with patch.object(provenance, 'indexed', side_effect=mutate_after_first_scan):
