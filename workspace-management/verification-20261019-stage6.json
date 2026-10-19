@@ -91,5 +91,12 @@
     "records": 48,
     "public_bytes_match": 48,
     "evidence": "publication-20261019-stage6.json"
+  },
+  "subsequent_finding": {
+    "kind": "interrupted handler registration",
+    "reproduced": true,
+    "evidence": "verification-20261019-registration.json",
+    "release_state": "history; new fix in .7",
+    "scope": "The prior 18 green jobs remain accurate for their tests; the added registration-interrupt case was absent."
   }
 }

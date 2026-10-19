@@ -27,6 +27,7 @@ on:
       - 'workspace-management/catalogue-update-20261019-4/**'
       - 'workspace-management/catalogue-update-20261019-5/**'
       - 'workspace-management/catalogue-update-20261019-6/**'
+      - 'workspace-management/catalogue-update-20261019-7/**'
       - 'workspace-management/registry.json'
       - 'workspace-management/.gitattributes'
       - '.github/workflows/workspace-snapshot.yml'
@@ -94,18 +95,18 @@ jobs:
           from extract_snapshot import extract
           from verify_catalogue_update import V8_FILES
           source = Path('workspace-management')
-          record = json.loads((source / 'tool-integration-kit-20261019-6-package.json').read_text(encoding='utf-8'))
+          record = json.loads((source / 'tool-integration-kit-20261019-7-package.json').read_text(encoding='utf-8'))
           kit = Path('work/portfolio-kit')
           assert extract(source / record['file'], record['sha256'], kit) == 8
           for name, digest in record['source_hashes'].items():
               assert hashlib.sha256((kit / name).read_bytes()).hexdigest() == digest, name
-          update = json.loads((source / 'catalogue-update-20261019-6-package.json').read_text(encoding='utf-8'))
+          update = json.loads((source / 'catalogue-update-20261019-7-package.json').read_text(encoding='utf-8'))
           subprocess.run([sys.executable, 'apply_catalogue_update.py', '--base', 'workspace-source-20261011.zip',
                           '--update', update['file'], '--update-sha256', update['sha256'],
                           '--output', 'work/integrated-tools'], cwd=kit, check=True)
           target = kit / 'work/integrated-tools'
           for name in V8_FILES:
-              assert (target / name).read_bytes() == (source / 'catalogue-update-20261019-6' / name).read_bytes(), name
+              assert (target / name).read_bytes() == (source / 'catalogue-update-20261019-7' / name).read_bytes(), name
           subprocess.run([sys.executable, '-m', 'venv', str(target / 'work/verify-env')], check=True)
           python = (target / 'work/verify-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')).absolute()
           for command in [['tools/manage.py', 'setup'], ['tools/manage.py', 'doctor'],
@@ -129,7 +130,7 @@ jobs:
                           '--update', '../../' + update['file'], '--update-sha256', update['sha256'],
                           '--output', 'work/source-provenance-ci'], cwd=target, check=True)
           provenance = json.loads((target / 'work/source-provenance-ci/source-provenance.json').read_text(encoding='utf-8'))
-          assert provenance['status'] == 'observed' and provenance['history'][1]['version'] == '20261019.6'
+          assert provenance['status'] == 'observed' and provenance['history'][1]['version'] == '20261019.7'
           observed = {item['path']: item for item in provenance['files']}
           assert observed['tools/source_provenance.py']['state'] == 'matches_update'
           assert observed['tools/bounded_process.py']['state'] == 'matches_update'
