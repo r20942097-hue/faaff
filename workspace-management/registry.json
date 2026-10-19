@@ -407,6 +407,30 @@
       ],
       "cwd": ".",
       "timeout_seconds": 120
+    },
+    {
+      "id": "portfolio",
+      "name": "全成果物・改良予定の集計",
+      "files": [
+        "tools/portfolio_status.py",
+        "tools/artifacts.py",
+        "tools/projects.py",
+        "tools/doctor.py",
+        "catalog/projects.json",
+        "catalog/artifacts.json",
+        "faaff/browser_filter_lists/manifest.json",
+        "faaff/browser_filter_lists/experimental/candidates.json"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/portfolio_status.py"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120
     }
   ],
   "checks": [
@@ -605,6 +629,15 @@
         "tools/check_settings.py"
       ],
       "timeout_seconds": 120
+    },
+    {
+      "name": "Portfolio status and maintenance deadlines",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "tools/portfolio_status.py"
+      ],
+      "timeout_seconds": 120
     }
   ],
   "input_groups": [
@@ -628,7 +661,8 @@
         "firefox-extension",
         "source-integrity",
         "artifact-publication",
-        "settings-consistency"
+        "settings-consistency",
+        "portfolio"
       ],
       "files": [
         "tools/registry.py",

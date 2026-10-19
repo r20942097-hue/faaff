@@ -8,6 +8,22 @@ import validate_filters as vf
 
 
 class ValidatorTests(unittest.TestCase):
+    def test_non_string_candidate_enums_report_validation_errors(self):
+        real_load = vf.load_json
+        manifest = real_load(vf.MANIFEST_PATH)
+        queue_path = vf.ROOT / manifest['candidate_queue']
+        original = real_load(queue_path)
+        for field in ['category', 'state', 'risk']:
+            for value in [{}, [], [{}], {'nested': []}, None, True]:
+                with self.subTest(field=field, value=value):
+                    queue = json.loads(json.dumps(original))
+                    queue['candidates'][0][field] = value
+                    def load_fixture(path):
+                        return queue if path == queue_path else real_load(path)
+                    with patch.object(vf, 'load_json', side_effect=load_fixture):
+                        errors, _warnings = vf.validate()
+                    self.assertTrue(any(field in error for error in errors), errors)
+
     def test_repository_state_is_valid(self):
         errors, _warnings = vf.validate()
         self.assertEqual(errors, [])

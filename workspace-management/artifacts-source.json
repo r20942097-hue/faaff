@@ -885,7 +885,7 @@
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38652955604"
       },
       "release_family": "management-update",
-      "recommended": true
+      "recommended": false
     },
     {
       "id": "tool-integration-kit-20261015-2",
@@ -912,6 +912,130 @@
       },
       "release_family": "integration-kit",
       "recommended": true
+    },
+    {
+      "id": "management-update-20261015-3",
+      "name": "Suite監査の停止・復旧更新（履歴）",
+      "version": "20261015.3",
+      "kind": "update",
+      "purpose": "Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する",
+      "notes": "Windows停止試験で不合格を検出した履歴版。導入には使用しない。固定配布物の識別と当時の内容を保存する。",
+      "local_path": "work/releases/catalogue-update-20261015.3.zip",
+      "sha256": "a070ebbf6fc0b141dd0ae33fbb6372fdfcd62201e0fc4a1d5a1f6e558e79a77e",
+      "bytes": 118030,
+      "publication": {
+        "stage": "pr",
+        "commit": "c65e134cb9178739609857fb2171900e39982738",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/catalogue-update-20261015.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "a070ebbf6fc0b141dd0ae33fbb6372fdfcd62201e0fc4a1d5a1f6e558e79a77e",
+        "checked_on": "2026-10-19",
+        "summary": "ZIPのサイズ・SHA256を照合。Windows停止試験の不合格記録があるため動作合格としない。",
+        "evidence_url": ""
+      },
+      "release_family": "management-update",
+      "recommended": false
+    },
+    {
+      "id": "tool-integration-kit-20261015-3",
+      "name": "ツール統合・導入キット20261015.3（非推奨）",
+      "version": "20261015.3",
+      "kind": "snapshot",
+      "purpose": "Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する",
+      "notes": "Windows停止試験で不合格を検出した履歴版。導入には使用しない。固定配布物の識別と当時の内容を保存する。",
+      "local_path": "work/releases/tool-integration-kit-20261015.3.zip",
+      "sha256": "b3d6b443874cb8973e47008631743e4df82ebf10377159ebe41a5a13e64c6993",
+      "bytes": 619405,
+      "publication": {
+        "stage": "pr",
+        "commit": "c65e134cb9178739609857fb2171900e39982738",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/tool-integration-kit-20261015.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "b3d6b443874cb8973e47008631743e4df82ebf10377159ebe41a5a13e64c6993",
+        "checked_on": "2026-10-19",
+        "summary": "ZIPのサイズ・SHA256を照合。Windows停止試験の不合格記録があるため動作合格としない。",
+        "evidence_url": ""
+      },
+      "release_family": "integration-kit",
+      "recommended": false
+    },
+    {
+      "id": "management-update-20261015-4",
+      "name": "Windows起動順を修正したSuite監査更新",
+      "version": "20261015.4",
+      "kind": "update",
+      "purpose": "Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する",
+      "notes": "CREATE_SUSPENDEDで起動しJob登録後に再開する修正版。基準ZIP20261012.2と最新版ヘルパーへ適用。単体更新で、録画などの製品本体は含まない。",
+      "local_path": "work/releases/catalogue-update-20261015.4.zip",
+      "sha256": "c340b7ac8c229707c38f931eac661997e542685c050fa92be361de0fffdf30ea",
+      "bytes": 118648,
+      "publication": {
+        "stage": "pr",
+        "commit": "c65e134cb9178739609857fb2171900e39982738",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/catalogue-update-20261015.4.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "c340b7ac8c229707c38f931eac661997e542685c050fa92be361de0fffdf30ea",
+        "checked_on": "2026-10-19",
+        "summary": "今回Linuxで新規適用、標準18検査、画面64項目を確認。公開CIの修正版ソース検証も成功。製品E2E・Windows実機録画は対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38680305435"
+      },
+      "release_family": "management-update",
+      "recommended": true
+    },
+    {
+      "id": "management-update-20261019-1",
+      "name": "全成果物集計・検証改善の更新候補",
+      "kind": "update",
+      "version": "20261019.1",
+      "purpose": "全成果物・10製品・次の改良を集計し、生成・検証・診断の不具合を修正する",
+      "notes": "ローカル開発候補。LinuxのPython3.11/3.14/3.15で新規導入・標準検査を確認。公開GitHubへ未送信、Windows CI未実施。ZIP内一覧は作成時点36件、今回の2候補を含む外部一覧は38件。",
+      "local_path": "work/releases/catalogue-update-20261019.1.zip",
+      "sha256": "f480132144a2651c6f0be130c19c6ae455f584b1becb0f33a50492ec16f572a5",
+      "bytes": 147475,
+      "publication": {
+        "stage": "local",
+        "url": "",
+        "pr_url": ""
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "f480132144a2651c6f0be130c19c6ae455f584b1becb0f33a50492ec16f572a5",
+        "checked_on": "2026-10-19",
+        "summary": "固定基準ZIPへの37ファイル適用、二重ビルド一致、実キットCLI適用、新規仮想環境のsetup/all、LinuxのPython3.11/3.14/3.15で成功。画面64項目、合成DOM12項目を確認。製品本体のE2E・Windows受入は対象外。",
+        "evidence_url": ""
+      }
+    },
+    {
+      "id": "tool-integration-kit-20261019-1",
+      "name": "全成果物集計・検証改善の導入キット候補",
+      "kind": "snapshot",
+      "version": "20261019.1",
+      "purpose": "全成果物・10製品・次の改良を集計し、生成・検証・診断の不具合を修正する",
+      "notes": "ローカル開発候補。LinuxのPython3.11/3.14/3.15で新規導入・標準検査を確認。公開GitHubへ未送信、Windows CI未実施。ZIP内一覧は作成時点36件、今回の2候補を含む外部一覧は38件。",
+      "local_path": "work/releases/tool-integration-kit-20261019.1.zip",
+      "sha256": "4e97d3d7098866ca179689987ba63cb53bf2b105d056c7818ddc9785aeb42c06",
+      "bytes": 647335,
+      "publication": {
+        "stage": "local",
+        "url": "",
+        "pr_url": ""
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "4e97d3d7098866ca179689987ba63cb53bf2b105d056c7818ddc9785aeb42c06",
+        "checked_on": "2026-10-19",
+        "summary": "固定基準ZIPへの37ファイル適用、二重ビルド一致、実キットCLI適用、新規仮想環境のsetup/all、LinuxのPython3.11/3.14/3.15で成功。画面64項目、合成DOM12項目を確認。製品本体のE2E・Windows受入は対象外。",
+        "evidence_url": ""
+      }
     }
   ],
   "rule_groups": [

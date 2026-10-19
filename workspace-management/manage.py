@@ -48,7 +48,8 @@ def scan(root, config):
                 dirs[:] = []
             for name in sorted(files):
                 path = Path(directory) / name
-                if path.is_symlink() or name.startswith('.env') or path.suffix in {'.pyc', '.pyo'}:
+                if (name in EXCLUDED or path.is_symlink() or not path.is_file()
+                        or name.startswith('.env') or path.suffix in {'.pyc', '.pyo'}):
                     continue
                 relative = path.relative_to(base)
                 if 'include' in source and relative.as_posix() not in source['include']:
@@ -95,15 +96,22 @@ def link_path(row):
 
 
 def csv_text(rows, direct=False):
+    from artifacts import spreadsheet
     stream = io.StringIO(newline='')
     writer = csv.writer(stream)
     writer.writerow(['出典', '分類', 'ファイル', '状態', 'バージョン', 'ライセンス', 'バイト数', 'SHA256', '整理先', 'GitHub参照URL'])
     for row in rows:
-        writer.writerow([row[k] for k in ('source', 'category', 'path', 'state', 'version', 'license', 'bytes', 'sha256')] + [row['original'] if direct else link_path(row), row['url']])
+        values = [row[k] for k in ('source', 'category', 'path', 'state', 'version', 'license', 'bytes', 'sha256')] + [row['original'] if direct else link_path(row), row['url']]
+        writer.writerow([spreadsheet(value) for value in values])
     return '\ufeff' + stream.getvalue()
 
 
 def markdown(rows, direct=False):
+    def cell(value):
+        text = html.escape(str(value)).replace('\r\n', '\n').replace('\r', '\n')
+        for character, entity in [('|', '&#124;'), ('[', '&#91;'), (']', '&#93;'), ('`', '&#96;')]:
+            text = text.replace(character, entity)
+        return text.replace('\n', '<br>')
     lines = ['# ライブラリ・成果物カタログ', '', f'登録ファイル：**{len(rows)}件**。`python tools/manage.py build` で更新します。', '',
              '録画ツールの実行ソース・ZIP、Windows実機テストは未確認。状態はローカル確認に基づきます。', '',
              '| 出典 | ファイル数 |', '|---|---:|']
@@ -114,7 +122,7 @@ def markdown(rows, direct=False):
         for row in rows:
             if row['source'] == source:
                 target = '../../' + quote(row['original']) if direct else '../' + quote(link_path(row))
-                lines.append(f"| {row['category']} | [{row['path']}]({target}) | {row['state']} | {row['version'] or '—'} |")
+                lines.append(f"| {cell(row['category'])} | [{cell(row['path'])}]({target}) | {cell(row['state'])} | {cell(row['version'] or '—')} |")
     return '\n'.join(lines) + '\n'
 
 
@@ -355,7 +363,7 @@ def test(root, extra_commands=()):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['build', 'check', 'test', 'filters', 'all', 'doctor', 'run', 'setup', 'release'])
+    parser.add_argument('command', choices=['build', 'check', 'test', 'filters', 'all', 'doctor', 'run', 'setup', 'release', 'portfolio'])
     parser.add_argument('--output', type=Path, help='new work/*.zip output for a portable source snapshot')
     parser.add_argument('--tool', help='registered tool id for run')
     parser.add_argument('--check', action='store_true', help='check filter generation without writing')
@@ -376,6 +384,11 @@ def main():
             parser.error(str(error))
     if args.tool and args.command != 'run':
         parser.error('--tool applies only to run')
+    if args.command == 'portfolio':
+        if args.check or args.engine_dir or args.ghostery_entry or args.browser or args.workflows:
+            parser.error('portfolio accepts no verification flags')
+        from portfolio_status import run
+        return run(ROOT)
     if args.command == 'setup':
         if args.check or args.tool or args.engine_dir or args.ghostery_entry or args.browser or args.workflows:
             parser.error('setup accepts no verification flags')

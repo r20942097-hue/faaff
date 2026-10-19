@@ -254,11 +254,11 @@ def validate():
             if domain in all_hosts:
                 errors.append(f"{prefix}: candidate already exists in stable list: {domain}")
 
-            if category not in {"ads", "tracking"}:
+            if not isinstance(category, str) or category not in {"ads", "tracking"}:
                 errors.append(f"{prefix}: category must be ads or tracking")
-            if state not in {"candidate", "hold", "rejected"}:
+            if not isinstance(state, str) or state not in {"candidate", "hold", "rejected"}:
                 errors.append(f"{prefix}: invalid state")
-            if risk not in {"low", "medium", "high"}:
+            if not isinstance(risk, str) or risk not in {"low", "medium", "high"}:
                 errors.append(f"{prefix}: invalid risk")
             if risk == "high" and state == "candidate":
                 errors.append(f"{prefix}: high-risk entries must be hold or rejected")
