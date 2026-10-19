@@ -4,7 +4,7 @@
 
 ローカルでの一覧・ソース取得状況・診断・確認期限。通信、製品E2E、公開状態の再検証は実行していません。
 
-成果物 40件、製品 10件（本体未取得 9件）、管理機能 19件。
+成果物 42件、製品 10件（本体未取得 9件）、管理機能 19件。
 
 ## 成果物一覧
 
@@ -50,8 +50,10 @@
 | Windows起動順を修正したSuite監査更新 | 20261015.4 | 推奨版 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/catalogue-update-20261015.4.zip>) |
 | 全成果物集計・検証改善の更新候補 | 20261019.1 | 現行対象 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/bf6a76baba136222617726f1433a10e7f8ba03c5/workspace-management/catalogue-update-20261019.1.zip>) |
 | 全成果物集計・検証改善の導入キット候補 | 20261019.1 | 現行対象 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/bf6a76baba136222617726f1433a10e7f8ba03c5/workspace-management/tool-integration-kit-20261019.1.zip>) |
-| 改行・実行管理・検索先診断の更新候補 | 20261019.2 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
-| 改行・実行管理・検索先診断の導入キット候補 | 20261019.2 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
+| 改行・実行管理・検索先診断の更新候補 | 20261019.2 | 現行対象 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/e5289940afb1082356899816edf9ac56b9fbc5d9/workspace-management/catalogue-update-20261019.2.zip>) |
+| 改行・実行管理・検索先診断の導入キット候補 | 20261019.2 | 現行対象 | PR公開・main未反映 | 2026-10-19 | [固定公開先](<https://raw.githubusercontent.com/r20942097-hue/faaff/e5289940afb1082356899816edf9ac56b9fbc5d9/workspace-management/tool-integration-kit-20261019.2.zip>) |
+| 中断処理・画面記録・生成検証の更新候補 | 20261019.3 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
+| 中断処理・画面記録・生成検証の導入キット候補 | 20261019.3 | 現行対象 | ローカル保存 | 2026-10-19 | 未公開 |
 
 ## 製品と次の開発
 

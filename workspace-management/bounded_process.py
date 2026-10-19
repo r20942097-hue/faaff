@@ -7,9 +7,9 @@ import tempfile
 import time
 
 if __package__:
-    from .check_suite_audit import WindowsJob, stop_worker
+    from .check_suite_audit import WindowsJob, stop_worker, cleanup_interrupts
 else:
-    from check_suite_audit import WindowsJob, stop_worker
+    from check_suite_audit import WindowsJob, stop_worker, cleanup_interrupts
 
 DEFAULT_OUTPUT_LIMIT = 2 * 1024 * 1024  # Each stream; retained JSON text is bounded too.
 
@@ -18,7 +18,30 @@ class OutputLimitExceeded(Exception):
     pass
 
 
-def _capture(command, directory, timeout=120, environment=None, output_limit=DEFAULT_OUTPUT_LIMIT):
+def allow_controller_cleanup(process, grace):
+    """Signal a supervising child once, then allow time for its own cleanup."""
+    if process.poll() is not None:
+        return False
+    # Keep spooling during grace: stopping a supervisor early can abandon its
+    # separately owned worker group. Retained logs remain bounded when read.
+    with cleanup_interrupts():
+        try:
+            process.send_signal(signal.CTRL_BREAK_EVENT if os.name == 'nt' else signal.SIGINT)
+        except OSError:
+            return True
+        deadline = time.monotonic() + grace
+        while process.poll() is None:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return True
+            try:
+                process.wait(timeout=min(0.02, remaining))
+            except subprocess.TimeoutExpired:
+                pass
+    return False
+
+
+def _capture(command, directory, timeout=120, environment=None, output_limit=DEFAULT_OUTPUT_LIMIT, interrupt_grace=0):
     """Spool to temporary files, poll size, then retain only a bounded prefix.
 
     Spool files can exceed the limit between polls; this is a retained-output
@@ -29,10 +52,14 @@ def _capture(command, directory, timeout=120, environment=None, output_limit=DEF
         raise ValueError('output_limit must be 1024..67108864 bytes per stream')
     if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= 600:
         raise ValueError('timeout must be finite and greater than zero, up to 600 seconds')
+    if type(interrupt_grace) not in (int, float) or not math.isfinite(interrupt_grace) or not 0 <= interrupt_grace <= 10:
+        raise ValueError('interrupt_grace must be finite and 0..10 seconds')
     process, job = None, None
     result = {'exit_code': 127, 'output': '', 'cleanup_complete': True, 'ownership_established': False,
               'cleanup_scope': 'Windows Job' if os.name == 'nt' else 'POSIX process group',
               'output_limit_bytes_per_stream': output_limit}
+    if interrupt_grace:
+        result['controller_forced'] = False
     with tempfile.TemporaryFile() as stdout, tempfile.TemporaryFile() as stderr:
         try:
             options = {'cwd': directory, 'env': environment, 'stdin': subprocess.DEVNULL,
@@ -71,9 +98,15 @@ def _capture(command, directory, timeout=120, environment=None, output_limit=DEF
         except KeyboardInterrupt:
             result.update(exit_code=130, interrupted=True)
         except OSError as error:
-            result.update(exit_code=127, error=type(error).__name__, error_message=str(error)[:4096])
+            result.update(exit_code=127, error=type(error).__name__, error_message=(str(command[0]) + ': ' + str(error))[:4096])
         finally:
             if process is not None:
+                if interrupt_grace and result['ownership_established'] and result['exit_code'] in (124, 125, 130):
+                    try:
+                        result['controller_forced'] = allow_controller_cleanup(
+                            process, interrupt_grace)
+                    except OSError as error:
+                        result.update(controller_forced=True, graceful_cleanup_error=type(error).__name__)
                 try:
                     result['cleanup_complete'] = stop_worker(process, job, grace=0.3)
                 except OSError as error:
@@ -101,7 +134,7 @@ def _capture(command, directory, timeout=120, environment=None, output_limit=DEF
     return result
 
 
-def capture(command, directory, timeout=120, environment=None, output_limit=DEFAULT_OUTPUT_LIMIT):
+def capture(command, directory, timeout=120, environment=None, output_limit=DEFAULT_OUTPUT_LIMIT, interrupt_grace=0):
     previous = None
     if os.name == 'nt':
         try:
@@ -109,7 +142,7 @@ def capture(command, directory, timeout=120, environment=None, output_limit=DEFA
         except ValueError:
             pass
     try:
-        return _capture(command, directory, timeout, environment, output_limit)
+        return _capture(command, directory, timeout, environment, output_limit, interrupt_grace)
     except OSError as error:
         return {'exit_code': 127, 'error': type(error).__name__, 'output': str(error)[:4096],
                 'cleanup_complete': False}
