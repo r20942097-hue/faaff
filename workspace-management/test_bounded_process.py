@@ -186,6 +186,64 @@ class BoundedProcessTests(unittest.TestCase):
             with self.subTest(limit=limit), self.assertRaises(ValueError):
                 capture([sys.executable, '-c', 'pass'], Path.cwd(), output_limit=limit)
 
+    def test_os_startup_errors_without_a_filename_still_identify_the_executable(self):
+        with patch('bounded_process.subprocess.Popen', side_effect=FileNotFoundError(2, 'fixture OS message')):
+            result = capture(['fixture-missing-executable'], Path.cwd())
+        self.assertEqual(result['exit_code'], 127)
+        self.assertIn('fixture-missing-executable', result['output'])
+        self.assertIn('fixture OS message', result['output'])
+
+    def test_explicit_environment_reaches_the_child(self):
+        environment = os.environ.copy()
+        environment['WORKSPACE_CAPTURE_FIXTURE'] = 'isolated fixture value'
+        result = capture([sys.executable, '-c', 'import os;print(os.environ["WORKSPACE_CAPTURE_FIXTURE"])'],
+                         Path.cwd(), environment=environment)
+        self.assertEqual(result['exit_code'], 0)
+        self.assertEqual(result['output'].strip(), 'isolated fixture value')
+
+    def test_cooperative_timeout_cleanup_retains_partial_logs(self):
+        signal_name = 'SIGBREAK' if os.name == 'nt' else 'SIGINT'
+        source = ('import signal,sys,time;'
+                  'signal.signal(signal.' + signal_name + ',lambda *args: (print("cleanup complete",flush=True),sys.exit(0)));'
+                  'print("partial before timeout",flush=True);time.sleep(30)')
+        result = capture([sys.executable, '-c', source], Path.cwd(), timeout=1, interrupt_grace=2)
+        self.assertEqual(result['exit_code'], 124)
+        self.assertEqual(result['error'], 'TimeoutExpired')
+        self.assertFalse(result['controller_forced'], result)
+        self.assertIn('partial before timeout', result['output'])
+        self.assertIn('cleanup complete', result['output'])
+        self.assertTrue(result['cleanup_complete'])
+
+    def test_overflow_allows_cooperative_cleanup_with_bounded_retention(self):
+        signal_name = 'SIGBREAK' if os.name == 'nt' else 'SIGINT'
+        source = ('import signal,sys,time;'
+                  'signal.signal(signal.' + signal_name + ',lambda *args: (print("overflow cleanup",file=sys.stderr,flush=True),sys.exit(0)));'
+                  'sys.stdout.buffer.write(b"x"*100000);sys.stdout.flush();time.sleep(30)')
+        result = capture([sys.executable, '-c', source], Path.cwd(), interrupt_grace=2, output_limit=4096)
+        self.assertEqual(result['exit_code'], 125)
+        self.assertEqual(result['error'], 'OutputLimitExceeded')
+        self.assertFalse(result['controller_forced'], result)
+        self.assertIn('overflow cleanup', result['output'])
+        self.assertLess(len(result['output']), 4300)
+
+    def test_uncooperative_controller_is_forced_after_grace(self):
+        signal_name = 'SIGBREAK' if os.name == 'nt' else 'SIGINT'
+        source = ('import signal,time;signal.signal(signal.' + signal_name + ',signal.SIG_IGN);'
+                  'print("ignoring cleanup",flush=True);time.sleep(30)')
+        started = time.monotonic()
+        result = capture([sys.executable, '-c', source], Path.cwd(), timeout=1, interrupt_grace=.2)
+        self.assertEqual(result['exit_code'], 124)
+        self.assertTrue(result['controller_forced'])
+        self.assertTrue(result['cleanup_complete'])
+        self.assertLess(time.monotonic()-started, 5)
+
+    def test_invalid_grace_is_rejected_without_starting_a_process(self):
+        for grace in [True, -1, float('nan'), float('inf'), 11, '1']:
+            with self.subTest(grace=grace), patch('bounded_process.subprocess.Popen') as launch:
+                with self.assertRaises(ValueError):
+                    capture([sys.executable, '-c', 'pass'], Path.cwd(), interrupt_grace=grace)
+                launch.assert_not_called()
+
     def test_invalid_timeout_is_rejected_before_launch(self):
         for timeout in [True, 0, -1, float('nan'), float('inf'), 601, '1']:
             with self.subTest(timeout=timeout), self.assertRaises(ValueError):

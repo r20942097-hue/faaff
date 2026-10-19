@@ -5,9 +5,6 @@ import os
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
 import re
-import subprocess
-import signal
-import time
 import sys
 from tempfile import NamedTemporaryFile
 import uuid
@@ -200,73 +197,22 @@ def execute(command, root, cwd='.', timeout=120, interrupt_grace=0):
 
 
 def run_process(command, directory, timeout=120, environment=None, interrupt_grace=0):
-    """Capture a trusted argv without a shell; retain partial timeout diagnostics."""
-    if interrupt_grace:
-        return run_captured_process(command, directory, timeout, environment, interrupt_grace)
+    """Capture trusted argv with bounded logs and owned-process cleanup."""
     if __package__:
         from .bounded_process import capture
     else:
         from bounded_process import capture
     result = capture(command, directory, timeout,
-                     child_environment() if environment is None else environment)
+                     child_environment() if environment is None else environment,
+                     interrupt_grace=interrupt_grace)
     if result['exit_code'] == 130:
         result['interrupted'] = True
     return result
 
 
-def communicate_process(process,timeout):
-    deadline=time.monotonic()+timeout
-    partial=None
-    while True:
-        remaining=deadline-time.monotonic()
-        if remaining<=0:
-            raise subprocess.TimeoutExpired(process.args,timeout,
-                output=getattr(partial,'stdout',None),stderr=getattr(partial,'stderr',None))
-        try:return process.communicate(timeout=min(0.1,remaining))
-        except subprocess.TimeoutExpired as error:partial=error
-
-
-def run_captured_process(command,directory,timeout,environment,interrupt_grace):
-    """Let a supervising child finish its cleanup before forcing its termination."""
-    options={'cwd':directory,'stdout':subprocess.PIPE,'stderr':subprocess.PIPE,'text':True,
-             'encoding':'utf-8','errors':'backslashreplace',
-             'env':child_environment() if environment is None else environment}
-    if os.name=='nt':options['creationflags']=subprocess.CREATE_NEW_PROCESS_GROUP
-    try:process=subprocess.Popen(command,**options)
-    except OSError as error:return {'exit_code':127,'error':type(error).__name__,'output':str(error)}
-    interrupted,timed_out,forced=False,False,False
-    handlers={}
-    try:
-        stdout,stderr=communicate_process(process,timeout)
-    except (KeyboardInterrupt,subprocess.TimeoutExpired) as error:
-        interrupted=isinstance(error,KeyboardInterrupt);timed_out=not interrupted
-        for name in ['SIGINT','SIGBREAK']:
-            value=getattr(signal,name,None)
-            if value is not None:
-                try:handlers[value]=signal.signal(value,signal.SIG_IGN)
-                except ValueError:pass
-        try:
-            try:process.send_signal(signal.CTRL_BREAK_EVENT if os.name=='nt' else signal.SIGINT)
-            except OSError:
-                forced=True
-                try:process.terminate()
-                except OSError:pass
-            try:stdout,stderr=communicate_process(process,interrupt_grace)
-            except subprocess.TimeoutExpired:
-                forced=True;process.kill()
-                try:stdout,stderr=communicate_process(process,5)
-                except subprocess.TimeoutExpired as remaining:
-                    def decoded(value):return value.decode('utf-8','backslashreplace') if isinstance(value,bytes) else value or ''
-                    stdout,stderr=decoded(remaining.stdout),decoded(remaining.stderr)
-        finally:
-            for value,handler in handlers.items():signal.signal(value,handler)
-    report={'exit_code':130 if interrupted else 124 if timed_out else process.returncode,
-            'output':stdout+stderr,'controller_forced':forced}
-    if interrupted or report['exit_code']==130:report['interrupted']=True
-    if timed_out:
-        report['error']='TimeoutExpired'
-        report['output']+='\n'+f'timeout after {timeout} seconds'
-    return report
+def run_captured_process(command, directory, timeout, environment, interrupt_grace):
+    """Compatibility entry for callers requesting cooperative controller cleanup."""
+    return run_process(command, directory, timeout, environment, interrupt_grace)
 
 
 def child_environment():

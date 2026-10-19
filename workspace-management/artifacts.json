@@ -1082,21 +1082,22 @@
       "kind": "update",
       "version": "20261019.2",
       "purpose": "一覧メタデータの改行混入を修正し、通常実行の出力保持上限と停止処理、Python標準検索先の診断を追加する",
-      "notes": "独立したv6開発候補。実キット42ファイルの展開・適用とハッシュ照合を確認。Windows/Linuxの追加検証中。ZIP内部一覧38件、今回の2候補を含む外部一覧40件。",
+      "notes": "PR #16に固定保存。Windowsの起動失敗メッセージに実行ファイル名を補う改良が必要。全環境合格として推奨しない。ZIP内の未公開表示は作成時点の記録。",
       "local_path": "work/releases/catalogue-update-20261019.2.zip",
       "sha256": "c560bb5ccb4290c89d18f36b8743eb4a11f8c0ccb67e1bd945272127d38c5887",
       "bytes": 160612,
       "publication": {
-        "stage": "local",
-        "url": "",
-        "pr_url": ""
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/e5289940afb1082356899816edf9ac56b9fbc5d9/workspace-management/catalogue-update-20261019.2.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "e5289940afb1082356899816edf9ac56b9fbc5d9"
       },
       "verification": {
         "status": "pending",
         "sha256": "c560bb5ccb4290c89d18f36b8743eb4a11f8c0ccb67e1bd945272127d38c5887",
         "checked_on": "2026-10-19",
-        "summary": "実キット42ファイル照合・新規適用、新規venvのsetup、管理278件中273成功・5skip、標準20＋CI設定1検査、Suite26件がLinux/Python3.12で成功。Windows/Linuxの3版CIを確認中。製品E2Eは対象外。",
-        "evidence_url": ""
+        "summary": "LinuxのPython3.11/3.14/3.15で全検査成功。Windowsは起動失敗時にOSがファイル名を返さない差異で診断テストが不合格。他のWindows Job・停止検査は成功。修正は20261019.3候補へ引き継ぐ。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39226753625"
       },
       "local_state": "unchecked",
       "actual_sha256": null,
@@ -1108,10 +1109,37 @@
       "kind": "snapshot",
       "version": "20261019.2",
       "purpose": "一覧メタデータの改行混入を修正し、通常実行の出力保持上限と停止処理、Python標準検索先の診断を追加する",
-      "notes": "独立したv6開発候補。実キット42ファイルの展開・適用とハッシュ照合を確認。Windows/Linuxの追加検証中。ZIP内部一覧38件、今回の2候補を含む外部一覧40件。",
+      "notes": "PR #16に固定保存。Windowsの起動失敗メッセージに実行ファイル名を補う改良が必要。全環境合格として推奨しない。ZIP内の未公開表示は作成時点の記録。",
       "local_path": "work/releases/tool-integration-kit-20261019.2.zip",
       "sha256": "6fe6ed5e9d64fee6e6e6548b6e3a32412ceda4029783f2c25a693d2c1ae95553",
       "bytes": 660392,
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/e5289940afb1082356899816edf9ac56b9fbc5d9/workspace-management/tool-integration-kit-20261019.2.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "e5289940afb1082356899816edf9ac56b9fbc5d9"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "6fe6ed5e9d64fee6e6e6548b6e3a32412ceda4029783f2c25a693d2c1ae95553",
+        "checked_on": "2026-10-19",
+        "summary": "LinuxのPython3.11/3.14/3.15で全検査成功。Windowsは起動失敗時にOSがファイル名を返さない差異で診断テストが不合格。他のWindows Job・停止検査は成功。修正は20261019.3候補へ引き継ぐ。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39226753625"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "management-update-20261019-3",
+      "name": "中断処理・画面記録・生成検証の更新候補",
+      "kind": "update",
+      "version": "20261019.3",
+      "purpose": "Windowsの起動失敗情報を補い、猶予付き実行のログを制限し、画面検証の失敗記録とルールの改行検査を強化する",
+      "notes": "v7の独立した43ファイル更新。以前の固定ZIPを保持。ZIP内の一覧40件、今回の2候補を含む外部一覧42件。Windows/Linuxの確認中。",
+      "local_path": "work/releases/catalogue-update-20261019.3.zip",
+      "sha256": "8b353d3f7db365a08d0ebaa972530aa36716b369b709502cccf6b2c4a7e2eb25",
+      "bytes": 164241,
       "publication": {
         "stage": "local",
         "url": "",
@@ -1119,9 +1147,35 @@
       },
       "verification": {
         "status": "pending",
-        "sha256": "6fe6ed5e9d64fee6e6e6548b6e3a32412ceda4029783f2c25a693d2c1ae95553",
+        "sha256": "8b353d3f7db365a08d0ebaa972530aa36716b369b709502cccf6b2c4a7e2eb25",
         "checked_on": "2026-10-19",
-        "summary": "実キット42ファイル照合・新規適用、新規venvのsetup、管理278件中273成功・5skip、標準20＋CI設定1検査、Suite26件がLinux/Python3.12で成功。Windows/Linuxの3版CIを確認中。製品E2Eは対象外。",
+        "summary": "実キット43ファイル照合・新規適用、新規venvのsetup、管理289件中284成功・5skip、標準20＋CI設定1検査、Suite26件がLinux/Python3.12で成功。Windows/Linuxの3版CIを確認中。製品E2Eは対象外。",
+        "evidence_url": ""
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "tool-integration-kit-20261019-3",
+      "name": "中断処理・画面記録・生成検証の導入キット候補",
+      "kind": "snapshot",
+      "version": "20261019.3",
+      "purpose": "Windowsの起動失敗情報を補い、猶予付き実行のログを制限し、画面検証の失敗記録とルールの改行検査を強化する",
+      "notes": "v7の独立した43ファイル更新。以前の固定ZIPを保持。ZIP内の一覧40件、今回の2候補を含む外部一覧42件。Windows/Linuxの確認中。",
+      "local_path": "work/releases/tool-integration-kit-20261019.3.zip",
+      "sha256": "6064f9d2bff0af72038283ea5ee8a800a8db59f149968897bd78bd342f810981",
+      "bytes": 663549,
+      "publication": {
+        "stage": "local",
+        "url": "",
+        "pr_url": ""
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "6064f9d2bff0af72038283ea5ee8a800a8db59f149968897bd78bd342f810981",
+        "checked_on": "2026-10-19",
+        "summary": "実キット43ファイル照合・新規適用、新規venvのsetup、管理289件中284成功・5skip、標準20＋CI設定1検査、Suite26件がLinux/Python3.12で成功。Windows/Linuxの3版CIを確認中。製品E2Eは対象外。",
         "evidence_url": ""
       },
       "local_state": "unchecked",
@@ -1147,6 +1201,7 @@
       "Windows起動順を修正したSuite監査更新",
       "全成果物集計・検証改善の更新候補",
       "改行・実行管理・検索先診断の更新候補",
+      "中断処理・画面記録・生成検証の更新候補",
       "ツール統合・導入キット",
       "ツール統合・導入キット 20261014.1",
       "ツール統合・導入キット 20261014.2",
@@ -1159,7 +1214,8 @@
       "ツール統合・導入キット 20261015.2",
       "ツール統合・導入キット20261015.3（非推奨）",
       "全成果物集計・検証改善の導入キット候補",
-      "改行・実行管理・検索先診断の導入キット候補"
+      "改行・実行管理・検索先診断の導入キット候補",
+      "中断処理・画面記録・生成検証の導入キット候補"
     ],
     "removed": [],
     "changed": [

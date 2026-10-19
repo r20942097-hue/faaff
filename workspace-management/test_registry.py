@@ -495,6 +495,39 @@ class CommonRecoveryTests(unittest.TestCase):
             if (root/'result.json').exists():self.assertEqual(load_json(root/'result.json')['exit_code'],130)
             else:self.assertTrue(result['controller_forced'])
 
+    def test_repeated_common_interrupt_still_allows_owned_worker_cleanup(self):
+        import _thread, threading, time
+        import test_suite_adapter as fixtures
+        from registry import run_process
+        helper = fixtures.SuiteRecoveryTests()
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            runner = helper.fixture(root, 'external')
+            cancel = threading.Event()
+            def interrupt():
+                deadline = time.monotonic() + 5
+                while not (root/'heartbeat').exists() and time.monotonic() < deadline:
+                    if cancel.wait(.01):
+                        return
+                if (root/'heartbeat').exists() and not cancel.is_set():
+                    _thread.interrupt_main()
+                    if not cancel.wait(.05):
+                        _thread.interrupt_main()
+            thread = threading.Thread(target=interrupt, daemon=True)
+            thread.start()
+            try:
+                result = run_process([sys.executable, str(runner)], root, timeout=10, interrupt_grace=8)
+            finally:
+                cancel.set()
+                thread.join(timeout=6)
+            self.assertEqual(result['exit_code'], 130, result)
+            self.assertFalse(result['controller_forced'], result)
+            self.assertTrue(result['cleanup_complete'])
+            self.assertIn('partial stdout fixture', result['output'])
+            self.assertIn('partial stderr fixture', result['output'])
+            self.assertFalse(helper.alive(int((root/'worker.pid').read_text())))
+            self.assertFalse(helper.alive(int((root/'descendant.pid').read_text())))
+
     def test_common_timeout_keeps_partial_output_and_reason(self):
         from registry import run_process
         command=[sys.executable,'-c','import time;print("partial timeout fixture",flush=True);time.sleep(10)']
