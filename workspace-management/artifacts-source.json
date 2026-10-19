@@ -1013,7 +1013,9 @@
         "checked_on": "2026-10-19",
         "summary": "Linux Python3.11/3.14/3.15で新規導入と全検査に成功。Windows CIはCRLFのメタデータ混入で失敗したため全環境合格ではない。修正は次の20261019.2候補で検証する。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39225388059"
-      }
+      },
+      "release_family": "development-update",
+      "recommended": false
     },
     {
       "id": "tool-integration-kit-20261019-1",
@@ -1037,7 +1039,9 @@
         "checked_on": "2026-10-19",
         "summary": "Linux Python3.11/3.14/3.15で新規導入と全検査に成功。Windows CIはCRLFのメタデータ混入で失敗したため全環境合格ではない。修正は次の20261019.2候補で検証する。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39225388059"
-      }
+      },
+      "release_family": "development-kit",
+      "recommended": false
     },
     {
       "id": "management-update-20261019-2",
@@ -1061,7 +1065,9 @@
         "checked_on": "2026-10-19",
         "summary": "LinuxのPython3.11/3.14/3.15で全検査成功。Windowsは起動失敗時にOSがファイル名を返さない差異で診断テストが不合格。他のWindows Job・停止検査は成功。修正は20261019.3候補へ引き継ぐ。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39226753625"
-      }
+      },
+      "release_family": "development-update",
+      "recommended": false
     },
     {
       "id": "tool-integration-kit-20261019-2",
@@ -1085,7 +1091,9 @@
         "checked_on": "2026-10-19",
         "summary": "LinuxのPython3.11/3.14/3.15で全検査成功。Windowsは起動失敗時にOSがファイル名を返さない差異で診断テストが不合格。他のWindows Job・停止検査は成功。修正は20261019.3候補へ引き継ぐ。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39226753625"
-      }
+      },
+      "release_family": "development-kit",
+      "recommended": false
     },
     {
       "id": "management-update-20261019-3",
@@ -1109,7 +1117,9 @@
         "checked_on": "2026-10-19",
         "summary": "Linux3.11/3.14とローカルの回帰検証は成功。Windowsの待機方法による協調停止試験2件と、Linux3.15の終了反映競合1件を検出したため全環境合格ではない。次の候補で修正する。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39259628537"
-      }
+      },
+      "release_family": "development-update",
+      "recommended": false
     },
     {
       "id": "tool-integration-kit-20261019-3",
@@ -1133,7 +1143,9 @@
         "checked_on": "2026-10-19",
         "summary": "Linux3.11/3.14とローカルの回帰検証は成功。Windowsの待機方法による協調停止試験2件と、Linux3.15の終了反映競合1件を検出したため全環境合格ではない。次の候補で修正する。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39259628537"
-      }
+      },
+      "release_family": "development-kit",
+      "recommended": false
     },
     {
       "id": "management-update-20261019-4",
@@ -1141,7 +1153,7 @@
       "kind": "update",
       "version": "20261019.4",
       "purpose": "Windowsの協調停止通知とJob内の終了確認を改善し、OS別の終了反映を確かめる",
-      "notes": "PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブで成功。ZIP内部の一覧42件と未公開表示は作成時点の記録。外部一覧44件。既存の推奨選択は自動で変更しない。",
+      "notes": "PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブで成功。ZIP内部の一覧42件と未公開表示は作成時点の記録。外部一覧44件。既存の推奨選択は自動で変更しない。 追加で検出した連続中断中の報告処理の再入条件は未対応。過去の合格範囲を保持し、新規導入は修正版候補20261019.6の確認後に選ぶ。",
       "local_path": "work/releases/catalogue-update-20261019.4.zip",
       "sha256": "b3a683daf48a201f15be9b7daa45ac71f6674d3dbfd37e033e851cc27f9be44a",
       "bytes": 165931,
@@ -1157,7 +1169,9 @@
         "checked_on": "2026-10-19",
         "summary": "固定公開ZIPのサイズ・SHA256一致。実キット43ファイル適用と新規venvのsetup/all/Suite/portfolio/checkがWindows/LinuxのPython3.11/3.14/3.15の6環境で成功。管理290件・支援291件は各環境のOS専用5件を除き成功。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39261357765"
-      }
+      },
+      "release_family": "development-update",
+      "recommended": false
     },
     {
       "id": "tool-integration-kit-20261019-4",
@@ -1165,7 +1179,7 @@
       "kind": "snapshot",
       "version": "20261019.4",
       "purpose": "Windowsの協調停止通知とJob内の終了確認を改善し、OS別の終了反映を確かめる",
-      "notes": "PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブで成功。ZIP内部の一覧42件と未公開表示は作成時点の記録。外部一覧44件。既存の推奨選択は自動で変更しない。",
+      "notes": "PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブで成功。ZIP内部の一覧42件と未公開表示は作成時点の記録。外部一覧44件。既存の推奨選択は自動で変更しない。 追加で検出した連続中断中の報告処理の再入条件は未対応。過去の合格範囲を保持し、新規導入は修正版候補20261019.6の確認後に選ぶ。",
       "local_path": "work/releases/tool-integration-kit-20261019.4.zip",
       "sha256": "09f6e558c68ddfdd7a67d28f9c28938357e4393d135d47572c09fbe5071a20b9",
       "bytes": 665456,
@@ -1181,41 +1195,72 @@
         "checked_on": "2026-10-19",
         "summary": "固定公開ZIPのサイズ・SHA256一致。実キット43ファイル適用と新規venvのsetup/all/Suite/portfolio/checkがWindows/LinuxのPython3.11/3.14/3.15の6環境で成功。管理290件・支援291件は各環境のOS専用5件を除き成功。製品E2Eは対象外。",
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39261357765"
-      }
+      },
+      "release_family": "development-kit",
+      "recommended": false
     },
     {
       "id": "management-update-20261019-5",
-      "name": "取得元診断・パイプ回収の更新候補",
+      "name": "取得元診断・パイプ回収の更新（連続中断に課題・履歴）",
       "kind": "update",
       "version": "20261019.5",
       "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と後始末を管理する",
-      "notes": "独立したv8の48ファイル更新候補。内部一覧44件、外部一覧46件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "notes": "固定ZIPを履歴として保持。Windows/Python3.15の追加CIでSuite終了メッセージ中の二度目の中断が結果記録を中断する不具合を確認。20261019.6で修正予定。内部一覧44件、外部一覧46件時点の配布。新規導入には使わない。",
       "local_path": "work/releases/catalogue-update-20261019.5.zip",
       "sha256": "6e21c44a7e6c8738a14a35630a2b73f0b3de9e04ea57b3cf81cf681b0b11d371",
       "bytes": 181150,
       "publication": {
-        "stage": "local",
-        "url": "",
-        "pr_url": ""
+        "stage": "pr",
+        "commit": "ad9541adacb4a93eb8575d1755e28fa9ab46f8d3",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/ad9541adacb4a93eb8575d1755e28fa9ab46f8d3/workspace-management/catalogue-update-20261019.5.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
       },
       "verification": {
-        "status": "passed",
+        "status": "pending",
         "sha256": "6e21c44a7e6c8738a14a35630a2b73f0b3de9e04ea57b3cf81cf681b0b11d371",
         "checked_on": "2026-10-19",
-        "summary": "修正元307テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理305件中299成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
-        "evidence_url": ""
-      }
+        "summary": "Linux実キットの48ファイル・新規venv導入・標準21検査・Suite・取得元診断は成功。追加Windows CIで連続中断中の報告処理に不具合を検出。通常の成功をこの条件の保証には転用しない。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39269658204"
+      },
+      "release_family": "development-update",
+      "recommended": false
     },
     {
       "id": "tool-integration-kit-20261019-5",
-      "name": "取得元診断・パイプ回収の導入キット候補",
+      "name": "取得元診断・パイプ回収の導入キット（連続中断に課題・履歴）",
       "kind": "snapshot",
       "version": "20261019.5",
       "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と後始末を管理する",
-      "notes": "独立したv8の48ファイル更新候補。内部一覧44件、外部一覧46件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "notes": "固定ZIPを履歴として保持。Windows/Python3.15の追加CIでSuite終了メッセージ中の二度目の中断が結果記録を中断する不具合を確認。20261019.6で修正予定。内部一覧44件、外部一覧46件時点の配布。新規導入には使わない。",
       "local_path": "work/releases/tool-integration-kit-20261019.5.zip",
       "sha256": "410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b",
       "bytes": 679719,
+      "publication": {
+        "stage": "pr",
+        "commit": "ad9541adacb4a93eb8575d1755e28fa9ab46f8d3",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/ad9541adacb4a93eb8575d1755e28fa9ab46f8d3/workspace-management/tool-integration-kit-20261019.5.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b",
+        "checked_on": "2026-10-19",
+        "summary": "Linux実キットの48ファイル・新規venv導入・標準21検査・Suite・取得元診断は成功。追加Windows CIで連続中断中の報告処理に不具合を検出。通常の成功をこの条件の保証には転用しない。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39269658204"
+      },
+      "release_family": "development-kit",
+      "recommended": false
+    },
+    {
+      "id": "management-update-20261019-6",
+      "name": "取得元診断・パイプ回収・連続中断修正の更新候補",
+      "kind": "update",
+      "version": "20261019.6",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する",
+      "notes": "独立したv8の48ファイル更新候補。内部一覧46件、外部一覧48件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "local_path": "work/releases/catalogue-update-20261019.6.zip",
+      "sha256": "856c552178637e07768b54389f7935c2cd24523980a462fadb24b122cb69aea1",
+      "bytes": 182701,
       "publication": {
         "stage": "local",
         "url": "",
@@ -1223,9 +1268,32 @@
       },
       "verification": {
         "status": "passed",
-        "sha256": "410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b",
+        "sha256": "856c552178637e07768b54389f7935c2cd24523980a462fadb24b122cb69aea1",
         "checked_on": "2026-10-19",
-        "summary": "修正元307テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理305件中299成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
+        "summary": "修正元309テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理307件中301成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
+        "evidence_url": ""
+      }
+    },
+    {
+      "id": "tool-integration-kit-20261019-6",
+      "name": "取得元診断・パイプ回収・連続中断修正の導入キット候補",
+      "kind": "snapshot",
+      "version": "20261019.6",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する",
+      "notes": "独立したv8の48ファイル更新候補。内部一覧46件、外部一覧48件。以前の固定ZIP・既存の推奨選択は維持。ローカル実キット導入済み、実キットの6環境CIは確認中。",
+      "local_path": "work/releases/tool-integration-kit-20261019.6.zip",
+      "sha256": "5d3173dc632e75b7f6d2c4008a837f0679c06e628cec6b3eb745fb73d3d64b3c",
+      "bytes": 681424,
+      "publication": {
+        "stage": "local",
+        "url": "",
+        "pr_url": ""
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "5d3173dc632e75b7f6d2c4008a837f0679c06e628cec6b3eb745fb73d3d64b3c",
+        "checked_on": "2026-10-19",
+        "summary": "修正元309テストとパイプ回収はWindows/Linux×Python3版で成功。Linux/Python3.12の実キット新規適用・48ファイル照合・新規venv setup/all（21検査）・Suite26件・取得元214ファイル診断・checkが成功。実キット管理307件中301成功・6skip。実キットのWindows/Linux CIは未確認、製品E2Eは対象外。",
         "evidence_url": ""
       }
     }
