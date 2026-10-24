@@ -8,7 +8,7 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-SHA = re.compile(r"[0-9a-f]{40}\\Z")
+SHA = re.compile(r"[0-9a-f]{40}")
 STATES = {"bootstrap_only", "main_present", "pinned_snapshot", "open_draft"}
 
 
@@ -21,7 +21,7 @@ def safe_path(value: object) -> bool:
 
 
 def blob_sha(content: bytes) -> str:
-    return hashlib.sha1(b"blob " + str(len(content)).encode("ascii") + b"\\0" + content).hexdigest()
+    return hashlib.sha1(b"blob " + str(len(content)).encode("ascii") + bytes((0,)) + content).hexdigest()
 
 
 def verify(root: Path = ROOT) -> list[str]:
