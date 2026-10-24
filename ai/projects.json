@@ -1,0 +1,60 @@
+{
+  "schema": "ai-hub-registry/v1",
+  "recorded_at": "2026-10-25",
+  "hub": "r20942097-hue/faaff",
+  "repositories": [
+    {
+      "id": "faaff",
+      "url": "https://github.com/r20942097-hue/faaff",
+      "role": "engineering_hub",
+      "default_branch": "main",
+      "observed_head": "873f7bd5dc68443e2ef0d49a458f0222af6f588d",
+      "source_state": "bootstrap_main",
+      "release_authority": false
+    },
+    {
+      "id": "s",
+      "url": "https://github.com/r20942097-hue/s",
+      "role": "filter_distribution",
+      "default_branch": "main",
+      "observed_head": "8af3fa31d6574398507fa123e8b735332d583da0",
+      "source_state": "active_external",
+      "release_authority": true
+    }
+  ],
+  "workstreams": [
+    {
+      "id": "watcher",
+      "category": "runtime",
+      "authority": "faaff",
+      "location": "README.md",
+      "state": "bootstrap_only",
+      "note": "main README documents v6.10; complete runtime source is not on main"
+    },
+    {
+      "id": "filter-review",
+      "category": "quality",
+      "authority": "faaff",
+      "location": "browser_filter_lists/",
+      "state": "main_present",
+      "note": "candidate evidence and conservative supplemental lists"
+    },
+    {
+      "id": "s-import",
+      "category": "snapshot",
+      "authority": "s",
+      "location": "integrations/browser-filters/source/s/",
+      "state": "pinned_snapshot",
+      "note": "pinned source copy excluding repository workflows; not direct distribution"
+    },
+    {
+      "id": "portfolio",
+      "category": "management",
+      "authority": "faaff",
+      "location": "https://github.com/r20942097-hue/faaff/pull/16",
+      "state": "open_draft",
+      "note": "stacked on PR 15; not main; management validation is not product E2E"
+    }
+  ],
+  "unimported_products": "Other game/tool ZIPs and Drive files are not imported or verified by this registry; see portfolio workstream for provenance."
+}

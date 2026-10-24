@@ -1,0 +1,165 @@
+{
+  "schema": "pinned-source-import/v1",
+  "source_repository": "r20942097-hue/s",
+  "source_commit": "8af3fa31d6574398507fa123e8b735332d583da0",
+  "source_tree_sha": "610aaab83c95f3f82fd69b9c315a879f5c38e432",
+  "imported_at": "2026-10-25",
+  "target_prefix": "integrations/browser-filters/source/s/",
+  "excluded_paths": [
+    ".github/dependabot.yml",
+    ".github/workflows/japanese-text-softener.yml"
+  ],
+  "distribution_authority": "r20942097-hue/s main (not the imported snapshot)",
+  "files": [
+    {
+      "path": ".gitignore",
+      "git_blob_sha": "4a71ec8d57252971728ffdf4103e21902550e0a9",
+      "size": 67
+    },
+    {
+      "path": "ad-ubo.txt",
+      "git_blob_sha": "813b67147a375151a58544d28e329cf17e7b9a60",
+      "size": 1424
+    },
+    {
+      "path": "ad.txt",
+      "git_blob_sha": "3b6d05fd4c25e6c67033fb529a7b295b1fd96ad4",
+      "size": 1314
+    },
+    {
+      "path": "CHANGELOG.md",
+      "git_blob_sha": "1db0500428f02cfb2df17dcdf55ea711cf3877cf",
+      "size": 1435
+    },
+    {
+      "path": "filter-profiles.json",
+      "git_blob_sha": "721b7c5324c23359bb9b34752561d809aeaffdce",
+      "size": 14242
+    },
+    {
+      "path": "index.html",
+      "git_blob_sha": "291a9b7f972e2a24d4397f49b98d69c9264a2ec0",
+      "size": 4028
+    },
+    {
+      "path": "japanese-text-softener-deep.txt",
+      "git_blob_sha": "18f6c139a32ba809f6a6462210042b39f0055700",
+      "size": 1094
+    },
+    {
+      "path": "japanese-text-softener.txt",
+      "git_blob_sha": "22b3bba6fbe163d4c4c13c874aba5a47f52e8fad",
+      "size": 5513
+    },
+    {
+      "path": "README.md",
+      "git_blob_sha": "a6b44d52ff33494928f86b2df289457d0d05ceb3",
+      "size": 3820
+    },
+    {
+      "path": "scripts/audit_upstream.py",
+      "git_blob_sha": "6ecfd1832c8be28f33f15dece19ad1f7a42b13c0",
+      "size": 5628
+    },
+    {
+      "path": "scripts/check_engine.mjs",
+      "git_blob_sha": "f111a1b19ddfc3e4dee9891bacda3409423372f6",
+      "size": 10802
+    },
+    {
+      "path": "scripts/export_browser_fixtures.mjs",
+      "git_blob_sha": "03eb1809a96234fbb326f0f82d1867ac93393842",
+      "size": 2090
+    },
+    {
+      "path": "scripts/generate_lists.py",
+      "git_blob_sha": "70255a798a4cf74412f078f7c69bf7c6ba1559b1",
+      "size": 9170
+    },
+    {
+      "path": "scripts/prepare_engine.py",
+      "git_blob_sha": "0e546d07e57d0cae352864005b9ab429b335ea6d",
+      "size": 4933
+    },
+    {
+      "path": "scripts/validate_lists.py",
+      "git_blob_sha": "93d4ff76d36a9392ce8d1a4e1c8fe6bfa5f533c1",
+      "size": 3746
+    },
+    {
+      "path": "tests/test_engine_preparation.py",
+      "git_blob_sha": "4347059adfd5411fc229529b3b983945c02e1c7c",
+      "size": 3966
+    },
+    {
+      "path": "tests/test_generation.py",
+      "git_blob_sha": "5a0000a5d3e98fb0ba5f126b68bbb1d08aaead67",
+      "size": 3300
+    },
+    {
+      "path": "tests/test_japanese_text_softener.py",
+      "git_blob_sha": "8b52e18db367422213e12feb256c9b18528af516",
+      "size": 4135
+    },
+    {
+      "path": "tests/test_list_metadata.py",
+      "git_blob_sha": "ff165dcb4892fed7bfc52e8c29accde5e6389a1e",
+      "size": 1939
+    },
+    {
+      "path": "tests/test_upstream_audit.py",
+      "git_blob_sha": "307537afafdcb48f8603b0ee1b088d1cd4b76adc",
+      "size": 2225
+    },
+    {
+      "path": "tracking.txt",
+      "git_blob_sha": "e0db1c7277d57f1d65fa4c2dd68edc7f219fbe3e",
+      "size": 791
+    },
+    {
+      "path": "twitch-custom-optional.txt",
+      "git_blob_sha": "525d80b1bffa50d4a49389f9c4b84bacba8d8343",
+      "size": 810
+    },
+    {
+      "path": "v2/ad.txt",
+      "git_blob_sha": "577ae6dc6a2d99e9d0f2ba1dddff4ea7e05dda1a",
+      "size": 3489
+    },
+    {
+      "path": "v2/README.md",
+      "git_blob_sha": "ceeb448d3e7a706b25cc0c5cacb167bdbe236284",
+      "size": 2637
+    },
+    {
+      "path": "v2/strict.txt",
+      "git_blob_sha": "67d136ae75b60dad3dadb68c8512f295f1f960cb",
+      "size": 1368
+    },
+    {
+      "path": "v2/tracking.txt",
+      "git_blob_sha": "9056d6c11041dc2ec66a510fe9dc1c007cd94239",
+      "size": 2024
+    },
+    {
+      "path": "verification/engine-lock.json",
+      "git_blob_sha": "65d8f394b53cc56483d1ab17a70d1c4aba7649cc",
+      "size": 1111
+    },
+    {
+      "path": "verification/ghostery/package-lock.json",
+      "git_blob_sha": "2a5f4003c09181cf42502bc7a962277b2afb25ed",
+      "size": 4726
+    },
+    {
+      "path": "verification/ghostery/package.json",
+      "git_blob_sha": "dac82a7c379c7531655ae5567458aca98ddbb701",
+      "size": 64
+    },
+    {
+      "path": "verification/upstream-snapshots.json",
+      "git_blob_sha": "71cd13fd068c44d7f8466e659798445c2c872aed",
+      "size": 8633
+    }
+  ]
+}
