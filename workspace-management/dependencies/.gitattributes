@@ -1,0 +1,2 @@
+# Review copies must retain the snapshot's LF bytes on every checkout platform.
+**/requirements.txt text eol=lf

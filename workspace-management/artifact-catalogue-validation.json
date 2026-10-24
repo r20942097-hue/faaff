@@ -1,0 +1,63 @@
+{
+  "schema": "artifact-catalogue-validation/v1",
+  "checked_date_jst": "2026-10-12",
+  "scope": "13 current public deliverables; frozen update ZIP contains its original 12-entry catalogue and 16 management functions. New standalone index and development candidate are separate from the unchanged base ZIP.",
+  "deliverables": 13,
+  "main_publications": 7,
+  "pr_publications": 6,
+  "public_filter_bodies_matched": 11,
+  "local": {
+    "standard_checks": 17,
+    "management_tests": 116,
+    "regressions_linux": 339,
+    "ui_checks": 48,
+    "passed": true,
+    "candidate_after_base_extraction": "PASS",
+    "standalone_and_apply_unit_tests": 55,
+    "note": "55 helper/export cases include 36 cases in management regressions; do not sum as unique cases."
+  },
+  "base_snapshot": {
+    "version": "20261012.2",
+    "sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+    "bytes_unchanged": true
+  },
+  "candidate_files": 17,
+  "candidate_layout": "direct",
+  "manifest_sha256": "da13b108d9acfb04367e28375ca1aac8c20fe707baa5141bb14f9db90f924865",
+  "ci": {
+    "status": "success",
+    "source_commit": "146ed09767969e5332392a4892e0f8f1e325d7d6",
+    "run_url": "https://github.com/r20942097-hue/faaff/actions/runs/38196233061",
+    "Linux": {
+      "3.11": "PASS",
+      "3.14": "PASS",
+      "3.15": "PASS"
+    },
+    "Windows": {
+      "3.11": "PASS",
+      "3.14": "PASS",
+      "3.15": "PASS"
+    },
+    "scope": "Delivered update ZIP plus checked base; candidate management and 55 export/helper tests, not recording product E2E."
+  },
+  "canonical_record": "artifacts-source.json",
+  "canonical_sha256": "e8f77d899e6824cb83b2c5b45f939107078f868f792ab0018420124ec1d25fc2",
+  "next_updates": [
+    "Shared evidence-based publication updater",
+    "Registry-based guidance for required retesting",
+    "Original and mirror role mapping when complete hashes match",
+    "Acquire missing product sources before product integration"
+  ],
+  "main_merged": false,
+  "shared_rule_groups": 1,
+  "shared_tracking_rules": 9,
+  "registered_development_tools": 16,
+  "live_publication_observation": {
+    "passed": true,
+    "fixed_public_bodies_matched": 12,
+    "main_bodies_matched": 7,
+    "pr_not_on_main": 5,
+    "scope": "Byte identity and PR/main observation, not fresh runtime or CI tests"
+  },
+  "public_bytes_verified": true
+}

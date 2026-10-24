@@ -1,0 +1,557 @@
+{
+  "schema": "workspace-tools/v1",
+  "tools": [
+    {
+      "id": "catalogue",
+      "name": "成果物・全ファイル・ライブラリ一覧",
+      "files": [
+        "tools/manage.py",
+        "catalog/config.json",
+        "tools/artifacts.py",
+        "catalog/artifacts.json"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/manage.py",
+          "build"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120
+    },
+    {
+      "id": "filters",
+      "name": "広告リスト生成・同期",
+      "files": [
+        "s/scripts/generate_lists.py",
+        "s/filter-profiles.json"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "s/scripts/generate_lists.py",
+          "--check",
+          "--mirror-root",
+          "{root}/faaff"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120
+    },
+    {
+      "id": "candidates",
+      "name": "候補の根拠・昇格判定",
+      "files": [
+        "faaff/browser_filter_lists/scripts/validate_candidate_evidence.py",
+        "faaff/browser_filter_lists/scripts/validate_candidate_promotion.py"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "faaff/browser_filter_lists/scripts/validate_candidate_evidence.py"
+        ],
+        [
+          "{python}",
+          "faaff/browser_filter_lists/scripts/validate_candidate_promotion.py"
+        ],
+        [
+          "{python}",
+          "faaff/browser_filter_lists/scripts/render_candidate_report.py",
+          "--check"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120
+    },
+    {
+      "id": "engine",
+      "name": "実エンジン検証",
+      "files": [
+        "s/scripts/check_engine.mjs",
+        "work/filter-engine/manifest.json"
+      ],
+      "binaries": [
+        "node"
+      ],
+      "modules": [],
+      "commands": [
+        [
+          "node",
+          "s/scripts/check_engine.mjs",
+          "--engine-dir",
+          "{root}/work/filter-engine",
+          "--mirror-root",
+          "{root}/faaff",
+          "--report",
+          "{root}/catalog/results/filter-engine.json"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120
+    },
+    {
+      "id": "browser",
+      "name": "画面・DOM検証",
+      "files": [
+        "tools/browser_smoke.py",
+        "tools/filter_browser.py",
+        "work/filter-engine/manifest.json"
+      ],
+      "binaries": [
+        "node"
+      ],
+      "modules": [
+        "playwright"
+      ],
+      "commands": [
+        [
+          "{python}",
+          "tools/browser_smoke.py"
+        ],
+        [
+          "{python}",
+          "tools/filter_browser.py",
+          "--engine-dir",
+          "{root}/work/filter-engine",
+          "--report",
+          "{root}/catalog/results/filter-browser.json"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120
+    },
+    {
+      "id": "workflows",
+      "name": "CI設定検証",
+      "files": [
+        "tools/check_workflows.py"
+      ],
+      "binaries": [],
+      "modules": [
+        "yaml"
+      ],
+      "commands": [
+        [
+          "{python}",
+          "tools/check_workflows.py"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120
+    },
+    {
+      "id": "recording",
+      "name": "監視・録画ツール",
+      "files": [
+        "faaff/rplay_watcher/__init__.py",
+        "faaff/pyproject.toml"
+      ],
+      "binaries": [
+        "ffmpeg"
+      ],
+      "modules": [],
+      "commands": [],
+      "cwd": ".",
+      "timeout_seconds": 120
+    },
+    {
+      "id": "governance",
+      "name": "プロジェクト・配布監査",
+      "cwd": "library-files/tool-sources/portfolio",
+      "files": [
+        "library-files/tool-sources/portfolio/tools/governance.py",
+        "library-files/tool-sources/portfolio/docs/project_registry.json"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/validate_project_registry.py"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-v"
+        ]
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "control-plane",
+      "name": "Control Planeの抽出・整合性",
+      "cwd": ".",
+      "files": [
+        "library-files/tool-sources/portfolio/control-plane-v9/runtime-manifest.json",
+        "tools/check_control_plane.py"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/check_control_plane.py"
+        ]
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "security-intake",
+      "name": "依存・検証根拠の確認",
+      "cwd": "library-files/tool-sources/security",
+      "files": [
+        "library-files/tool-sources/security/phase3_security/dependency_inventory.py",
+        "library-files/tool-sources/security/phase3_security/gate_c_preflight.py"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_phase3_*.py",
+          "-v"
+        ]
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "suite-audit",
+      "name": "Suite配布監査の回帰検証",
+      "cwd": ".",
+      "files": [
+        "library-files/tool-sources/security/tools/audit_suite_release.py",
+        "tools/check_suite_audit.py"
+      ],
+      "binaries": [],
+      "modules": [
+        "pytest"
+      ],
+      "commands": [
+        [
+          "{python}",
+          "tools/check_suite_audit.py"
+        ]
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "control-plane-next",
+      "name": "Control Plane Nextの配布・復元検証",
+      "cwd": ".",
+      "files": [
+        "library-files/tool-sources/security/control_plane_next/ucs-control-plane-phase2-source.zip",
+        "library-files/tool-sources/security/control_plane_next/verify_source_archive.py",
+        "tools/check_next_archive.py"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/check_next_archive.py"
+        ]
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "python-environment",
+      "name": "固定したPython検証環境の照合",
+      "cwd": ".",
+      "files": [
+        "tools/python-lock.json",
+        "tools/requirements-verification.lock.txt",
+        "tools/check_python_lock.py",
+        "tools/python-build-lock.json",
+        "tools/requirements-build.lock.txt",
+        "tools/setup_verification.py"
+      ],
+      "binaries": [],
+      "modules": [
+        "playwright",
+        "yaml",
+        "pytest",
+        "greenlet",
+        "pyee",
+        "typing_extensions",
+        "iniconfig",
+        "pluggy",
+        "packaging",
+        "pygments"
+      ],
+      "commands": [
+        [
+          "{python}",
+          "tools/check_python_lock.py",
+          "--installed"
+        ]
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "firefox-extension",
+      "name": "Firefox実拡張の動作検証",
+      "cwd": ".",
+      "files": [
+        "tools/check_extension.py",
+        "tools/firefox_extension_probe.py",
+        "tools/extension-lock.json",
+        "tools/requirements-extension.lock.txt"
+      ],
+      "binaries": [
+        "docker"
+      ],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/check_extension.py"
+        ]
+      ],
+      "timeout_seconds": 600
+    },
+    {
+      "id": "source-integrity",
+      "name": "取得ツール原本の整合性",
+      "cwd": ".",
+      "files": [
+        "tools/check_sources.py",
+        "library-files/tool-sources/portfolio/SOURCE-ORIGIN.json",
+        "library-files/tool-sources/security/SOURCE-ORIGIN.json"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/check_sources.py"
+        ]
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "artifact-publication",
+      "name": "成果物の公開本文・main状況確認",
+      "files": [
+        "tools/check_artifact_publication.py",
+        "tools/artifacts.py",
+        "catalog/artifacts.json"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/check_artifact_publication.py"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 240
+    }
+  ],
+  "checks": [
+    {
+      "name": "s: regression tests",
+      "cwd": "s",
+      "argv": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "s: metadata and includes",
+      "cwd": "s",
+      "argv": [
+        "{python}",
+        "scripts/validate_lists.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "filters: canonical generation and mirrors",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "s/scripts/generate_lists.py",
+        "--check",
+        "--mirror-root",
+        "{root}/faaff"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "faaff: regression tests",
+      "cwd": "faaff",
+      "argv": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "browser_filter_lists/scripts",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "faaff: stable filters",
+      "cwd": "faaff",
+      "argv": [
+        "{python}",
+        "browser_filter_lists/scripts/validate_filters.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "faaff: evidence",
+      "cwd": "faaff",
+      "argv": [
+        "{python}",
+        "browser_filter_lists/scripts/validate_candidate_evidence.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "faaff: promotion gates",
+      "cwd": "faaff",
+      "argv": [
+        "{python}",
+        "browser_filter_lists/scripts/validate_candidate_promotion.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "faaff: generated report",
+      "cwd": "faaff",
+      "argv": [
+        "{python}",
+        "browser_filter_lists/scripts/render_candidate_report.py",
+        "--check"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "management: regression tests",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/tests",
+        "-v"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "catalogue: consistency",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "tools/manage.py",
+        "check"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "プロジェクト・配布監査 1",
+      "cwd": "library-files/tool-sources/portfolio",
+      "argv": [
+        "{python}",
+        "tools/validate_project_registry.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "プロジェクト・配布監査 2",
+      "cwd": "library-files/tool-sources/portfolio",
+      "argv": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "Control Planeの抽出・整合性 1",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "tools/check_control_plane.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "依存・検証根拠の確認 1",
+      "cwd": "library-files/tool-sources/security",
+      "argv": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_phase3_*.py",
+        "-v"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "Control Plane Next: source archive and regressions",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "tools/check_next_archive.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "Python verification hash lock structure",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "tools/check_python_lock.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "Selected tool source identities",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "tools/check_sources.py"
+      ],
+      "timeout_seconds": 120
+    }
+  ]
+}

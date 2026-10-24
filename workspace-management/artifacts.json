@@ -1,0 +1,991 @@
+{
+  "schema": "deliverable-catalog-view/v1",
+  "scope": "配布・購読対象の一覧。全ファイル一覧や製品本体の完成状況とは別の一覧です。公開版検証・公開状況・生成時の手元照合を分けて表示します。",
+  "artifacts": [
+    {
+      "id": "workspace-source",
+      "name": "共通ツール・ソースZIP",
+      "kind": "snapshot",
+      "version": "20261012.2",
+      "purpose": "15機能の管理コード・設定・一覧を保存",
+      "notes": "ソース保存用。録画等の製品本体の完成版ではありません。",
+      "local_path": "work/releases/workspace-source-20261012.2.zip",
+      "bytes": 515953,
+      "sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/eaa3160e31c8955d8c4b50fc98203faf1f5a10aa/workspace-management/workspace-source-20261011.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15",
+        "commit": "eaa3160e31c8955d8c4b50fc98203faf1f5a10aa"
+      },
+      "verification": {
+        "status": "passed",
+        "checked_on": "2026-10-12",
+        "sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+        "summary": "Linux回帰302件・依存照合9件、Linux/Windowsの6環境CI合格。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38189349276"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "catalogue-update",
+      "name": "成果物一覧・管理コード更新ZIP",
+      "kind": "update",
+      "version": "20261012.1",
+      "purpose": "基準ZIP20261012.2へ16機能の管理更新を適用",
+      "notes": "旧17ファイル版。基準ZIP20261012.2へ新規適用。ZIP内一覧は作成時点12件、現在の公開一覧は17件。直接リンクの追加検証は新版20261014.1を使用します。",
+      "local_path": "work/releases/catalogue-update-20261012.1.zip",
+      "bytes": 61068,
+      "sha256": "010c64b23b6c8a66adadf9c43c8711f293d7ea4c2fe3f336c951682b37ec0fde",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/f8288e48a77666aae4eb6aacb65bd898055f8f32/workspace-management/catalogue-update-20261012.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15",
+        "commit": "f8288e48a77666aae4eb6aacb65bd898055f8f32"
+      },
+      "verification": {
+        "status": "passed",
+        "checked_on": "2026-10-12",
+        "sha256": "010c64b23b6c8a66adadf9c43c8711f293d7ea4c2fe3f336c951682b37ec0fde",
+        "summary": "二重ビルド・全内容ハッシュ・新規適用、Linux回帰339件・公開支援55件、配布ZIPの6環境CI合格。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38196233061"
+      },
+      "release_family": "management-update",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "faaff-browser-filter-lists-filters-universal-web-ad-filter",
+      "name": "faaff広告リスト",
+      "kind": "filter",
+      "version": "20261011.1",
+      "purpose": "広告または追跡通信を遮断",
+      "notes": "フィルターの選択・対応エンジンは比較表で確認してください。",
+      "local_path": "faaff/browser_filter_lists/filters/universal-web-ad-filter.txt",
+      "bytes": 1149,
+      "sha256": "3d745b279511c6a6ccaab900119ebab55c5f3ae0cf8c1e4afe98b44da6bb3ce7",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/filters/universal-web-ad-filter.txt",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/14",
+        "commit": "c00d72829bdb772ba4db18cded78c1838ec0f254"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "3d745b279511c6a6ccaab900119ebab55c5f3ae0cf8c1e4afe98b44da6bb3ce7",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/pull/14"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "faaff-browser-filter-lists-filters-universal-web-tracking-filter",
+      "name": "faaff追跡リスト",
+      "kind": "filter",
+      "version": "20261011.1",
+      "purpose": "広告または追跡通信を遮断",
+      "notes": "フィルターの選択・対応エンジンは比較表で確認してください。",
+      "local_path": "faaff/browser_filter_lists/filters/universal-web-tracking-filter.txt",
+      "bytes": 880,
+      "sha256": "f1922570d92147721703e4872ab85bc416cd9f8c0acd3c07291b3aba7edbcfe5",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/filters/universal-web-tracking-filter.txt",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/14",
+        "commit": "c00d72829bdb772ba4db18cded78c1838ec0f254"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "f1922570d92147721703e4872ab85bc416cd9f8c0acd3c07291b3aba7edbcfe5",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/pull/14"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "s-ad-ubo",
+      "name": "広告ブロック・uBO版",
+      "kind": "filter",
+      "version": "20261011.1",
+      "purpose": "広告または追跡通信を遮断",
+      "notes": "フィルターの選択・対応エンジンは比較表で確認してください。",
+      "local_path": "s/ad-ubo.txt",
+      "bytes": 1424,
+      "sha256": "6586b4e1141c0da176af9e421f136740d301be81e5b4aeea3aa1e57858ce0c53",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/ad-ubo.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "6586b4e1141c0da176af9e421f136740d301be81e5b4aeea3aa1e57858ce0c53",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "s-ad",
+      "name": "広告ブロック・共通版",
+      "kind": "filter",
+      "version": "20261011.1",
+      "purpose": "広告または追跡通信を遮断",
+      "notes": "フィルターの選択・対応エンジンは比較表で確認してください。",
+      "local_path": "s/ad.txt",
+      "bytes": 1314,
+      "sha256": "453fa321e72e134edda1b5b31fb73014eb14edce2e9856ced3631e259fb35754",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/ad.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "453fa321e72e134edda1b5b31fb73014eb14edce2e9856ced3631e259fb35754",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "s-japanese-text-softener-deep",
+      "name": "日本語表示・Deep",
+      "kind": "font",
+      "version": "20261011.1",
+      "purpose": "日本語の表示を読みやすくする",
+      "notes": "日本語の見た目を調整。PR #5の変更はmain未反映です。",
+      "local_path": "s/japanese-text-softener-deep.txt",
+      "bytes": 1189,
+      "sha256": "2724cf9dfd86429a95372cb7f6fe841b1ab2df3bc35e20277635cc52f9b17e0b",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/b354d679624502b0242c444812e88f7f15d69be3/japanese-text-softener-deep.txt",
+        "pr_url": "https://github.com/r20942097-hue/s/pull/5",
+        "commit": "b354d679624502b0242c444812e88f7f15d69be3"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "2724cf9dfd86429a95372cb7f6fe841b1ab2df3bc35e20277635cc52f9b17e0b",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": "https://github.com/r20942097-hue/s/pull/5"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "s-japanese-text-softener",
+      "name": "日本語表示・標準",
+      "kind": "font",
+      "version": "20261011.1",
+      "purpose": "日本語の表示を読みやすくする",
+      "notes": "日本語の見た目を調整。PR #5の変更はmain未反映です。",
+      "local_path": "s/japanese-text-softener.txt",
+      "bytes": 5619,
+      "sha256": "b0ce0a92ee288221aee09465918c70bc644ca105e13b2a778b3b108df51b70ec",
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/b354d679624502b0242c444812e88f7f15d69be3/japanese-text-softener.txt",
+        "pr_url": "https://github.com/r20942097-hue/s/pull/5",
+        "commit": "b354d679624502b0242c444812e88f7f15d69be3"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "b0ce0a92ee288221aee09465918c70bc644ca105e13b2a778b3b108df51b70ec",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": "https://github.com/r20942097-hue/s/pull/5"
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "s-tracking",
+      "name": "追跡ブロック",
+      "kind": "filter",
+      "version": "20261011.1",
+      "purpose": "広告または追跡通信を遮断",
+      "notes": "フィルターの選択・対応エンジンは比較表で確認してください。",
+      "local_path": "s/tracking.txt",
+      "bytes": 791,
+      "sha256": "6fc8af3e2561957c878c579743e48b1ae7971b199eed714980aa3c8bc4849897",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/tracking.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "6fc8af3e2561957c878c579743e48b1ae7971b199eed714980aa3c8bc4849897",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "s-twitch-custom-optional",
+      "name": "Twitch追加設定",
+      "kind": "optional",
+      "version": "20261011.1",
+      "purpose": "Twitch向け追加設定",
+      "notes": "外部リソース等の追加設定が必要です。",
+      "local_path": "s/twitch-custom-optional.txt",
+      "bytes": 810,
+      "sha256": "9db3d4c96f753eb8209ea5db62b1b0191fe8f0ea73f732a4b32e95583dc89a94",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/twitch-custom-optional.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "9db3d4c96f753eb8209ea5db62b1b0191fe8f0ea73f732a4b32e95583dc89a94",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "s-v2-ad",
+      "name": "広告ブロック・v2候補",
+      "kind": "candidate",
+      "version": "20261011.1",
+      "purpose": "強い遮断等を検討する候補",
+      "notes": "候補として公開。通常版への自動採用は行いません。",
+      "local_path": "s/v2/ad.txt",
+      "bytes": 3489,
+      "sha256": "e8e98ace0d6a40845151252e6f345140a7722f060bda347e94be39a4986d3e52",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/v2/ad.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "e8e98ace0d6a40845151252e6f345140a7722f060bda347e94be39a4986d3e52",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "s-v2-strict",
+      "name": "Strict候補",
+      "kind": "candidate",
+      "version": "20261011.1",
+      "purpose": "強い遮断等を検討する候補",
+      "notes": "候補として公開。通常版への自動採用は行いません。",
+      "local_path": "s/v2/strict.txt",
+      "bytes": 1368,
+      "sha256": "b512273dc5f5514bed2096214f906f69c64b1f215d4afea6f8a18c6ec888c961",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/v2/strict.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "b512273dc5f5514bed2096214f906f69c64b1f215d4afea6f8a18c6ec888c961",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "s-v2-tracking",
+      "name": "追跡ブロック・v2候補",
+      "kind": "candidate",
+      "version": "20261011.1",
+      "purpose": "強い遮断等を検討する候補",
+      "notes": "候補として公開。通常版への自動採用は行いません。",
+      "local_path": "s/v2/tracking.txt",
+      "bytes": 2024,
+      "sha256": "302dd7841140b0712ee499cda88190a57f1f6c19912ee96d9c2ad6cace6530cf",
+      "publication": {
+        "stage": "main",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/s/61c5f1b6b0e7cc144f20e442695d4a38af2d2a75/v2/tracking.txt",
+        "pr_url": "",
+        "commit": "61c5f1b6b0e7cc144f20e442695d4a38af2d2a75"
+      },
+      "verification": {
+        "status": "matched",
+        "checked_on": "2026-10-12",
+        "sha256": "302dd7841140b0712ee499cda88190a57f1f6c19912ee96d9c2ad6cace6530cf",
+        "summary": "固定公開版と本文SHA256が一致。動作検証は更新表参照。",
+        "evidence_url": ""
+      },
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "current"
+    },
+    {
+      "id": "management-update-20261013",
+      "name": "管理ツール統合更新 20261013.1",
+      "version": "20261013.1",
+      "purpose": "並べ替え・診断・公開状態比較・共通入力照合を基準ZIPへ追加",
+      "notes": "旧20ファイル版。基準ZIP20261012.2が必要。ZIP内一覧は作成時点13件、現在の公開一覧は17件。link_mode修正と直接リンク検証は新版20261014.1に含まれます。",
+      "kind": "update",
+      "local_path": "work/releases/catalogue-update-20261013.1.zip",
+      "sha256": "c96d05659fce7815b240daa7d3a99a454fd96e5850783b4f4a8ea2d5a17848ae",
+      "bytes": 80292,
+      "publication": {
+        "stage": "pr",
+        "commit": "df3163a0e0ddc59f98c883c2dc68cd2df16826fc",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/df3163a0e0ddc59f98c883c2dc68cd2df16826fc/workspace-management/catalogue-update-20261013.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "c96d05659fce7815b240daa7d3a99a454fd96e5850783b4f4a8ea2d5a17848ae",
+        "checked_on": "2026-10-13",
+        "summary": "全内容ハッシュ・二重ビルド一致、新規基準版へ適用後の管理129件と公開支援92件、Linux/Windows×Python3.11/3.14/3.15の6環境合格。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38349008086"
+      },
+      "release_family": "management-update",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "tool-integration-kit",
+      "name": "ツール統合・導入キット",
+      "version": "20261013.1",
+      "purpose": "基準ZIP・最新20ファイル更新・検証ヘルパーを1つのダウンロードに統合",
+      "notes": "旧20261013.1キット。新規作業先・仮想環境でsetup/allが必要。ZIP内一覧は作成時点13件、現在の公開一覧は17件。初回導入には新版20261014.1を推奨。未取得製品本体は含みません。",
+      "kind": "snapshot",
+      "local_path": "work/releases/tool-integration-kit-20261013.1.zip",
+      "sha256": "efd1992664cdb7c947e6d86a65eaf388236f0e3ae8ab3b41f61bda81835c8c5e",
+      "bytes": 578644,
+      "publication": {
+        "stage": "pr",
+        "commit": "fa79b626be6093d25f5ba19a5201c477d6ff25b4",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/fa79b626be6093d25f5ba19a5201c477d6ff25b4/workspace-management/tool-integration-kit-20261013.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "efd1992664cdb7c947e6d86a65eaf388236f0e3ae8ab3b41f61bda81835c8c5e",
+        "checked_on": "2026-10-13",
+        "summary": "二重ビルド・全内容ハッシュ・公開本文一致。同梱CLIで準備した作業先のsetup/allとLinux/Windows×Python3.11/3.14/3.15の6環境合格。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38350217673"
+      },
+      "release_family": "integration-kit",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "management-update-20261014",
+      "name": "設定整合性・直接リンク更新",
+      "version": "20261014.1",
+      "kind": "update",
+      "purpose": "登録漏れ修正・重複と時間制限の検査・配布のlink_mode=directを追加",
+      "notes": "基準ZIP20261012.2が必要。24ファイル更新。ZIP内一覧は作成時点15件、現在の一覧は新版キットを含む27件。",
+      "local_path": "work/releases/catalogue-update-20261014.1.zip",
+      "sha256": "8b0774fcdae3bf9420b49835a766a8af6ff6dea3bd7f1b0102b3af18086557a1",
+      "bytes": 88988,
+      "publication": {
+        "stage": "pr",
+        "commit": "903fd41b8a8dad4e375a27d3ff24974a625002a1",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/903fd41b8a8dad4e375a27d3ff24974a625002a1/workspace-management/catalogue-update-20261014.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "8b0774fcdae3bf9420b49835a766a8af6ff6dea3bd7f1b0102b3af18086557a1",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キットの実CLI適用後に管理143件と公開支援112件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。生成後にカタログ内のシンボリックリンクなし。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38425363944"
+      },
+      "release_family": "management-update",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "tool-integration-kit-20261014",
+      "name": "ツール統合・導入キット 20261014.1",
+      "version": "20261014.1",
+      "kind": "snapshot",
+      "purpose": "基準ZIP・24ファイル更新・検証ヘルパーを一括導入",
+      "notes": "同梱CLIで新規work/作業先を用意し、新規仮想環境でsetup/allを実行。未取得製品本体は含まず、更新ZIP内一覧は作成時点15件。",
+      "local_path": "work/releases/tool-integration-kit-20261014.1.zip",
+      "sha256": "41136d2914216db668c3480a394360614376ba19c3b9e332297d2f9ed2b2da76",
+      "bytes": 587353,
+      "publication": {
+        "stage": "pr",
+        "commit": "903fd41b8a8dad4e375a27d3ff24974a625002a1",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/903fd41b8a8dad4e375a27d3ff24974a625002a1/workspace-management/tool-integration-kit-20261014.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "41136d2914216db668c3480a394360614376ba19c3b9e332297d2f9ed2b2da76",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キットの実CLI適用後に管理143件と公開支援112件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。生成後にカタログ内のシンボリックリンクなし。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38425363944"
+      },
+      "release_family": "integration-kit",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "management-update-20261014-2",
+      "name": "フラグ付き実行・設定検査更新",
+      "version": "20261014.2",
+      "kind": "update",
+      "purpose": "対応するPython・Nodeフラグの後の実行ファイル照合と、除外形式の記録を追加",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点17件、現在の公開一覧は27件。製品本体は別途必要。基準ZIP20261012.2と最新版ヘルパーが必要。",
+      "local_path": "work/releases/catalogue-update-20261014.2.zip",
+      "sha256": "1c20be0134eadb09c94bf77acda8030311e1a165ff8ee47936596e5ffb71134d",
+      "bytes": 91830,
+      "publication": {
+        "stage": "pr",
+        "commit": "f2dfde630d6fc18a91ccc0d7a2edb7ecbeac45d7",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/f2dfde630d6fc18a91ccc0d7a2edb7ecbeac45d7/workspace-management/catalogue-update-20261014.2.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "1c20be0134eadb09c94bf77acda8030311e1a165ff8ee47936596e5ffb71134d",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理151件・公開支援120件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。実Python/Nodeのフラグ付きスクリプトと生成後のカタログ内リンク状態も検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38431238200"
+      },
+      "release_family": "management-update",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "tool-integration-kit-20261014-2",
+      "name": "ツール統合・導入キット 20261014.2",
+      "version": "20261014.2",
+      "kind": "snapshot",
+      "purpose": "対応するPython・Nodeフラグの後の実行ファイル照合と、除外形式の記録を追加",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点17件、現在の公開一覧は27件。製品本体は別途必要。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
+      "local_path": "work/releases/tool-integration-kit-20261014.2.zip",
+      "sha256": "b85bd6ffc2c2cc94bf7d4695ad2f2eb8c64db8236a143782eb9c052721ded112",
+      "bytes": 590429,
+      "publication": {
+        "stage": "pr",
+        "commit": "f2dfde630d6fc18a91ccc0d7a2edb7ecbeac45d7",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/f2dfde630d6fc18a91ccc0d7a2edb7ecbeac45d7/workspace-management/tool-integration-kit-20261014.2.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "b85bd6ffc2c2cc94bf7d4695ad2f2eb8c64db8236a143782eb9c052721ded112",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理151件・公開支援120件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。実Python/Nodeのフラグ付きスクリプトと生成後のカタログ内リンク状態も検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38431238200"
+      },
+      "release_family": "integration-kit",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "management-update-20261014-3",
+      "name": "制作物の本文更新・候補レビュー",
+      "version": "20261014.3",
+      "kind": "update",
+      "purpose": "制作物の本文・版・登録順を比較し、新規公開本文を確認して候補を出力",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点19件、現在の公開一覧は27件。正本の自動採用や動作合格の自動付与はしない。基準ZIP20261012.2と最新版ヘルパーが必要。",
+      "local_path": "work/releases/catalogue-update-20261014.3.zip",
+      "sha256": "e2a68613c0c855237cc4b713ed8c2cc1ac5bab5bf04a4eeb80fea1582b7cc4de",
+      "bytes": 94448,
+      "publication": {
+        "stage": "pr",
+        "commit": "7cdc873c9b43fd587274391a4fd1c83296863e20",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/7cdc873c9b43fd587274391a4fd1c83296863e20/workspace-management/catalogue-update-20261014.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "e2a68613c0c855237cc4b713ed8c2cc1ac5bab5bf04a4eeb80fea1582b7cc4de",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キットの実CLI適用後に管理164件・公開支援133件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。新規展開先のsetup/all、生成後のカタログ内リンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38440322517"
+      },
+      "release_family": "management-update",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "tool-integration-kit-20261014-3",
+      "name": "ツール統合・導入キット 20261014.3",
+      "version": "20261014.3",
+      "kind": "snapshot",
+      "purpose": "制作物の本文・版・登録順を比較し、新規公開本文を確認して候補を出力",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点19件、現在の公開一覧は27件。正本の自動採用や動作合格の自動付与はしない。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
+      "local_path": "work/releases/tool-integration-kit-20261014.3.zip",
+      "sha256": "c0646a42894f9bedac1b48f31454a5583eb3a93a48d659233c24a2dd8b390d09",
+      "bytes": 593302,
+      "publication": {
+        "stage": "pr",
+        "commit": "7cdc873c9b43fd587274391a4fd1c83296863e20",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/7cdc873c9b43fd587274391a4fd1c83296863e20/workspace-management/tool-integration-kit-20261014.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "c0646a42894f9bedac1b48f31454a5583eb3a93a48d659233c24a2dd8b390d09",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キットの実CLI適用後に管理164件・公開支援133件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。新規展開先のsetup/all、生成後のカタログ内リンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38440322517"
+      },
+      "release_family": "integration-kit",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "management-update-20261014-4",
+      "name": "テストフォルダの入力照合・実行保護",
+      "version": "20261014.4",
+      "kind": "update",
+      "purpose": "監査2ツールのテストフォルダを明示登録し、追加・削除・変更と実行中の入力変更を検知",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点21件、現在の公開一覧は27件。全import先を推論する検査ではない。基準ZIP20261012.2と最新版ヘルパーが必要。",
+      "local_path": "work/releases/catalogue-update-20261014.4.zip",
+      "sha256": "ca6f4ecd03dfd1d47e7f4b1aa4311ec7a0fce91b2be6268311d50c6042375589",
+      "bytes": 99120,
+      "publication": {
+        "stage": "pr",
+        "commit": "0afb841bd2651429affd752449f7ee97c83d8355",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/0afb841bd2651429affd752449f7ee97c83d8355/workspace-management/catalogue-update-20261014.4.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "ca6f4ecd03dfd1d47e7f4b1aa4311ec7a0fce91b2be6268311d50c6042375589",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理172件・公開支援141件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。監査2系統の入力フォルダを照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38514385604"
+      },
+      "release_family": "management-update",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "tool-integration-kit-20261014-4",
+      "name": "ツール統合・導入キット 20261014.4",
+      "version": "20261014.4",
+      "kind": "snapshot",
+      "purpose": "監査2ツールのテストフォルダを明示登録し、追加・削除・変更と実行中の入力変更を検知",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点21件、現在の公開一覧は27件。全import先を推論する検査ではない。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
+      "local_path": "work/releases/tool-integration-kit-20261014.4.zip",
+      "sha256": "82f0e87d1e0497f68a7fa14c54ed3839f5a7a8c4b05f3ccfadfe816ebff50d53",
+      "bytes": 599379,
+      "publication": {
+        "stage": "pr",
+        "commit": "0afb841bd2651429affd752449f7ee97c83d8355",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/0afb841bd2651429affd752449f7ee97c83d8355/workspace-management/tool-integration-kit-20261014.4.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "82f0e87d1e0497f68a7fa14c54ed3839f5a7a8c4b05f3ccfadfe816ebff50d53",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理172件・公開支援141件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。監査2系統の入力フォルダを照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38514385604"
+      },
+      "release_family": "integration-kit",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "management-update-20261014-5",
+      "name": "共通テストフォルダ・利用先の入力照合",
+      "version": "20261014.5",
+      "kind": "update",
+      "purpose": "共通入力グループにフォルダを登録し、利用先の変更検知・実行停止・理由表示へ接続",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点23件、現在の公開一覧は27件。全import先の自動解決ではない。基準ZIP20261012.2と最新版ヘルパーが必要。 この固定版の画面検査は、実行成功後の入力同一状態で案内文の条件に失敗するため、新版20261014.6の検査を使います。",
+      "local_path": "work/releases/catalogue-update-20261014.5.zip",
+      "sha256": "38d77ca8c61a742708d15f6f4f529ee4f8e1bc5da0425aab7c9885fdcd0780e9",
+      "bytes": 100803,
+      "publication": {
+        "stage": "pr",
+        "commit": "04e863bc7971680c9dff55dc09619ffd9d0cb2b0",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/04e863bc7971680c9dff55dc09619ffd9d0cb2b0/workspace-management/catalogue-update-20261014.5.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "38d77ca8c61a742708d15f6f4f529ee4f8e1bc5da0425aab7c9885fdcd0780e9",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理179件・公開支援148件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。共通管理テストの利用先を照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38517735026"
+      },
+      "release_family": "management-update",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "tool-integration-kit-20261014-5",
+      "name": "ツール統合・導入キット 20261014.5",
+      "version": "20261014.5",
+      "kind": "snapshot",
+      "purpose": "共通入力グループにフォルダを登録し、利用先の変更検知・実行停止・理由表示へ接続",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点23件、現在の公開一覧は27件。全import先の自動解決ではない。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。 この固定版の画面検査は、実行成功後の入力同一状態で案内文の条件に失敗するため、新版20261014.6の検査を使います。",
+      "local_path": "work/releases/tool-integration-kit-20261014.5.zip",
+      "sha256": "7fc7c53fb0689db58da5f8adea3053d8a9668e7c6dc5c7acfc778a903595e469",
+      "bytes": 601493,
+      "publication": {
+        "stage": "pr",
+        "commit": "04e863bc7971680c9dff55dc09619ffd9d0cb2b0",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/04e863bc7971680c9dff55dc09619ffd9d0cb2b0/workspace-management/tool-integration-kit-20261014.5.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "7fc7c53fb0689db58da5f8adea3053d8a9668e7c6dc5c7acfc778a903595e469",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理179件・公開支援148件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。共通管理テストの利用先を照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38517735026"
+      },
+      "release_family": "integration-kit",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "management-update-20261014-6",
+      "name": "共通フォルダ・再実行後の画面検査修正",
+      "version": "20261014.6",
+      "kind": "update",
+      "purpose": "共通テストフォルダの入力照合と、再実行済み・変更なし状態に対応した画面検査",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点25件、現在の公開一覧は27件。前版の画面検査の文言依存を修正。基準ZIP20261012.2と最新版ヘルパーが必要。",
+      "local_path": "work/releases/catalogue-update-20261014.6.zip",
+      "sha256": "d7753e5d7d8de1dee1ba69b752bf9712f81fa42d6a6fa093d60f32b66c031fcb",
+      "bytes": 101124,
+      "publication": {
+        "stage": "pr",
+        "commit": "396239cc24b2130a59908bc923b329b34bbf5db7",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/396239cc24b2130a59908bc923b329b34bbf5db7/workspace-management/catalogue-update-20261014.6.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "d7753e5d7d8de1dee1ba69b752bf9712f81fa42d6a6fa093d60f32b66c031fcb",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理179件・公開支援148件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。共通管理テストの利用先を照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38519074120"
+      },
+      "release_family": "management-update",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "tool-integration-kit-20261014-6",
+      "name": "ツール統合・導入キット 20261014.6",
+      "version": "20261014.6",
+      "kind": "snapshot",
+      "purpose": "共通テストフォルダの入力照合と、再実行済み・変更なし状態に対応した画面検査",
+      "notes": "旧版を保持した24ファイル更新。更新ZIP内一覧は作成時点25件、現在の公開一覧は27件。前版の画面検査の文言依存を修正。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
+      "local_path": "work/releases/tool-integration-kit-20261014.6.zip",
+      "sha256": "f02f6297d67d9334f31960e907160b6d3feaacdf3464aaaa3a8dd030b492ef03",
+      "bytes": 601959,
+      "publication": {
+        "stage": "pr",
+        "commit": "396239cc24b2130a59908bc923b329b34bbf5db7",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/396239cc24b2130a59908bc923b329b34bbf5db7/workspace-management/tool-integration-kit-20261014.6.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "f02f6297d67d9334f31960e907160b6d3feaacdf3464aaaa3a8dd030b492ef03",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。新キット実CLI適用後に管理179件・公開支援148件、Linux/Windows×Python3.11/3.14/3.15の6環境が合格。共通管理テストの利用先を照合し、新規仮想環境のsetup/allと生成後のリンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38519074120"
+      },
+      "release_family": "integration-kit",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "management-update-20261014-7",
+      "name": "成果物の推奨・履歴表示とs/faaff入力照合",
+      "version": "20261014.7",
+      "kind": "update",
+      "purpose": "推奨・現行と履歴を用途別に選択し、s/faaffの登録フォルダ変更を再検証へ接続",
+      "notes": "24ファイル更新。更新ZIP内の一覧は作成時点27件、現在の公開一覧は29件。推奨表示と公開・動作検証を分けます。基準ZIP20261012.2と最新版ヘルパーが必要。",
+      "local_path": "work/releases/catalogue-update-20261014.7.zip",
+      "sha256": "be1ef4eab4e303ae685b6c561224934b0985d7685c5b2915825f3a426ab65617",
+      "bytes": 103850,
+      "publication": {
+        "stage": "pr",
+        "commit": "2cbfafb8d41c213400abf9889d58be3d2bdb132a",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/2cbfafb8d41c213400abf9889d58be3d2bdb132a/workspace-management/catalogue-update-20261014.7.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "be1ef4eab4e303ae685b6c561224934b0985d7685c5b2915825f3a426ab65617",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理187件・公開支援156件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。s/faaffの登録入力・明示推奨の異常と4形式を検証。新規仮想環境のsetup/all、生成後のリンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38538320718"
+      },
+      "release_family": "management-update",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "tool-integration-kit-20261014-7",
+      "name": "ツール統合・導入キット 20261014.7",
+      "version": "20261014.7",
+      "kind": "snapshot",
+      "purpose": "推奨・現行と履歴を用途別に選択し、s/faaffの登録フォルダ変更を再検証へ接続",
+      "notes": "24ファイル更新。更新ZIP内の一覧は作成時点27件、現在の公開一覧は29件。推奨表示と公開・動作検証を分けます。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
+      "local_path": "work/releases/tool-integration-kit-20261014.7.zip",
+      "sha256": "a87b09566beb14b6434ef40b83556913180e4e61dd6fcb660b931bf4039ca69d",
+      "bytes": 605272,
+      "publication": {
+        "stage": "pr",
+        "commit": "2cbfafb8d41c213400abf9889d58be3d2bdb132a",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/2cbfafb8d41c213400abf9889d58be3d2bdb132a/workspace-management/tool-integration-kit-20261014.7.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "a87b09566beb14b6434ef40b83556913180e4e61dd6fcb660b931bf4039ca69d",
+        "checked_on": "2026-10-14",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理187件・公開支援156件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。s/faaffの登録入力・明示推奨の異常と4形式を検証。新規仮想環境のsetup/all、生成後のリンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38538320718"
+      },
+      "release_family": "integration-kit",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "management-update-20261015-1",
+      "name": "Pythonモジュール入力・変更検知の統合更新",
+      "version": "20261015.1",
+      "kind": "update",
+      "purpose": "明示したPython -m入力の変更を検知し、実行・診断・画面・配布へ接続",
+      "notes": "24ファイル更新。更新ZIP内の一覧は作成時点29件、現在の公開一覧は31件。CI設定検証を-mで実行。登録入力の照合と、実行時import先の保証は別です。基準ZIP20261012.2と最新版ヘルパーが必要。",
+      "local_path": "work/releases/catalogue-update-20261015.1.zip",
+      "sha256": "f2a92f089a8c179b5ab3120d52c38d022cda031c5a317184349142298c4f84c2",
+      "bytes": 107928,
+      "publication": {
+        "stage": "pr",
+        "commit": "02bf49c7053f9ccce769b75e9145085317b23d9b",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/02bf49c7053f9ccce769b75e9145085317b23d9b/workspace-management/catalogue-update-20261015.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "f2a92f089a8c179b5ab3120d52c38d022cda031c5a317184349142298c4f84c2",
+        "checked_on": "2026-10-15",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理203件・公開支援172件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。明示モジュール入力・変更時の後続停止・新規仮想環境のsetup/all・リンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38650124108"
+      },
+      "release_family": "management-update",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "tool-integration-kit-20261015-1",
+      "name": "ツール統合・導入キット 20261015.1",
+      "version": "20261015.1",
+      "kind": "snapshot",
+      "purpose": "明示したPython -m入力の変更を検知し、実行・診断・画面・配布へ接続",
+      "notes": "24ファイル更新。更新ZIP内の一覧は作成時点29件、現在の公開一覧は31件。CI設定検証を-mで実行。登録入力の照合と、実行時import先の保証は別です。基準ZIP・更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
+      "local_path": "work/releases/tool-integration-kit-20261015.1.zip",
+      "sha256": "bf54b0cfa3856ced75904a45019ba407f37e515a4fd7c6bf695081e5f6c264a8",
+      "bytes": 608421,
+      "publication": {
+        "stage": "pr",
+        "commit": "02bf49c7053f9ccce769b75e9145085317b23d9b",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/02bf49c7053f9ccce769b75e9145085317b23d9b/workspace-management/tool-integration-kit-20261015.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "bf54b0cfa3856ced75904a45019ba407f37e515a4fd7c6bf695081e5f6c264a8",
+        "checked_on": "2026-10-15",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理203件・公開支援172件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。明示モジュール入力・変更時の後続停止・新規仮想環境のsetup/all・リンク状態を検査。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38650124108"
+      },
+      "release_family": "integration-kit",
+      "recommended": false,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "history"
+    },
+    {
+      "id": "management-update-20261015-2",
+      "name": "Suite監査の実行分離・v4統合更新",
+      "version": "20261015.2",
+      "kind": "update",
+      "purpose": "Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続",
+      "notes": "v4の26ファイル更新。更新ZIP内の一覧は作成時点31件、現在の公開一覧は33件。監査原本・既存ZIPパス検査を維持。基準ZIP20261012.2とv4対応の最新版ヘルパーが必要。",
+      "local_path": "work/releases/catalogue-update-20261015.2.zip",
+      "sha256": "ad0ecfe2ef803543e111bb2f3fc44b01ff3d06c23c1ead5d69a13b37cd329401",
+      "bytes": 109873,
+      "publication": {
+        "stage": "pr",
+        "commit": "4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/catalogue-update-20261015.2.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "ad0ecfe2ef803543e111bb2f3fc44b01ff3d06c23c1ead5d69a13b37cd329401",
+        "checked_on": "2026-10-15",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38652955604"
+      },
+      "release_family": "management-update",
+      "recommended": true,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "recommended"
+    },
+    {
+      "id": "tool-integration-kit-20261015-2",
+      "name": "ツール統合・導入キット 20261015.2",
+      "version": "20261015.2",
+      "kind": "snapshot",
+      "purpose": "Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続",
+      "notes": "v4の26ファイル更新。更新ZIP内の一覧は作成時点31件、現在の公開一覧は33件。監査原本・既存ZIPパス検査を維持。基準ZIP・v4更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。",
+      "local_path": "work/releases/tool-integration-kit-20261015.2.zip",
+      "sha256": "3d7b3729ce92da69eb7b4fa107a0f785967746b9fbb751badd2aea9e8fe39b93",
+      "bytes": 610683,
+      "publication": {
+        "stage": "pr",
+        "commit": "4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/tool-integration-kit-20261015.2.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "3d7b3729ce92da69eb7b4fa107a0f785967746b9fbb751badd2aea9e8fe39b93",
+        "checked_on": "2026-10-15",
+        "summary": "固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38652955604"
+      },
+      "release_family": "integration-kit",
+      "recommended": true,
+      "local_state": "unchecked",
+      "actual_sha256": null,
+      "release_state": "recommended"
+    }
+  ],
+  "changes": {
+    "baseline": "前の公開ソースZIP 20261012.1 内の本文・版との比較",
+    "added": [
+      "成果物一覧・管理コード更新ZIP",
+      "管理ツール統合更新 20261013.1",
+      "設定整合性・直接リンク更新",
+      "フラグ付き実行・設定検査更新",
+      "制作物の本文更新・候補レビュー",
+      "テストフォルダの入力照合・実行保護",
+      "共通テストフォルダ・利用先の入力照合",
+      "共通フォルダ・再実行後の画面検査修正",
+      "成果物の推奨・履歴表示とs/faaff入力照合",
+      "Pythonモジュール入力・変更検知の統合更新",
+      "Suite監査の実行分離・v4統合更新",
+      "ツール統合・導入キット",
+      "ツール統合・導入キット 20261014.1",
+      "ツール統合・導入キット 20261014.2",
+      "ツール統合・導入キット 20261014.3",
+      "ツール統合・導入キット 20261014.4",
+      "ツール統合・導入キット 20261014.5",
+      "ツール統合・導入キット 20261014.6",
+      "ツール統合・導入キット 20261014.7",
+      "ツール統合・導入キット 20261015.1",
+      "ツール統合・導入キット 20261015.2"
+    ],
+    "removed": [],
+    "changed": [
+      {
+        "id": "workspace-source",
+        "name": "共通ツール・ソースZIP",
+        "before": "20261012.1",
+        "after": "20261012.2"
+      }
+    ]
+  },
+  "rule_groups": [
+    {
+      "id": "tracking-shared",
+      "name": "追跡ブロックの共有ルール",
+      "comparison": "ordered-rule-and-control-lines",
+      "members": [
+        "faaff-browser-filter-lists-filters-universal-web-tracking-filter",
+        "s-tracking"
+      ],
+      "sha256": "3755da1c333d48ec4eff639d2467bdaccc1b1447ee72865622808fcf500b562c",
+      "lines": 9,
+      "source_sha256": {
+        "faaff-browser-filter-lists-filters-universal-web-tracking-filter": "f1922570d92147721703e4872ab85bc416cd9f8c0acd3c07291b3aba7edbcfe5",
+        "s-tracking": "6fc8af3e2561957c878c579743e48b1ae7971b199eed714980aa3c8bc4849897"
+      }
+    }
+  ]
+}

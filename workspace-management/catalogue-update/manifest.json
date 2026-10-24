@@ -1,0 +1,24 @@
+{
+  "schema": "catalogue-development-update/v1",
+  "base_snapshot_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+  "layout": "direct",
+  "files": {
+    "README.md": "2f75da8a5ae8b485039a56453925cf3054cd46180f7c27db41ab8b019ba3d987",
+    "catalog/ARTIFACTS.md": "1b068c7d804b1a8ae8e55168d8c714f48c2935b369ffd859301cd4681a7ab4c8",
+    "catalog/INTEGRATION.md": "53175f9024a507653229bbcd35f792688249fc764ad68d0d954f068b3a28ee0c",
+    "catalog/README.md": "ddaa30523a53835f1300f68457839639fd784bd69dbbd36b88ed43b52c14cb64",
+    "catalog/REPORT.md": "e58fb9842af1464a48bbfe9c15006b9a5fa345009b43c9a80ab8059bdd885733",
+    "catalog/artifacts.json": "35243e9d515493523f21ca0756fc377de26569a14371b8d4872ffb5b449621fc",
+    "catalog/config.json": "ee30db86530426e700a2e16a1ea49ba31dcb756be8b9fa0c0edc41f0d981719d",
+    "catalog/projects.json": "a230577cf57556ee8ba3a25ca85972455a4eea4dc419ae64618aa1f29cdeaf2f",
+    "tools/artifacts.py": "9deb2f4a0cbdb52348d86a90e2f42a6f682d533701bb97287c22e22742638181",
+    "tools/browser_smoke.py": "7da669aa3c402d11976af2a92c7ac8175d0947717965dd2e8419e2163ec89df5",
+    "tools/check_artifact_publication.py": "4112ec12af6dd1d08fe64ef8220f9fc93e12d2e57b8ff7010fe3c9ac0e7bc3a0",
+    "tools/manage.py": "c196bad515e010d6659a715d5b0649f2fe8d4e3ff3b603bf0241326cbc51540e",
+    "tools/registry.json": "9eaadc81b3102d11bd206b1d62ed579ad4ddb12624bc45a26a2f5b76db941a23",
+    "tools/tests/test_artifact_publication.py": "9efa579676a88589e45f3ecf3a08fc54837d6de11f779bbc1c58f409bf67b3d4",
+    "tools/tests/test_artifacts.py": "967e7bcb8fee0262159bcf2e873c3084cb5bf7f9fcdc4976dad74116ebb67a24",
+    "tools/tests/test_manage.py": "883a51c7c178731a7c1f06d5a69d9514d81053506f6f634ddac5cd5ee96f1568",
+    "tools/tests/test_registry.py": "3e33756cfb1a7ca1d6861b455354845f19f8789c179e4d5c7a9239ede7ccb47e"
+  }
+}
