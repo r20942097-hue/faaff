@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "candidate_gates": [
+    "tests",
+    "clean_extract",
+    "archive_integrity",
+    "reproducible_build",
+    "sbom",
+    "provenance"
+  ],
+  "risk_classes": {
+    "browser_runtime": {
+      "stable_gates": [
+        "real_environment",
+        "rollback"
+      ]
+    },
+    "game_memory_runtime": {
+      "stable_gates": [
+        "real_environment",
+        "rollback"
+      ]
+    },
+    "service_runtime": {
+      "stable_gates": [
+        "real_environment",
+        "rollback"
+      ]
+    },
+    "local_service_runtime": {
+      "stable_gates": [
+        "real_environment",
+        "rollback"
+      ]
+    },
+    "os_state_change": {
+      "stable_gates": [
+        "real_environment",
+        "rollback"
+      ]
+    },
+    "integration_runtime": {
+      "stable_gates": [
+        "real_environment",
+        "rollback"
+      ]
+    },
+    "content_policy": {
+      "stable_gates": [
+        "real_environment",
+        "rollback"
+      ]
+    },
+    "content_asset": {
+      "stable_gates": []
+    },
+    "prototype": {
+      "stable_gates": []
+    }
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "candidate": "dev70",
+  "version": "2.6.0",
+  "displayVersion": "2.6.0-dev70",
+  "installVersion": "2.6.0.70",
+  "npmVersion": "2.6.0-dev.70",
+  "baselineSourceSha256": "47c171a46fe3347f2071b2570ec7e0a784a9fe983eb5fc55a21f0cb8c3f66d1f",
+  "baselineExtrasSha256": "d5b5fc0b4f9d005c07886655626df478794eb7f7955eceb4e907c022d2ccd094",
+  "sourceFingerprint": "3875b52d3ef8bcd859385271546ec302ba0537ee9795d1bd653aae31fbadd4d8",
+  "releaseStatus": "NO_GO",
+  "changes": [
+    "Skip equal player configuration writes/events on repeated unrelated Extras updates",
+    "Preserve exactly one equal-config app handoff notification for player-early ownership",
+    "Actual player/master changes and replaced/deleted DOM config still publish",
+    "Add bridge write/notification/no-op counters to Extras diagnostics"
+  ],
+  "regressions": {
+    "retained_dev69_new_tests": "4_FAIL",
+    "dev70_new_tests": "4_PASS",
+    "100_unrelated_settings_changes": {
+      "additional_bridge_writes": 0,
+      "additional_bridge_notifications": 0,
+      "audio_retry_timer_identity_preserved": true
+    },
+    "equal_first_handoff": "PASS",
+    "player_change_master_off": "PASS",
+    "external_config_repair": "PASS",
+    "non_browser_suite": "PASS",
+    "extracted_source_full_suite": "PASS"
+  },
+  "acceptance": {
+    "formal-firefox-load": "BLOCKED_ENVIRONMENT",
+    "environment-policy": "PASS",
+    "native-fps-python": "BLOCKED_ENVIRONMENT",
+    "acceptance-runner": "PASS_WITH_RELEASE_GATE",
+    "tier1-non-browser": "PASS",
+    "native-loaf-python": "BLOCKED_ENVIRONMENT",
+    "formal-extension-load": "BLOCKED_ENVIRONMENT",
+    "native-columns-python": "BLOCKED_ENVIRONMENT",
+    "environment-preflight": "BLOCKED_ENVIRONMENT",
+    "native-no-buffer-python": "BLOCKED_ENVIRONMENT",
+    "real-youtube-navigation": "BLOCKED_ENVIRONMENT"
+  },
+  "integrity": {
+    "independentRebuildByteIdentity": true,
+    "completeInternalSha256Verified": 57,
+    "evidenceManifestVerified": 12,
+    "embeddedSourceMatchesExternal": true,
+    "extractedSourceFingerprintMatches": true
+  },
+  "packages": {
+    "youtube-home-optimizer-v2.6.0-dev70-complete.zip": {
+      "sha256": "5bc91168f6dd2f01ced748388b7b86cfae96391285e81407c9fb9e05eec4c33c",
+      "bytes": 1069326,
+      "entries": 58,
+      "crc": "PASS"
+    },
+    "youtube-home-optimizer-v2.6.0-dev70-source.zip": {
+      "sha256": "2013cb070403753412739a2f73923cdfc3c4b4798a20e138a79a1a26a858b31a",
+      "bytes": 819103,
+      "entries": 304,
+      "crc": "PASS"
+    },
+    "youtube-home-optimizer-v2.6.0-dev70-evidence.zip": {
+      "sha256": "3049b0caf46277909598d023e790d6023cdcf89631a2a464b48a7a9472284192",
+      "bytes": 11020,
+      "entries": 13,
+      "crc": "PASS"
+    }
+  },
+  "limits": [
+    "VM publication/timer counts do not measure real CPU/GPU savings",
+    "Real YouTube audio/No Buffer behavior and browser update/install remain unverified",
+    "Native Chromium/Firefox unavailable and Python Playwright missing",
+    "No new feature, permission, settings schema or dependency changes"
+  ]
+}

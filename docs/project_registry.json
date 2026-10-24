@@ -1,0 +1,121 @@
+{
+  "schema_version": 4,
+  "updated": "2026-10-05",
+  "policy_version": "4.0",
+  "projects": [
+    {
+      "id": "youtube-home-optimizer",
+      "latest_observed": "2.6.0-dev70",
+      "product_verified": "2.6.0-dev70",
+      "integration_verified": null,
+      "stable": null,
+      "state": "DEV",
+      "decision": "NO_GO",
+      "risk_class": "browser_runtime",
+      "previous_known_good": null
+    },
+    {
+      "id": "wp10-2025-companion",
+      "latest_observed": "0.38.0",
+      "product_verified": "0.38.0",
+      "integration_verified": null,
+      "stable": null,
+      "state": "DEV",
+      "decision": "NO_GO_REAL_GAME_ALL_HORSES",
+      "risk_class": "game_memory_runtime",
+      "previous_known_good": null
+    },
+    {
+      "id": "universal-live-watcher",
+      "latest_observed": "6.49.12",
+      "product_verified": "6.49.12",
+      "integration_verified": "6.49.12",
+      "stable": "6.38.0",
+      "state": "CANDIDATE",
+      "decision": "HOLD",
+      "risk_class": "service_runtime",
+      "previous_known_good": null
+    },
+    {
+      "id": "ai-orchestrator",
+      "latest_observed": "1.51",
+      "product_verified": "1.51",
+      "integration_verified": "1.51",
+      "stable": null,
+      "state": "CANDIDATE",
+      "decision": "HOLD",
+      "risk_class": "local_service_runtime",
+      "previous_known_good": null
+    },
+    {
+      "id": "windows-control",
+      "latest_observed": "0.1.8",
+      "product_verified": "0.1.8",
+      "integration_verified": "0.1.8",
+      "stable": null,
+      "state": "CANDIDATE",
+      "decision": "NO_GO",
+      "risk_class": "os_state_change",
+      "previous_known_good": null
+    },
+    {
+      "id": "browser-control",
+      "latest_observed": "0.4.2",
+      "product_verified": "0.3.0",
+      "integration_verified": "0.4.2",
+      "stable": null,
+      "state": "DEV",
+      "decision": "NO_GO",
+      "risk_class": "browser_runtime",
+      "previous_known_good": null
+    },
+    {
+      "id": "universal-control-suite",
+      "latest_observed": "0.51.0",
+      "product_verified": "0.51.0",
+      "integration_verified": "0.51.0",
+      "stable": null,
+      "state": "DEV",
+      "decision": "NO_GO",
+      "risk_class": "integration_runtime",
+      "previous_known_good": null
+    },
+    {
+      "id": "browser-filter-lists",
+      "latest_observed": "engineering-source-plus-distribution-mirror",
+      "product_verified": "stable-lists",
+      "integration_verified": "v2-candidate",
+      "stable": "current-stable-lists",
+      "state": "CANDIDATE",
+      "decision": "CONSOLIDATE",
+      "risk_class": "content_policy",
+      "previous_known_good": null
+    },
+    {
+      "id": "music-prompts",
+      "latest_observed": "MASTER-workstream",
+      "product_verified": null,
+      "integration_verified": null,
+      "stable": null,
+      "state": "DEV",
+      "decision": "CONTEXT_ONLY",
+      "risk_class": "content_asset",
+      "previous_known_good": null
+    },
+    {
+      "id": "incremental-game",
+      "latest_observed": "prototype",
+      "product_verified": null,
+      "integration_verified": null,
+      "stable": null,
+      "state": "PROTOTYPE",
+      "decision": "CONTEXT_ONLY",
+      "risk_class": "prototype",
+      "previous_known_good": null
+    }
+  ],
+  "baseline": {
+    "origin": "production-management-pack-v3-2026-10-05.zip",
+    "verification": "IMPORTED_NOT_REVALIDATED"
+  }
+}

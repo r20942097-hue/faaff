@@ -1,0 +1,61 @@
+{
+  "mode": "read_only",
+  "archives": [
+    {
+      "filename": "universal-suite-integration-v0.51.0-evidence.zip",
+      "size_bytes": 122270,
+      "sha256": "3cfe1a8f055984862b7c0c44ead20d04f38dbd66e3480be9df77cf4003bc7e7f",
+      "companion_sha": "PASS",
+      "crc": "PASS",
+      "internal_hashes_verified": 0,
+      "internal_coverage": null
+    },
+    {
+      "filename": "universal-suite-integration-v0.51.0.zip",
+      "size_bytes": 3736004,
+      "sha256": "f05cb74b0b2df83a9c7059b668a8a2e349c4dcd361244d066dad2e473f85a628",
+      "companion_sha": "PASS",
+      "crc": "PASS",
+      "internal_hashes_verified": 742,
+      "internal_coverage": true
+    },
+    {
+      "filename": "wp10-2025-companion-v0.38.0.zip",
+      "size_bytes": 485602,
+      "sha256": "319293360a454c0c247f26c6cc1c9205188d99e4534db1a3847c14ce31389255",
+      "companion_sha": "PASS",
+      "crc": "PASS",
+      "internal_hashes_verified": 186,
+      "internal_coverage": true
+    },
+    {
+      "filename": "youtube-home-optimizer-v2.6.0-dev70-complete.zip",
+      "size_bytes": 1069326,
+      "sha256": "5bc91168f6dd2f01ced748388b7b86cfae96391285e81407c9fb9e05eec4c33c",
+      "companion_sha": "PASS",
+      "crc": "PASS",
+      "internal_hashes_verified": 57,
+      "internal_coverage": true
+    },
+    {
+      "filename": "youtube-home-optimizer-v2.6.0-dev70-evidence.zip",
+      "size_bytes": 11020,
+      "sha256": "3049b0caf46277909598d023e790d6023cdcf89631a2a464b48a7a9472284192",
+      "companion_sha": "PASS",
+      "crc": "PASS",
+      "internal_hashes_verified": 12,
+      "internal_coverage": true
+    },
+    {
+      "filename": "youtube-home-optimizer-v2.6.0-dev70-source.zip",
+      "size_bytes": 819103,
+      "sha256": "2013cb070403753412739a2f73923cdfc3c4b4798a20e138a79a1a26a858b31a",
+      "companion_sha": "PASS",
+      "crc": "PASS",
+      "internal_hashes_verified": 0,
+      "internal_coverage": null
+    }
+  ],
+  "product_tests": "separate",
+  "signature_verification": "NOT_RUN"
+}

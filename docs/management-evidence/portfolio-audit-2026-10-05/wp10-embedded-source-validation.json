@@ -1,0 +1,112 @@
+{
+  "evidence_errors": {},
+  "source_sha256": "1bc84a8902b120dea5af8e415afa66067c4c529e8a6c5723132766fa41858afa",
+  "checks": [
+    {
+      "name": "compileall",
+      "ok": true
+    },
+    {
+      "name": "unit_tests_326_plus",
+      "ok": true
+    },
+    {
+      "name": "cli_smoke",
+      "ok": true
+    },
+    {
+      "name": "cli_autoextract_commands",
+      "ok": true
+    },
+    {
+      "name": "cli_live_commands",
+      "ok": true
+    },
+    {
+      "name": "cli_analysis_commands",
+      "ok": true
+    },
+    {
+      "name": "cli_research_engine",
+      "ok": true
+    },
+    {
+      "name": "cli_integrity_commands",
+      "ok": true
+    },
+    {
+      "name": "cli_experiment_recovery_commands",
+      "ok": true
+    },
+    {
+      "name": "cli_windows_acceptance_command",
+      "ok": true
+    },
+    {
+      "name": "cli_all_horses_command",
+      "ok": true
+    },
+    {
+      "name": "cli_bounded_file_analysis_options",
+      "ok": true
+    },
+    {
+      "name": "cli_restore_smoke",
+      "ok": true
+    },
+    {
+      "name": "cli_backup_integrity_smoke",
+      "ok": true
+    },
+    {
+      "name": "cli_experiment_generation_smoke",
+      "ok": true
+    },
+    {
+      "name": "cli_invalid_check_nonzero",
+      "ok": true
+    },
+    {
+      "name": "cli_bounded_file_analysis_smoke",
+      "ok": true
+    },
+    {
+      "name": "fault_evidence_source_runtime_freshness",
+      "ok": true
+    },
+    {
+      "name": "restore_fault_matrix_42_cases",
+      "ok": true
+    },
+    {
+      "name": "real_process_exit_30_cases",
+      "ok": true
+    },
+    {
+      "name": "experiment_transaction_recovery_10_exits",
+      "ok": true
+    },
+    {
+      "name": "no_WriteProcessMemory",
+      "ok": true
+    },
+    {
+      "name": "no_DLL_injection_code",
+      "ok": true
+    },
+    {
+      "name": "no_patch_api",
+      "ok": true
+    },
+    {
+      "name": "research_bundle_smoke",
+      "ok": true
+    },
+    {
+      "name": "source_unchanged_during_validation",
+      "ok": true
+    }
+  ],
+  "tests_run": 326,
+  "ok": true
+}

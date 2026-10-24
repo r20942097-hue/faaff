@@ -1,0 +1,27 @@
+{
+  "version": "0.25.0",
+  "baseline_version": "0.24.0",
+  "baseline_sha256": "16fc54b29a89fcd26c84ff7019674ba2905f6464c3dcf614487220b16bcb2f59",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "python": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+  "collision_safe_dual_layout_verified": true,
+  "legacy_v024_storage_readability_verified": true,
+  "hash_suffixed_experiment_replace_prune_verified": true,
+  "windows_acceptance_harness_present": true,
+  "windows_acceptance_executed_native": false,
+  "restore_fault_cases": 42,
+  "restore_process_exit_cases": 30,
+  "experiment_process_exit_cases": 10,
+  "actual_windows_game_verified": false,
+  "physical_power_loss_verified": false,
+  "ntfs_storage_controller_verified": false,
+  "onedrive_defender_interference_verified": false,
+  "windows_acl_share_mode_verified": false,
+  "notes": [
+    "Native Windows acceptance is intentionally not inferred from Linux validation.",
+    "Fresh 42/30/10 matrix JSON was passed to validate.py --matrix-results; the full 23-gate validator returned exit code 0."
+  ],
+  "validation_checks": 23,
+  "unit_tests": 261,
+  "fresh_matrix_reuse_validation_verified": true
+}
