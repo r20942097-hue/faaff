@@ -1,0 +1,102 @@
+{
+  "schema": "stage6-kit-verification/v1",
+  "checked_on": "2026-10-19",
+  "version": "20261019.6",
+  "runtime": "Linux Python 3.12.14",
+  "candidate_files": 48,
+  "schema_applied": "catalogue-development-update/v8",
+  "source_revision": "7dc49b37d98c694d000c0154d269dc0304cb8581",
+  "source_tests": {
+    "run": 309,
+    "passed": 304,
+    "skipped": 5
+  },
+  "native_source_ci": {
+    "run_id": 39270349063,
+    "runtime_jobs": "all six passed",
+    "evidence": "verification-20261019-source6-ci.json"
+  },
+  "installed_management_tests": {
+    "run": 307,
+    "passed": 301,
+    "skipped": 6,
+    "extra_skip": "Real archive unit fixture requires repository distribution inputs; installed CLI tested separately with actual kit archives."
+  },
+  "standard_checks": 21,
+  "suite_tests": 26,
+  "installed_provenance": {
+    "files": 214,
+    "unchanged_base": 165,
+    "matches_update": 48,
+    "modified": 1,
+    "missing": 0,
+    "added": 0,
+    "changed_paths": [
+      "catalog/TOOLS.md"
+    ],
+    "note": "Doctor refreshes the tool documentation after installation."
+  },
+  "fresh_install_commands": [
+    "setup",
+    "doctor",
+    "all --workflows",
+    "run --tool suite-audit",
+    "run --tool module-search",
+    "portfolio",
+    "check",
+    "source_provenance.py with pinned kit archives"
+  ],
+  "native_kit_ci": {
+    "commit": "81ea535c5d93318883eb4a7f051fcfb11de44f1c",
+    "run_id": 39271203958,
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": 18,
+    "runtime_source_jobs": 6,
+    "actual_kit_jobs": 6,
+    "retained_snapshot_jobs": 6,
+    "matrix": "Windows/Linux x Python3.11,3.14,3.15",
+    "evidence": "verification-20261019-stage6-ci.json"
+  },
+  "scope": "No missing product E2E; kit catalogue is its build-time 46 records, external catalogue is 48; prior ZIPs unchanged. .5 is history with known reentrant-cancellation issue.",
+  "catalogue-update": {
+    "file": "catalogue-update-20261019.6.zip",
+    "sha256": "856c552178637e07768b54389f7935c2cd24523980a462fadb24b122cb69aea1",
+    "bytes": 182701
+  },
+  "tool-integration-kit": {
+    "file": "tool-integration-kit-20261019.6.zip",
+    "sha256": "5d3173dc632e75b7f6d2c4008a837f0679c06e628cec6b3eb745fb73d3d64b3c",
+    "bytes": 681424
+  },
+  "browser": {
+    "external_artifacts": 48,
+    "checks": 64,
+    "status": "passed",
+    "inventory_files": 214
+  },
+  "external_catalogue_provenance": {
+    "files": 214,
+    "unchanged_base": 165,
+    "matches_update": 47,
+    "modified": 2,
+    "changed_paths": [
+      "catalog/TOOLS.md",
+      "catalog/artifacts.json"
+    ],
+    "scope": "External catalogue includes .6 records; kit contains its build-time 46 records."
+  },
+  "build_metadata_snapshot": "Package JSON publication=local_only describes creation time; current fixed PR URLs live in artifacts-source.json. Immutable ZIP bytes are not rewritten to change that creation-time field.",
+  "publication": {
+    "records": 48,
+    "public_bytes_match": 48,
+    "evidence": "publication-20261019-stage6.json"
+  },
+  "subsequent_finding": {
+    "kind": "interrupted handler registration",
+    "reproduced": true,
+    "evidence": "verification-20261019-registration.json",
+    "release_state": "history; new fix in .7",
+    "scope": "The prior 18 green jobs remain accurate for their tests; the added registration-interrupt case was absent."
+  }
+}

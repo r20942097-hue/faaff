@@ -1,0 +1,14 @@
+{
+  "schema": "local-catalogue-update-package/v1",
+  "version": "20261019.2",
+  "file": "catalogue-update-20261019.2.zip",
+  "sha256": "c560bb5ccb4290c89d18f36b8743eb4a11f8c0ccb67e1bd945272127d38c5887",
+  "bytes": 160612,
+  "candidate_files": 42,
+  "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+  "reproducible_frozen_inputs": true,
+  "source_revision_s": "8d3d0b34076a15fac9fd2d6cb4b822a7a39d30ad",
+  "source_base_faaff": "bf6a76baba136222617726f1433a10e7f8ba03c5",
+  "publication": "local_only",
+  "scope": "Independent v6 candidate; v1-v5 packages retained without modification."
+}

@@ -1,0 +1,67 @@
+{
+  "schema": "stage5-kit-verification/v1",
+  "checked_on": "2026-10-19",
+  "version": "20261019.5",
+  "runtime": "Linux Python 3.12.14",
+  "candidate_files": 48,
+  "base_sha256": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9",
+  "source_revision": "271e53ad2fde1ac1bf7bef501cee4deacef91267",
+  "source_tests": {
+    "run": 307,
+    "passed": 302,
+    "skipped": 5
+  },
+  "native_source_ci": {
+    "run_id": 39268835150,
+    "runtime_jobs": "all six passed",
+    "matrix": "Windows/Linux x Python3.11,3.14,3.15"
+  },
+  "installed_management_tests": {
+    "run": 305,
+    "passed": 299,
+    "skipped": 6,
+    "extra_skip": "Real archive unit fixture is source-repository-only; installed provenance CLI tested separately with actual kit archives."
+  },
+  "standard_checks": 21,
+  "suite_tests": 26,
+  "installed_provenance": {
+    "files": 214,
+    "unchanged_base": 165,
+    "matches_update": 48,
+    "modified": 1,
+    "missing": 0,
+    "added": 0,
+    "changed_paths": [
+      "catalog/TOOLS.md"
+    ],
+    "note": "Doctor refreshes the tool documentation after installation."
+  },
+  "fresh_install_commands": [
+    "setup",
+    "doctor",
+    "all --workflows",
+    "run --tool suite-audit",
+    "run --tool module-search",
+    "portfolio",
+    "check",
+    "source_provenance.py with pinned kit archives"
+  ],
+  "native_kit_ci": {
+    "run_id": 39269658204,
+    "scope": "Kit jobs may pass individually; source precheck in retained snapshot job exposed an affected Suite controller failure. Do not treat .5 as verified for repeated cancellation.",
+    "failed_job": 118118293744,
+    "failure": "Second interrupt escaped while printing cancellation."
+  },
+  "scope": "No missing product E2E; 44-record catalogue inside kit and 46-record external catalogue; previous ZIPs retained.",
+  "catalogue-update": {
+    "file": "catalogue-update-20261019.5.zip",
+    "sha256": "6e21c44a7e6c8738a14a35630a2b73f0b3de9e04ea57b3cf81cf681b0b11d371",
+    "bytes": 181150
+  },
+  "tool-integration-kit": {
+    "file": "tool-integration-kit-20261019.5.zip",
+    "sha256": "410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b",
+    "bytes": 679719
+  },
+  "release_state": "history; not for new installations"
+}

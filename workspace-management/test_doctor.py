@@ -10,6 +10,50 @@ from registry import load, input_identity, registered_files, selected_directorie
 
 
 class ReadinessTests(unittest.TestCase):
+    def test_failed_dotted_dependency_probe_does_not_abort_other_tools(self):
+        def probe(name):
+            failures = {'missing.submodule': ModuleNotFoundError, 'broken.submodule': ImportError,
+                        'invalid.spec': ValueError, 'invalid.parent': AttributeError}
+            if name in failures:
+                raise failures[name]('fixture')
+            return object()
+
+        with TemporaryDirectory() as directory:
+            tools = [{'id': name, 'name': name, 'files': [], 'commands': [['{python}', '-V']],
+                      'binaries': [], 'modules': [module]}
+                     for name, module in [('missing', 'missing.submodule'), ('broken', 'broken.submodule'),
+                                          ('spec', 'invalid.spec'), ('parent', 'invalid.parent'),
+                                          ('available', 'available')]]
+            report = inspect(directory, module=probe, registry={'tools': tools})
+            self.assertEqual([row['status'] for row in report['tools']], ['blocked']*4 + ['ready'])
+            self.assertIn('ModuleNotFoundError', report['tools'][0]['missing'][0])
+            self.assertIn('ImportError', report['tools'][1]['missing'][0])
+
+    def test_pass_without_input_evidence_requires_retest_in_both_views(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'source.py').write_text('source')
+            tool = {'id': 'fixture', 'name': 'fixture', 'files': ['source.py'],
+                    'commands': [['{python}', 'source.py']], 'modules': [], 'binaries': []}
+            identity = input_identity(root, tool)
+            record = {'schema': 'workspace-tool-run/v1', 'tool': 'fixture',
+                      'status': 'passed', 'passed': True,
+                      'started_at_utc': '2026-10-19T08:00:00+00:00',
+                      'python': {'version': sys.version.split()[0]},
+                      'inputs_unchanged_during_run': True}
+            path = root / 'catalog/results/tool-fixture.json'
+            path.parent.mkdir(parents=True)
+            for before, after in [(None, None), (identity, None), (None, identity), ([], identity)]:
+                with self.subTest(before=before, after=after):
+                    path.write_text(json.dumps(dict(record, inputs_before=before, inputs_after=after)))
+                    report = inspect(root, registry={'tools': [tool]})
+                    previous = report['tools'][0]['last_run']
+                    self.assertIn('再検証', previous['label'])
+                    self.assertEqual(previous['detail'], '実行時の照合情報なし')
+                    self.assertIn('合格記録・再検証が必要', overview(root, report))
+                    from doctor import render
+                    self.assertIn('合格記録・再検証が必要', render(report))
+
     def test_passed_record_invalidated_when_registered_inputs_or_python_change(self):
         with TemporaryDirectory() as directory:
             root = Path(directory)

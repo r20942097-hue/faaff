@@ -48,7 +48,8 @@ def scan(root, config):
                 dirs[:] = []
             for name in sorted(files):
                 path = Path(directory) / name
-                if path.is_symlink() or name.startswith('.env') or path.suffix in {'.pyc', '.pyo'}:
+                if (name in EXCLUDED or path.is_symlink() or not path.is_file()
+                        or name.startswith('.env') or path.suffix in {'.pyc', '.pyo'}):
                     continue
                 relative = path.relative_to(base)
                 if 'include' in source and relative.as_posix() not in source['include']:
@@ -60,15 +61,15 @@ def scan(root, config):
                 if path.suffix == '.txt':
                     with path.open('rb') as handle:
                         text = handle.read(65536).decode('utf-8', errors='replace')
-                version = re.search(r'^! Version:\s*(.+)$', text, re.M)
-                license_match = re.search(r'^! License:\s*(.+)$', text, re.M)
+                version = re.search(r'(?:^|[\r\n])! Version:[ \t]*([^\r\n]*)', text)
+                license_match = re.search(r'(?:^|[\r\n])! License:[ \t]*([^\r\n]*)', text)
                 cls = 'ライブラリ・資料' if source.get('kind') == 'library' else category(relative)
                 state = '候補' if cls == 'フィルター' and relative.parts[0] == 'v2' else ('実験候補' if cls == '実験候補' else '現行' if cls == 'フィルター' else '資料・設定')
-                if cls == 'フィルター' and re.search(r'^! Status:\s*optional-external\s*$', text, re.M):
+                if cls == 'フィルター' and re.search(r'(?:^|[\r\n])! Status:[ \t]*optional-external[ \t]*(?=[\r\n]|$)', text):
                     state = '追加設定が必要'
                 row = {'source': source['name'], 'path': relative.as_posix(), 'category': cls,
-                       'state': state, 'version': version.group(1) if version else '',
-                       'license': license_match.group(1) if license_match else '',
+                       'state': state, 'version': version.group(1).strip(' \t') if version else '',
+                       'license': license_match.group(1).strip(' \t') if license_match else '',
                        'bytes': path.stat().st_size, 'sha256': digest,
                        'original': path.relative_to(root).as_posix(),
                        'url': f"{source['repository']}/blob/{source.get('repository_ref', 'main')}/{quote(relative.as_posix())}" if source.get('repository') else ''}
@@ -95,15 +96,22 @@ def link_path(row):
 
 
 def csv_text(rows, direct=False):
+    from artifacts import spreadsheet
     stream = io.StringIO(newline='')
     writer = csv.writer(stream)
     writer.writerow(['出典', '分類', 'ファイル', '状態', 'バージョン', 'ライセンス', 'バイト数', 'SHA256', '整理先', 'GitHub参照URL'])
     for row in rows:
-        writer.writerow([row[k] for k in ('source', 'category', 'path', 'state', 'version', 'license', 'bytes', 'sha256')] + [row['original'] if direct else link_path(row), row['url']])
+        values = [row[k] for k in ('source', 'category', 'path', 'state', 'version', 'license', 'bytes', 'sha256')] + [row['original'] if direct else link_path(row), row['url']]
+        writer.writerow([spreadsheet(value) for value in values])
     return '\ufeff' + stream.getvalue()
 
 
 def markdown(rows, direct=False):
+    def cell(value):
+        text = html.escape(str(value)).replace('\r\n', '\n').replace('\r', '\n')
+        for character, entity in [('|', '&#124;'), ('[', '&#91;'), (']', '&#93;'), ('`', '&#96;')]:
+            text = text.replace(character, entity)
+        return text.replace('\n', '<br>')
     lines = ['# ライブラリ・成果物カタログ', '', f'登録ファイル：**{len(rows)}件**。`python tools/manage.py build` で更新します。', '',
              '録画ツールの実行ソース・ZIP、Windows実機テストは未確認。状態はローカル確認に基づきます。', '',
              '| 出典 | ファイル数 |', '|---|---:|']
@@ -114,7 +122,7 @@ def markdown(rows, direct=False):
         for row in rows:
             if row['source'] == source:
                 target = '../../' + quote(row['original']) if direct else '../' + quote(link_path(row))
-                lines.append(f"| {row['category']} | [{row['path']}]({target}) | {row['state']} | {row['version'] or '—'} |")
+                lines.append(f"| {cell(row['category'])} | [{cell(row['path'])}]({target}) | {cell(row['state'])} | {cell(row['version'] or '—')} |")
     return '\n'.join(lines) + '\n'
 
 
@@ -125,7 +133,7 @@ def html_page(rows, direct=False, show_artifacts=False):
 *{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:#18304b;font-family:system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:32px 20px}h1{font-size:32px}h2{font-size:21px;margin-top:30px}.muted{color:#52657b;line-height:1.8}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card,.note{background:white;border:1px solid #d8e2ee;border-radius:14px;padding:20px}.num{font-size:30px;font-weight:bold}.note{margin-top:18px;line-height:1.8}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}input,select,button{font:inherit;padding:12px;border:1px solid #c9d5e5;border-radius:8px;background:white}input{flex:1;min-width:220px}button{cursor:pointer}.table{overflow:auto;background:white;border:1px solid #d8e2ee;border-radius:12px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:12px;border-bottom:1px solid #e4eaf2}th{background:#eaf0f7;white-space:nowrap}td.file{min-width:240px;overflow-wrap:anywhere}a{color:#225eba}tr:hover{background:#f6faff}.pill{white-space:nowrap;background:#eef2fa;border-radius:6px;padding:3px 7px}.links{display:flex;gap:18px;flex-wrap:wrap} @media(max-width:600px){.cards{grid-template-columns:1fr}.card{display:flex;justify-content:space-between;align-items:center}.num{font-size:25px}h1{font-size:26px}}@media print{.toolbar,button{display:none}body{background:white}.table{overflow:visible}main{padding:0}}
 </style><main><p class="muted">WORKSPACE CATALOG · ローカル管理</p><h1>ライブラリ・成果物・設定一覧</h1><p class="muted">sはフィルター中心、faaffは録画ツールの管理資料とフィルター。ライブラリ保存先と共通管理ツールも一覧に含めます。</p><div class="cards"><div class="card">リポジトリ<div class="num">2</div></div><div class="card">登録ファイル<div class="num">__COUNT__</div></div><div class="card">フィルター<div class="num">__FILTERS__</div></div></div>
 <div class="note"><strong>完成状況</strong><br>一覧の自動生成とローカル検証を整備しました。録画ツールの実行ソース・ZIPとWindows実機検証は未確認です。候補フィルターは現行版と区別してください。<br><a href="tools.html">ツール一覧・実行状況</a> · <a href="libraries.html">ライブラリ一覧</a> · <a href="filters.html">フィルターの選び方・一覧表</a> · <a href="../ADBLOCK-UPDATE.md">広告ブロック更新・比較表</a> · <a href="../REPORT.md">統合案・改良内容・残課題</a> · <a href="../results/latest.json">最新のテスト結果</a></div>
-<h2>ファイルを探す</h2><div class="toolbar"><input id="query" type="search" aria-label="ファイル検索" placeholder="名前・バージョン・ライセンスで検索"><select id="source" aria-label="出典"><option value="">すべての出典</option></select><select id="category" aria-label="分類"><option value="">すべての分類</option></select><select id="state" aria-label="状態"><option value="">すべての状態</option></select><button id="reset">条件を解除</button></div><p id="count" class="muted" aria-live="polite"></p><div class="table"><table><thead><tr><th>出典</th><th>分類</th><th>ファイル</th><th>状態</th><th>バージョン</th><th>ライセンス</th><th>参照</th></tr></thead><tbody id="rows"></tbody></table></div><p class="muted">ファイル名はローカル原本を開きます。GitHubリンクは公開mainの参照です。sの更新は公開済みです。faaffはPR反映中で、mainとは内容差がある場合があります。リンク経由の編集は原本に反映されます。</p><div class="links"><a href="inventory.csv" download>CSV一覧</a><a href="inventory.md">Markdown一覧</a><a href="../README.md">使い方</a><button id="print">印刷</button></div></main><script>
+<h2>ファイルを探す</h2><div class="toolbar"><input id="query" type="search" aria-label="ファイル検索" placeholder="名前・バージョン・ライセンスで検索"><select id="source" aria-label="出典"><option value="">すべての出典</option></select><select id="category" aria-label="分類"><option value="">すべての分類</option></select><select id="state" aria-label="状態"><option value="">すべての状態</option></select><button id="reset">条件を解除</button></div><p id="count" class="muted" aria-live="polite"></p><div class="table"><table><thead><tr><th>出典</th><th>分類</th><th>ファイル</th><th>状態</th><th>バージョン</th><th>ライセンス</th><th>参照</th></tr></thead><tbody id="rows"></tbody></table></div><p class="muted">ファイル名はローカル原本を開きます。GitHubリンクは設定に記録された版の参照です。ローカルで更新したファイルと同じ内容かは未照合です。取得元と現在の内容はSHA256で区別してください。リンク経由の編集は原本に反映されます。</p><div class="links"><a href="inventory.csv" download>CSV一覧</a><a href="inventory.md">Markdown一覧</a><a href="../README.md">使い方</a><button id="print">印刷</button></div></main><script>
 const data=__DATA__;const query=document.querySelector('#query'),body=document.querySelector('#rows');const selects=['source','category','state'].map(k=>{const el=document.querySelector('#'+k);for(const value of [...new Set(data.map(r=>r[k]))].sort()){const option=document.createElement('option');option.value=value;option.textContent=value;el.append(option)}return [k,el]});
 function localPath(r){return '../'+r.catalogue_path.split('/').map(encodeURIComponent).join('/')}
 function render(){const q=query.value.toLocaleLowerCase();const selected=data.filter(r=>selects.every(([k,e])=>!e.value||r[k]===e.value)&&[r.source,r.category,r.path,r.state,r.version,r.license].join(' ').toLocaleLowerCase().includes(q));body.replaceChildren();for(const row of selected){const tr=document.createElement('tr');for(const k of ['source','category','path','state','version','license','url']){const td=document.createElement('td');if(k==='path'||k==='url'){if(k==='url'&&!row.url){td.textContent='—'}else{const a=document.createElement('a');a.href=k==='path'?localPath(row):row.url;a.textContent=k==='path'?row.path:'GitHub ↗';td.append(a);if(k==='path')td.className='file'}}else td.textContent=row[k]||'—';tr.append(td)}body.append(tr)}if(!selected.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=7;td.textContent='一致するファイルがありません。検索条件を変更してください。';tr.append(td);body.append(tr)}document.querySelector('#count').textContent=selected.length+' / '+data.length+' 件を表示'}
@@ -355,7 +363,7 @@ def test(root, extra_commands=()):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=['build', 'check', 'test', 'filters', 'all', 'doctor', 'run', 'setup', 'release'])
+    parser.add_argument('command', choices=['build', 'check', 'test', 'filters', 'all', 'doctor', 'run', 'setup', 'release', 'portfolio'])
     parser.add_argument('--output', type=Path, help='new work/*.zip output for a portable source snapshot')
     parser.add_argument('--tool', help='registered tool id for run')
     parser.add_argument('--check', action='store_true', help='check filter generation without writing')
@@ -376,6 +384,11 @@ def main():
             parser.error(str(error))
     if args.tool and args.command != 'run':
         parser.error('--tool applies only to run')
+    if args.command == 'portfolio':
+        if args.check or args.engine_dir or args.ghostery_entry or args.browser or args.workflows:
+            parser.error('portfolio accepts no verification flags')
+        from portfolio_status import run
+        return run(ROOT)
     if args.command == 'setup':
         if args.check or args.tool or args.engine_dir or args.ghostery_entry or args.browser or args.workflows:
             parser.error('setup accepts no verification flags')

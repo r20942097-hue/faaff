@@ -19,6 +19,7 @@ def command_entry(command, cwd):
     index = 1
     local_path_disabled = False
     while index < len(command):
+        token_index = index
         token = command[index]
         if token == '--':
             index += 1
@@ -61,7 +62,12 @@ def command_entry(command, cwd):
                         import re
                         if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*', name):
                             raise ValueError('invalid Python module name')
-                        return {'mode': 'module', 'path': None, 'module': name, 'local_path_disabled': local_path_disabled}
+                        options = command[1:token_index]
+                        if position:
+                            options = [*options, '-' + chars[:position]]
+                        return {'mode': 'module', 'path': None, 'module': name,
+                                'local_path_disabled': local_path_disabled,
+                                'python_options': options}
                     break
                 if character not in python_flags:
                     raise ValueError('unsupported Python option')

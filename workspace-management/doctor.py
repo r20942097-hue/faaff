@@ -35,7 +35,7 @@ def last_run(root, key, tool=None, registry=None):
             before, after = record.get('inputs_before'), record.get('inputs_after')
             current = input_identity(root, tool, registry)
             if not isinstance(before, dict) or not isinstance(after, dict):
-                result['detail'] = '実行時の照合情報なし'
+                result.update(label='合格記録・再検証が必要', detail='実行時の照合情報なし')
             elif before != after or record.get('inputs_unchanged_during_run') is not True:
                 result.update(label='合格記録・再検証が必要', detail='実行中に登録ファイル・設定が変更')
             elif after != current:
@@ -65,6 +65,20 @@ def retest_advice(previous, command, missing):
     return '再検証：' + command + '。実行後にdoctorを再実行してください。'
 
 
+def missing_modules(names, find_spec):
+    """Keep an unavailable dotted dependency from aborting the whole diagnosis."""
+    missing = []
+    for name in names:
+        try:
+            present = find_spec(name) is not None
+        except (ImportError, AttributeError, ValueError) as error:
+            missing.append('module: ' + name + ' (' + type(error).__name__ + ')')
+            continue
+        if not present:
+            missing.append('module: ' + name)
+    return missing
+
+
 def inspect(root, executable=shutil.which, module=importlib.util.find_spec, registry=None):
     root = Path(root).resolve()
     results = []
@@ -82,7 +96,7 @@ def inspect(root, executable=shutil.which, module=importlib.util.find_spec, regi
             if not present:
                 missing.append('file: ' + relative)
         missing.extend('command: ' + name for name in tool['binaries'] if executable(name) is None)
-        missing.extend('module: ' + name for name in tool['modules'] if module(name) is None)
+        missing.extend(missing_modules(tool['modules'], module))
         if not tool['commands']:
             missing.append('implementation: 実行入口が未接続')
         command = 'python tools/manage.py run --tool ' + key if tool['commands'] else None

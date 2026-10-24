@@ -1,0 +1,140 @@
+{
+  "schema": "stage6-native-ci-observation/v1",
+  "commit": "81ea535c5d93318883eb4a7f051fcfb11de44f1c",
+  "version": "20261019.6",
+  "run_id": 39271203958,
+  "conclusion": "success",
+  "jobs": [
+    {
+      "id": 118123655174,
+      "name": "Management candidate / ubuntu-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655576,
+      "name": "Management candidate / windows-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655596,
+      "name": "Runtime source / windows-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655614,
+      "name": "Management candidate / windows-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655657,
+      "name": "Portfolio update / ubuntu-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655659,
+      "name": "Runtime source / ubuntu-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655672,
+      "name": "Portfolio update / windows-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655697,
+      "name": "Runtime source / ubuntu-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655715,
+      "name": "Portfolio update / ubuntu-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655727,
+      "name": "Portfolio update / windows-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655732,
+      "name": "Management candidate / ubuntu-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655746,
+      "name": "Runtime source / windows-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655750,
+      "name": "Runtime source / windows-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655775,
+      "name": "Runtime source / ubuntu-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655839,
+      "name": "Management candidate / ubuntu-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123655939,
+      "name": "Management candidate / windows-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123656030,
+      "name": "Portfolio update / windows-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118123656064,
+      "name": "Portfolio update / ubuntu-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "additional_workflows": [
+    {
+      "id": 39271203701,
+      "name": "CI",
+      "conclusion": "success"
+    },
+    {
+      "id": 39271203816,
+      "name": "Validate browser filter lists",
+      "conclusion": "success"
+    },
+    {
+      "id": 39271203726,
+      "name": "Dependency Review",
+      "conclusion": "success"
+    },
+    {
+      "id": 39271203815,
+      "name": "CodeQL Python",
+      "conclusion": "success"
+    }
+  ],
+  "scope": "Runtime source, actual .6 kit installation and retained snapshots: 18 jobs on Windows/Linux x Python3.11/3.14/3.15. No missing product E2E claim."
+}

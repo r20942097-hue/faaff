@@ -35,14 +35,31 @@
 | ツール統合・導入キット 20261014.7<br>推奨・現行と履歴を用途別に選択し、s/faaffの登録フォルダ変更を再検証へ接続 | 20261014.7 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理187件・公開支援156件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。s/faaffの登録入力・明示推奨の異常と4形式を検証。新規仮想環境のsetup/all、生成後のリンク状態を検査。製品E2Eは対象外。<br>2026-10-14 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/2cbfafb8d41c213400abf9889d58be3d2bdb132a/workspace-management/tool-integration-kit-20261014.7.zip) | 履歴版 |
 | Pythonモジュール入力・変更検知の統合更新<br>明示したPython -m入力の変更を検知し、実行・診断・画面・配布へ接続 | 20261015.1 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理203件・公開支援172件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。明示モジュール入力・変更時の後続停止・新規仮想環境のsetup/all・リンク状態を検査。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/02bf49c7053f9ccce769b75e9145085317b23d9b/workspace-management/catalogue-update-20261015.1.zip) | 履歴版 |
 | ツール統合・導入キット 20261015.1<br>明示したPython -m入力の変更を検知し、実行・診断・画面・配布へ接続 | 20261015.1 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。キット実CLI適用後に管理203件・公開支援172件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。明示モジュール入力・変更時の後続停止・新規仮想環境のsetup/all・リンク状態を検査。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/02bf49c7053f9ccce769b75e9145085317b23d9b/workspace-management/tool-integration-kit-20261015.1.zip) | 履歴版 |
-| Suite監査の実行分離・v4統合更新<br>Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続 | 20261015.2 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/catalogue-update-20261015.2.zip) | 推奨版 |
+| Suite監査の実行分離・v4統合更新<br>Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続 | 20261015.2 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/catalogue-update-20261015.2.zip) | 履歴版 |
 | ツール統合・導入キット 20261015.2<br>Suite監査の名前空間を子プロセスへ分離し、モジュール実行・変更検知・配布へ接続 | 20261015.2 | PR公開・main未反映 | 固定公開版・全ハッシュ・二重ビルドを照合。v4キットの実CLI適用後に管理210件・公開支援183件・Suite26件、Linux/Windows×Python3.11/3.14/3.15の全6環境が合格。親の状態保持、子の終了コード、原本ハッシュ、既存ZIP検査、生成後リンク状態を確認。製品E2Eは対象外。<br>2026-10-15 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/4d6e3bb6c8e4c01f2756d10bf454b876c7125ac7/workspace-management/tool-integration-kit-20261015.2.zip) | 推奨版 |
+| Suite監査の停止・復旧更新（履歴）<br>Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する | 20261015.3 | PR公開・main未反映 | ZIPのサイズ・SHA256を照合。Windows停止試験の不合格記録があるため動作合格としない。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/catalogue-update-20261015.3.zip) | 履歴版 |
+| ツール統合・導入キット20261015.3（非推奨）<br>Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する | 20261015.3 | PR公開・main未反映 | ZIPのサイズ・SHA256を照合。Windows停止試験の不合格記録があるため動作合格としない。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/tool-integration-kit-20261015.3.zip) | 履歴版 |
+| Windows起動順を修正したSuite監査更新<br>Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する | 20261015.4 | PR公開・main未反映 | 今回Linuxで新規適用、標準18検査、画面64項目を確認。公開CIの修正版ソース検証も成功。製品E2E・Windows実機録画は対象外。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/catalogue-update-20261015.4.zip) | 推奨版 |
+| 全成果物集計・検証改善の更新候補<br>全成果物・10製品・次の改良を集計し、生成・検証・診断の不具合を修正する | 20261019.1 | PR公開・main未反映 | Linux Python3.11/3.14/3.15で新規導入と全検査に成功。Windows CIはCRLFのメタデータ混入で失敗したため全環境合格ではない。修正は次の20261019.2候補で検証する。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/bf6a76baba136222617726f1433a10e7f8ba03c5/workspace-management/catalogue-update-20261019.1.zip) | 履歴版 |
+| 全成果物集計・検証改善の導入キット候補<br>全成果物・10製品・次の改良を集計し、生成・検証・診断の不具合を修正する | 20261019.1 | PR公開・main未反映 | Linux Python3.11/3.14/3.15で新規導入と全検査に成功。Windows CIはCRLFのメタデータ混入で失敗したため全環境合格ではない。修正は次の20261019.2候補で検証する。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/bf6a76baba136222617726f1433a10e7f8ba03c5/workspace-management/tool-integration-kit-20261019.1.zip) | 履歴版 |
+| 改行・実行管理・検索先診断の更新候補<br>一覧メタデータの改行混入を修正し、通常実行の出力保持上限と停止処理、Python標準検索先の診断を追加する | 20261019.2 | PR公開・main未反映 | LinuxのPython3.11/3.14/3.15で全検査成功。Windowsは起動失敗時にOSがファイル名を返さない差異で診断テストが不合格。他のWindows Job・停止検査は成功。修正は20261019.3候補へ引き継ぐ。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/e5289940afb1082356899816edf9ac56b9fbc5d9/workspace-management/catalogue-update-20261019.2.zip) | 履歴版 |
+| 改行・実行管理・検索先診断の導入キット候補<br>一覧メタデータの改行混入を修正し、通常実行の出力保持上限と停止処理、Python標準検索先の診断を追加する | 20261019.2 | PR公開・main未反映 | LinuxのPython3.11/3.14/3.15で全検査成功。Windowsは起動失敗時にOSがファイル名を返さない差異で診断テストが不合格。他のWindows Job・停止検査は成功。修正は20261019.3候補へ引き継ぐ。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/e5289940afb1082356899816edf9ac56b9fbc5d9/workspace-management/tool-integration-kit-20261019.2.zip) | 履歴版 |
+| 中断処理・画面記録・生成検証の更新候補<br>Windowsの起動失敗情報を補い、猶予付き実行のログを制限し、画面検証の失敗記録とルールの改行検査を強化する | 20261019.3 | PR公開・main未反映 | Linux3.11/3.14とローカルの回帰検証は成功。Windowsの待機方法による協調停止試験2件と、Linux3.15の終了反映競合1件を検出したため全環境合格ではない。次の候補で修正する。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/21855c85c3dcc53fd8498880e463115150ee6d81/workspace-management/catalogue-update-20261019.3.zip) | 履歴版 |
+| 中断処理・画面記録・生成検証の導入キット候補<br>Windowsの起動失敗情報を補い、猶予付き実行のログを制限し、画面検証の失敗記録とルールの改行検査を強化する | 20261019.3 | PR公開・main未反映 | Linux3.11/3.14とローカルの回帰検証は成功。Windowsの待機方法による協調停止試験2件と、Linux3.15の終了反映競合1件を検出したため全環境合格ではない。次の候補で修正する。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/21855c85c3dcc53fd8498880e463115150ee6d81/workspace-management/tool-integration-kit-20261019.3.zip) | 履歴版 |
+| Windows協調停止・終了確認の更新候補<br>Windowsの協調停止通知とJob内の終了確認を改善し、OS別の終了反映を確かめる | 20261019.4 | PR公開・main未反映 | 固定公開ZIPのサイズ・SHA256一致。実キット43ファイル適用と新規venvのsetup/all/Suite/portfolio/checkがWindows/LinuxのPython3.11/3.14/3.15の6環境で成功。管理290件・支援291件は各環境のOS専用5件を除き成功。製品E2Eは対象外。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/2955ae52e11553abcd599ee8870535e38523af41/workspace-management/catalogue-update-20261019.4.zip) | 履歴版 |
+| Windows協調停止・終了確認の導入キット候補<br>Windowsの協調停止通知とJob内の終了確認を改善し、OS別の終了反映を確かめる | 20261019.4 | PR公開・main未反映 | 固定公開ZIPのサイズ・SHA256一致。実キット43ファイル適用と新規venvのsetup/all/Suite/portfolio/checkがWindows/LinuxのPython3.11/3.14/3.15の6環境で成功。管理290件・支援291件は各環境のOS専用5件を除き成功。製品E2Eは対象外。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/2955ae52e11553abcd599ee8870535e38523af41/workspace-management/tool-integration-kit-20261019.4.zip) | 履歴版 |
+| 取得元診断・パイプ回収の更新（連続中断に課題・履歴）<br>固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と後始末を管理する | 20261019.5 | PR公開・main未反映 | Linux実キットの48ファイル・新規venv導入・標準21検査・Suite・取得元診断は成功。追加Windows CIで連続中断中の報告処理に不具合を検出。通常の成功をこの条件の保証には転用しない。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/ad9541adacb4a93eb8575d1755e28fa9ab46f8d3/workspace-management/catalogue-update-20261019.5.zip) | 履歴版 |
+| 取得元診断・パイプ回収の導入キット（連続中断に課題・履歴）<br>固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と後始末を管理する | 20261019.5 | PR公開・main未反映 | Linux実キットの48ファイル・新規venv導入・標準21検査・Suite・取得元診断は成功。追加Windows CIで連続中断中の報告処理に不具合を検出。通常の成功をこの条件の保証には転用しない。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/ad9541adacb4a93eb8575d1755e28fa9ab46f8d3/workspace-management/tool-integration-kit-20261019.5.zip) | 履歴版 |
+| 取得元診断・パイプ回収・連続中断修正の更新（登録中断に課題・履歴）<br>固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する | 20261019.6 | PR公開・main未反映 | 当時の48ファイル・6環境導入・標準検査は成功。追加条件のハンドラー登録中の中断では復元漏れを再現したため、この条件は未対応。過去の合格をこの条件の保証には転用しない。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/81ea535c5d93318883eb4a7f051fcfb11de44f1c/workspace-management/catalogue-update-20261019.6.zip) | 履歴版 |
+| 取得元診断・パイプ回収・連続中断修正の導入キット（登録中断に課題・履歴）<br>固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する | 20261019.6 | PR公開・main未反映 | 当時の48ファイル・6環境導入・標準検査は成功。追加条件のハンドラー登録中の中断では復元漏れを再現したため、この条件は未対応。過去の合格をこの条件の保証には転用しない。<br>2026-10-19 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/81ea535c5d93318883eb4a7f051fcfb11de44f1c/workspace-management/tool-integration-kit-20261019.6.zip) | 履歴版 |
+| 取得元診断・パイプ回収・中断・登録復元修正の更新候補（Windows同時書込み未合格）<br>固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する | 20261019.7 | PR公開・main未反映 | 修正元311テストはWindows/Linux×Python3版の全6環境で成功。実キットは5/6環境、管理回帰検査は失敗ジョブでも成功。全18ジョブ中17成功・1失敗。Windows3.14のControl Plane Next同時書込みにPermissionErrorが残る。Linux新規導入・48ファイル・管理309件中303成功/6skip・標準21検査・Suite26件・画面64項目は成功。<br>2026-10-20 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/889053e6d60ff57f095534dfbcd5512f6396c0f8/workspace-management/catalogue-update-20261019.7.zip) | 履歴版 |
+| 取得元診断・パイプ回収・中断・登録復元修正の導入キット候補（Windows同時書込み未合格）<br>固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する | 20261019.7 | PR公開・main未反映 | 修正元311テストはWindows/Linux×Python3版の全6環境で成功。実キットは5/6環境、管理回帰検査は失敗ジョブでも成功。全18ジョブ中17成功・1失敗。Windows3.14のControl Plane Next同時書込みにPermissionErrorが残る。Linux新規導入・48ファイル・管理309件中303成功/6skip・標準21検査・Suite26件・画面64項目は成功。<br>2026-10-20 | 手元は未照合 | [公開版](https://raw.githubusercontent.com/r20942097-hue/faaff/889053e6d60ff57f095534dfbcd5512f6396c0f8/workspace-management/tool-integration-kit-20261019.7.zip) | 履歴版 |
 
 ## 前回からの変更
 
 前の公開ソースZIP 20261012.1 内の本文・版との比較
 
-追加 21件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
+追加 38件・変更 1件・登録解除 0件。登録解除は原本の削除を意味しません。
 - 共通ツール・ソースZIP：20261012.1 → 20261012.2
 
 ## サイズ・SHA256
@@ -374,6 +391,176 @@ v4の26ファイル更新。更新ZIP内の一覧は作成時点31件、現在�
 `3d7b3729ce92da69eb7b4fa107a0f785967746b9fbb751badd2aea9e8fe39b93`
 
 v4の26ファイル更新。更新ZIP内の一覧は作成時点31件、現在の公開一覧は33件。監査原本・既存ZIPパス検査を維持。基準ZIP・v4更新ZIP・検証ヘルパーを同梱。新規仮想環境でsetup/allを実行。
+
+</details>
+
+<details><summary>Suite監査の停止・復旧更新（履歴）</summary>
+
+118,030 bytes
+
+`a070ebbf6fc0b141dd0ae33fbb6372fdfcd62201e0fc4a1d5a1f6e558e79a77e`
+
+Windows停止試験で不合格を検出した履歴版。導入には使用しない。固定配布物の識別と当時の内容を保存する。
+
+</details>
+
+<details><summary>ツール統合・導入キット20261015.3（非推奨）</summary>
+
+619,405 bytes
+
+`b3d6b443874cb8973e47008631743e4df82ebf10377159ebe41a5a13e64c6993`
+
+Windows停止試験で不合格を検出した履歴版。導入には使用しない。固定配布物の識別と当時の内容を保存する。
+
+</details>
+
+<details><summary>Windows起動順を修正したSuite監査更新</summary>
+
+118,648 bytes
+
+`c340b7ac8c229707c38f931eac661997e542685c050fa92be361de0fffdf30ea`
+
+CREATE\_SUSPENDEDで起動しJob登録後に再開する修正版。基準ZIP20261012.2と最新版ヘルパーへ適用。単体更新で、録画などの製品本体は含まない。
+
+</details>
+
+<details><summary>全成果物集計・検証改善の更新候補</summary>
+
+147,475 bytes
+
+`f480132144a2651c6f0be130c19c6ae455f584b1becb0f33a50492ec16f572a5`
+
+PR #16へ固定ZIPを保存済み。Windowsでの一覧メタデータ処理に既知の不具合があり推奨対象にしない。ZIP内部の未公開表示は作成時の記録。
+
+</details>
+
+<details><summary>全成果物集計・検証改善の導入キット候補</summary>
+
+647,335 bytes
+
+`4e97d3d7098866ca179689987ba63cb53bf2b105d056c7818ddc9785aeb42c06`
+
+PR #16へ固定ZIPを保存済み。Windowsでの一覧メタデータ処理に既知の不具合があり推奨対象にしない。ZIP内部の未公開表示は作成時の記録。
+
+</details>
+
+<details><summary>改行・実行管理・検索先診断の更新候補</summary>
+
+160,612 bytes
+
+`c560bb5ccb4290c89d18f36b8743eb4a11f8c0ccb67e1bd945272127d38c5887`
+
+PR #16に固定保存。Windowsの起動失敗メッセージに実行ファイル名を補う改良が必要。全環境合格として推奨しない。ZIP内の未公開表示は作成時点の記録。
+
+</details>
+
+<details><summary>改行・実行管理・検索先診断の導入キット候補</summary>
+
+660,392 bytes
+
+`6fe6ed5e9d64fee6e6e6548b6e3a32412ceda4029783f2c25a693d2c1ae95553`
+
+PR #16に固定保存。Windowsの起動失敗メッセージに実行ファイル名を補う改良が必要。全環境合格として推奨しない。ZIP内の未公開表示は作成時点の記録。
+
+</details>
+
+<details><summary>中断処理・画面記録・生成検証の更新候補</summary>
+
+164,241 bytes
+
+`8b353d3f7db365a08d0ebaa972530aa36716b369b709502cccf6b2c4a7e2eb25`
+
+PR #16に固定保存し、サイズ・SHA256を照合済み。OS別の協調停止・終了確認テストの差異を検出。修正したソースを6環境で先に確認してから次のキットを作る。
+
+</details>
+
+<details><summary>中断処理・画面記録・生成検証の導入キット候補</summary>
+
+663,549 bytes
+
+`6064f9d2bff0af72038283ea5ee8a800a8db59f149968897bd78bd342f810981`
+
+PR #16に固定保存し、サイズ・SHA256を照合済み。OS別の協調停止・終了確認テストの差異を検出。修正したソースを6環境で先に確認してから次のキットを作る。
+
+</details>
+
+<details><summary>Windows協調停止・終了確認の更新候補</summary>
+
+165,931 bytes
+
+`b3a683daf48a201f15be9b7daa45ac71f6674d3dbfd37e033e851cc27f9be44a`
+
+PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブで成功。ZIP内部の一覧42件と未公開表示は作成時点の記録。外部一覧44件。既存の推奨選択は自動で変更しない。 追加で検出した連続中断中の報告処理の再入条件は未対応。過去の合格範囲を保持し、新規導入は修正版候補20261019.6の確認後に選ぶ。
+
+</details>
+
+<details><summary>Windows協調停止・終了確認の導入キット候補</summary>
+
+665,456 bytes
+
+`09f6e558c68ddfdd7a67d28f9c28938357e4393d135d47572c09fbe5071a20b9`
+
+PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブで成功。ZIP内部の一覧42件と未公開表示は作成時点の記録。外部一覧44件。既存の推奨選択は自動で変更しない。 追加で検出した連続中断中の報告処理の再入条件は未対応。過去の合格範囲を保持し、新規導入は修正版候補20261019.6の確認後に選ぶ。
+
+</details>
+
+<details><summary>取得元診断・パイプ回収の更新（連続中断に課題・履歴）</summary>
+
+181,150 bytes
+
+`6e21c44a7e6c8738a14a35630a2b73f0b3de9e04ea57b3cf81cf681b0b11d371`
+
+固定ZIPを履歴として保持。Windows/Python3.15の追加CIでSuite終了メッセージ中の二度目の中断が結果記録を中断する不具合を確認。20261019.6で修正予定。内部一覧44件、外部一覧46件時点の配布。新規導入には使わない。
+
+</details>
+
+<details><summary>取得元診断・パイプ回収の導入キット（連続中断に課題・履歴）</summary>
+
+679,719 bytes
+
+`410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b`
+
+固定ZIPを履歴として保持。Windows/Python3.15の追加CIでSuite終了メッセージ中の二度目の中断が結果記録を中断する不具合を確認。20261019.6で修正予定。内部一覧44件、外部一覧46件時点の配布。新規導入には使わない。
+
+</details>
+
+<details><summary>取得元診断・パイプ回収・連続中断修正の更新（登録中断に課題・履歴）</summary>
+
+182,701 bytes
+
+`856c552178637e07768b54389f7935c2cd24523980a462fadb24b122cb69aea1`
+
+当時の修正元・実キット・既存スナップショット18ジョブは成功。後続の同期的な追加試験で、ハンドラー登録直後の中断による復元漏れを再現。固定ZIPを履歴として保持し、20261019.7で修正予定。
+
+</details>
+
+<details><summary>取得元診断・パイプ回収・連続中断修正の導入キット（登録中断に課題・履歴）</summary>
+
+681,424 bytes
+
+`5d3173dc632e75b7f6d2c4008a837f0679c06e628cec6b3eb745fb73d3d64b3c`
+
+当時の修正元・実キット・既存スナップショット18ジョブは成功。後続の同期的な追加試験で、ハンドラー登録直後の中断による復元漏れを再現。固定ZIPを履歴として保持し、20261019.7で修正予定。
+
+</details>
+
+<details><summary>取得元診断・パイプ回収・中断・登録復元修正の更新候補（Windows同時書込み未合格）</summary>
+
+183,934 bytes
+
+`94c673e12299a93e018c4618155dade3c82378db36f0c35141ca3cb06944cd94`
+
+PR #16へ固定保存。修正元6環境と実キット5環境は成功。Windows/Python3.14で固定Control Plane Nextの同時書込み試験がPermissionErrorで失敗。導入推奨にはしない。内部48件・外部50件、以前のZIPと既存推奨は維持。
+
+</details>
+
+<details><summary>取得元診断・パイプ回収・中断・登録復元修正の導入キット候補（Windows同時書込み未合格）</summary>
+
+682,793 bytes
+
+`4fdfd4e4012542b7dd49f236b5b35ef305946e5a9174231bdfdf4008cde8db4e`
+
+PR #16へ固定保存。修正元6環境と実キット5環境は成功。Windows/Python3.14で固定Control Plane Nextの同時書込み試験がPermissionErrorで失敗。導入推奨にはしない。内部48件・外部50件、以前のZIPと既存推奨は維持。
 
 </details>
 

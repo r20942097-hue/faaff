@@ -1,0 +1,87 @@
+{
+  "schema": "fixed-source-reference-observation/v1",
+  "observed_at_utc": "2026-10-19T14:48:44.920484+00:00",
+  "scope": "Five selected source files only; eight fixed GitHub byte observations. No product code executed, no full repository provenance claim.",
+  "observations": [
+    {
+      "path": "faaff/browser_filter_lists/CHANGELOG.md",
+      "local_sha256": "77837a78cd5d48ce70bf3998696806abd1bc9d897f845ec3a253d54939bcfbe7",
+      "url": "https://github.com/r20942097-hue/faaff/blob/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/CHANGELOG.md",
+      "kind": "declared_reference",
+      "fetched_url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/CHANGELOG.md",
+      "bytes": 3356,
+      "remote_sha256": "8e53cf3b7c45da1240f41e5cc25d4ca32ba7133b9fe5e10da3102c2d5e8773e2",
+      "matches_local": false
+    },
+    {
+      "path": "faaff/browser_filter_lists/CHANGELOG.md",
+      "local_sha256": "77837a78cd5d48ce70bf3998696806abd1bc9d897f845ec3a253d54939bcfbe7",
+      "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/7dc49b37d98c694d000c0154d269dc0304cb8581/browser_filter_lists/CHANGELOG.md",
+      "kind": "candidate_update_origin",
+      "fetched_url": "https://raw.githubusercontent.com/r20942097-hue/faaff/7dc49b37d98c694d000c0154d269dc0304cb8581/browser_filter_lists/CHANGELOG.md",
+      "bytes": 3615,
+      "remote_sha256": "77837a78cd5d48ce70bf3998696806abd1bc9d897f845ec3a253d54939bcfbe7",
+      "matches_local": true
+    },
+    {
+      "path": "faaff/browser_filter_lists/scripts/test_validator.py",
+      "local_sha256": "44594bfab79281ea1f5678dd73f24abefa86c92feb061d3b0448f69f4c1854fd",
+      "url": "https://github.com/r20942097-hue/faaff/blob/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/scripts/test_validator.py",
+      "kind": "declared_reference",
+      "fetched_url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/scripts/test_validator.py",
+      "bytes": 3018,
+      "remote_sha256": "0a15dcd19ebbd4b4f833a49f5bfd5129eeb3b1e6016a6f52afbad83693f6cb98",
+      "matches_local": false
+    },
+    {
+      "path": "faaff/browser_filter_lists/scripts/test_validator.py",
+      "local_sha256": "44594bfab79281ea1f5678dd73f24abefa86c92feb061d3b0448f69f4c1854fd",
+      "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/7dc49b37d98c694d000c0154d269dc0304cb8581/browser_filter_lists/scripts/test_validator.py",
+      "kind": "candidate_update_origin",
+      "fetched_url": "https://raw.githubusercontent.com/r20942097-hue/faaff/7dc49b37d98c694d000c0154d269dc0304cb8581/browser_filter_lists/scripts/test_validator.py",
+      "bytes": 3921,
+      "remote_sha256": "44594bfab79281ea1f5678dd73f24abefa86c92feb061d3b0448f69f4c1854fd",
+      "matches_local": true
+    },
+    {
+      "path": "faaff/browser_filter_lists/scripts/validate_filters.py",
+      "local_sha256": "42915b71ab02aa8ced075bad0f541cb54326437973503ad680edd625dfef25c4",
+      "url": "https://github.com/r20942097-hue/faaff/blob/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/scripts/validate_filters.py",
+      "kind": "declared_reference",
+      "fetched_url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c00d72829bdb772ba4db18cded78c1838ec0f254/browser_filter_lists/scripts/validate_filters.py",
+      "bytes": 12381,
+      "remote_sha256": "212e32aef9e766b55c87085ee5d6f9d3ae566478c219b703fb70b7078c69580c",
+      "matches_local": false
+    },
+    {
+      "path": "faaff/browser_filter_lists/scripts/validate_filters.py",
+      "local_sha256": "42915b71ab02aa8ced075bad0f541cb54326437973503ad680edd625dfef25c4",
+      "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/7dc49b37d98c694d000c0154d269dc0304cb8581/browser_filter_lists/scripts/validate_filters.py",
+      "kind": "candidate_update_origin",
+      "fetched_url": "https://raw.githubusercontent.com/r20942097-hue/faaff/7dc49b37d98c694d000c0154d269dc0304cb8581/browser_filter_lists/scripts/validate_filters.py",
+      "bytes": 12473,
+      "remote_sha256": "42915b71ab02aa8ced075bad0f541cb54326437973503ad680edd625dfef25c4",
+      "matches_local": true
+    },
+    {
+      "path": "s/scripts/generate_lists.py",
+      "local_sha256": "dc24b7d97921a989a91b598dc773a7d39e1df1fb0cb6c21aa9e86cf25c21ec1a",
+      "url": "https://github.com/r20942097-hue/s/blob/93e39a8b351b6b1519b56d2a8d36b093735a4281/scripts/generate_lists.py",
+      "kind": "declared_reference",
+      "fetched_url": "https://raw.githubusercontent.com/r20942097-hue/s/93e39a8b351b6b1519b56d2a8d36b093735a4281/scripts/generate_lists.py",
+      "bytes": 10761,
+      "remote_sha256": "dc24b7d97921a989a91b598dc773a7d39e1df1fb0cb6c21aa9e86cf25c21ec1a",
+      "matches_local": true
+    },
+    {
+      "path": "s/tests/test_generation.py",
+      "local_sha256": "f3f55239e94363f65ed13b1dcfec3e398dcd6acc9313957574eb19780150a7ed",
+      "url": "https://github.com/r20942097-hue/s/blob/93e39a8b351b6b1519b56d2a8d36b093735a4281/tests/test_generation.py",
+      "kind": "declared_reference",
+      "fetched_url": "https://raw.githubusercontent.com/r20942097-hue/s/93e39a8b351b6b1519b56d2a8d36b093735a4281/tests/test_generation.py",
+      "bytes": 10820,
+      "remote_sha256": "f3f55239e94363f65ed13b1dcfec3e398dcd6acc9313957574eb19780150a7ed",
+      "matches_local": true
+    }
+  ]
+}

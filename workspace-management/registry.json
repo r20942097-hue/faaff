@@ -407,6 +407,49 @@
       ],
       "cwd": ".",
       "timeout_seconds": 120
+    },
+    {
+      "id": "portfolio",
+      "name": "全成果物・改良予定の集計",
+      "files": [
+        "tools/portfolio_status.py",
+        "tools/artifacts.py",
+        "tools/projects.py",
+        "tools/doctor.py",
+        "catalog/projects.json",
+        "catalog/artifacts.json",
+        "faaff/browser_filter_lists/manifest.json",
+        "faaff/browser_filter_lists/experimental/candidates.json"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/portfolio_status.py"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120
+    },
+    {
+      "id": "module-search",
+      "name": "Pythonモジュール検索先の診断",
+      "files": [
+        "tools/inspect_module_search.py",
+        "tools/check_workflows.py",
+        "tools/check_suite_audit.py"
+      ],
+      "binaries": [],
+      "modules": [],
+      "commands": [
+        [
+          "{python}",
+          "tools/inspect_module_search.py"
+        ]
+      ],
+      "cwd": ".",
+      "timeout_seconds": 120
     }
   ],
   "checks": [
@@ -605,6 +648,24 @@
         "tools/check_settings.py"
       ],
       "timeout_seconds": 120
+    },
+    {
+      "name": "Portfolio status and maintenance deadlines",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "tools/portfolio_status.py"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "name": "Python mapped module standard-path lookup",
+      "cwd": ".",
+      "argv": [
+        "{python}",
+        "tools/inspect_module_search.py"
+      ],
+      "timeout_seconds": 120
     }
   ],
   "input_groups": [
@@ -628,7 +689,9 @@
         "firefox-extension",
         "source-integrity",
         "artifact-publication",
-        "settings-consistency"
+        "settings-consistency",
+        "portfolio",
+        "module-search"
       ],
       "files": [
         "tools/registry.py",
@@ -637,7 +700,9 @@
         "tools/registry.json",
         "tools/configuration.py",
         "catalog/config.json",
-        "tools/check_settings.py"
+        "tools/check_settings.py",
+        "tools/bounded_process.py",
+        "tools/check_suite_audit.py"
       ]
     },
     {

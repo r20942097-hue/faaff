@@ -1,0 +1,86 @@
+{
+  "schema": "stage7-kit-verification/v1",
+  "checked_on": "2026-10-19",
+  "version": "20261019.7",
+  "runtime": "Linux Python 3.12.14",
+  "candidate_files": 48,
+  "schema_applied": "catalogue-development-update/v8",
+  "source_revision": "6e6407006533016d594913fa08c51daa7ca8af1b",
+  "source_tests": {
+    "run": 311,
+    "passed": 306,
+    "skipped": 5
+  },
+  "native_source_ci": {
+    "run_id": 39273220700,
+    "runtime_jobs": "all six passed",
+    "evidence": "verification-20261019-registration.json"
+  },
+  "installed_management_tests": {
+    "run": 309,
+    "passed": 303,
+    "skipped": 6,
+    "extra_skip": "Real archive unit fixture requires repository distribution inputs; installed CLI tested separately with actual kit archives."
+  },
+  "standard_checks": 21,
+  "suite_tests": 26,
+  "installed_provenance": {
+    "files": 214,
+    "unchanged_base": 165,
+    "matches_update": 48,
+    "modified": 1,
+    "missing": 0,
+    "added": 0,
+    "changed_paths": [
+      "catalog/TOOLS.md"
+    ],
+    "note": "Doctor refreshes the tool documentation after installation."
+  },
+  "fresh_install_commands": [
+    "setup",
+    "doctor",
+    "all --workflows",
+    "run --tool suite-audit",
+    "run --tool module-search",
+    "portfolio",
+    "check",
+    "source_provenance.py with pinned kit archives"
+  ],
+  "native_kit_ci": {
+    "commit": "889053e6d60ff57f095534dfbcd5512f6396c0f8",
+    "run_id": 39273845578,
+    "conclusion": "failure",
+    "passed_jobs": 17,
+    "failed_jobs": 1,
+    "runtime_source_jobs": "6/6 passed",
+    "actual_kit_jobs": "5/6 passed",
+    "retained_snapshot_jobs": "6/6 passed",
+    "evidence": "verification-20261019-stage7-ci.json"
+  },
+  "scope": "No missing product E2E; kit catalogue is its build-time 48 records, external catalogue is 50; prior ZIPs unchanged. .6 is history with interrupted-registration recovery not covered.",
+  "catalogue-update": {
+    "file": "catalogue-update-20261019.7.zip",
+    "sha256": "94c673e12299a93e018c4618155dade3c82378db36f0c35141ca3cb06944cd94",
+    "bytes": 183934
+  },
+  "tool-integration-kit": {
+    "file": "tool-integration-kit-20261019.7.zip",
+    "sha256": "4fdfd4e4012542b7dd49f236b5b35ef305946e5a9174231bdfdf4008cde8db4e",
+    "bytes": 682793
+  },
+  "build_metadata_snapshot": "Package JSON publication=local_only describes creation time; current fixed PR URLs live in artifacts-source.json. Immutable ZIP bytes are not rewritten to change that creation-time field.",
+  "browser": {
+    "external_artifacts": 50,
+    "checks": 64,
+    "status": "passed",
+    "inventory_files": 214
+  },
+  "updated_on_jst": "2026-10-20",
+  "release_state": "not recommended; Windows concurrent write follow-up required",
+  "publication": {
+    "records": 50,
+    "public_bytes_match": 50,
+    "evidence": "publication-20261019-stage7.json",
+    "scope": "Byte identity only; the Windows concurrent-write failure remains open."
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "schema": "source-provenance-verification/v1",
+  "checked_on": "2026-10-19",
+  "runtime": "Linux Python 3.12.14",
+  "source_tests": {
+    "run": 301,
+    "passed": 296,
+    "skipped": 5,
+    "scope": "Windows-only tests skipped; overlapping suites not summed"
+  },
+  "new_tests": {
+    "run": 10,
+    "passed": 10
+  },
+  "browser": {
+    "status": "passed",
+    "checks": [
+      "all 209 rows render",
+      "state unchanged_base",
+      "state matches_update",
+      "state modified",
+      "state missing",
+      "state added",
+      "filename search",
+      "empty result count",
+      "mobile layout",
+      "report links resolve",
+      "no javascript errors"
+    ],
+    "count": 11
+  },
+  "example": {
+    "files": 209,
+    "unchanged_base": 165,
+    "matches_update": 42,
+    "modified": 2,
+    "missing": 0,
+    "added": 0,
+    "changed_paths": [
+      "catalog/TOOLS.md",
+      "catalog/artifacts.json"
+    ],
+    "explanation": "The installed workspace has refreshed tool documentation and the external catalogue of 44 artifacts. The immutable kit contains its build-time catalogue of 42 artifacts."
+  },
+  "source_hashes": {
+    "source_provenance.py": "91def1429e24b3b11f8cf83411e6e85c85d7ab3a63cbd2232ac3b4c6f730d778",
+    "test_source_provenance.py": "6e29305f4af229a18ee5df7dc88466ac87ce9497c5d7fbba7d0b08163ab48b37",
+    "manage.py": "067a490a09bdbfedd2981b0dd5958c8debde7b8d731daa32692e5a144e67b01d",
+    "test_registry.py": "da79f26221e288169c4787ff33c878cc64d6d84abd4725ed1bfb0fae870683bf"
+  },
+  "scope": "Local source and real installed kit observation; native six-environment CI pending for this added source. Published ZIPs unchanged.",
+  "initial_ci": {
+    "commit": "4ecba322227d1725baa69844a7c95eebc3a5805d",
+    "run_id": 39267388828,
+    "status": "failed",
+    "findings": [
+      "Windows mutation fixture compared unresolved temporary directory with resolved observation root; normalize both fixture paths.",
+      "Linux 3.15 single-interrupt fixture observed descendant immediately after termination; require actual termination within a bounded 3-second wait, as in the repeated-interrupt fixture."
+    ],
+    "scope": "Test fixes only; .4 ZIP bytes remain unchanged."
+  },
+  "regression_observation": {
+    "single_interrupt_repetitions": 12,
+    "result": "passed",
+    "path_alias_fixture": "lexical alias/../path differs from resolved path on every OS"
+  }
+}

@@ -885,7 +885,7 @@
         "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38652955604"
       },
       "release_family": "management-update",
-      "recommended": true
+      "recommended": false
     },
     {
       "id": "tool-integration-kit-20261015-2",
@@ -912,6 +912,448 @@
       },
       "release_family": "integration-kit",
       "recommended": true
+    },
+    {
+      "id": "management-update-20261015-3",
+      "name": "Suite監査の停止・復旧更新（履歴）",
+      "version": "20261015.3",
+      "kind": "update",
+      "purpose": "Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する",
+      "notes": "Windows停止試験で不合格を検出した履歴版。導入には使用しない。固定配布物の識別と当時の内容を保存する。",
+      "local_path": "work/releases/catalogue-update-20261015.3.zip",
+      "sha256": "a070ebbf6fc0b141dd0ae33fbb6372fdfcd62201e0fc4a1d5a1f6e558e79a77e",
+      "bytes": 118030,
+      "publication": {
+        "stage": "pr",
+        "commit": "c65e134cb9178739609857fb2171900e39982738",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/catalogue-update-20261015.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "a070ebbf6fc0b141dd0ae33fbb6372fdfcd62201e0fc4a1d5a1f6e558e79a77e",
+        "checked_on": "2026-10-19",
+        "summary": "ZIPのサイズ・SHA256を照合。Windows停止試験の不合格記録があるため動作合格としない。",
+        "evidence_url": ""
+      },
+      "release_family": "management-update",
+      "recommended": false
+    },
+    {
+      "id": "tool-integration-kit-20261015-3",
+      "name": "ツール統合・導入キット20261015.3（非推奨）",
+      "version": "20261015.3",
+      "kind": "snapshot",
+      "purpose": "Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する",
+      "notes": "Windows停止試験で不合格を検出した履歴版。導入には使用しない。固定配布物の識別と当時の内容を保存する。",
+      "local_path": "work/releases/tool-integration-kit-20261015.3.zip",
+      "sha256": "b3d6b443874cb8973e47008631743e4df82ebf10377159ebe41a5a13e64c6993",
+      "bytes": 619405,
+      "publication": {
+        "stage": "pr",
+        "commit": "c65e134cb9178739609857fb2171900e39982738",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/tool-integration-kit-20261015.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "b3d6b443874cb8973e47008631743e4df82ebf10377159ebe41a5a13e64c6993",
+        "checked_on": "2026-10-19",
+        "summary": "ZIPのサイズ・SHA256を照合。Windows停止試験の不合格記録があるため動作合格としない。",
+        "evidence_url": ""
+      },
+      "release_family": "integration-kit",
+      "recommended": false
+    },
+    {
+      "id": "management-update-20261015-4",
+      "name": "Windows起動順を修正したSuite監査更新",
+      "version": "20261015.4",
+      "kind": "update",
+      "purpose": "Suite監査の時間切れ・中断・子孫停止とWindows起動順を管理する",
+      "notes": "CREATE_SUSPENDEDで起動しJob登録後に再開する修正版。基準ZIP20261012.2と最新版ヘルパーへ適用。単体更新で、録画などの製品本体は含まない。",
+      "local_path": "work/releases/catalogue-update-20261015.4.zip",
+      "sha256": "c340b7ac8c229707c38f931eac661997e542685c050fa92be361de0fffdf30ea",
+      "bytes": 118648,
+      "publication": {
+        "stage": "pr",
+        "commit": "c65e134cb9178739609857fb2171900e39982738",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/c65e134cb9178739609857fb2171900e39982738/workspace-management/catalogue-update-20261015.4.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/15"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "c340b7ac8c229707c38f931eac661997e542685c050fa92be361de0fffdf30ea",
+        "checked_on": "2026-10-19",
+        "summary": "今回Linuxで新規適用、標準18検査、画面64項目を確認。公開CIの修正版ソース検証も成功。製品E2E・Windows実機録画は対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/38680305435"
+      },
+      "release_family": "management-update",
+      "recommended": true
+    },
+    {
+      "id": "management-update-20261019-1",
+      "name": "全成果物集計・検証改善の更新候補",
+      "kind": "update",
+      "version": "20261019.1",
+      "purpose": "全成果物・10製品・次の改良を集計し、生成・検証・診断の不具合を修正する",
+      "notes": "PR #16へ固定ZIPを保存済み。Windowsでの一覧メタデータ処理に既知の不具合があり推奨対象にしない。ZIP内部の未公開表示は作成時の記録。",
+      "local_path": "work/releases/catalogue-update-20261019.1.zip",
+      "sha256": "f480132144a2651c6f0be130c19c6ae455f584b1becb0f33a50492ec16f572a5",
+      "bytes": 147475,
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/bf6a76baba136222617726f1433a10e7f8ba03c5/workspace-management/catalogue-update-20261019.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "bf6a76baba136222617726f1433a10e7f8ba03c5"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "f480132144a2651c6f0be130c19c6ae455f584b1becb0f33a50492ec16f572a5",
+        "checked_on": "2026-10-19",
+        "summary": "Linux Python3.11/3.14/3.15で新規導入と全検査に成功。Windows CIはCRLFのメタデータ混入で失敗したため全環境合格ではない。修正は次の20261019.2候補で検証する。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39225388059"
+      },
+      "release_family": "development-update",
+      "recommended": false
+    },
+    {
+      "id": "tool-integration-kit-20261019-1",
+      "name": "全成果物集計・検証改善の導入キット候補",
+      "kind": "snapshot",
+      "version": "20261019.1",
+      "purpose": "全成果物・10製品・次の改良を集計し、生成・検証・診断の不具合を修正する",
+      "notes": "PR #16へ固定ZIPを保存済み。Windowsでの一覧メタデータ処理に既知の不具合があり推奨対象にしない。ZIP内部の未公開表示は作成時の記録。",
+      "local_path": "work/releases/tool-integration-kit-20261019.1.zip",
+      "sha256": "4e97d3d7098866ca179689987ba63cb53bf2b105d056c7818ddc9785aeb42c06",
+      "bytes": 647335,
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/bf6a76baba136222617726f1433a10e7f8ba03c5/workspace-management/tool-integration-kit-20261019.1.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "bf6a76baba136222617726f1433a10e7f8ba03c5"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "4e97d3d7098866ca179689987ba63cb53bf2b105d056c7818ddc9785aeb42c06",
+        "checked_on": "2026-10-19",
+        "summary": "Linux Python3.11/3.14/3.15で新規導入と全検査に成功。Windows CIはCRLFのメタデータ混入で失敗したため全環境合格ではない。修正は次の20261019.2候補で検証する。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39225388059"
+      },
+      "release_family": "development-kit",
+      "recommended": false
+    },
+    {
+      "id": "management-update-20261019-2",
+      "name": "改行・実行管理・検索先診断の更新候補",
+      "kind": "update",
+      "version": "20261019.2",
+      "purpose": "一覧メタデータの改行混入を修正し、通常実行の出力保持上限と停止処理、Python標準検索先の診断を追加する",
+      "notes": "PR #16に固定保存。Windowsの起動失敗メッセージに実行ファイル名を補う改良が必要。全環境合格として推奨しない。ZIP内の未公開表示は作成時点の記録。",
+      "local_path": "work/releases/catalogue-update-20261019.2.zip",
+      "sha256": "c560bb5ccb4290c89d18f36b8743eb4a11f8c0ccb67e1bd945272127d38c5887",
+      "bytes": 160612,
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/e5289940afb1082356899816edf9ac56b9fbc5d9/workspace-management/catalogue-update-20261019.2.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "e5289940afb1082356899816edf9ac56b9fbc5d9"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "c560bb5ccb4290c89d18f36b8743eb4a11f8c0ccb67e1bd945272127d38c5887",
+        "checked_on": "2026-10-19",
+        "summary": "LinuxのPython3.11/3.14/3.15で全検査成功。Windowsは起動失敗時にOSがファイル名を返さない差異で診断テストが不合格。他のWindows Job・停止検査は成功。修正は20261019.3候補へ引き継ぐ。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39226753625"
+      },
+      "release_family": "development-update",
+      "recommended": false
+    },
+    {
+      "id": "tool-integration-kit-20261019-2",
+      "name": "改行・実行管理・検索先診断の導入キット候補",
+      "kind": "snapshot",
+      "version": "20261019.2",
+      "purpose": "一覧メタデータの改行混入を修正し、通常実行の出力保持上限と停止処理、Python標準検索先の診断を追加する",
+      "notes": "PR #16に固定保存。Windowsの起動失敗メッセージに実行ファイル名を補う改良が必要。全環境合格として推奨しない。ZIP内の未公開表示は作成時点の記録。",
+      "local_path": "work/releases/tool-integration-kit-20261019.2.zip",
+      "sha256": "6fe6ed5e9d64fee6e6e6548b6e3a32412ceda4029783f2c25a693d2c1ae95553",
+      "bytes": 660392,
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/e5289940afb1082356899816edf9ac56b9fbc5d9/workspace-management/tool-integration-kit-20261019.2.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "e5289940afb1082356899816edf9ac56b9fbc5d9"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "6fe6ed5e9d64fee6e6e6548b6e3a32412ceda4029783f2c25a693d2c1ae95553",
+        "checked_on": "2026-10-19",
+        "summary": "LinuxのPython3.11/3.14/3.15で全検査成功。Windowsは起動失敗時にOSがファイル名を返さない差異で診断テストが不合格。他のWindows Job・停止検査は成功。修正は20261019.3候補へ引き継ぐ。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39226753625"
+      },
+      "release_family": "development-kit",
+      "recommended": false
+    },
+    {
+      "id": "management-update-20261019-3",
+      "name": "中断処理・画面記録・生成検証の更新候補",
+      "kind": "update",
+      "version": "20261019.3",
+      "purpose": "Windowsの起動失敗情報を補い、猶予付き実行のログを制限し、画面検証の失敗記録とルールの改行検査を強化する",
+      "notes": "PR #16に固定保存し、サイズ・SHA256を照合済み。OS別の協調停止・終了確認テストの差異を検出。修正したソースを6環境で先に確認してから次のキットを作る。",
+      "local_path": "work/releases/catalogue-update-20261019.3.zip",
+      "sha256": "8b353d3f7db365a08d0ebaa972530aa36716b369b709502cccf6b2c4a7e2eb25",
+      "bytes": 164241,
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/21855c85c3dcc53fd8498880e463115150ee6d81/workspace-management/catalogue-update-20261019.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "21855c85c3dcc53fd8498880e463115150ee6d81"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "8b353d3f7db365a08d0ebaa972530aa36716b369b709502cccf6b2c4a7e2eb25",
+        "checked_on": "2026-10-19",
+        "summary": "Linux3.11/3.14とローカルの回帰検証は成功。Windowsの待機方法による協調停止試験2件と、Linux3.15の終了反映競合1件を検出したため全環境合格ではない。次の候補で修正する。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39259628537"
+      },
+      "release_family": "development-update",
+      "recommended": false
+    },
+    {
+      "id": "tool-integration-kit-20261019-3",
+      "name": "中断処理・画面記録・生成検証の導入キット候補",
+      "kind": "snapshot",
+      "version": "20261019.3",
+      "purpose": "Windowsの起動失敗情報を補い、猶予付き実行のログを制限し、画面検証の失敗記録とルールの改行検査を強化する",
+      "notes": "PR #16に固定保存し、サイズ・SHA256を照合済み。OS別の協調停止・終了確認テストの差異を検出。修正したソースを6環境で先に確認してから次のキットを作る。",
+      "local_path": "work/releases/tool-integration-kit-20261019.3.zip",
+      "sha256": "6064f9d2bff0af72038283ea5ee8a800a8db59f149968897bd78bd342f810981",
+      "bytes": 663549,
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/21855c85c3dcc53fd8498880e463115150ee6d81/workspace-management/tool-integration-kit-20261019.3.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "21855c85c3dcc53fd8498880e463115150ee6d81"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "6064f9d2bff0af72038283ea5ee8a800a8db59f149968897bd78bd342f810981",
+        "checked_on": "2026-10-19",
+        "summary": "Linux3.11/3.14とローカルの回帰検証は成功。Windowsの待機方法による協調停止試験2件と、Linux3.15の終了反映競合1件を検出したため全環境合格ではない。次の候補で修正する。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39259628537"
+      },
+      "release_family": "development-kit",
+      "recommended": false
+    },
+    {
+      "id": "management-update-20261019-4",
+      "name": "Windows協調停止・終了確認の更新候補",
+      "kind": "update",
+      "version": "20261019.4",
+      "purpose": "Windowsの協調停止通知とJob内の終了確認を改善し、OS別の終了反映を確かめる",
+      "notes": "PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブで成功。ZIP内部の一覧42件と未公開表示は作成時点の記録。外部一覧44件。既存の推奨選択は自動で変更しない。 追加で検出した連続中断中の報告処理の再入条件は未対応。過去の合格範囲を保持し、新規導入は修正版候補20261019.6の確認後に選ぶ。",
+      "local_path": "work/releases/catalogue-update-20261019.4.zip",
+      "sha256": "b3a683daf48a201f15be9b7daa45ac71f6674d3dbfd37e033e851cc27f9be44a",
+      "bytes": 165931,
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/2955ae52e11553abcd599ee8870535e38523af41/workspace-management/catalogue-update-20261019.4.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "2955ae52e11553abcd599ee8870535e38523af41"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "b3a683daf48a201f15be9b7daa45ac71f6674d3dbfd37e033e851cc27f9be44a",
+        "checked_on": "2026-10-19",
+        "summary": "固定公開ZIPのサイズ・SHA256一致。実キット43ファイル適用と新規venvのsetup/all/Suite/portfolio/checkがWindows/LinuxのPython3.11/3.14/3.15の6環境で成功。管理290件・支援291件は各環境のOS専用5件を除き成功。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39261357765"
+      },
+      "release_family": "development-update",
+      "recommended": false
+    },
+    {
+      "id": "tool-integration-kit-20261019-4",
+      "name": "Windows協調停止・終了確認の導入キット候補",
+      "kind": "snapshot",
+      "version": "20261019.4",
+      "purpose": "Windowsの協調停止通知とJob内の終了確認を改善し、OS別の終了反映を確かめる",
+      "notes": "PR #16へ固定保存。修正元・実キット・既存スナップショットの計18ジョブで成功。ZIP内部の一覧42件と未公開表示は作成時点の記録。外部一覧44件。既存の推奨選択は自動で変更しない。 追加で検出した連続中断中の報告処理の再入条件は未対応。過去の合格範囲を保持し、新規導入は修正版候補20261019.6の確認後に選ぶ。",
+      "local_path": "work/releases/tool-integration-kit-20261019.4.zip",
+      "sha256": "09f6e558c68ddfdd7a67d28f9c28938357e4393d135d47572c09fbe5071a20b9",
+      "bytes": 665456,
+      "publication": {
+        "stage": "pr",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/2955ae52e11553abcd599ee8870535e38523af41/workspace-management/tool-integration-kit-20261019.4.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16",
+        "commit": "2955ae52e11553abcd599ee8870535e38523af41"
+      },
+      "verification": {
+        "status": "passed",
+        "sha256": "09f6e558c68ddfdd7a67d28f9c28938357e4393d135d47572c09fbe5071a20b9",
+        "checked_on": "2026-10-19",
+        "summary": "固定公開ZIPのサイズ・SHA256一致。実キット43ファイル適用と新規venvのsetup/all/Suite/portfolio/checkがWindows/LinuxのPython3.11/3.14/3.15の6環境で成功。管理290件・支援291件は各環境のOS専用5件を除き成功。製品E2Eは対象外。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39261357765"
+      },
+      "release_family": "development-kit",
+      "recommended": false
+    },
+    {
+      "id": "management-update-20261019-5",
+      "name": "取得元診断・パイプ回収の更新（連続中断に課題・履歴）",
+      "kind": "update",
+      "version": "20261019.5",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と後始末を管理する",
+      "notes": "固定ZIPを履歴として保持。Windows/Python3.15の追加CIでSuite終了メッセージ中の二度目の中断が結果記録を中断する不具合を確認。20261019.6で修正予定。内部一覧44件、外部一覧46件時点の配布。新規導入には使わない。",
+      "local_path": "work/releases/catalogue-update-20261019.5.zip",
+      "sha256": "6e21c44a7e6c8738a14a35630a2b73f0b3de9e04ea57b3cf81cf681b0b11d371",
+      "bytes": 181150,
+      "publication": {
+        "stage": "pr",
+        "commit": "ad9541adacb4a93eb8575d1755e28fa9ab46f8d3",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/ad9541adacb4a93eb8575d1755e28fa9ab46f8d3/workspace-management/catalogue-update-20261019.5.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "6e21c44a7e6c8738a14a35630a2b73f0b3de9e04ea57b3cf81cf681b0b11d371",
+        "checked_on": "2026-10-19",
+        "summary": "Linux実キットの48ファイル・新規venv導入・標準21検査・Suite・取得元診断は成功。追加Windows CIで連続中断中の報告処理に不具合を検出。通常の成功をこの条件の保証には転用しない。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39269658204"
+      },
+      "release_family": "development-update",
+      "recommended": false
+    },
+    {
+      "id": "tool-integration-kit-20261019-5",
+      "name": "取得元診断・パイプ回収の導入キット（連続中断に課題・履歴）",
+      "kind": "snapshot",
+      "version": "20261019.5",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と後始末を管理する",
+      "notes": "固定ZIPを履歴として保持。Windows/Python3.15の追加CIでSuite終了メッセージ中の二度目の中断が結果記録を中断する不具合を確認。20261019.6で修正予定。内部一覧44件、外部一覧46件時点の配布。新規導入には使わない。",
+      "local_path": "work/releases/tool-integration-kit-20261019.5.zip",
+      "sha256": "410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b",
+      "bytes": 679719,
+      "publication": {
+        "stage": "pr",
+        "commit": "ad9541adacb4a93eb8575d1755e28fa9ab46f8d3",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/ad9541adacb4a93eb8575d1755e28fa9ab46f8d3/workspace-management/tool-integration-kit-20261019.5.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "410ab86f78881445f9e7c2e847ad691798a7c00032ec1617b1c0460aa6d0aa1b",
+        "checked_on": "2026-10-19",
+        "summary": "Linux実キットの48ファイル・新規venv導入・標準21検査・Suite・取得元診断は成功。追加Windows CIで連続中断中の報告処理に不具合を検出。通常の成功をこの条件の保証には転用しない。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39269658204"
+      },
+      "release_family": "development-kit",
+      "recommended": false
+    },
+    {
+      "id": "management-update-20261019-6",
+      "name": "取得元診断・パイプ回収・連続中断修正の更新（登録中断に課題・履歴）",
+      "kind": "update",
+      "version": "20261019.6",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する",
+      "notes": "当時の修正元・実キット・既存スナップショット18ジョブは成功。後続の同期的な追加試験で、ハンドラー登録直後の中断による復元漏れを再現。固定ZIPを履歴として保持し、20261019.7で修正予定。",
+      "local_path": "work/releases/catalogue-update-20261019.6.zip",
+      "sha256": "856c552178637e07768b54389f7935c2cd24523980a462fadb24b122cb69aea1",
+      "bytes": 182701,
+      "publication": {
+        "stage": "pr",
+        "commit": "81ea535c5d93318883eb4a7f051fcfb11de44f1c",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/81ea535c5d93318883eb4a7f051fcfb11de44f1c/workspace-management/catalogue-update-20261019.6.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "856c552178637e07768b54389f7935c2cd24523980a462fadb24b122cb69aea1",
+        "checked_on": "2026-10-19",
+        "summary": "当時の48ファイル・6環境導入・標準検査は成功。追加条件のハンドラー登録中の中断では復元漏れを再現したため、この条件は未対応。過去の合格をこの条件の保証には転用しない。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39271203958"
+      },
+      "release_family": "development-update",
+      "recommended": false
+    },
+    {
+      "id": "tool-integration-kit-20261019-6",
+      "name": "取得元診断・パイプ回収・連続中断修正の導入キット（登録中断に課題・履歴）",
+      "kind": "snapshot",
+      "version": "20261019.6",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する",
+      "notes": "当時の修正元・実キット・既存スナップショット18ジョブは成功。後続の同期的な追加試験で、ハンドラー登録直後の中断による復元漏れを再現。固定ZIPを履歴として保持し、20261019.7で修正予定。",
+      "local_path": "work/releases/tool-integration-kit-20261019.6.zip",
+      "sha256": "5d3173dc632e75b7f6d2c4008a837f0679c06e628cec6b3eb745fb73d3d64b3c",
+      "bytes": 681424,
+      "publication": {
+        "stage": "pr",
+        "commit": "81ea535c5d93318883eb4a7f051fcfb11de44f1c",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/81ea535c5d93318883eb4a7f051fcfb11de44f1c/workspace-management/tool-integration-kit-20261019.6.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "5d3173dc632e75b7f6d2c4008a837f0679c06e628cec6b3eb745fb73d3d64b3c",
+        "checked_on": "2026-10-19",
+        "summary": "当時の48ファイル・6環境導入・標準検査は成功。追加条件のハンドラー登録中の中断では復元漏れを再現したため、この条件は未対応。過去の合格をこの条件の保証には転用しない。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39271203958"
+      },
+      "release_family": "development-kit",
+      "recommended": false
+    },
+    {
+      "id": "management-update-20261019-7",
+      "name": "取得元診断・パイプ回収・中断・登録復元修正の更新候補（Windows同時書込み未合格）",
+      "kind": "update",
+      "version": "20261019.7",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する",
+      "notes": "PR #16へ固定保存。修正元6環境と実キット5環境は成功。Windows/Python3.14で固定Control Plane Nextの同時書込み試験がPermissionErrorで失敗。導入推奨にはしない。内部48件・外部50件、以前のZIPと既存推奨は維持。",
+      "local_path": "work/releases/catalogue-update-20261019.7.zip",
+      "sha256": "94c673e12299a93e018c4618155dade3c82378db36f0c35141ca3cb06944cd94",
+      "bytes": 183934,
+      "publication": {
+        "stage": "pr",
+        "commit": "889053e6d60ff57f095534dfbcd5512f6396c0f8",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/889053e6d60ff57f095534dfbcd5512f6396c0f8/workspace-management/catalogue-update-20261019.7.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "94c673e12299a93e018c4618155dade3c82378db36f0c35141ca3cb06944cd94",
+        "checked_on": "2026-10-20",
+        "summary": "修正元311テストはWindows/Linux×Python3版の全6環境で成功。実キットは5/6環境、管理回帰検査は失敗ジョブでも成功。全18ジョブ中17成功・1失敗。Windows3.14のControl Plane Next同時書込みにPermissionErrorが残る。Linux新規導入・48ファイル・管理309件中303成功/6skip・標準21検査・Suite26件・画面64項目は成功。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39273845578"
+      },
+      "release_family": "development-update",
+      "recommended": false
+    },
+    {
+      "id": "tool-integration-kit-20261019-7",
+      "name": "取得元診断・パイプ回収・中断・登録復元修正の導入キット候補（Windows同時書込み未合格）",
+      "kind": "snapshot",
+      "version": "20261019.7",
+      "purpose": "固定基準・更新・現在の内容を照合し、一時ログを作らず出力上限と連続中断後の報告・後始末を管理する",
+      "notes": "PR #16へ固定保存。修正元6環境と実キット5環境は成功。Windows/Python3.14で固定Control Plane Nextの同時書込み試験がPermissionErrorで失敗。導入推奨にはしない。内部48件・外部50件、以前のZIPと既存推奨は維持。",
+      "local_path": "work/releases/tool-integration-kit-20261019.7.zip",
+      "sha256": "4fdfd4e4012542b7dd49f236b5b35ef305946e5a9174231bdfdf4008cde8db4e",
+      "bytes": 682793,
+      "publication": {
+        "stage": "pr",
+        "commit": "889053e6d60ff57f095534dfbcd5512f6396c0f8",
+        "url": "https://raw.githubusercontent.com/r20942097-hue/faaff/889053e6d60ff57f095534dfbcd5512f6396c0f8/workspace-management/tool-integration-kit-20261019.7.zip",
+        "pr_url": "https://github.com/r20942097-hue/faaff/pull/16"
+      },
+      "verification": {
+        "status": "pending",
+        "sha256": "4fdfd4e4012542b7dd49f236b5b35ef305946e5a9174231bdfdf4008cde8db4e",
+        "checked_on": "2026-10-20",
+        "summary": "修正元311テストはWindows/Linux×Python3版の全6環境で成功。実キットは5/6環境、管理回帰検査は失敗ジョブでも成功。全18ジョブ中17成功・1失敗。Windows3.14のControl Plane Next同時書込みにPermissionErrorが残る。Linux新規導入・48ファイル・管理309件中303成功/6skip・標準21検査・Suite26件・画面64項目は成功。",
+        "evidence_url": "https://github.com/r20942097-hue/faaff/actions/runs/39273845578"
+      },
+      "release_family": "development-kit",
+      "recommended": false
     }
   ],
   "rule_groups": [

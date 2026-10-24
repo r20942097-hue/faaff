@@ -9,7 +9,7 @@ import argparse
 import subprocess
 import signal
 import time
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -164,6 +164,46 @@ def cleanup_interrupts():
         for value,handler in handlers.items():signal.signal(value,handler)
 
 
+
+@contextmanager
+def controller_interrupts():
+    """Suppress cancellation reentry and roll back even interrupted setup.
+
+    Preserve a caller's custom/ignored SIGINT handler. ExitStack registers each
+    restoration before installing the handler and runs all restorations even
+    if another restoration raises. Non-main-thread installs remain optional.
+    """
+    state = {'interrupted': False}
+    def interrupt_once(signum, frame):
+        if not state['interrupted']:
+            state['interrupted'] = True
+            raise KeyboardInterrupt
+    with ExitStack() as restore:
+        for name in ['SIGINT', 'SIGBREAK']:
+            value = getattr(signal, name, None)
+            if value is None:
+                continue
+            try:
+                original = signal.getsignal(value)
+            except ValueError:
+                continue
+            if name == 'SIGINT' and original is not signal.default_int_handler:
+                continue
+            active = {'restore': True}
+            def restore_handler(number=value, handler=original, marker=active):
+                if marker['restore']:
+                    signal.signal(number, handler)
+            # A signal may run immediately after signal.signal installs the
+            # new handler, before that call returns to Python.
+            restore.callback(restore_handler)
+            try:
+                signal.signal(value, interrupt_once)
+            except ValueError:
+                active['restore'] = False  # No handler installed off the main thread.
+        yield state
+
+
+
 def stop_worker(process, job=None, grace=2):
     with cleanup_interrupts():
         if process.stdin is not None and not process.stdin.closed:
@@ -196,7 +236,7 @@ def wait_worker(process,timeout):
         except subprocess.TimeoutExpired:pass
 
 
-def _run_worker(command, cwd, timeout=90, grace=2):
+def _run_worker(command, cwd, timeout=90, grace=2, interrupt_state=None):
     process,job=None,None
     result={'status':'failed','exit_code':127,'cleanup_complete':False,'ownership_established':False,
             'cleanup_scope':'Windows Job' if os.name=='nt' else 'POSIX process group'}
@@ -218,6 +258,8 @@ def _run_worker(command, cwd, timeout=90, grace=2):
         result.update(status='timed_out',exit_code=124)
         print('Suite worker timed out; stopping owned processes',flush=True)
     except KeyboardInterrupt:
+        if interrupt_state is not None:
+            interrupt_state['interrupted'] = True
         result.update(status='interrupted',exit_code=130)
         print('Suite worker interrupted; stopping owned processes',flush=True)
     except OSError as error:
@@ -237,13 +279,8 @@ def _run_worker(command, cwd, timeout=90, grace=2):
 
 
 def run_worker(command,cwd,timeout=90,grace=2):
-    previous=None
-    if os.name=='nt':
-        try:previous=signal.signal(signal.SIGBREAK,signal.default_int_handler)
-        except ValueError:pass
-    try:return _run_worker(command,cwd,timeout,grace)
-    finally:
-        if previous is not None:signal.signal(signal.SIGBREAK,previous)
+    with controller_interrupts() as state:
+        return _run_worker(command,cwd,timeout,grace,interrupt_state=state)
 
 
 def timeout_seconds(value):

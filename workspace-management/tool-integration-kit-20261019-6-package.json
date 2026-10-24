@@ -1,0 +1,19 @@
+{
+  "bytes": 681424,
+  "file": "tool-integration-kit-20261019.6.zip",
+  "publication": "local_only",
+  "reproducible_frozen_inputs": true,
+  "schema": "local-integration-kit/v1",
+  "scope": "Pinned provenance comparison and bounded pipe capture; missing product bodies and product E2E excluded.",
+  "sha256": "5d3173dc632e75b7f6d2c4008a837f0679c06e628cec6b3eb745fb73d3d64b3c",
+  "source_hashes": {
+    "KIT-README.md": "1f9ec7234b203d27767d9cb2df1b2de403943e2d3684cb6f26a771aa394b423f",
+    "apply_catalogue_update.py": "623f5eabf4ade7786e5c327d6c4c46fc8145cdb109d0ac2c1a83f07ba265bce0",
+    "catalogue-update-20261019.6.zip": "856c552178637e07768b54389f7935c2cd24523980a462fadb24b122cb69aea1",
+    "extract_snapshot.py": "dda8d8dc184fb7fa8912d49255c4ba7cfc0ee28d27496da698040e991168c6c7",
+    "registry.py": "5fceed3b558230c0c9c8b471a2c0d0663a6671aeb17ec48678677f7e52761b64",
+    "verify_catalogue_update.py": "a53c4edf3ded71edd9d9024979e878eccda1c4fd78ac8b525f993279043b3743",
+    "workspace-source-20261011.zip": "e2ab70a46e41a2f193f8738b0917a9966c3850056f68d79e0f7b48b3e59208d9"
+  },
+  "version": "20261019.6"
+}

@@ -3,10 +3,94 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
-from verify_catalogue_update import apply_update, BASE_SHA256, FILES, V2_FILES, V3_FILES, V4_FILES
+from verify_catalogue_update import apply_update, BASE_SHA256, FILES, V2_FILES, V3_FILES, V4_FILES, V5_FILES, V6_FILES, V7_FILES, V8_FILES
 
 
 class CandidateTests(unittest.TestCase):
+    def test_v5_report_source_is_required_and_cannot_be_smuggled_into_v4(self):
+        for name in V5_FILES - FILES:
+            path = self.source / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            body = ('v5 ' + name).encode()
+            path.write_bytes(body)
+            self.manifest['files'][name] = hashlib.sha256(body).hexdigest()
+        self.manifest['schema'] = 'catalogue-development-update/v4'
+        self.save_manifest()
+        with self.assertRaisesRegex(ValueError, 'manifest'):
+            apply_update(self.source, self.target, BASE_SHA256)
+        self.unchanged()
+        self.manifest['schema'] = 'catalogue-development-update/v5'
+        expected = self.manifest['files'].pop('tools/portfolio_status.py')
+        self.save_manifest()
+        with self.assertRaisesRegex(ValueError, 'manifest'):
+            apply_update(self.source, self.target, BASE_SHA256)
+        self.unchanged()
+        self.manifest['files']['tools/portfolio_status.py'] = expected
+        self.save_manifest()
+        self.assertEqual(apply_update(self.source, self.target, BASE_SHA256), len(V5_FILES))
+
+    def test_v6_requires_both_helpers_and_tests_with_the_new_schema(self):
+        for name in V6_FILES - FILES:
+            path = self.source / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            body = ('v6 ' + name).encode()
+            path.write_bytes(body)
+            self.manifest['files'][name] = hashlib.sha256(body).hexdigest()
+        self.manifest['schema'] = 'catalogue-development-update/v5'
+        self.save_manifest()
+        with self.assertRaisesRegex(ValueError, 'manifest'):
+            apply_update(self.source, self.target, BASE_SHA256)
+        self.unchanged()
+        self.manifest['schema'] = 'catalogue-development-update/v6'
+        for name in sorted(V6_FILES - V5_FILES):
+            digest = self.manifest['files'].pop(name)
+            self.save_manifest()
+            with self.assertRaisesRegex(ValueError, 'manifest'):
+                apply_update(self.source, self.target, BASE_SHA256)
+            self.unchanged()
+            self.manifest['files'][name] = digest
+        self.save_manifest()
+        self.assertEqual(apply_update(self.source, self.target, BASE_SHA256), len(V6_FILES))
+
+    def test_v7_requires_the_browser_failure_regression_and_exact_schema(self):
+        for name in V7_FILES - FILES:
+            path = self.source / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            body = ('v7 ' + name).encode()
+            path.write_bytes(body)
+            self.manifest['files'][name] = hashlib.sha256(body).hexdigest()
+        self.manifest['schema'] = 'catalogue-development-update/v6'
+        self.save_manifest()
+        with self.assertRaisesRegex(ValueError, 'manifest'):
+            apply_update(self.source, self.target, BASE_SHA256)
+        self.unchanged()
+        self.manifest['schema'] = 'catalogue-development-update/v7'
+        self.save_manifest()
+        self.assertEqual(apply_update(self.source, self.target, BASE_SHA256), len(V7_FILES))
+
+    def test_v8_provenance_payload_requires_every_new_file_and_the_exact_schema(self):
+        for name in V8_FILES - FILES:
+            path = self.source / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            body = ('v8 ' + name).encode()
+            path.write_bytes(body)
+            self.manifest['files'][name] = hashlib.sha256(body).hexdigest()
+        self.manifest['schema'] = 'catalogue-development-update/v7'
+        self.save_manifest()
+        with self.assertRaisesRegex(ValueError, 'manifest'):
+            apply_update(self.source, self.target, BASE_SHA256)
+        self.unchanged()
+        self.manifest['schema'] = 'catalogue-development-update/v8'
+        for name in sorted(V8_FILES - V7_FILES):
+            digest = self.manifest['files'].pop(name)
+            self.save_manifest()
+            with self.assertRaisesRegex(ValueError, 'manifest'):
+                apply_update(self.source, self.target, BASE_SHA256)
+            self.unchanged()
+            self.manifest['files'][name] = digest
+        self.save_manifest()
+        self.assertEqual(apply_update(self.source, self.target, BASE_SHA256), len(V8_FILES))
+
     def setUp(self):
         self.directory = TemporaryDirectory()
         self.addCleanup(self.directory.cleanup)

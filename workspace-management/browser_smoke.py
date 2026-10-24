@@ -1,18 +1,31 @@
 """Optional Chromium checks for the local catalogue (requires Playwright)."""
 import json
 import os
+import traceback
 from pathlib import Path
+from datetime import datetime, timezone
+from registry import safe_path, write_report
 from urllib.parse import unquote, urlparse
 
 ROOT = Path(__file__).resolve().parents[1]
 os.environ.setdefault('PLAYWRIGHT_BROWSERS_PATH', str(ROOT / 'work/browsers'))
-from playwright.sync_api import sync_playwright
 
 
-def main():
-    rows = json.loads((ROOT / 'catalog/generated/inventory.json').read_text(encoding='utf-8'))
-    output = ROOT / 'work/browser-check'
+def screenshot_paths(root):
+    output = safe_path(root, 'work/browser-check')
     output.mkdir(parents=True, exist_ok=True)
+    names = ['desktop.png', 'mobile.png', 'profiles-mobile.png', 'libraries-mobile.png',
+             'tools-mobile.png', 'projects-mobile.png', 'artifacts-mobile.png']
+    paths = {name: safe_path(root, 'work/browser-check/' + name) for name in names}
+    if any(path.exists() and not path.is_file() for path in paths.values()):
+        raise ValueError('screenshot output must be a regular file')
+    return paths
+
+
+def verify():
+    from playwright.sync_api import sync_playwright
+    rows = json.loads((ROOT / 'catalog/generated/inventory.json').read_text(encoding='utf-8'))
+    screenshots = screenshot_paths(ROOT)
     errors, checks = [], []
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True, args=['--no-sandbox'])
@@ -43,10 +56,10 @@ def main():
         assert page.locator('#rows tr').count() == 3
         checks.append('candidate filter')
         page.click('#reset')
-        page.screenshot(path=str(output / 'desktop.png'), full_page=True)
+        page.screenshot(path=str(screenshots['desktop.png']), full_page=True)
         page.set_viewport_size({'width': 390, 'height': 844})
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
-        page.screenshot(path=str(output / 'mobile.png'), full_page=True)
+        page.screenshot(path=str(screenshots['mobile.png']), full_page=True)
         checks.append('mobile layout fits viewport')
         page.emulate_media(media='print')
         assert not page.locator('.toolbar').is_visible()
@@ -64,7 +77,7 @@ def main():
             assert Path(unquote(urlparse(href).path)).is_file(), href
         checks.append('profile overview links resolve')
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
-        page.screenshot(path=str(output / 'profiles-mobile.png'), full_page=True)
+        page.screenshot(path=str(screenshots['profiles-mobile.png']), full_page=True)
         for cell in page.locator('.number').all():
             bounds = cell.bounding_box()
             assert bounds['x'] + bounds['width'] <= 390, bounds
@@ -78,13 +91,13 @@ def main():
             assert Path(unquote(urlparse(href).path)).is_file(), href
         checks.append('library overview links resolve')
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
-        page.screenshot(path=str(output / 'libraries-mobile.png'), full_page=True)
+        page.screenshot(path=str(screenshots['libraries-mobile.png']), full_page=True)
         checks.append('library overview fits mobile viewport')
         page.goto((ROOT / 'catalog/generated/tools.html').as_uri())
         from registry import load
         tools = load()['tools']
         diagnosis = json.loads((ROOT / 'catalog/results/doctor.json').read_text(encoding='utf-8'))
-        assert page.locator('tbody tr').count() == len(tools)
+        assert page.locator('tbody tr').count() == len(tools), 'Tool overview differs from the registry; run tools/manage.py doctor, then build.'
         checks.append('tool overview matches shared registry')
         assert diagnosis['python']['version'] in page.locator('main').inner_text()
         checks.append('tool overview shows the diagnosed Python version')
@@ -156,7 +169,7 @@ def main():
             assert Path(unquote(urlparse(href).path)).is_file(), href
         checks.append('tool overview links resolve')
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
-        page.screenshot(path=str(output / 'tools-mobile.png'), full_page=True)
+        page.screenshot(path=str(screenshots['tools-mobile.png']), full_page=True)
         checks.append('tool overview fits mobile viewport')
         page.goto((ROOT / 'catalog/generated/projects.html').as_uri())
         from projects import load as load_projects
@@ -179,7 +192,7 @@ def main():
             assert Path(unquote(urlparse(href).path)).is_file(), href
         checks.append('product overview links resolve')
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
-        page.screenshot(path=str(output / 'projects-mobile.png'), full_page=True)
+        page.screenshot(path=str(screenshots['projects-mobile.png']), full_page=True)
         checks.append('product overview fits mobile viewport')
         page.goto((ROOT / 'catalog/generated/artifacts.html').as_uri())
         from artifacts import load as load_artifacts, changes
@@ -226,7 +239,7 @@ def main():
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
         page.locator('article').first.locator('summary').click()
         assert page.evaluate('document.documentElement.scrollWidth <= window.innerWidth')
-        page.screenshot(path=str(output / 'artifacts-mobile.png'), full_page=True)
+        page.screenshot(path=str(screenshots['artifacts-mobile.png']), full_page=True)
         checks.append('artifact cards and expanded hashes fit mobile viewport')
         delta = changes(artifact_data)
         assert len(delta['changed']) == 1
@@ -291,9 +304,46 @@ def main():
         browser.close()
     result = {'passed': True, 'checks': checks, 'inventory_count': len(rows),
               'scope': 'Catalogue and profile-selection UI only; not uBlock filter-engine or recording E2E'}
-    (ROOT / 'catalog/results/browser.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n', encoding='utf-8', newline='')
-    print(f'BROWSER CHECK PASSED: {len(checks)} checks')
+    return result
+
+
+def main():
+    destination = safe_path(ROOT, 'catalog/results/browser.json')
+    started = datetime.now(timezone.utc).isoformat()
+    report = {'schema': 'catalogue-browser-check/v1', 'started_at_utc': started,
+              'status': 'running', 'passed': False, 'checks': []}
+    write_report(destination, report)
+    code = 1
+    try:
+        result = verify()
+        if not isinstance(result, dict) or result.get('passed') is not True or not isinstance(result.get('checks'), list):
+            raise ValueError('invalid browser verification result')
+        report.update(result, status='passed')
+        code = 0
+    except KeyboardInterrupt:
+        report.update(status='interrupted', passed=False, error='KeyboardInterrupt')
+        code = 130
+    except Exception as error:
+        # Playwright's startup/transport errors and assertions must invalidate a pass too.
+        report.update(status='failed', passed=False, error=type(error).__name__,
+                      error_message=str(error)[:4096])
+        frames = traceback.extract_tb(error.__traceback__)
+        if frames:
+            frame = frames[-1]
+            filename = Path(frame.filename).resolve()
+            try:
+                filename = filename.relative_to(ROOT.resolve()).as_posix()
+            except ValueError:
+                filename = filename.name
+            report['error_location'] = {'file': filename, 'line': frame.lineno, 'function': frame.name}
+    report.update(finished_at_utc=datetime.now(timezone.utc).isoformat(), exit_code=code)
+    write_report(destination, report)
+    if code:
+        print('BROWSER CHECK FAILED:', report.get('error', report['status']))
+    else:
+        print(f"BROWSER CHECK PASSED: {len(report['checks'])} checks")
+    return code
 
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())

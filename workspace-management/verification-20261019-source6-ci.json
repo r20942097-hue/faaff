@@ -1,0 +1,44 @@
+{
+  "schema": "native-source-ci-observation/v1",
+  "commit": "7dc49b37d98c694d000c0154d269dc0304cb8581",
+  "run_id": 39270349063,
+  "scope": "Only the six Runtime source jobs for the reentrant-cancellation fix. Separate retained kit jobs are not certified by this observation.",
+  "jobs": [
+    {
+      "id": 118120673531,
+      "name": "Runtime source / ubuntu-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118120673584,
+      "name": "Runtime source / ubuntu-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118120673734,
+      "name": "Runtime source / windows-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118120673806,
+      "name": "Runtime source / ubuntu-latest / Python 3.15",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118120673856,
+      "name": "Runtime source / windows-latest / Python 3.11",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 118120673873,
+      "name": "Runtime source / windows-latest / Python 3.14",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}
