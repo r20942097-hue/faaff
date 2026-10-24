@@ -26,6 +26,6 @@ The tested local v6.10.0 release passed 441 tests, clean extraction, Python comp
 
 ## GitHub / engineering
 
-GitHub is currently the engineering/bootstrap surface rather than the complete runtime source of truth. Active automation includes CI, Dependency Review, Dependabot, deterministic release packaging, SHA-256, and artifact-attestation preparation. CodeQL is retained as a ready-to-enable template because the current private-repository plan does not provide active scanning.
+GitHub is currently the engineering/bootstrap surface rather than the complete runtime source of truth. Active automation includes CI, Dependency Review, Dependabot, deterministic release packaging, SHA-256, and artifact-attestation preparation. Repository metadata checked on 2026-10-11 reports public visibility. A Python CodeQL workflow is prepared at `.github/workflows/codeql.yml` for code present in this checkout; remote execution and scan results are not yet verified. Runtime JavaScript is not present and is not claimed as scanned.
 
 Do not commit runtime SQLite databases, recordings, diagnostics, credentials, tokens, or local caches.

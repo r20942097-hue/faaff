@@ -1,15 +1,13 @@
 [Adblock Plus 2.0]
 ! Title: Universal Web Tracking Filter (Optional)
-! Version: 20261001.2
+! Version: 20261011.1
 ! Expires: 5 days
 ! Homepage: https://github.com/r20942097-hue/faaff/tree/main/browser_filter_lists
 ! Subscription: https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters/universal-web-tracking-filter.txt
 ! Description: Optional third-party analytics and session-measurement blocking.
 ! Policy: Network blocking only; rules target third-party requests.
-! This list can disable analytics, feedback widgets, or embedded site features.
-! Use only if you accept that tradeoff; disable this list first when troubleshooting.
-! No cosmetic, cookie-banner, anti-adblock, paywall, or URL-rewrite rules.
 ! License: CC0-1.0
+! Generated: filter-profiles.json via scripts/generate_lists.py
 !
 ! Cross-site analytics and measurement
 ||google-analytics.com^$third-party
@@ -21,3 +19,4 @@
 ||mixpanel.com^$third-party
 ||amplitude.com^$third-party
 ||clarity.ms^$third-party
+!

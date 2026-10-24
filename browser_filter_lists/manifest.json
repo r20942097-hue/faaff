@@ -1,6 +1,6 @@
 {
   "schema": "browser-filter-lists/v1",
-  "policy_version": 3,
+  "policy_version": 4,
   "homepage": "https://github.com/r20942097-hue/faaff/tree/main/browser_filter_lists",
   "raw_base": "https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters",
   "candidate_evidence_max_age_days": 45,
@@ -24,5 +24,17 @@
       "max_rule_count": 40
     }
   ],
-  "candidate_queue": "experimental/candidates.json"
+  "candidate_queue": "experimental/candidates.json",
+  "source_family_repositories": {
+    "easylist": [
+      "easylist/easylist"
+    ],
+    "adguard": [
+      "AdguardTeam/AdguardFilters",
+      "AdguardTeam/AdGuardSDNSFilter"
+    ],
+    "ublock": [
+      "uBlockOrigin/uAssets"
+    ]
+  }
 }
