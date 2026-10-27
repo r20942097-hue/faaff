@@ -1,4 +1,8 @@
 import unittest
+import json
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 
 import validate_filters as vf
 
@@ -30,6 +34,37 @@ class ValidatorTests(unittest.TestCase):
 
     def test_safe_repo_path_rejects_parent_escape(self):
         self.assertIsNone(vf.safe_repo_path("../outside.txt"))
+
+    def test_safe_repo_path_rejects_in_tree_symlinks(self):
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "target.txt").write_text("data")
+            (root / "alias.txt").symlink_to("target.txt")
+            (root / "real").mkdir()
+            (root / "real" / "child.txt").write_text("data")
+            (root / "alias-dir").symlink_to("real", target_is_directory=True)
+            with patch.object(vf, "ROOT", root):
+                self.assertIsNone(vf.safe_repo_path("alias.txt"))
+                self.assertIsNone(vf.safe_repo_path("alias-dir/child.txt"))
+                self.assertEqual(vf.safe_repo_path("target.txt"), root / "target.txt")
+
+    def test_non_object_manifest_reports_error(self):
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "manifest.json"
+            path.write_text("[]")
+            with patch.object(vf, "MANIFEST_PATH", path):
+                errors, _ = vf.validate()
+            self.assertIn("root must be an object", errors[0])
+
+    def test_non_string_list_path_reports_error(self):
+        manifest = vf.load_json(vf.MANIFEST_PATH)
+        manifest["stable_lists"][0]["path"] = {"invalid": "path"}
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "manifest.json"
+            path.write_text(json.dumps(manifest))
+            with patch.object(vf, "MANIFEST_PATH", path):
+                errors, _ = vf.validate()
+            self.assertTrue(any("unsafe or invalid stable list path" in e for e in errors))
 
     def test_conservative_rule_shape(self):
         self.assertIsNotNone(vf.hostname_rule.fullmatch("||example.com^$third-party"))

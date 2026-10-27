@@ -77,3 +77,14 @@ python browser_filter_lists/scripts/render_candidate_report.py --check
 ```
 
 GitHub Actions runs compilation, regression tests, stable-list validation, candidate-evidence freshness validation, cross-source promotion gates, and generated-report consistency checks on relevant pushes and pull requests, plus a weekly scheduled check.
+
+## Shared workspace generation
+
+In the shared workspace, `s/filter-profiles.json` is the common network-rule source. Existing files and subscription URLs remain in place. From the workspace root:
+
+```sh
+python tools/manage.py filters --check
+python tools/manage.py all
+```
+
+Standalone faaff validation still works without the sibling repository. Update the canonical profiles before regenerating mirrors; direct edits to generated txt files fail the workspace synchronization check. GPL v2 rules are not exported into the CC0 stable lists. The current 20261011.1 change is local and has not been published.

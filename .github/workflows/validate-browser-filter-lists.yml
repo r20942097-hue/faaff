@@ -11,6 +11,7 @@ on:
       - ".github/workflows/validate-browser-filter-lists.yml"
   schedule:
     - cron: "17 3 * * 1"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,15 +26,11 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.x"
+          python-version: "3.13"
       - name: Compile validators
         run: python -m compileall -q browser_filter_lists/scripts
-      - name: Run stable-list regression tests
-        run: python browser_filter_lists/scripts/test_validator.py
-      - name: Run evidence regression tests
-        run: python browser_filter_lists/scripts/test_evidence.py
-      - name: Run promotion-gate regression tests
-        run: python browser_filter_lists/scripts/test_promotion.py
+      - name: Run all filter and registry regression tests
+        run: python -m unittest discover -s browser_filter_lists/scripts -p 'test_*.py' -v
       - name: Validate published lists
         run: python browser_filter_lists/scripts/validate_filters.py
       - name: Validate candidate evidence freshness

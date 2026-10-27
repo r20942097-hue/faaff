@@ -37,4 +37,4 @@
 - Until then, use `ai/projects.json` and `ai/WORK_QUEUE.md`.
 
 ## Commands / コマンド
-Offline checks are listed in `ai/README.md` and `README.md`. Workflows: `ci.yml`, `ai-hub.yml`, `validate-browser-filter-lists.yml`, `dependency-review.yml`. Pin third-party Actions to full commit SHAs.
+Offline checks are listed in `ai/README.md` and `README.md`. Workflows: `ci.yml`, `ai-hub.yml`, `validate-browser-filter-lists.yml`, `codeql.yml`, `dependency-review.yml`. Pin third-party Actions to full commit SHAs.
