@@ -2,7 +2,9 @@
 
 Current verified local release: v6.10.0.
 
-The repository is private and currently serves as the engineering/bootstrap surface. Active automation covers source-state CI, Dependency Review, Dependabot, minimal workflow permissions, and full-SHA pinning for third-party Actions.
+> 2026-10-27 注記: このリポジトリは現在 **public** です。以下の「private」に関する記述は過去の状態で、現状と一致しません。Watcher ランタイムソースは `main` にありません（README 参照）。
+
+The repository was private at the time of writing and currently serves as the engineering/bootstrap surface. Active automation covers source-state CI, Dependency Review, Dependabot, minimal workflow permissions, and full-SHA pinning for third-party Actions.
 
 The local v6.10.0 release passed 441 tests, clean extraction, compileall, extension JavaScript syntax checks, CLI smoke tests, archive verification, and deterministic rebuild comparison.
 

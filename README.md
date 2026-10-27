@@ -1,31 +1,51 @@
-# Universal Live Watcher v6.10.0
+# faaff — engineering / integration hub
 
-Windows向けのRPLAY LIVE監視・録画基盤です。RPLAY API、Browser Bridge、yt-dlp Providerを分離し、HLS/DASH manifestの観測、FFmpeg録画、録画復旧、通知、SQLite履歴、Dashboard、Watchdogを統合します。SSRF/DNS-rebinding対策、ストリーム健全性監視、動的録画同時実行制御、MV3 alarmsによるBridge保守も含みます。
+> **現状の要約（2026-10-27 観測）**: この `main` ブランチは、ブラウザー用フィルターの検証基盤と AI 作業ハブを置く **engineering / bootstrap リポジトリ** です。Universal Live Watcher（RPLAY LIVE 監視・録画基盤）の**ランタイムソースは `main` に含まれていません**。リポジトリは **公開（public）** です。
 
-## v6.10 subprocess hardening
+## main に実際にあるもの
 
-FFmpeg live-recording stderr is now consumed in fixed-size chunks with bounded line retention. Local TS concatenation and MP4 remux no longer use unbounded `capture_output=True`; finalization uses bounded stderr handling and hard timeouts. Subprocess invocation is explicit with `shell=False`.
+| パス | 内容 | 検証 |
+|---|---|---|
+| `browser_filter_lists/` | 保守的な補助フィルター（Universal Web Ad / Tracking Filter）、候補評価・昇格ゲート、検証スクリプト | `.github/workflows/validate-browser-filter-lists.yml` |
+| `integrations/browser-filters/source/s/` | [`r20942097-hue/s`](https://github.com/r20942097-hue/s) の固定コミットの写し（配布はしない） | `ai/check_hub.py`、`.github/workflows/ai-hub.yml` |
+| `ai/` | AI 作業ハブ: プロジェクト索引 `projects.json`、取り込み来歴 `imports/s.json`、作業キュー `WORK_QUEUE.md` | `python ai/check_hub.py` |
+| `AGENTS.md` | AI コーディングエージェント共通の作業指示（`CLAUDE.md` 等はここを参照） | — |
+| Watcher 関連の記録 | `CHANGELOG.md`、`VERIFICATION.md`、`PRODUCTION-E2E-CHECKLIST.md`（v5.10.0 時点）、`SOURCE-SYNC.md`、`GITHUB-READY.md`、`SECURITY*.md`、`SHA256-v6.10.0.txt`、`pyproject.toml` | 下記の注意を参照 |
 
-## v6.9 hardening
+## 購読 URL（変更しないこと）
 
-Manifest probing rejects response bodies over the configured byte limit, including chunked/unknown-length responses. yt-dlp child processes use bounded stdout/stderr readers and terminate on oversized extractor output. HLS fallback observes LL-HLS PART/PRELOAD-HINT/SKIP metadata plus GAP/DISCONTINUITY telemetry without independently reconstructing partial segments. Release verification rejects symlink entries and runtime/local-state contamination.
+- https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters/universal-web-ad-filter.txt
+- https://raw.githubusercontent.com/r20942097-hue/faaff/main/browser_filter_lists/filters/universal-web-tracking-filter.txt
 
-The segmented fallback remains deliberately conservative: encrypted HLS, fMP4 initialization segments, byte-range reconstruction, and independent DASH downloading are not implemented. FFmpeg remains authoritative for complex live formats.
+詳細は [browser_filter_lists/README.md](browser_filter_lists/README.md)。メインの購読配布元は [`s`](https://github.com/r20942097-hue/s) です。
 
-## v6.8 unified recorder core
+## オフライン検証（リポジトリ直下で実行、Python 3.11 以上）
 
-HLS can use a conservative MPEG-TS segment fallback after repeated FFmpeg failures, with per-session variant state, quality preference, live-edge control, initial-take limiting, crash-safe journaling, retry/backoff, variant failover, and time/byte limits.
+```sh
+python ai/check_hub.py
+python -m unittest discover -s integrations/browser-filters/source/s/tests -p 'test_*.py' -v
+python integrations/browser-filters/source/s/scripts/validate_lists.py
+python integrations/browser-filters/source/s/scripts/generate_lists.py --check
+python browser_filter_lists/scripts/test_validator.py
+python browser_filter_lists/scripts/test_evidence.py
+python browser_filter_lists/scripts/test_promotion.py
+python browser_filter_lists/scripts/validate_filters.py
+```
 
-The Browser Extension receives opaque quality IDs. Signed manifest URLs stay inside the watcher process, and the HLS master manifest is retained internally for safe variant failover.
+## Universal Live Watcher について（注意）
 
-## Security and production boundary
+- 以前の README は Universal Live Watcher v6.10.0（Windows 向け RPLAY LIVE 監視・録画基盤）を説明していましたが、その**ランタイム（`rplay_watcher/` パッケージ、`extension/`、`tests/`）は `main` に存在しません**。完全なソースは外部のローカルリリース ZIP（`SHA256-v6.10.0.txt` に記載のハッシュ）にあるとされ、このリポジトリでは検証していません。
+- `pyproject.toml` は `rplay_watcher` パッケージを前提としているため、現状の `main` ではインストールできません。`.github/workflows/ci.yml` は該当ソースが無いことを検出してフル CI をスキップします（意図された動作）。
+- 「441 tests passed」などの v6.10.0 の検証結果は**外部のローカル実行の記録**であり、このリポジトリ上の CI では再現されていません（状態: NOT_RUN on GitHub）。`VERIFICATION.md` と `PRODUCTION-E2E-CHECKLIST.md` は v5.10.0 時点のままです。
+- 実 Windows + 実 RPLAY での本番 E2E は別の検証境界で、ローカルテストから推定しません。
+- Watcher ソースを GitHub に同期するか、別リポジトリに分けるかは所有者の判断待ちです（NEEDS_HUMAN）。
 
-Manifest and segmented recording redirect handling rejects HTTPS-to-HTTP downgrade and revalidates redirect targets. Authentication, subscription, ticket, DRM, signed-access, Cookie, password, localStorage, and Authorization bypasses are not implemented.
+## セキュリティ / 運用
 
-The tested local v6.10.0 release passed 441 tests, clean extraction, Python compileall, extension JavaScript syntax checks, CLI smoke tests, archive verification, and three matching deterministic-build SHA-256 results. Real Windows + real RPLAY production E2E remains a separate validation boundary and is not inferred from local tests.
+- このリポジトリは **public** です。以前の文書にある「private repository のため CodeQL 無効」という記述は現状と一致しません。public リポジトリでは CodeQL を有効化できるため、`.github/workflows/codeql.yml.template` の有効化を検討してください（所有者判断）。
+- 有効な自動化: CI（ソース検出）、AI hub、フィルター検証、Dependency Review、Dependabot。サードパーティ Action はフル SHA で固定します。
+- ランタイムの SQLite DB、録画、診断ログ、認証情報、トークン、ローカルキャッシュをコミットしないでください。
 
-## GitHub / engineering
+## ライセンス
 
-GitHub is currently the engineering/bootstrap surface rather than the complete runtime source of truth. Active automation includes CI, Dependency Review, Dependabot, deterministic release packaging, SHA-256, and artifact-attestation preparation. CodeQL is retained as a ready-to-enable template because the current private-repository plan does not provide active scanning.
-
-Do not commit runtime SQLite databases, recordings, diagnostics, credentials, tokens, or local caches.
+`LICENSE` ファイルは未配置です。`pyproject.toml` には `MIT` と記載されています。取り込んだ `s` のフィルターは各ファイルのヘッダー（CC0-1.0 / GPL-3.0-only）に従います。最終的なライセンスは所有者が決定します。

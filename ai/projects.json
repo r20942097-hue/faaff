@@ -19,7 +19,10 @@
       "default_branch": "main",
       "observed_head": "8af3fa31d6574398507fa123e8b735332d583da0",
       "source_state": "active_external",
-      "release_authority": true
+      "release_authority": true,
+      "latest_observed_head": "1e2a31227f9a0f1951c41707fd579029c7966b02",
+      "latest_observed_at": "2026-10-27",
+      "latest_observed_note": "s/main moved past the pinned observed_head: root RPLAY_*.zip uploads (2a99e89, 6f55432; not imported, NEEDS_HUMAN) and merged PRs #4, #7, #5 that change imported files (japanese-text-softener*.txt, scripts/check_engine.mjs, tests, CHANGELOG.md). The pinned import is intentionally NOT updated here; re-import via a separate PR that updates imports/s.json source_commit and observed_head together so ai/check_hub.py keeps passing."
     }
   ],
   "workstreams": [
