@@ -13,11 +13,14 @@ jobs:
   source-check:
     name: Source synchronization check
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       source_present: ${{ steps.check.outputs.present }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - id: check
         name: Check source tree
         shell: bash
@@ -35,6 +38,7 @@ jobs:
     needs: source-check
     if: needs.source-check.outputs.source_present == 'true'
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -43,6 +47,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:

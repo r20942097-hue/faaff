@@ -1,8 +1,9 @@
 from datetime import date, datetime
 from pathlib import Path
-import json
 import re
 import sys
+
+from registry_io import integer_in_range, load_json_object as load_json, safe_path
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "manifest.json"
@@ -13,11 +14,6 @@ GITHUB_FILE_SNAPSHOT_RE = re.compile(
 GITHUB_ISSUE_RE = re.compile(r"^https://github\.com/([^/]+)/([^/]+)/issues/(\d+)$")
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 REPOSITORY_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
-
-
-def load_json(path):
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
 
 
 def parse_iso_date(value):
@@ -41,11 +37,11 @@ def validate(today=None):
 
     try:
         manifest = load_json(MANIFEST_PATH)
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError) as exc:
         return [f"manifest.json cannot be read: {exc}"], warnings
 
     max_age_days = manifest.get("candidate_evidence_max_age_days")
-    if not isinstance(max_age_days, int) or not 1 <= max_age_days <= 365:
+    if not integer_in_range(max_age_days, 1, 365):
         errors.append("manifest.json: candidate_evidence_max_age_days must be an integer from 1 to 365")
         return errors, warnings
 
@@ -53,15 +49,13 @@ def validate(today=None):
     if not isinstance(candidate_rel, str):
         return ["manifest.json: candidate_queue is missing"], warnings
 
-    candidate_path = (ROOT / candidate_rel).resolve()
-    try:
-        candidate_path.relative_to(ROOT)
-    except ValueError:
-        return ["manifest.json: candidate_queue escapes repository root"], warnings
+    candidate_path = safe_path(ROOT, candidate_rel)
+    if candidate_path is None:
+        return ["manifest.json: candidate_queue is unsafe or escapes repository root"], warnings
 
     try:
         queue = load_json(candidate_path)
-    except (OSError, json.JSONDecodeError) as exc:
+    except (OSError, ValueError) as exc:
         return [f"{candidate_rel}: cannot be read: {exc}"], warnings
 
     observed_at = parse_iso_date(queue.get("observed_at"))
