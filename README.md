@@ -10,7 +10,7 @@
 | `integrations/browser-filters/source/s/` | [`r20942097-hue/s`](https://github.com/r20942097-hue/s) の固定コミットの写し（配布はしない） | `ai/check_hub.py`、`.github/workflows/ai-hub.yml` |
 | `ai/` | AI 作業ハブ: プロジェクト索引 `projects.json`、取り込み来歴 `imports/s.json`、作業キュー `WORK_QUEUE.md` | `python ai/check_hub.py` |
 | `AGENTS.md` | AI コーディングエージェント共通の作業指示（`CLAUDE.md` 等はここを参照） | — |
-| Watcher 関連の記録 | `CHANGELOG.md`、`VERIFICATION.md`（v5.10.0 時点の履歴記録）、`PRODUCTION-E2E-CHECKLIST.md`、`SOURCE-SYNC.md`、`GITHUB-READY.md`、`SECURITY*.md`、`SHA256-v6.10.0.txt`、`pyproject.toml` | 下記の注意を参照 |
+| Watcher 関連の記録 | `CHANGELOG.md`、`SECURITY.md`、`pyproject.toml` | 下記の注意を参照。v6.10.0 向けの古い記録（`GITHUB-READY.md` 等）は 2026-10-28 に `main` から削除（git 履歴に残存） |
 
 ## 購読 URL（変更しないこと）
 
@@ -32,9 +32,9 @@ python browser_filter_lists/scripts/validate_filters.py
 
 ## Universal Live Watcher について（注意）
 
-- 以前の README は Universal Live Watcher v6.10.0（Windows 向け RPLAY LIVE 監視・録画基盤）を説明していましたが、その**ランタイム（`rplay_watcher/` パッケージ、`extension/`、`tests/`）は `main` に存在しません**。完全なソースは外部のローカルリリース ZIP（`SHA256-v6.10.0.txt` に記載のハッシュ）にあるとされ、このリポジトリでは検証していません。
+- 以前の README は Universal Live Watcher v6.10.0（Windows 向け RPLAY LIVE 監視・録画基盤）を説明していましたが、その**ランタイム（`rplay_watcher/` パッケージ、`extension/`、`tests/`）は `main` に存在しません**。完全なソースは外部のローカルリリース ZIP にあるとされ（ハッシュ記録 `SHA256-v6.10.0.txt` は 2026-10-28 に削除、git 履歴に残存）、このリポジトリでは検証していません。
 - `pyproject.toml` は `rplay_watcher` パッケージを前提としているため、現状の `main` ではインストールできません。`.github/workflows/ci.yml` は該当ソースが無いことを検出してフル CI をスキップします（意図された動作）。
-- 「441 tests passed」などの v6.10.0 の検証結果は**外部のローカル実行の記録**であり、このリポジトリ上の CI では再現されていません（状態: NOT_RUN on GitHub）。`VERIFICATION.md` は v5.10.0 時点の履歴記録です。`PRODUCTION-E2E-CHECKLIST.md` は v6.10.0 向けですが、ランタイムのアーカイブを別途入手・検証してから実施する前提です。
+- 「441 tests passed」などの v6.10.0 の検証結果は**外部のローカル実行の記録**であり、このリポジトリ上の CI では再現されていません（状態: NOT_RUN on GitHub）。旧記録 `VERIFICATION.md`（v5.10.0）・`PRODUCTION-E2E-CHECKLIST.md`（v6.10.0）は現状と誤読されるため 2026-10-28 に削除しました（git 履歴に残存）。
 - 実 Windows + 実 RPLAY での本番 E2E は別の検証境界で、ローカルテストから推定しません。
 - Watcher ソースを GitHub に同期するか、別リポジトリに分けるかは所有者の判断待ちです（NEEDS_HUMAN）。
 

@@ -1,6 +1,6 @@
 {
   "schema": "ai-hub-registry/v1",
-  "recorded_at": "2026-10-25",
+  "recorded_at": "2026-10-28",
   "hub": "r20942097-hue/faaff",
   "repositories": [
     {
@@ -8,7 +8,7 @@
       "url": "https://github.com/r20942097-hue/faaff",
       "role": "engineering_hub",
       "default_branch": "main",
-      "observed_head": "873f7bd5dc68443e2ef0d49a458f0222af6f588d",
+      "observed_head": "5aac17cfe4890c01982d4c357c878854988de1e0",
       "source_state": "bootstrap_main",
       "release_authority": false
     },
@@ -17,12 +17,10 @@
       "url": "https://github.com/r20942097-hue/s",
       "role": "filter_distribution",
       "default_branch": "main",
-      "observed_head": "8af3fa31d6574398507fa123e8b735332d583da0",
+      "observed_head": "20a26610db8970abef1bd7016f5f641ce25b7063",
       "source_state": "active_external",
       "release_authority": true,
-      "latest_observed_head": "a3bb00a94c2c44ad882a85078a4e3e74730290a2",
-      "latest_observed_at": "2026-10-28",
-      "latest_observed_note": "s/main moved past the pinned observed_head: merged PRs #4, #7, #5, #6 change imported files (japanese-text-softener*.txt, scripts/check_engine.mjs, tests, CHANGELOG.md); #8 added AGENTS.md/.gitignore; #9 removed the root RPLAY_*.zip uploads from main (backed up to Drive, still in git history; never imported here). The pinned import is intentionally NOT updated here; re-import via a separate PR that updates imports/s.json source_commit and observed_head together so ai/check_hub.py keeps passing."
+      "observed_note": "2026-10-28: pinned import refreshed from 8af3fa3 to 20a2661 (s main after s#10). AI instruction files (AGENTS.md, CLAUDE.md, .cursor/, ai/) and .github/ are excluded from the import; see imports/s.json excluded_paths."
     }
   ],
   "workstreams": [
@@ -49,15 +47,7 @@
       "location": "integrations/browser-filters/source/s/",
       "state": "pinned_snapshot",
       "note": "pinned source copy excluding repository workflows; not direct distribution"
-    },
-    {
-      "id": "portfolio",
-      "category": "management",
-      "authority": "faaff",
-      "location": "https://github.com/r20942097-hue/faaff/pull/16",
-      "state": "open_draft",
-      "note": "stacked on PR 15; not main; management validation is not product E2E"
     }
   ],
-  "unimported_products": "Other game/tool ZIPs and Drive files are not imported or verified by this registry; see portfolio workstream for provenance."
+  "unimported_products": "Other game/tool ZIPs and Drive files are not imported or verified by this registry. The former portfolio/workspace-management work (PRs #15/#16) was closed on 2026-10-28 because it contained ZIPs; its branches are preserved only in the owner's git bundle backup."
 }

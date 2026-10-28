@@ -5,10 +5,8 @@ on:
     paths:
       - "browser_filter_lists/**"
       - ".github/workflows/validate-browser-filter-lists.yml"
+  # PR では全変更で実行する（main の Ruleset 必須チェックのため、パス絞り込みなし）
   pull_request:
-    paths:
-      - "browser_filter_lists/**"
-      - ".github/workflows/validate-browser-filter-lists.yml"
   schedule:
     - cron: "17 3 * * 1"
   workflow_dispatch:

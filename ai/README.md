@@ -1,6 +1,6 @@
 # AI engineering hub / AI開発の入口
 
-This directory is the cross-project navigation and verification layer for `faaff`. It is **not** a second release registry and does not replace `workspace-management/` in draft PR #16.
+This directory is the cross-project navigation and verification layer for `faaff`. It is **not** a second release registry. Current state: `PROJECT_STATE.json`; handoff: `HANDOFF.md`.
 
 ## First read
 - `../AGENTS.md`: shared coding-agent instructions and safety boundaries.
@@ -11,8 +11,8 @@ This directory is the cross-project navigation and verification layer for `faaff
 ## Ownership
 - `faaff/main` is currently the engineering/bootstrap hub; keep its existing `browser_filter_lists/` unchanged.
 - `s/main` is the live subscription authority. Existing raw GitHub URL paths stay there.
-- `integrations/browser-filters/source/s/` is a byte-level pinned import of the source, tests, docs, build scripts, lockfiles and public page, excluding the original repository `.github/` files. A separate scoped workflow performs its checks here.
-- PRs #14, #15 and #16 contain separate, stacked engineering and portfolio changes; preserve their approval history.
+- `integrations/browser-filters/source/s/` is a byte-level pinned import of the source, tests, docs, build scripts and lockfiles, excluding the original repository `.github/` files and AI instruction files (`AGENTS.md`, `CLAUDE.md`, `.cursor/`, `ai/`). Re-import: copy every file of the chosen `s` commit except `excluded_paths`, then update `imports/s.json` (`source_commit`, `source_tree_sha`, file blob SHAs/sizes) and `projects.json` (`s` `observed_head`) together; `python ai/check_hub.py` must pass. A separate scoped workflow performs its checks here.
+- PR #14 was merged. PRs #15/#16 (stacked portfolio changes containing ZIPs) were closed unmerged on 2026-10-28; their branches survive only in the owner's git bundle backup.
 
 ## Offline checks (from faaff root)
 
