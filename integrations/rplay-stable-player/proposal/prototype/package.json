@@ -1,0 +1,10 @@
+{
+  "name": "rplay-3genre-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Proposal prototype only (not a release). No dependencies.",
+  "scripts": {
+    "test": "node --test tests/"
+  }
+}

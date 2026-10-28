@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>RPLAY / YouTube tabs (proposal)</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <strong>統合タブ管理</strong> <small>proposal 0.1.0 / 未検証</small>
+  </header>
+  <nav id="filters">
+    <button data-site="" class="on">全部</button>
+    <button data-site="rplay">RPLAY</button>
+    <button data-site="youtube">YouTube</button>
+  </nav>
+  <section id="bulk">
+    <button data-cmd="play">一括再生</button>
+    <button data-cmd="pause">一括停止</button>
+    <button data-cmd="mute">一括ミュート</button>
+    <button data-cmd="unmute">ミュート解除</button>
+    <button id="refresh">更新</button>
+  </section>
+  <ul id="tabs"></ul>
+  <h3>RPLAY 検出候補</h3>
+  <label class="terms"><input type="checkbox" id="terms"> 自分が正当に再生できる非暗号化メディアで、利用規約上保存が許される場合のみ保存することを確認しました</label>
+  <ul id="candidates"></ul>
+  <h3>保存ジョブ</h3>
+  <ul id="jobs"></ul>
+  <p id="status" role="status"></p>
+  <script type="module" src="popup.js"></script>
+</body>
+</html>
