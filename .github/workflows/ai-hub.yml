@@ -1,12 +1,8 @@
 name: AI hub and pinned filter source
 
 on:
+  # PR では全変更で実行する（main の Ruleset 必須チェックのため、パス絞り込みなし）
   pull_request:
-    paths:
-      - 'AGENTS.md'
-      - 'ai/**'
-      - 'integrations/browser-filters/**'
-      - '.github/workflows/ai-hub.yml'
   push:
     branches: [main]
     paths:

@@ -1,0 +1,43 @@
+{
+  "schema": "project-state/v1",
+  "repository": "r20942097-hue/faaff",
+  "role": "engineering / integration hub（Watcher ランタイムは main に無い bootstrap 状態）",
+  "updated": "2026-10-28",
+  "default_branch": "main",
+  "heads": {
+    "main_before_governance_pr": "5aac17cfe4890c01982d4c357c878854988de1e0",
+    "s_main_pinned_import": "20a26610db8970abef1bd7016f5f641ce25b7063",
+    "note": "最新の main head は `git rev-parse origin/main` で確認してください。この値は本ファイル作成時点の記録です。"
+  },
+  "gates": {
+    "P0": "active",
+    "PUBLICATION_HOLD": "active: Release作成・公開範囲変更・購読URL変更は所有者承認まで保留",
+    "NO_NEW_INTERNAL_PUSH": "active: main への直接 push 禁止（作業ブランチへの push と PR 作成は可）"
+  },
+  "permissions": {
+    "always_allowed": ["read", "create proposal/feature branches", "push to proposal/feature branches", "open draft/normal PRs", "rerun CI", "run local verification"],
+    "requires_owner_approval": ["merge to main", "delete original branches/files", "visibility/publication changes", "force-push / history rewrite", "production deploy", "add ZIP/binary artifacts"]
+  },
+  "protection": {
+    "main_ruleset": "PR必須（承認0）・必須チェック（CI / AI hub and pinned filter source / Validate browser filter lists / CodeQL Python）・force-push禁止・削除禁止",
+    "ci_zip_guard": "CI の Source synchronization check で追跡中の *.zip / *.7z を検出すると FAIL"
+  },
+  "pinned_import": {
+    "manifest": "ai/imports/s.json",
+    "source_commit": "20a26610db8970abef1bd7016f5f641ce25b7063",
+    "imported_at": "2026-10-28",
+    "check": "python ai/check_hub.py"
+  },
+  "closed_2026_10_28": [
+    "PR #15 / #16（workspace-management / portfolio、ZIP を含むためクローズ。ブランチは git bundle でバックアップ後に削除）",
+    "閉じた/マージ済みPRの古いブランチ 10 本を削除（バックアップ済み）",
+    "Watcher v6.10.0 の古い記録ファイル（GITHUB-READY.md ほか）を main から削除"
+  ],
+  "open_items": [
+    "Watcher ランタイムを GitHub に同期するか別リポジトリにするか（NEEDS_HUMAN）",
+    "pyproject.toml は README のライセンス記載（MIT）と ci.yml のソース検出条件が参照しているため残置",
+    "LICENSE ファイル未配置（最終ライセンスは所有者判断）",
+    "Actions に main に存在しないワークフロー 7 件が登録残り（disable 候補）",
+    "s の公開配布と faaff 取り込みの正本一本化（ai/WORK_QUEUE.md 3〜4）"
+  ]
+}

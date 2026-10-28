@@ -21,6 +21,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Fail if ZIP/7z archives are tracked
+        shell: bash
+        run: |
+          if git ls-files | grep -iE '\.(zip|7z)$'; then
+            echo "::error::ZIP/7z archives must not be committed (see AGENTS.md)"
+            exit 1
+          fi
       - id: check
         name: Check source tree
         shell: bash

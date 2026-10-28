@@ -1,20 +1,26 @@
 {
   "schema": "pinned-source-import/v1",
   "source_repository": "r20942097-hue/s",
-  "source_commit": "8af3fa31d6574398507fa123e8b735332d583da0",
-  "source_tree_sha": "610aaab83c95f3f82fd69b9c315a879f5c38e432",
-  "imported_at": "2026-10-25",
+  "source_commit": "20a26610db8970abef1bd7016f5f641ce25b7063",
+  "source_tree_sha": "f3a2ff2b49124fcaadadb24ed9a17967bbb49256",
+  "imported_at": "2026-10-28",
   "target_prefix": "integrations/browser-filters/source/s/",
   "excluded_paths": [
+    ".cursor/rules/agents.mdc",
+    ".github/copilot-instructions.md",
     ".github/dependabot.yml",
-    ".github/workflows/japanese-text-softener.yml"
+    ".github/workflows/japanese-text-softener.yml",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "ai/HANDOFF.md",
+    "ai/PROJECT_STATE.json"
   ],
   "distribution_authority": "r20942097-hue/s main (not the imported snapshot)",
   "files": [
     {
       "path": ".gitignore",
-      "git_blob_sha": "4a71ec8d57252971728ffdf4103e21902550e0a9",
-      "size": 67
+      "git_blob_sha": "29b19a1d2b7c4efc20a9f9093c3d4416c9efa215",
+      "size": 352
     },
     {
       "path": "ad-ubo.txt",
@@ -28,8 +34,8 @@
     },
     {
       "path": "CHANGELOG.md",
-      "git_blob_sha": "1db0500428f02cfb2df17dcdf55ea711cf3877cf",
-      "size": 1435
+      "git_blob_sha": "39c52b8232a1af2e656e7c8ce38152f37334081a",
+      "size": 3354
     },
     {
       "path": "filter-profiles.json",
@@ -37,24 +43,19 @@
       "size": 14242
     },
     {
-      "path": "index.html",
-      "git_blob_sha": "291a9b7f972e2a24d4397f49b98d69c9264a2ec0",
-      "size": 4028
-    },
-    {
       "path": "japanese-text-softener-deep.txt",
-      "git_blob_sha": "18f6c139a32ba809f6a6462210042b39f0055700",
-      "size": 1094
+      "git_blob_sha": "6b800af88b59d414b4e3b3c1fcd9d9f6849d8446",
+      "size": 1189
     },
     {
       "path": "japanese-text-softener.txt",
-      "git_blob_sha": "22b3bba6fbe163d4c4c13c874aba5a47f52e8fad",
-      "size": 5513
+      "git_blob_sha": "9b8eba75cae4a7ddaf409329e3ee292fc5bbd994",
+      "size": 5619
     },
     {
       "path": "README.md",
-      "git_blob_sha": "a6b44d52ff33494928f86b2df289457d0d05ceb3",
-      "size": 3820
+      "git_blob_sha": "7fa4a8ac4b0dea7692c7846fecfb915c3dafb4bf",
+      "size": 4326
     },
     {
       "path": "scripts/audit_upstream.py",
@@ -63,8 +64,8 @@
     },
     {
       "path": "scripts/check_engine.mjs",
-      "git_blob_sha": "f111a1b19ddfc3e4dee9891bacda3409423372f6",
-      "size": 10802
+      "git_blob_sha": "abcbe6b48be318edf585de511fa7a5c494f02c77",
+      "size": 11067
     },
     {
       "path": "scripts/export_browser_fixtures.mjs",
@@ -73,8 +74,8 @@
     },
     {
       "path": "scripts/generate_lists.py",
-      "git_blob_sha": "70255a798a4cf74412f078f7c69bf7c6ba1559b1",
-      "size": 9170
+      "git_blob_sha": "ecf3384049fd3d7a1e5f9d2566c9f6c7aa1b0dd0",
+      "size": 10761
     },
     {
       "path": "scripts/prepare_engine.py",
@@ -93,13 +94,13 @@
     },
     {
       "path": "tests/test_generation.py",
-      "git_blob_sha": "5a0000a5d3e98fb0ba5f126b68bbb1d08aaead67",
-      "size": 3300
+      "git_blob_sha": "183b4801e4378294ae3abc62ff57587b22dd87db",
+      "size": 10820
     },
     {
       "path": "tests/test_japanese_text_softener.py",
-      "git_blob_sha": "8b52e18db367422213e12feb256c9b18528af516",
-      "size": 4135
+      "git_blob_sha": "51633029a2e0bd84aa4d8ef3be3a9a5a1b93f8d3",
+      "size": 4424
     },
     {
       "path": "tests/test_list_metadata.py",
