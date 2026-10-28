@@ -3,6 +3,44 @@
   "repository": "r20942097-hue/faaff",
   "role": "engineering / integration hub（Watcher ランタイムは main に無い bootstrap 状態）",
   "updated": "2026-10-28",
+  "observed_at": "2026-10-28T02:18:43Z",
+  "provenance_rule": "事実には provenance{source, observed_at} を付ける。取得できない値は null と理由を書き、推測値は書かない。古い値は上書きせず新しい observed_at で更新する。",
+  "repositories": [
+    {
+      "name": "r20942097-hue/faaff",
+      "default_branch": "main",
+      "head_sha": "479a15e4cfe43ad487081b0bb0d87a812bb0a24a",
+      "provenance": {
+        "source": "git clone https://github.com/r20942097-hue/faaff（gh repo clone）→ git rev-parse HEAD、git ls-remote origin HEAD、gh api repos/r20942097-hue/faaff/commits/main の3方法で一致",
+        "observed_at": "2026-10-28T02:18:43Z"
+      },
+      "note": "この値は本ファイルを含むコミットの親（base）。本ファイル自身のコミットSHAは自己参照のため記録できない"
+    },
+    {
+      "name": "r20942097-hue/s",
+      "default_branch": "main",
+      "head_sha": "20a26610db8970abef1bd7016f5f641ce25b7063",
+      "provenance": {
+        "source": "gh api repos/r20942097-hue/s/commits/main および git ls-remote https://github.com/r20942097-hue/s HEAD（一致）",
+        "observed_at": "2026-10-28T02:18:43Z"
+      },
+      "note": "ai/imports/s.json の source_commit と一致"
+    }
+  ],
+  "gate": {
+    "value": "P0 / PUBLICATION_HOLD / NO_NEW_INTERNAL_PUSH",
+    "components": [
+      "P0",
+      "PUBLICATION_HOLD",
+      "NO_NEW_INTERNAL_PUSH"
+    ],
+    "definition_ref": "AGENTS.md「Current gate and status vocabulary」（詳細は gates キー）",
+    "provenance": {
+      "source": "https://github.com/r20942097-hue/faaff/blob/479a15e4cfe43ad487081b0bb0d87a812bb0a24a/AGENTS.md",
+      "observed_at": "2026-10-28T02:18:43Z"
+    },
+    "note": "NO_NEW_INTERNAL_PUSH の意味は 2026-10-28 の PR #20 で『main への直接 push 禁止』に再定義された。再定義の所有者承認記録は未確認（open_items 参照）"
+  },
   "default_branch": "main",
   "heads": {
     "main_before_governance_pr": "5aac17cfe4890c01982d4c357c878854988de1e0",
@@ -38,6 +76,76 @@
     "pyproject.toml は README のライセンス記載（MIT）と ci.yml のソース検出条件が参照しているため残置",
     "LICENSE ファイル未配置（最終ライセンスは所有者判断）",
     "Actions に main に存在しないワークフロー 7 件が登録残り（disable 候補）",
-    "s の公開配布と faaff 取り込みの正本一本化（ai/WORK_QUEUE.md 3〜4）"
+    "s の公開配布と faaff 取り込みの正本一本化（ai/WORK_QUEUE.md 3〜4）",
+    "[NEEDS_HUMAN] NO_NEW_INTERNAL_PUSH の再定義（全push/PR禁止→main直接push禁止のみ、PR #20 / s#10）を所有者が承認したかの記録確認（出典: https://github.com/r20942097-hue/faaff/pull/20 、観測 2026-10-28T02:18:43Z）",
+    "[NEEDS_HUMAN] 2026-10-28 のゲート下 main merge 3件（faaff#10・s#10・faaff#20）の承認記録確認（出典: https://github.com/r20942097-hue/faaff/pull/20 ほか、観測 2026-10-28T02:18:43Z）",
+    "[PARTIAL] ai/projects.json の faaff observed_head（5aac17c）は自己参照のため実 HEAD（479a15e）より常に1コミット遅れる。運用ルール化が必要（出典: ai/projects.json@479a15e、観測 2026-10-28T02:18:43Z）",
+    "[PARTIAL] ai/WORK_QUEUE.md の見出しが『observed 2026-10-25』のまま、項目1が [IN_THIS_PR] のまま（出典: ai/WORK_QUEUE.md@479a15e、観測 2026-10-28T02:18:43Z）",
+    "[NEEDS_HUMAN] Drive に『01_MASTER_LEDGER』という名前のファイルが無い。AGENTS.md の Master ledger（v27台帳）が該当するか確認（出典: リサーチ・資料担当 素案 01_observation.md B1、観測 2026-10-28T02:01Z）"
+  ],
+  "related_bots": [
+    {
+      "role": "開発担当",
+      "scope": "実装・ブランチ/PR作成",
+      "provenance": {
+        "source": "依頼文 pt0u（Grok Bot 司令塔経由、2026-10-28）",
+        "observed_at": "2026-10-28T02:18:43Z",
+        "note": "役割名は依頼文の記載。ボット台帳との照合は未実施（scope は要約）"
+      }
+    },
+    {
+      "role": "進捗管理担当",
+      "scope": "WORK_QUEUE・open_items の進捗管理",
+      "provenance": {
+        "source": "依頼文 pt0u（Grok Bot 司令塔経由、2026-10-28）",
+        "observed_at": "2026-10-28T02:18:43Z",
+        "note": "役割名は依頼文の記載。ボット台帳との照合は未実施（scope は要約）"
+      }
+    },
+    {
+      "role": "公開・リリース判定担当",
+      "scope": "PUBLICATION_HOLD 解除・Release 可否判定",
+      "provenance": {
+        "source": "依頼文 pt0u（Grok Bot 司令塔経由、2026-10-28）",
+        "observed_at": "2026-10-28T02:18:43Z",
+        "note": "役割名は依頼文の記載。ボット台帳との照合は未実施（scope は要約）"
+      }
+    },
+    {
+      "role": "デプロイ担当",
+      "scope": "本番デプロイ（要承認）",
+      "provenance": {
+        "source": "依頼文 pt0u（Grok Bot 司令塔経由、2026-10-28）",
+        "observed_at": "2026-10-28T02:18:43Z",
+        "note": "役割名は依頼文の記載。ボット台帳との照合は未実施（scope は要約）"
+      }
+    },
+    {
+      "role": "ゲーム移行担当",
+      "scope": "ゲーム系制作物の移行",
+      "provenance": {
+        "source": "依頼文 pt0u（Grok Bot 司令塔経由、2026-10-28）",
+        "observed_at": "2026-10-28T02:18:43Z",
+        "note": "役割名は依頼文の記載。ボット台帳との照合は未実施（scope は要約）"
+      }
+    },
+    {
+      "role": "デザイン担当",
+      "scope": "UI・ビジュアル",
+      "provenance": {
+        "source": "依頼文 pt0u（Grok Bot 司令塔経由、2026-10-28）",
+        "observed_at": "2026-10-28T02:18:43Z",
+        "note": "役割名は依頼文の記載。ボット台帳との照合は未実施（scope は要約）"
+      }
+    },
+    {
+      "role": "リサーチ・資料担当",
+      "scope": "調査・資料・本改訂の素案作成",
+      "provenance": {
+        "source": "依頼文 pt0u（Grok Bot 司令塔経由、2026-10-28）",
+        "observed_at": "2026-10-28T02:18:43Z",
+        "note": "役割名は依頼文の記載。ボット台帳との照合は未実施（scope は要約）"
+      }
+    }
   ]
 }
