@@ -1,6 +1,7 @@
 """Adversarial ZIP fixtures. No files are extracted."""
 import hashlib
 import io
+import os
 import stat
 import sys
 import tempfile
@@ -46,7 +47,10 @@ class ArchiveGateTests(unittest.TestCase):
         self.assertEqual(self.make([('/etc/passwd', 'x')])['status'], 'FAIL')
 
     def test_windows_slash(self):
-        self.assertEqual(self.make([('evil\code.js', 'x')])['status'], 'FAIL')
+        self.assertIsNotNone(name_error(r'evil\code.js'))
+        # On Windows zipfile.writestr normalizes backslashes to separators.
+        if os.name != 'nt':
+            self.assertEqual(self.make([(r'evil\code.js', 'x')])['status'], 'FAIL')
 
     def test_windows_reserved(self):
         self.assertIsNotNone(name_error('aux.txt'))
