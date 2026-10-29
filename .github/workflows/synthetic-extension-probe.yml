@@ -221,9 +221,9 @@ jobs:
           server=http.server.ThreadingHTTPServer(('127.0.0.1',0),Handler)
           threading.Thread(target=server.serve_forever,daemon=True).start()
           url=f'http://127.0.0.1:{server.server_port}/'
-          manifest={'manifest_version':2,'name':'Firefox isolated synthetic probe','version':'1.0','browser_specific_settings':{'gecko':{'id':'synthetic-probe@example.invalid'}},'background':{'scripts':['background.js']},'content_scripts':[{'matches':['http://127.0.0.1/*'],'js':['content.js']}],'permissions':['http://127.0.0.1/*']}
+          manifest={'manifest_version':2,'name':'Firefox isolated synthetic probe','version':'1.0','browser_specific_settings':{'gecko':{'id':'synthetic-probe@example.invalid'}},'background':{'scripts':['background.js']},'content_scripts':[{'matches':['http://127.0.0.1/*'],'js':['content.js']}],'permissions':['tabs','http://127.0.0.1/*']}
           (ext/'manifest.json').write_text(json.dumps(manifest))
-          (ext/'background.js').write_text("browser.runtime.onMessage.addListener(m => m === 'ping' ? Promise.resolve('worker-pong') : undefined); browser.runtime.onInstalled.addListener(() => setTimeout(() => browser.tabs.query({}).then(ts => ts.forEach(t => { if (t.url && t.url.startsWith('http://127.0.0.1:')) browser.tabs.reload(t.id); })), 1500));")
+          (ext/'background.js').write_text("browser.runtime.onMessage.addListener(m => m === 'ping' ? Promise.resolve('worker-pong') : undefined); browser.runtime.onInstalled.addListener(() => browser.tabs.create({url:" + json.dumps(url) + "}));")
           (ext/'content.js').write_text("browser.runtime.sendMessage('ping').then(r => fetch('/proof',{method:'POST',body:r}));")
           cmd=[str(root/'node_modules/.bin/web-ext'),'run','--source-dir',str(ext),'--firefox',os.environ['FIREFOX_PATH'],'--no-reload','--start-url',url]
           logfile=root/'firefox-log.txt'
