@@ -90,6 +90,17 @@ class ArchiveGateTests(unittest.TestCase):
         self.path.write_bytes(data.replace(b'UNIQUE_PAYLOAD_98765', b'UNIQUE_PAYLOAD_98764', 1))
         self.assertEqual(inspect(self.path)['status'], 'FAIL')
 
+    def test_global_entry_budget(self):
+        with patch('artifact_gate.MAX_TOTAL_MEMBERS', 2):
+            self.assertEqual(self.make([('a', '1'), ('b', '2'), ('c', '3')])['status'], 'FAIL')
+
+    def test_global_archive_budget(self):
+        inner = io.BytesIO()
+        with zipfile.ZipFile(inner, 'w') as z:
+            z.writestr('x', '1')
+        with patch('artifact_gate.MAX_ARCHIVES', 1):
+            self.assertEqual(self.make([('nested.zip', inner.getvalue())])['status'], 'FAIL')
+
     def test_empty_archive(self):
         self.assertEqual(self.make([])['status'], 'FAIL')
 
