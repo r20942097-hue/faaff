@@ -11,12 +11,34 @@ import re
 import sys
 import zipfile
 from pathlib import Path
+from artifact_gate import inspect as inspect_archive
 
 VERSION = re.compile(r"[0-9]+(?:\.[0-9]+){0,3}\Z")
 MAX_MANIFEST = 256 * 1024
 MAX_NESTED_ZIP = 24 * 1024 * 1024
 MAX_DEPTH = 2
 MAX_MANIFESTS = 150
+MAX_ARCHIVES = 100
+MAX_TOTAL_ENTRIES = 50000
+
+
+def valid_store_version(value: object) -> bool:
+    """Conservative cross-browser dotted numeric version policy."""
+    if not isinstance(value, str) or VERSION.fullmatch(value) is None:
+        return False
+    parts = value.split(".")
+    return all((part == "0" or not part.startswith("0")) and int(part) <= 65535
+               for part in parts)
+
+
+def browser_hint(location: str) -> str:
+    """Match whole path components, avoiding accidental name substrings."""
+    parts = {p for p in re.split(r"[/!_.-]+", location.casefold()) if p}
+    if "firefox" in parts or "mozilla" in parts:
+        return "firefox"
+    if "chrome" in parts or "chromium" in parts:
+        return "chrome"
+    return "unspecified"
 
 
 def read_bounded(zf: zipfile.ZipFile, info: zipfile.ZipInfo, limit: int) -> bytes:
@@ -30,15 +52,26 @@ def read_bounded(zf: zipfile.ZipFile, info: zipfile.ZipInfo, limit: int) -> byte
 def scan(path: Path) -> dict:
     records: list[dict] = []
     issues: list[str] = []
+    warnings: list[str] = []
+    budget = {"archives": 0, "entries": 0}
 
     def walk(zf: zipfile.ZipFile, prefix: str, depth: int) -> None:
-        if len(records) > MAX_MANIFESTS:
-            issues.append("too many extension manifests")
+        infos = zf.infolist()
+        budget["archives"] += 1
+        budget["entries"] += len(infos)
+        if budget["archives"] > MAX_ARCHIVES or budget["entries"] > MAX_TOTAL_ENTRIES:
+            issues.append(prefix + ": global ZIP archive/entry count limit exceeded")
             return
-        for info in zf.infolist():
+        if len(records) >= MAX_MANIFESTS:
+            issues.append("manifest count limit exceeded")
+            return
+        for info in infos:
             name = info.filename
             location = prefix + name
             if name.rsplit("/", 1)[-1].lower() == "manifest.json":
+                if len(records) >= MAX_MANIFESTS:
+                    issues.append(location + ": manifest count limit exceeded")
+                    break
                 if info.file_size > MAX_MANIFEST:
                     issues.append(location + ": oversized manifest")
                     continue
@@ -49,11 +82,11 @@ def scan(path: Path) -> dict:
                 except (UnicodeError, ValueError, OSError, RuntimeError, zipfile.BadZipFile) as exc:
                     issues.append(location + ": invalid manifest (" + type(exc).__name__ + ")")
                     continue
-                browser = "firefox" if "firefox" in location.lower() else "chrome" if "chrome" in location.lower() else "unspecified"
+                browser = browser_hint(location)
                 if value.get("manifest_version") != 3:
                     issues.append(location + ": manifest_version is not MV3")
                 v = value.get("version")
-                if not isinstance(v, str) or VERSION.fullmatch(v) is None:
+                if not valid_store_version(v):
                     issues.append(location + ": invalid extension version")
                 if not isinstance(value.get("name"), str) or not value["name"].strip():
                     issues.append(location + ": missing extension name")
@@ -61,14 +94,33 @@ def scan(path: Path) -> dict:
                 if not isinstance(perms, list) or any(not isinstance(p, str) for p in perms):
                     issues.append(location + ": malformed permissions")
                     perms = []
+                for key in ("host_permissions", "optional_permissions", "optional_host_permissions"):
+                    extra = value.get(key, [])
+                    if not isinstance(extra, list) or any(not isinstance(p, str) for p in extra):
+                        issues.append(location + ": malformed " + key)
+                hosts = value.get("host_permissions", [])
+                if isinstance(hosts, list) and any(h in ("<all_urls>", "*://*/*", "http://*/*", "https://*/*") for h in hosts if isinstance(h, str)):
+                    warnings.append(location + ": broad host access requires manual permission review")
                 if browser == "firefox" and "version_name" in value:
-                    issues.append(location + ": Firefox manifest includes Chrome-only version_name")
+                    warnings.append(location + ": version_name compatibility should be checked in target Firefox")
+                settings = value.get("browser_specific_settings")
+                if settings is not None and not isinstance(settings, dict):
+                    issues.append(location + ": malformed browser_specific_settings")
+                if browser == "firefox":
+                    gecko = settings.get("gecko", {}) if isinstance(settings, dict) else {}
+                    if not isinstance(gecko, dict):
+                        issues.append(location + ": malformed gecko settings")
+                    elif "data_collection_permissions" not in gecko:
+                        warnings.append(location + ": AMO data_collection_permissions review required")
+                    if not isinstance(gecko, dict) or not isinstance(gecko.get("id"), str) or not gecko.get("id"):
+                        warnings.append(location + ": Firefox signing/extension ID review required")
                 records.append({"location": location, "browser_hint": browser,
                                 "name": value.get("name") if isinstance(value.get("name"), str) else None,
                                 "version": v if isinstance(v, str) else None,
                                 "manifest_version": value.get("manifest_version"),
                                 "version_name": value.get("version_name"),
                                 "permission_count": len(perms),
+                                "host_permission_count": len(hosts) if isinstance(hosts, list) else 0,
                                 "has_browser_specific_settings": "browser_specific_settings" in value})
             elif name.lower().endswith(".zip"):
                 if depth >= MAX_DEPTH or info.file_size > MAX_NESTED_ZIP:
@@ -84,8 +136,10 @@ def scan(path: Path) -> dict:
                 break
 
     path = Path(path)
-    if path.is_symlink() or not path.is_file():
-        issues.append("missing/linked archive")
+    # Enforce standalone structural safety; do not rely on callers running a prior command.
+    structural = inspect_archive(path)
+    if structural["status"] != "PASS":
+        issues.append("ZIP structural preflight failed: " + "; ".join(structural["issues"][:5]))
     else:
         try:
             with zipfile.ZipFile(path) as zf:
@@ -96,6 +150,8 @@ def scan(path: Path) -> dict:
             "status": "FAIL" if issues else "PASS",
             "scope": "manifest metadata only; no executable/browser validation",
             "manifest_count": len(records), "manifests": records, "issues": issues,
+            "warnings": warnings, "zip_preflight": structural["status"],
+            "scan_budget": budget,
             "real_browser": "NOT_RUN", "release_approval": "NOT_RUN"}
 
 
