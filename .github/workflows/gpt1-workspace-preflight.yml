@@ -44,6 +44,10 @@ jobs:
         run: python ai/product_quality.py --json
       - name: Unit-test GitHub workflow supply-chain policy
         run: python -m unittest discover -s ai/tests -p test_workflow_supply_chain.py -v
+      - name: Unit-test Actions lockfile graph parity
+        run: python -m unittest discover -s ai/tests -p test_lockfile_parity.py -v
+      - name: Compare locked graph with checked-out workflows
+        run: python ai/lockfile_parity.py --json
       - name: Audit workflow SHA, permissions and unsafe triggers
         run: python ai/workflow_supply_chain.py --expected-repository r20942097-hue/faaff --json
       - name: Inspect checked-out repository (offline)
