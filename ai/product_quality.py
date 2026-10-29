@@ -26,6 +26,8 @@ def validate(data: object) -> dict:
     counts = {status: 0 for status in sorted(STATUSES)}
     if not isinstance(data, dict):
         return {"status": "INVALID", "decision": "CANDIDATE_NO_GO", "errors": ["root must be an object"], "counts": counts}
+    if not set(data).issubset({"schema", "release_gate", "note", "products"}):
+        errors.append("unexpected root fields")
     if data.get("schema") != SCHEMA:
         errors.append("unsupported schema")
     if data.get("release_gate") != "PUBLICATION_HOLD":
@@ -43,6 +45,8 @@ def validate(data: object) -> dict:
             errors.append("unknown or duplicate product id")
             continue
         seen.add(pid)
+        if set(item) != {"id", "decision", "source_commit", "artifact_sha256", "gates"}:
+            errors.append(f"{pid}: missing or unexpected product fields")
         if item.get("decision") != "CANDIDATE_NO_GO":
             errors.append(f"{pid}: decision must remain CANDIDATE_NO_GO")
         commit = item.get("source_commit")
