@@ -25,9 +25,9 @@ jobs:
               print('PATH_COMPONENT:', item, 'UID:', info.st_uid, 'MODE:', oct(stat.S_IMODE(info.st_mode)), flush=True)
               if info.st_uid != 0 or info.st_mode & 0o022:
                   sys.exit('BLOCKED: path is not root-owned and protected against group/other writes')
-          if any(c in str(target) for c in ('"', '\\n', '\\r', '{', '}', '*', '?', '[')):
+          if any(c in str(target) for c in ('"', '\n', '\r', '{', '}', '*', '?', '[')):
               sys.exit('BLOCKED: unsafe profile path')
-          profile = '#include <tunables/global>\\nprofile codex_synthetic_chromium "' + str(target) + '" flags=(unconfined) {\\n  userns,\\n}\\n'
+          profile = '#include <tunables/global>\nprofile codex_synthetic_chromium "' + str(target) + '" flags=(unconfined) {\n  userns,\n}\n'
           pathlib.Path('/tmp/codex-synthetic-chromium.apparmor').write_text(profile)
           PYCODE
           echo 'AppArmor before profile:'
