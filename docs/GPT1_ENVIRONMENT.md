@@ -66,3 +66,15 @@ GitHub's current recommendations include immutable dependency locks for Actions 
 - `python -m unittest discover -s ai/tests -p test_extension_inventory.py -v`: 15 synthetic fixtures. Executed in the existing Ubuntu/Windows/Python 3.11 and 3.14 matrix.
 - Version labels on outer ZIP files and inner extension versions may have independent schemes. Mismatches require manual provenance review; they are not automatically code failures.
 - Real Firefox/Chromium, browser security prompts, permissions correctness, runtime integrations and live services remain `NOT_RUN`.
+
+## v1.5 / evidence intake and browser-specific compatibility
+
+- Official references: [Chrome manifest version](https://developer.chrome.com/docs/apps/manifest/version), [Mozilla manifest.json](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json), and [Mozilla browser_specific_settings](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings).
+- `python ai/extension_inventory.py candidate.zip --json` first runs the bounded ZIP structure/CRC gate; unsafe ZIPs cannot pass standalone inventory.
+- Manifest versions use conservative Chrome-compatible digits (0..65535, no nonzero leading-zero components).
+- Firefox `version_name` is a manual compatibility warning, not an automatic FAIL. Gecko extension ID and post-2025 AMO data collection permission declarations are marked as review-required; signing/distribution context is unknown in arbitrary archives.
+- Broad host permissions are reported by count and warning only; this does not grant or validate them.
+- `python ai/candidate_catalog.py candidate1.zip candidate2.zip --json` creates a local metadata inventory (SHA-256, static ZIP status, internal versions, permission counts, warnings). Inputs are read-only and never published by these tests.
+- Output decisions remain `CANDIDATE_NO_GO`; source commit, publisher identity, runtime behavior and attestation authenticity are not established by static tests.
+- CI covers ZIP gate integration, browser distinctions, scanning budgets and the candidate catalog on Linux and Windows.
+- GitHub Actions lockfiles became generally available October 28, 2026; require a trusted authenticated `gh actions-lock` run and verification before adoption. No manually fabricated lockfile is committed. Existing full-SHA pins remain unchanged.
