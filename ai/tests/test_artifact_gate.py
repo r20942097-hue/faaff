@@ -56,6 +56,11 @@ class ArchiveGateTests(unittest.TestCase):
         self.assertIsNotNone(name_error('aux.txt'))
         self.assertEqual(self.make([('AUX.txt', 'x')])['status'], 'FAIL')
 
+    def test_windows_superscript_devices(self):
+        self.assertIsNotNone(name_error("COM¹.txt"))
+        self.assertIsNotNone(name_error("LPT².log"))
+        self.assertEqual(self.make([("COM³.txt", "x")])["status"], "FAIL")
+
     def test_windows_case_collision(self):
         self.assertEqual(self.make([('options.js', 'a'), ('OPTIONS.JS', 'b')])['status'], 'FAIL')
 
