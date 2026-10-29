@@ -58,3 +58,11 @@ Output status vocabulary: PASS / FAIL / PARTIAL / NOT_RUN. CLI exits 0 = structu
 - GitHub Actions runs this registry test on Linux and Windows, Python 3.11 and 3.14. Repository gates `PUBLICATION_HOLD` and `NO_NEW_INTERNAL_PUSH` remain in effect.
 
 GitHub's current recommendations include immutable dependency locks for Actions where supported. Existing full-commit SHA pins remain unchanged; moving to a lockfile would be a separate reviewed migration, not an automatic replacement. See https://docs.github.com/en/actions/reference/security/secure-use
+
+## v1.4.1 / ZIP extension manifest inventory
+- `python ai/extension_inventory.py /path/to/candidate.zip --json` inventories nested extension `manifest.json` files (MV3, version/name, declared permission count, browser hints and `version_name`).
+- Run `python ai/artifact_gate.py /path/to/candidate.zip --json` FIRST; the inventory is metadata-only and does not authenticate or install an extension.
+- Nested archive inspection and JSON reads have strict depth/byte limits. Uninspectable deeper/oversized nested ZIPs are **FAIL**, not silently PASS.
+- `python -m unittest discover -s ai/tests -p test_extension_inventory.py -v`: 15 synthetic fixtures. Executed in the existing Ubuntu/Windows/Python 3.11 and 3.14 matrix.
+- Version labels on outer ZIP files and inner extension versions may have independent schemes. Mismatches require manual provenance review; they are not automatically code failures.
+- Real Firefox/Chromium, browser security prompts, permissions correctness, runtime integrations and live services remain `NOT_RUN`.
