@@ -70,6 +70,10 @@ jobs:
           test "$observed" = "1389881401"
       - name: Test deterministic Git-blob ZIP source builds (offline)
         run: python -m unittest discover -s ai/tests -p test_repro_source_archive.py -v
+      - name: Test read-only developer toolchain inventory
+        run: python -m unittest discover -s ai/tests -p test_toolchain_doctor.py -v
+      - name: Cross-check hosted toolchain PATH availability (non-installing)
+        run: python ai/toolchain_doctor.py --profile github-ci --json
       - name: Inspect checked-out repository (offline)
         run: python ai/gpt1_preflight.py --expected-repository r20942097-hue/faaff --require-git --json
   github-identity:
