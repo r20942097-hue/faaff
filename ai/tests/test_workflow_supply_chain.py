@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ai"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from workflow_supply_chain import audit, audit_workflow, main
 
 CHECKOUT = "actions/checkout@" + "3d3c42e5aac5ba805825da76410c181273ba90b1"
