@@ -48,7 +48,9 @@ class ManifestInventoryTests(unittest.TestCase):
 
     def test_firefox_version_name(self):
         x = {"manifest_version": 3, "name": "x", "version": "1", "version_name": "test"}
-        self.assertEqual(self.make([("firefox/manifest.json", x)])["status"], "FAIL")
+        result = self.make([("firefox/manifest.json", x)])
+        self.assertEqual(result["status"], "PASS")
+        self.assertTrue(any("version_name" in msg for msg in result["warnings"]))
 
     def test_chrome_version_name_allowed(self):
         x = {"manifest_version": 3, "name": "x", "version": "1", "version_name": "test"}
@@ -71,6 +73,61 @@ class ManifestInventoryTests(unittest.TestCase):
     def test_oversize_manifest_fails_closed(self):
         with patch("extension_inventory.MAX_MANIFEST", 5):
             self.assertEqual(self.make([("manifest.json", "{}123456")])["status"], "FAIL")
+
+    def test_chrome_numeric_component_too_large(self):
+        r = self.make([("chrome/manifest.json", {"manifest_version": 3, "name": "x", "version": "1.65536"})])
+        self.assertEqual(r["status"], "FAIL")
+
+    def test_leading_zero_rejected(self):
+        r = self.make([("chrome/manifest.json", {"manifest_version": 3, "name": "x", "version": "1.02"})])
+        self.assertEqual(r["status"], "FAIL")
+
+    def test_maximum_chrome_version_valid(self):
+        r = self.make([("chrome/manifest.json", {"manifest_version": 3, "name": "x", "version": "65535.0.3.4"})])
+        self.assertEqual(r["status"], "PASS")
+
+    def test_wrong_host_permissions_type(self):
+        r = self.make([("chrome/manifest.json", {"manifest_version": 3, "name": "x", "version": "1", "host_permissions": "all"})])
+        self.assertEqual(r["status"], "FAIL")
+
+    def test_broad_host_scope_reported_as_warning(self):
+        r = self.make([("chrome/manifest.json", {"manifest_version": 3, "name": "x", "version": "1", "host_permissions": ["<all_urls>"]})])
+        self.assertEqual(r["status"], "PASS")
+        self.assertTrue(any("broad host" in msg for msg in r["warnings"]))
+
+    def test_firefox_amo_review_not_automatic_rejection(self):
+        r = self.make([("firefox/manifest.json", {"manifest_version": 3, "name": "x", "version": "1"})])
+        self.assertEqual(r["status"], "PASS")
+        self.assertTrue(any("AMO data_collection_permissions" in msg for msg in r["warnings"]))
+
+    def test_browser_substring_not_hint(self):
+        r = self.make([("notfirefoxaddon/manifest.json", {"manifest_version": 3, "name": "x", "version": "1"})])
+        self.assertEqual(r["manifests"][0]["browser_hint"], "unspecified")
+
+    def test_standalone_zip_traversal_fails(self):
+        r = self.make([("../unsafe/manifest.json", {"manifest_version": 3, "name": "x", "version": "1"})])
+        self.assertEqual(r["status"], "FAIL")
+        self.assertEqual(r["zip_preflight"], "FAIL")
+
+    def test_global_entry_budget_enforced(self):
+        with patch("extension_inventory.MAX_TOTAL_ENTRIES", 0):
+            self.assertEqual(self.make([("readme.txt", "ok")])["status"], "FAIL")
+
+    def test_manifest_budget_enforced(self):
+        v = {"manifest_version": 3, "name": "x", "version": "1"}
+        with patch("extension_inventory.MAX_MANIFESTS", 1):
+            self.assertEqual(self.make([("a/manifest.json", v), ("b/manifest.json", v)])["status"], "FAIL")
+
+    def test_nested_archive_count_enforced(self):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as z:
+            z.writestr("note.txt", "ok")
+        with patch("extension_inventory.MAX_ARCHIVES", 1):
+            self.assertEqual(self.make([("nested.zip", buf.getvalue())])["status"], "FAIL")
+
+    def test_invalid_browser_settings_rejected(self):
+        v = {"manifest_version": 3, "name": "x", "version": "1", "browser_specific_settings": "oops"}
+        self.assertEqual(self.make([("firefox/manifest.json", v)])["status"], "FAIL")
 
     def test_missing_archive(self):
         self.assertEqual(scan(self.path)["status"], "FAIL")
