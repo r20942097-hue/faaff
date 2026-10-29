@@ -34,5 +34,9 @@ jobs:
         run: python -m unittest discover -s ai/tests -p test_source_sync_guard.py -v
       - name: Test bounded ZIP artifact security gate
         run: python -m unittest discover -s ai/tests -p test_artifact_gate.py -v
+      - name: Test product evidence gate (offline)
+        run: python -m unittest discover -s ai/tests -p test_product_quality.py -v
+      - name: Validate product QA baseline without approving releases
+        run: python ai/product_quality.py --json
       - name: Inspect checked-out repository (offline)
         run: python ai/gpt1_preflight.py --expected-repository r20942097-hue/faaff --require-git --json
