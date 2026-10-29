@@ -9,7 +9,7 @@ import zipfile
 from pathlib import Path
 from unittest.mock import patch
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ai"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from source_zip_parity import verify, safe_name, main
 
 PAYLOAD = b"GPT1_EXACT_SOURCE_PAYLOAD_98765"
