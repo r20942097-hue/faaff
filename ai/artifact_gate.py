@@ -12,6 +12,7 @@ import json
 import re
 import stat
 import sys
+import unicodedata
 import zipfile
 from pathlib import Path
 
@@ -60,7 +61,7 @@ def _scan(zf: zipfile.ZipFile, label: str, depth: int, budget: list[int], findin
         if err:
             findings.append(f'{label}/{path!r}: {err}')
             continue
-        canonical = path.rstrip('/').casefold()
+        canonical = unicodedata.normalize('NFC', path.rstrip('/')).casefold()
         if canonical in seen:
             findings.append(f'{label}/{path}: name collision with {seen[canonical]}')
             continue
