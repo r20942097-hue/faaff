@@ -34,6 +34,55 @@ jobs:
           sudo aa-status 2>&1 | head -40 || true
           sudo apparmor_parser -r /tmp/codex-synthetic-chromium.apparmor
           echo 'Restricted profile loaded for exact executable; Chromium sandbox effectiveness must be checked separately.'
+      - name: Observe Chromium process sandbox evidence
+        shell: bash
+        run: |
+          python3 - <<'PYCODE'
+          import os, pathlib, shutil, subprocess, tempfile, time
+          binary = shutil.which('chromium') or shutil.which('chromium-browser')
+          with tempfile.TemporaryDirectory(prefix='sandbox-observe-') as tmp:
+              p = subprocess.Popen([binary, '--headless', '--disable-gpu', '--no-first-run',
+                  '--disable-background-networking', '--remote-debugging-port=0',
+                  '--user-data-dir='+tmp, 'about:blank'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+              try:
+                  deadline = time.monotonic() + 15
+                  while not pathlib.Path(tmp, 'DevToolsActivePort').exists() and time.monotonic() < deadline and p.poll() is None:
+                      time.sleep(.2)
+                  if p.poll() is not None or not pathlib.Path(tmp, 'DevToolsActivePort').exists():
+                      raise SystemExit('BLOCKED: browser did not become ready')
+                  time.sleep(2)
+                  allprocs = {}
+                  for entry in pathlib.Path('/proc').iterdir():
+                      if not entry.name.isdigit(): continue
+                      try:
+                          status = (entry/'status').read_text()
+                          fields = dict(line.split(':',1) for line in status.splitlines() if ':' in line)
+                          allprocs[int(entry.name)] = (entry, fields)
+                      except (OSError, ValueError): pass
+                  descendants = {p.pid}
+                  for _ in range(8):
+                      new = {pid for pid, (_, f) in allprocs.items() if int(f.get('PPid','-1').strip()) in descendants}
+                      if new <= descendants: break
+                      descendants |= new
+                  print('BROWSER_MAIN_PID:', p.pid, 'PROCESS_COUNT:', len(descendants), flush=True)
+                  for pid in sorted(descendants):
+                      if pid not in allprocs: continue
+                      entry, f = allprocs[pid]
+                      try:
+                          cmd = (entry/'cmdline').read_bytes().replace(b'\\0',b' ').decode(errors='replace')
+                          kind = next((x for x in cmd.split() if x.startswith('--type=')), 'browser')
+                          ns = os.readlink(entry/'ns/user')
+                          apparmor = (entry/'attr/current').read_text().strip()
+                          print('PROCESS:', kind, 'PID:', pid, 'Seccomp:', f.get('Seccomp','?').strip(),
+                                'NoNewPrivs:', f.get('NoNewPrivs','?').strip(),
+                                'USERNS:', ns, 'APPARMOR:', apparmor, flush=True)
+                      except OSError: pass
+                  print('OBSERVATION ONLY: process indicators do not independently certify all sandbox layers.')
+              finally:
+                  p.terminate()
+                  try: p.wait(timeout=8)
+                  except subprocess.TimeoutExpired: p.kill(); p.wait()
+          PYCODE
       - name: Compare sandbox and synthetic extension startup
         shell: bash
         run: |
