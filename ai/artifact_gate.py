@@ -17,6 +17,9 @@ import zipfile
 from pathlib import Path
 
 MAX_MEMBERS = 15000
+MAX_TOTAL_MEMBERS = 50000
+MAX_ARCHIVES = 100
+MAX_ARCHIVE_BYTES = 1024 * 1024 * 1024
 MAX_ENTRY_SIZE = 128 * 1024 * 1024
 MAX_TOTAL_SIZE = 768 * 1024 * 1024
 MAX_RATIO = 900
@@ -46,6 +49,10 @@ def name_error(name: str) -> str | None:
 def _scan(zf: zipfile.ZipFile, label: str, depth: int, budget: list[int], findings: list[str], summary: dict) -> None:
     entries = zf.infolist()
     summary['archives_checked'] += 1
+    summary['entries_seen'] += len(entries)
+    if summary['archives_checked'] > MAX_ARCHIVES or summary['entries_seen'] > MAX_TOTAL_MEMBERS:
+        findings.append(f'{label}: global archive/entry budget exceeded')
+        return
     if not entries:
         findings.append(f'{label}: empty archive')
         return
@@ -134,13 +141,15 @@ def inspect(path: Path, expected_sha256: str | None = None) -> dict:
     path = Path(path)
     issues: list[str] = []
     digest = None
-    summary = {'archives_checked': 0, 'members_checked': 0}
+    summary = {'archives_checked': 0, 'members_checked': 0, 'entries_seen': 0}
     if expected_sha256 is not None and (not isinstance(expected_sha256, str) or SHA256.fullmatch(expected_sha256) is None):
         issues.append('invalid supplied SHA-256 (lowercase 64 hex required)')
     if path.is_symlink() or not path.is_file():
         issues.append('file missing, wrong type or symbolic link')
     else:
         try:
+            if path.stat().st_size > MAX_ARCHIVE_BYTES:
+                raise ValueError('archive file exceeds 1 GiB limit')
             hash_state = hashlib.sha256()
             with path.open('rb') as f:
                 for data in iter(lambda: f.read(1024 * 1024), b''):
