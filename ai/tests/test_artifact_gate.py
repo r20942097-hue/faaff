@@ -81,6 +81,15 @@ class ArchiveGateTests(unittest.TestCase):
         r = self.make([('inflated.txt', b'0' * (2 * 1024 * 1024))], zipfile.ZIP_DEFLATED)
         self.assertEqual(r['status'], 'FAIL')
 
+    def test_unicode_normalization_collision(self):
+        self.assertEqual(self.make([('café.js', 'a'), ('cafe\u0301.js', 'b')])['status'], 'FAIL')
+
+    def test_crc_corruption(self):
+        self.make([('hello.txt', b'UNIQUE_PAYLOAD_98765')])
+        data = self.path.read_bytes()
+        self.path.write_bytes(data.replace(b'UNIQUE_PAYLOAD_98765', b'UNIQUE_PAYLOAD_98764', 1))
+        self.assertEqual(inspect(self.path)['status'], 'FAIL')
+
     def test_empty_archive(self):
         self.assertEqual(self.make([])['status'], 'FAIL')
 
