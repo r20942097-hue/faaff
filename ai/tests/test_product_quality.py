@@ -61,6 +61,14 @@ class QualityTests(unittest.TestCase):
         self.data["products"][0] = ["bad"]
         self.invalid()
 
+    def test_unexpected_top_level_publish_marker(self):
+        self.data["published"] = True
+        self.invalid()
+
+    def test_unexpected_product_approval_field(self):
+        self.data["products"][0]["approved"] = True
+        self.invalid()
+
     def test_go_override_rejected(self):
         self.data["products"][0]["decision"] = "GO"
         self.invalid()
