@@ -7,7 +7,7 @@ permissions: {}
 jobs:
   extension-probe:
     runs-on: ubuntu-24.04
-    timeout-minutes: 6
+    timeout-minutes: 10
     steps:
       - name: Permit user namespaces for the verified Chromium executable
         shell: bash
@@ -128,3 +128,62 @@ jobs:
             else:raise SystemExit('RESULT: FAIL or BLOCKED; see separate probe outputs')
           finally:s.shutdown();s.server_close()
           PYCODE
+
+      - name: Test synthetic worker, popup and restart persistence
+        shell: bash
+        run: |
+          set -euo pipefail
+          workdir="$(mktemp -d "$RUNNER_TEMP/extension-flow.XXXXXX")"
+          trap 'rm -rf "$workdir"' EXIT
+          npm install --prefix "$workdir" --ignore-scripts --no-audit --no-fund --save-exact playwright@1.62.1
+          export NODE_PATH="$workdir/node_modules"
+          export PROBE_ROOT="$workdir"
+          node <<'NODECODE'
+          const fs = require('fs');
+          const path = require('path');
+          const { chromium } = require('playwright');
+          const { execFileSync } = require('child_process');
+          const root = process.env.PROBE_ROOT;
+          const extension = path.join(root, 'fixture');
+          const profile = path.join(root, 'profile');
+          fs.mkdirSync(extension);
+          fs.writeFileSync(path.join(extension, 'manifest.json'), JSON.stringify({manifest_version:3,name:'Synthetic flow probe',version:'1.0.0',background:{service_worker:'worker.js'},action:{default_popup:'popup.html'},permissions:['storage']}));
+          fs.writeFileSync(path.join(extension, 'worker.js'), "chrome.runtime.onMessage.addListener((m,s,reply)=>{if(m==='ping')reply('pong')});");
+          fs.writeFileSync(path.join(extension, 'popup.html'), '<!doctype html><div id="result">pending</div><script src="popup.js"></script>');
+          fs.writeFileSync(path.join(extension, 'popup.js'), "chrome.runtime.sendMessage('ping',r=>{document.querySelector('#result').textContent=r||'failed'});");
+          const executable = execFileSync('which', ['chromium'], {encoding:'utf8'}).trim();
+          console.log('PLAYWRIGHT_VERSION:', require('playwright/package.json').version);
+          console.log('CHROMIUM_VERSION:', execFileSync(executable, ['--version'], {encoding:'utf8'}).trim());
+          console.log('SCOPE: synthetic fixture; no egress isolation verified');
+          async function launch() {
+            return await chromium.launchPersistentContext(profile, {executablePath:executable,channel:'chromium',headless:true,chromiumSandbox:true,timeout:60000,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`]});
+          }
+          async function popup(context) {
+            let worker = context.serviceWorkers()[0];
+            if (!worker) worker = await context.waitForEvent('serviceworker', {timeout:30000});
+            const id = new URL(worker.url()).hostname;
+            if (!/^[a-p]{32}$/.test(id)) throw new Error('invalid extension id');
+            const page = await context.newPage();
+            await page.goto(`chrome-extension://${id}/popup.html`);
+            await page.waitForFunction(() => document.querySelector('#result')?.textContent === 'pong', null, {timeout:15000});
+            return {page,id};
+          }
+          (async () => {
+            let context;
+            try {
+              context = await launch();
+              const first = await popup(context);
+              console.log('FIRST_WORKER_POPUP_MESSAGE: PASS');
+              await first.page.evaluate(() => chrome.storage.local.set({probe:'synthetic-persisted'}));
+              await context.close(); context = undefined;
+              context = await launch();
+              const second = await popup(context);
+              if (first.id !== second.id) throw new Error('extension id changed after restart');
+              const state = await second.page.evaluate(() => chrome.storage.local.get('probe'));
+              if (state.probe !== 'synthetic-persisted') throw new Error('storage did not persist');
+              console.log('RESTART_WORKER_POPUP_STORAGE: PASS');
+              await context.close(); context = undefined;
+              console.log('RESULT: PASS; sandbox effective layers UNVERIFIED');
+            } finally { if (context) await context.close(); }
+          })().catch(e => { console.error('RESULT: FAIL', e.message); process.exitCode=1; });
+          NODECODE
