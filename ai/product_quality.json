@@ -1,0 +1,103 @@
+{
+  "schema": "gpt1-product-quality/v1",
+  "release_gate": "PUBLICATION_HOLD",
+  "note": "Public baseline only; all product E2E tests are unverified until evidence is independently validated. This is not a release ledger.",
+  "products": [
+    {
+      "id": "rplay",
+      "decision": "CANDIDATE_NO_GO",
+      "source_commit": null,
+      "artifact_sha256": null,
+      "gates": {
+        "source_integrity": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "archive_integrity": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "unit_tests": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "browser_install": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "real_site_e2e": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "windows_device": {
+          "status": "NOT_RUN",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "id": "streamharbor",
+      "decision": "CANDIDATE_NO_GO",
+      "source_commit": null,
+      "artifact_sha256": null,
+      "gates": {
+        "source_integrity": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "archive_integrity": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "unit_tests": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "browser_install": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "real_site_e2e": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "windows_device": {
+          "status": "NOT_RUN",
+          "evidence": null
+        }
+      }
+    },
+    {
+      "id": "youtube-optimizer",
+      "decision": "CANDIDATE_NO_GO",
+      "source_commit": null,
+      "artifact_sha256": null,
+      "gates": {
+        "source_integrity": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "archive_integrity": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "unit_tests": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "browser_install": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "real_site_e2e": {
+          "status": "NOT_RUN",
+          "evidence": null
+        },
+        "windows_device": {
+          "status": "NOT_RUN",
+          "evidence": null
+        }
+      }
+    }
+  ]
+}
