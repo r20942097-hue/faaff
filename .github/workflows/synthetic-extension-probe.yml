@@ -204,8 +204,20 @@ jobs:
           npm install --prefix "$workdir" --ignore-scripts --no-audit --no-fund --save-exact web-ext@10.8.0
           "$workdir/node_modules/.bin/web-ext" --version
           export PROBE_ROOT="$workdir" FIREFOX_PATH="$firefox_path" MOZ_HEADLESS=1
-          python3 - <<'PYCODE'
-          import http.server, json, os, pathlib, subprocess, threading, time
+          sudo PROBE_ROOT="$workdir" FIREFOX_PATH="$firefox_path" unshare --net -- bash -c 'ip link set lo up; exec sudo -u runner env PROBE_ROOT="$PROBE_ROOT" FIREFOX_PATH="$FIREFOX_PATH" MOZ_HEADLESS=1 python3 -' <<'PYCODE'
+          import errno, http.server, json, os, pathlib, socket, subprocess, threading, time
+          print('NETWORK_NAMESPACE:', os.readlink('/proc/self/ns/net'), flush=True)
+          print('IP_ROUTES:', subprocess.check_output(['ip','route'],text=True).strip(), flush=True)
+          print('IPV6_ROUTES:', subprocess.check_output(['ip','-6','route'],text=True).strip(), flush=True)
+          sock=socket.socket(); sock.settimeout(2)
+          try:
+              sock.connect(('1.1.1.1',443))
+              raise SystemExit('FAIL: unexpected external connection')
+          except OSError as e:
+              print('EXTERNAL_CONNECT_ERRNO:',e.errno,flush=True)
+              if e.errno != errno.ENETUNREACH: raise SystemExit('BLOCKED: external denial not proven as no route')
+          finally: sock.close()
+          print('NETWORK_NEGATIVE_CONTROL: PASS, network namespace has no external route', flush=True)
           root=pathlib.Path(os.environ['PROBE_ROOT']); ext=root/'fixture'; ext.mkdir()
           event=threading.Event(); observed=[]
           class Handler(http.server.BaseHTTPRequestHandler):
@@ -234,7 +246,30 @@ jobs:
                   try:
                       for _ in range(120):
                           if event.wait(.5) or proc.poll() is not None: break
-                      if event.is_set(): print('RESULT: PASS; temporary Firefox extension content script -> background -> localhost proof',flush=True)
+                      if event.is_set():
+                          print('RESULT: PASS; temporary Firefox extension content script -> background -> localhost proof',flush=True)
+                          processes={}
+                          for entry in pathlib.Path('/proc').iterdir():
+                              if not entry.name.isdigit(): continue
+                              try:
+                                  status=(entry/'status').read_text()
+                                  fields=dict(line.split(':',1) for line in status.splitlines() if ':' in line)
+                                  processes[int(entry.name)]=(entry,fields)
+                              except (OSError,ValueError): pass
+                          descendants={proc.pid}
+                          for _ in range(12):
+                              children={pid for pid,(_,fields) in processes.items() if int(fields.get('PPid','-1').strip()) in descendants}
+                              if children <= descendants: break
+                              descendants |= children
+                          for pid in sorted(descendants):
+                              if pid not in processes: continue
+                              entry,fields=processes[pid]
+                              try:
+                                  name=fields.get('Name','?').strip()
+                                  if 'firefox' in name.lower() or name in ('Web Content','RDD Process','Socket Process','Isolated Web Co'):
+                                      print('FIREFOX_PROCESS:',name,'PID:',pid,'Seccomp:',fields.get('Seccomp','?').strip(),'NoNewPrivs:',fields.get('NoNewPrivs','?').strip(),'USERNS:',os.readlink(entry/'ns/user'),'NETNS:',os.readlink(entry/'ns/net'),'APPARMOR:',(entry/'attr/current').read_text().strip(),flush=True)
+                              except OSError: pass
+                          print('SANDBOX_STATUS: PARTIAL; process indicators do not certify all protection layers',flush=True)
                       else:
                           log.flush(); print('OBSERVED:',observed,'WEB_EXT_EXIT:',proc.poll(),flush=True)
                           print('WEB_EXT_LOG:',logfile.read_text(errors='replace')[-6000:],flush=True)
@@ -246,5 +281,5 @@ jobs:
                       try: proc.wait(timeout=10)
                       except subprocess.TimeoutExpired: os.killpg(proc.pid,signal.SIGKILL);proc.wait()
           finally: server.shutdown();server.server_close()
-          print('SCOPE: temporary installation, synthetic localhost, Firefox restart and network isolation NOT VERIFIED',flush=True)
+          print('SCOPE: temporary installation, synthetic localhost, Firefox restart NOT VERIFIED; external network route blocked in this test namespace',flush=True)
           PYCODE
