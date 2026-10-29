@@ -27,7 +27,7 @@ MAX_NESTED_BYTES = 24 * 1024 * 1024
 MAX_DEPTH = 2
 CHUNK = 256 * 1024
 INVALID_CHARS = set('<>:"|?*')
-DEVICE = re.compile(r'^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$', re.I)
+DEVICE = re.compile(r'^(?:con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³])(?:\..*)?$', re.I)
 SHA256 = re.compile(r'[0-9a-f]{64}\Z')
 
 
