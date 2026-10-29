@@ -70,7 +70,7 @@ jobs:
                       if pid not in allprocs: continue
                       entry, f = allprocs[pid]
                       try:
-                          cmd = (entry/'cmdline').read_bytes().replace(b'\\0',b' ').decode(errors='replace')
+                          cmd = (entry/'cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')
                           kind = next((x for x in cmd.split() if x.startswith('--type=')), 'browser')
                           ns = os.readlink(entry/'ns/user')
                           apparmor = (entry/'attr/current').read_text().strip()
@@ -225,8 +225,11 @@ jobs:
           sudo PROBE_ROOT="$workdir" FIREFOX_PATH="$firefox_path" unshare --net -- bash -c 'ip link set lo up; exec sudo -u runner env PROBE_ROOT="$PROBE_ROOT" FIREFOX_PATH="$FIREFOX_PATH" MOZ_HEADLESS=1 python3 -' <<'PYCODE'
           import errno, http.server, json, os, pathlib, socket, subprocess, threading, time
           print('NETWORK_NAMESPACE:', os.readlink('/proc/self/ns/net'), flush=True)
-          print('IP_ROUTES:', subprocess.check_output(['ip','route'],text=True).strip(), flush=True)
-          print('IPV6_ROUTES:', subprocess.check_output(['ip','-6','route'],text=True).strip(), flush=True)
+          routes4=subprocess.check_output(['ip','route'],text=True).strip()
+          routes6=subprocess.check_output(['ip','-6','route'],text=True).strip()
+          print('IP_ROUTES:',routes4 or '(none)',flush=True)
+          print('IPV6_ROUTES:',routes6 or '(none)',flush=True)
+          if routes4 or routes6: raise SystemExit('FAIL: unexpected external route in isolated namespace')
           sock=socket.socket(); sock.settimeout(2)
           try:
               sock.connect(('1.1.1.1',443))
@@ -321,8 +324,11 @@ jobs:
           sudo PROBE_ROOT="$workdir" FIREFOX_PATH="$firefox_path" unshare --net -- bash -c 'ip link set lo up; exec sudo -u runner env PROBE_ROOT="$PROBE_ROOT" FIREFOX_PATH="$FIREFOX_PATH" MOZ_HEADLESS=1 python3 -' <<'PYCODE'
           import errno, http.server, json, os, pathlib, socket, subprocess, threading, time
           print('NETWORK_NAMESPACE:', os.readlink('/proc/self/ns/net'), flush=True)
-          print('IP_ROUTES:', subprocess.check_output(['ip','route'],text=True).strip(), flush=True)
-          print('IPV6_ROUTES:', subprocess.check_output(['ip','-6','route'],text=True).strip(), flush=True)
+          routes4=subprocess.check_output(['ip','route'],text=True).strip()
+          routes6=subprocess.check_output(['ip','-6','route'],text=True).strip()
+          print('IP_ROUTES:',routes4 or '(none)',flush=True)
+          print('IPV6_ROUTES:',routes6 or '(none)',flush=True)
+          if routes4 or routes6: raise SystemExit('FAIL: unexpected external route in isolated namespace')
           sock=socket.socket(); sock.settimeout(2)
           try:
               sock.connect(('1.1.1.1',443))
