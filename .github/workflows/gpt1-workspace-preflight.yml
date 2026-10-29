@@ -68,6 +68,8 @@ jobs:
           set -euo pipefail
           observed="$(gh api repos/r20942097-hue/faaff --jq '.id')"
           test "$observed" = "1389881401"
+      - name: Test deterministic Git-blob ZIP source builds (offline)
+        run: python -m unittest discover -s ai/tests -p test_repro_source_archive.py -v
       - name: Inspect checked-out repository (offline)
         run: python ai/gpt1_preflight.py --expected-repository r20942097-hue/faaff --require-git --json
   github-identity:
