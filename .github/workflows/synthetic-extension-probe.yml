@@ -7,33 +7,49 @@ permissions: {}
 jobs:
   extension-probe:
     runs-on: ubuntu-24.04
-    timeout-minutes: 3
+    timeout-minutes: 4
     steps:
-      - name: Run self-contained synthetic local extension test
+      - name: Compare sandbox and synthetic extension startup
         shell: bash
         run: |
           python3 - <<'PYCODE'
-          import http.server, json, os, pathlib, shutil, subprocess, tempfile, threading
-          class Handler(http.server.BaseHTTPRequestHandler):
+          import http.server,json,os,pathlib,shutil,subprocess,tempfile,threading
+          
+          def run(args,timeout=30):
+           try:
+            p=subprocess.run(args,capture_output=True,text=True,timeout=timeout)
+            print('EXIT:',p.returncode,'STDOUT:',p.stdout[:400].replace('\n',' '),flush=True)
+            if p.stderr:print('STDERR_HEAD:',p.stderr[:3500],flush=True)
+            return p
+           except (subprocess.TimeoutExpired,OSError) as e:print('EXECUTION_ERROR:',type(e).__name__,flush=True);return None
+          
+          print('UID:',os.getuid(),flush=True)
+          for path in ['/proc/sys/kernel/unprivileged_userns_clone','/proc/sys/kernel/apparmor_restrict_unprivileged_userns','/sys/module/apparmor/parameters/enabled','/proc/self/attr/current']:
+           try: print(path, pathlib.Path(path).read_text().strip(),flush=True)
+           except OSError as e:print(path,type(e).__name__,flush=True)
+          if shutil.which('unshare'):
+           print('PROBE: unprivileged namespace',flush=True);run(['unshare','-Ur','true'],10)
+          binpath=shutil.which('chromium') or shutil.which('chromium-browser')
+          if not binpath:raise SystemExit('BLOCKED: chromium missing')
+          print('CHROMIUM_PATH:',os.path.realpath(binpath),flush=True);run([binpath,'--version'],10)
+          class H(http.server.BaseHTTPRequestHandler):
            def log_message(self,*args):pass
            def do_GET(self):
             b=b'<!doctype html><html><body><div id="probe">before</div></body></html>';self.send_response(200);self.send_header('Content-Length',str(len(b)));self.end_headers();self.wfile.write(b)
-          binpath=shutil.which('chromium') or shutil.which('chromium-browser')
-          if not binpath:raise SystemExit('BLOCKED: Chromium not on PATH')
-          print('browser version:',subprocess.run([binpath,'--version'],capture_output=True,text=True,timeout=8).stdout.strip(),flush=True)
-          s=http.server.ThreadingHTTPServer(('127.0.0.1',0),Handler);t=threading.Thread(target=s.serve_forever,daemon=True);t.start()
+          s=http.server.ThreadingHTTPServer(('127.0.0.1',0),H);threading.Thread(target=s.serve_forever,daemon=True).start()
           try:
-           with tempfile.TemporaryDirectory(prefix='synthetic-ext-') as tmp:
-            root=pathlib.Path(tmp);ext=root/'extension';ext.mkdir();profile=root/'profile'
-            (ext/'manifest.json').write_text(json.dumps({'manifest_version':3,'name':'Synthetic local test','version':'1.0.0','content_scripts':[{'matches':['http://127.0.0.1/*'],'js':['content.js'],'run_at':'document_idle'}]}))
+           with tempfile.TemporaryDirectory(prefix='sandbox-diagnosis-') as tmp:
+            root=pathlib.Path(tmp);ext=root/'ext';ext.mkdir()
+            (ext/'manifest.json').write_text(json.dumps({'manifest_version':3,'name':'Synthetic local probe','version':'1.0.0','content_scripts':[{'matches':['http://127.0.0.1/*'],'js':['content.js']}]}))
             (ext/'content.js').write_text("document.getElementById('probe').textContent='extension-loaded';")
-            args=[binpath,'--headless','--disable-gpu','--disable-background-networking','--no-first-run','--disable-extensions-except='+str(ext),'--load-extension='+str(ext),'--user-data-dir='+str(profile),'--virtual-time-budget=5000','--dump-dom',f'http://127.0.0.1:{s.server_port}/']
-            print('sandbox bypass flag: absent; effective isolation: UNVERIFIED',flush=True)
-            try:p=subprocess.run(args,capture_output=True,text=True,timeout=35)
-            except subprocess.TimeoutExpired:raise SystemExit('FAIL: browser launch/render timed out')
-            print('browser exit:',p.returncode,flush=True)
-            if p.returncode:print('browser stderr tail:',p.stderr[-3000:],flush=True);raise SystemExit('FAIL: sandbox-requested browser launch failed')
-            if '<div id="probe">extension-loaded</div>' not in p.stdout:raise SystemExit('FAIL: expected content-script mutation was not observed')
-            print('PASS: synthetic content script mutated local page; no product loaded')
-          finally:s.shutdown();s.server_close();t.join(3)
+            base=[binpath,'--headless','--disable-gpu','--disable-background-networking','--no-first-run','--virtual-time-budget=5000','--dump-dom']
+            url=f'http://127.0.0.1:{s.server_port}/'
+            print('PROBE: Chromium without extension, no sandbox bypass',flush=True)
+            plain=run(base+['--user-data-dir='+str(root/'plain'),url])
+            print('PROBE: Chromium with synthetic extension, no sandbox bypass',flush=True)
+            extension=run(base+['--disable-extensions-except='+str(ext),'--load-extension='+str(ext),'--user-data-dir='+str(root/'ext-profile'),url])
+            if plain and plain.returncode==0 and extension and extension.returncode==0 and '<div id="probe">extension-loaded</div>' in extension.stdout:
+             print('RESULT: extension PASS; effective sandbox layers not independently verified',flush=True)
+            else:raise SystemExit('RESULT: FAIL or BLOCKED; see separate probe outputs')
+          finally:s.shutdown();s.server_close()
           PYCODE
