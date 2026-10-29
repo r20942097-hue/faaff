@@ -42,5 +42,9 @@ jobs:
         run: python -m unittest discover -s ai/tests -p test_candidate_catalog.py -v
       - name: Validate product QA baseline without approving releases
         run: python ai/product_quality.py --json
+      - name: Unit-test GitHub workflow supply-chain policy
+        run: python -m unittest discover -s ai/tests -p test_workflow_supply_chain.py -v
+      - name: Audit workflow SHA, permissions and unsafe triggers
+        run: python ai/workflow_supply_chain.py --expected-repository r20942097-hue/faaff --json
       - name: Inspect checked-out repository (offline)
         run: python ai/gpt1_preflight.py --expected-repository r20942097-hue/faaff --require-git --json
