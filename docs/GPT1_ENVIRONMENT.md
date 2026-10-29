@@ -33,3 +33,15 @@ Output status vocabulary: PASS / FAIL / PARTIAL / NOT_RUN. CLI exits 0 = structu
 - `INVALID` (exit 1): malformed or contradictory metadata.
 - A separate `gpt1-source-sync-audit.yml` is proposed for manual or Monday UTC execution *after merging*. No scheduled checks are active from this draft PR.
 - Existing `python ai/check_hub.py` remains the byte-for-byte Git blob integrity gate. Metadata sync alone does not prove source integrity.
+
+## v1.3 / candidate ZIP integrity gate
+
+- CLI: \`python ai/artifact_gate.py path/to/candidate.zip --json\`
+- Verify an expected digest with \`--sha256 <64-lowercase-hex>\`. Without a supplied digest, the CLI **computes** SHA-256 but cannot authenticate the origin.
+- Uses only standard-library ZIP APIs and **never extracts** files, executes scripts, or reads credentials.
+- Checks path traversal, duplicates (casefold + Unicode NFC), Windows reserved names, Unix ZIP symlinks, encryption, unsupported compression, CRC/data-length, nested ZIPs, global expansion/member limits, and input ZIP size.
+- Supported compression methods: stored and deflated; other codecs are conservatively rejected.
+- Local/regression: \`python -m unittest discover -s ai/tests -p test_artifact_gate.py -v\`. PR workflow runs this on Python 3.11 and 3.14, Linux and Windows.
+- Hard limits are deliberately conservative for development **source ZIPs**, not multi-gigabyte recordings: 1 GiB input, 128 MiB per entry, 768 MiB cumulative expanded bytes, 50,000 global entries, up to 100 archives, max nesting depth 2. These limits are policies, not universal ZIP validity rules.
+- **PASS is only ZIP structure/CRC verification**. It does NOT mean functional E2E, signed provenance, release approval, or suitability of source code.
+- GitHub Actions artifact attestations should be used later for actual released binaries only if the release/publishing gate is approved; generating attestations is not itself a security verdict.
