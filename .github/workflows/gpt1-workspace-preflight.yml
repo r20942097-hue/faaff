@@ -58,5 +58,7 @@ jobs:
         run: python -c "import sys; sys.path.insert(0, 'ai'); from attestation_verifier import require_safe_gh; print('Safe GitHub CLI', require_safe_gh())"
       - name: Confirm hosted GitHub CLI supports attestation verification (no artifact)
         run: gh attestation verify --help
+      - name: Verify real local Git commit and ZIP source binding fixtures
+        run: python -m unittest discover -s ai/tests -p test_git_source_binding.py -v
       - name: Inspect checked-out repository (offline)
         run: python ai/gpt1_preflight.py --expected-repository r20942097-hue/faaff --require-git --json
