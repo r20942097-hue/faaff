@@ -19,6 +19,14 @@ MAX_DEPTH = 2
 MAX_MANIFESTS = 150
 
 
+def read_bounded(zf: zipfile.ZipFile, info: zipfile.ZipInfo, limit: int) -> bytes:
+    with zf.open(info) as stream:
+        data = stream.read(limit + 1)
+    if len(data) > limit:
+        raise ValueError("uncompressed entry exceeds inspection limit")
+    return data
+
+
 def scan(path: Path) -> dict:
     records: list[dict] = []
     issues: list[str] = []
@@ -35,7 +43,7 @@ def scan(path: Path) -> dict:
                     issues.append(location + ": oversized manifest")
                     continue
                 try:
-                    value = json.loads(zf.read(info).decode("utf-8"))
+                    value = json.loads(read_bounded(zf, info, MAX_MANIFEST).decode("utf-8"))
                     if not isinstance(value, dict):
                         raise ValueError("manifest must be JSON object")
                 except (UnicodeError, ValueError, OSError, RuntimeError, zipfile.BadZipFile) as exc:
@@ -62,11 +70,12 @@ def scan(path: Path) -> dict:
                                 "version_name": value.get("version_name"),
                                 "permission_count": len(perms),
                                 "has_browser_specific_settings": "browser_specific_settings" in value})
-            elif name.lower().endswith(".zip") and depth < MAX_DEPTH:
-                if info.file_size > MAX_NESTED_ZIP:
+            elif name.lower().endswith(".zip"):
+                if depth >= MAX_DEPTH or info.file_size > MAX_NESTED_ZIP:
+                    issues.append(location + ": nested archive inspection limit exceeded")
                     continue
                 try:
-                    with zipfile.ZipFile(io.BytesIO(zf.read(info))) as nested:
+                    with zipfile.ZipFile(io.BytesIO(read_bounded(zf, info, MAX_NESTED_ZIP))) as nested:
                         walk(nested, location + "!/", depth + 1)
                 except (ValueError, RuntimeError, OSError, zipfile.BadZipFile, EOFError):
                     issues.append(location + ": corrupt nested ZIP")
