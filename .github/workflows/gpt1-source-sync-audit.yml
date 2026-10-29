@@ -1,0 +1,40 @@
+name: GPT1 upstream source sync audit
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '27 3 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    name: Observe s/main and compare pinned provenance
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout faaff
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Observe the public s/main HEAD without credentials
+        id: upstream
+        shell: bash
+        run: |
+          sha="$(git ls-remote https://github.com/r20942097-hue/s.git refs/heads/main | awk '{print $1}')"
+          if [[ ! "$sha" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::Unable to verify the current s/main commit"
+            exit 1
+          fi
+          echo "head=$sha" >> "$GITHUB_OUTPUT"
+      - name: Verify metadata and report upstream drift
+        env:
+          OBSERVED_S_MAIN: ${{ steps.upstream.outputs.head }}
+        run: python ai/source_sync_guard.py --upstream-head "$OBSERVED_S_MAIN" --json
+      - name: Check pinned imported bytes
+        run: python ai/check_hub.py
