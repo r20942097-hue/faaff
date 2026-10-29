@@ -45,3 +45,16 @@ Output status vocabulary: PASS / FAIL / PARTIAL / NOT_RUN. CLI exits 0 = structu
 - Hard limits are deliberately conservative for development **source ZIPs**, not multi-gigabyte recordings: 1 GiB input, 128 MiB per entry, 768 MiB cumulative expanded bytes, 50,000 global entries, up to 100 archives, max nesting depth 2. These limits are policies, not universal ZIP validity rules.
 - **PASS is only ZIP structure/CRC verification**. It does NOT mean functional E2E, signed provenance, release approval, or suitability of source code.
 - GitHub Actions artifact attestations should be used later for actual released binaries only if the release/publishing gate is approved; generating attestations is not itself a security verdict.
+
+## v1.4 / product-quality evidence registry
+
+- `ai/product_quality.json` registers **RPLAY**, **StreamHarbor**, and **YouTube Optimizer** with six distinct QA gates: source integrity, archive integrity, unit tests, extension install, real-site E2E and Windows device testing.
+- Initial statuses are explicitly `NOT_RUN`. This does **not** erase or contradict external test results; it means the hub has not independently validated those records.
+- `python ai/product_quality.py --json` audits the JSON structure and evidence-reference syntax; `python -m unittest discover -s ai/tests -p test_product_quality.py -v` covers 27 failure/success cases.
+- `PASS` evidence must include a safe public GitHub Actions run URL or a limited relative repository path, and source/archive integrity must additionally record hashes.
+- The validator **does not fetch evidence** or verify signed attestations; a syntactically valid reference is not proof of a test run.
+- The output always retains `CANDIDATE_NO_GO`, including when every claimed test says `PASS`; human release approval and real browser/service validation are separate requirements.
+- Never commit private URLs, browser profiles, signed stream URLs, cookies, recordings or local environment logs to the **public** repository.
+- GitHub Actions runs this registry test on Linux and Windows, Python 3.11 and 3.14. Repository gates `PUBLICATION_HOLD` and `NO_NEW_INTERNAL_PUSH` remain in effect.
+
+GitHub's current recommendations include immutable dependency locks for Actions where supported. Existing full-commit SHA pins remain unchanged; moving to a lockfile would be a separate reviewed migration, not an automatic replacement. See https://docs.github.com/en/actions/reference/security/secure-use
