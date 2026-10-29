@@ -24,3 +24,12 @@ PR CI runs Python 3.11 / 3.14 on Ubuntu and Windows. Actions are pinned to compl
 - Keep the protected `main` branch and PUBLICATION_HOLD intact. This proposal does not merge, publish, or alter repository visibility.
 
 Output status vocabulary: PASS / FAIL / PARTIAL / NOT_RUN. CLI exits 0 = structural PASS, 1 = FAIL, 2 = PARTIAL. A structural PASS is **not** end-to-end acceptance.
+
+## v1.2 / cross-repository source provenance
+- Offline: `python -m unittest discover -s ai/tests -p test_source_sync_guard.py -v` (15 negative/positive tests).
+- Live observation (read-only): read the current public `s/main` commit and run `python ai/source_sync_guard.py --upstream-head <40-hex SHA> --json`.
+- `IN_SYNC` (exit 0): observed upstream SHA matches manifest, registry and state.
+- `UPSTREAM_DRIFT` (exit 2): upstream changed; this is a review signal, **not** automatic import or publication.
+- `INVALID` (exit 1): malformed or contradictory metadata.
+- A separate `gpt1-source-sync-audit.yml` is proposed for manual or Monday UTC execution *after merging*. No scheduled checks are active from this draft PR.
+- Existing `python ai/check_hub.py` remains the byte-for-byte Git blob integrity gate. Metadata sync alone does not prove source integrity.
