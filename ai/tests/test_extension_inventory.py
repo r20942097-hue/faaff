@@ -64,6 +64,14 @@ class ManifestInventoryTests(unittest.TestCase):
     def test_bad_nested_zip(self):
         self.assertEqual(self.make([("extension.zip", b"broken")])["status"], "FAIL")
 
+    def test_oversize_nested_fails_closed(self):
+        with patch("extension_inventory.MAX_NESTED_ZIP", 5):
+            self.assertEqual(self.make([("extension.zip", b"123456")])["status"], "FAIL")
+
+    def test_oversize_manifest_fails_closed(self):
+        with patch("extension_inventory.MAX_MANIFEST", 5):
+            self.assertEqual(self.make([("manifest.json", "{}123456")])["status"], "FAIL")
+
     def test_missing_archive(self):
         self.assertEqual(scan(self.path)["status"], "FAIL")
 
