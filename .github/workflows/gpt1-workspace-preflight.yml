@@ -52,5 +52,7 @@ jobs:
         run: python ai/workflow_supply_chain.py --expected-repository r20942097-hue/faaff --json
       - name: Test copied-source ZIP provenance boundary (offline)
         run: python -m unittest discover -s ai/tests -p test_source_zip_parity.py -v
+      - name: Test official gh attestation verifier policy with synthetic fixtures
+        run: python -m unittest discover -s ai/tests -p test_attestation_verifier.py -v
       - name: Inspect checked-out repository (offline)
         run: python ai/gpt1_preflight.py --expected-repository r20942097-hue/faaff --require-git --json
