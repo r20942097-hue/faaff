@@ -138,7 +138,7 @@ jobs:
           npm install --prefix "$workdir" --ignore-scripts --no-audit --no-fund --save-exact playwright@1.62.1
           export NODE_PATH="$workdir/node_modules"
           export PROBE_ROOT="$workdir"
-          node <<'NODECODE'
+          sudo PROBE_ROOT="$workdir" NODE_PATH="$workdir/node_modules" unshare --net -- bash -c 'ip link set lo up; exec sudo -u runner env PROBE_ROOT="$PROBE_ROOT" NODE_PATH="$NODE_PATH" node' <<'NODECODE'
           const fs = require('fs');
           const path = require('path');
           const { chromium } = require('playwright');
@@ -154,7 +154,23 @@ jobs:
           const executable = execFileSync('which', ['chromium'], {encoding:'utf8'}).trim();
           console.log('PLAYWRIGHT_VERSION:', require('playwright/package.json').version);
           console.log('CHROMIUM_VERSION:', execFileSync(executable, ['--version'], {encoding:'utf8'}).trim());
-          console.log('SCOPE: synthetic fixture; no egress isolation verified');
+          console.log('SCOPE: synthetic fixture in an isolated network namespace');
+          const net = require('net');
+          console.log('NETNS:', fs.readlinkSync('/proc/self/ns/net'));
+          for (const args of [['route'],['-6','route']]) {
+            const routes = execFileSync('ip',args,{encoding:'utf8'}).trim();
+            console.log('ROUTES:', args.join(' '), routes || '(none)');
+            if (routes) throw new Error('unexpected external route');
+          }
+          function verifyNoRoute() {
+            return new Promise((resolve,reject) => {
+              const socket = net.createConnection({host:'1.1.1.1',port:443});
+              socket.setTimeout(2000);
+              socket.on('connect',()=>{socket.destroy();reject(new Error('unexpected external connection'));});
+              socket.on('timeout',()=>{socket.destroy();reject(new Error('blocked but no-route not established'));});
+              socket.on('error',error=>error.code === 'ENETUNREACH' ? resolve() : reject(error));
+            });
+          }
           async function launch() {
             return await chromium.launchPersistentContext(profile, {executablePath:executable,channel:'chromium',headless:true,chromiumSandbox:true,timeout:60000,args:[`--disable-extensions-except=${extension}`,`--load-extension=${extension}`]});
           }
@@ -169,6 +185,8 @@ jobs:
             return {page,id};
           }
           (async () => {
+            await verifyNoRoute();
+            console.log('NETWORK_NEGATIVE_CONTROL: PASS; ENETUNREACH');
             let context;
             try {
               context = await launch();
