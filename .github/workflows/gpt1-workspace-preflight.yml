@@ -34,6 +34,8 @@ jobs:
         run: python -m unittest discover -s ai/tests -p test_source_sync_guard.py -v
       - name: Test bounded ZIP artifact security gate
         run: python -m unittest discover -s ai/tests -p test_artifact_gate.py -v
+      - name: Test extension source preflight (offline)
+        run: python -m unittest discover -s ai/tests -p test_extension_source_preflight.py -v
       - name: Test product evidence gate (offline)
         run: python -m unittest discover -s ai/tests -p test_product_quality.py -v
       - name: Test nested extension manifest inventory (offline)
