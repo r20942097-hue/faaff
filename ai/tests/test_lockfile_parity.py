@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ai"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from lockfile_parity import audit, main, parse
 
 SHA_A = 'a' * 40
