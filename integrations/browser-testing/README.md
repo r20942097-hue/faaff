@@ -36,4 +36,10 @@ No changes to `main`, production subscription URLs, existing package tests, or R
 ## Evidence
 
 - Browser runtime, Playwright limitations and version: official published docs/release.
-- CI execution and product E2E: **NOT_RUN until an actual run is observed**; attach run link and record per-browser status.
+- **PASS** [GitHub Actions browser smoke 41031683157](https://github.com/r20942097-hue/faaff/actions/runs/41031683157): bundled Chromium MV3 service-worker/popup interaction; Playwright-patched Firefox local HTML render. Product E2E and real Windows/Firefox 159 remain **NOT_RUN**.
+
+## Actual runner findings and correction (2026-10-30)
+
+- First [run 41031528728](https://github.com/r20942097-hue/faaff/actions/runs/41031528728): **Chromium MV3 PASS**; Firefox launch **FAIL** due to container running as root while the GitHub Actions `HOME=/github/home` directory was owned by `pwuser`. Browser logs explicitly recommended a root-owned HOME.
+- Fixed by setting `HOME: /root` for the browser test step, without changing container credentials or browser flags.
+- Second [run 41031683157](https://github.com/r20942097-hue/faaff/actions/runs/41031683157): **Chromium MV3 PASS / Firefox patched page PASS**. This is infrastructure smoke only.
