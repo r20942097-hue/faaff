@@ -149,3 +149,19 @@ jobs:
             exit 1
           fi
           echo 'PASS: the pinned Gitleaks engine rejects an ephemeral synthetic credential.'
+          # Also validate the exact Git-history detection mode used for pull requests.
+          git -C "$dir" init -q
+          git -C "$dir" config user.name "CI synthetic fixture"
+          git -C "$dir" config user.email "synthetic@example.invalid"
+          git -C "$dir" add fixture.txt
+          git -C "$dir" commit -qm 'Synthetic sensitive fixture, never published'
+          set +e
+          docker run --rm --network none -v "$dir:/fixture:ro" -w /fixture "$image" \
+            git --redact=100 --no-banner --no-color --exit-code 1 --log-opts="--all" . >/dev/null 2>&1
+          git_status=$?
+          set -e
+          if [[ "$git_status" -ne 1 ]]; then
+            echo "Gitleaks Git-mode positive control FAILED (expected 1, got $git_status)"
+            exit 1
+          fi
+          echo 'PASS: the pinned Gitleaks Git-history mode rejects a synthetic commit.'
