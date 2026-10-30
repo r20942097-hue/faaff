@@ -27,6 +27,11 @@ jobs:
       - name: Check deterministic MCP fixture
         shell: bash
         run: node --check integrations/agent-tools/mcp-inspector/mock-stdio-server.mjs
+      - name: Check negative tool calls and JSON-RPC notification semantics
+        shell: bash
+        run: |
+          node --check integrations/agent-tools/mcp-inspector/contract-check.mjs
+          node integrations/agent-tools/mcp-inspector/contract-check.mjs
       - name: Install pinned MCP Inspector CLI only into temporary runner directory
         shell: bash
         run: |
