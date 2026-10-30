@@ -4,10 +4,19 @@
   "version": "0.0.1",
   "description": "Safe browser harness only; not the user's product",
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "scripts": [
+      "background.js"
+    ]
   },
   "action": {
     "default_popup": "popup.html"
   },
-  "permissions": []
+  "permissions": [],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "fixture@faaff.invalid",
+      "strict_min_version": "121.0"
+    }
+  }
 }
