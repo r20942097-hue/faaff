@@ -196,9 +196,9 @@ class SyntheticControlTests(unittest.TestCase):
     def test_nonloopback_route_blocked_even_without_default(self, *_):
         original = Path.read_text
         def fake_read(path, *a, **kw):
-            if str(path) == '/proc/net/route':
+            if str(path).replace('\\', '/') == '/proc/net/route':
                 return 'Iface\tDestination\tGateway\tFlags\neth0\t0002000A\t00000000\t0001\n'
-            if str(path) == '/proc/net/ipv6_route':
+            if str(path).replace('\\', '/') == '/proc/net/ipv6_route':
                 return ''
             return original(path, *a, **kw)
         with patch.object(Path, 'read_text', fake_read):
