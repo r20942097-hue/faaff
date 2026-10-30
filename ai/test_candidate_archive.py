@@ -57,10 +57,10 @@ def replace_inner(entries, filename, updater):
     manifest[filename]["bytes"] = len(entries[path])
     manifest[filename]["sha256"] = hashlib.sha256(entries[path]).hexdigest()
     entries["PACKAGE_MANIFEST.json"] = json.dumps(manifest)
-    entries["SHA256SUMS.txt"] = "\\n".join(
+    entries["SHA256SUMS.txt"] = "\n".join(
         hashlib.sha256(v.encode() if isinstance(v, str) else v).hexdigest()
         + "  " + k for k, v in sorted(entries.items())
-        if k != "SHA256SUMS.txt") + "\\n"
+        if k != "SHA256SUMS.txt") + "\n"
 
 
 class CandidateArchiveChecks(unittest.TestCase):
