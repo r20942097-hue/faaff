@@ -127,11 +127,15 @@ def extract_pure_modules(raw: bytes, root: str, out: Path) -> dict:
                 'scope':'ACTUAL_PURE_MODULES_SYNTHETIC_METADATA_ONLY'}
 
 
+def linux_namespace_available() -> bool:
+    return sys.platform == 'linux' and Path('/proc/self/ns/net').exists()
+
+
 def run_isolated(staging: Path, suite: Path, wrapper: Path) -> dict:
     for tool in ('unshare','setpriv','node','bash','ip'):
         if not shutil.which(tool):
             return {'status':'BLOCKED','reason':'ISOLATION_TOOL_UNAVAILABLE_'+tool.upper()}
-    if sys.platform!='linux' or not Path('/proc/self/ns/net').exists():
+    if not linux_namespace_available():
         return {'status':'BLOCKED','reason':'LINUX_NETNS_REQUIRED'}
     if not reviewed_runner_files(suite, wrapper):
         return {'status':'BLOCKED','reason':'REVIEWED_SUITE_OR_WRAPPER_HASH_MISMATCH'}
