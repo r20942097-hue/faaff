@@ -32,6 +32,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Verify AI index and pinned Git blob hashes
         run: python ai/check_hub.py
+      - name: AI hub state/import regression tests
+        run: python -m unittest discover -s ai/tests -p 'test_*.py' -v
       - name: Imported source unit tests
         run: python -m unittest discover -s integrations/browser-filters/source/s/tests -p 'test_*.py' -v
       - name: Imported list and include validation
