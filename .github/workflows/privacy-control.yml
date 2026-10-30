@@ -288,3 +288,46 @@ jobs:
             echo 'Firefox proxy evidence missing: BLOCKED / NO_GO' >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
+
+  firefox-managed-v2-candidates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Verify installed Firefox and Geckodriver
+        run: |
+          firefox --version
+          geckodriver --version
+      - name: Install pinned test Selenium and signed uBO XPI
+        run: |
+          python -m pip install --disable-pip-version-check selenium==4.52.0
+          python tools/privacy-control/fetch_firefox_xpi.py \
+            --output "$RUNNER_TEMP/upc-managed-candidates.xpi"
+      - name: Ensure no preexisting candidate managed policy
+        run: |
+          test ! -e "$HOME/.mozilla/managed-storage/uBlock0@raymondhill.net.json"
+      - name: Compare real Firefox stock, 38 managed v2 rules, and restored stock
+        run: |
+          python tools/privacy-control/firefox_candidate_probe.py \
+            --xpi "$RUNNER_TEMP/upc-managed-candidates.xpi" \
+            --report "$RUNNER_TEMP/upc-firefox-managed-v2.json"
+      - name: Require exact effective rules and evidence-based rollback
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/upc-firefox-managed-v2.json" ]; then
+            python tools/privacy-control/verify_firefox_candidate.py \
+              --report "$RUNNER_TEMP/upc-firefox-managed-v2.json" \
+              --github-summary "$GITHUB_STEP_SUMMARY"
+          else
+            echo '**Managed candidate browser evidence missing — BLOCKED, release NO_GO**' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+      - name: Verify ephemeral managed policy was removed
+        if: always()
+        run: |
+          test ! -e "$HOME/.mozilla/managed-storage/uBlock0@raymondhill.net.json"

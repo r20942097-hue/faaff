@@ -34,7 +34,13 @@ GIF = bytes.fromhex("47494638396101000100800000000000ffffff21f90401000000002c000
 
 
 class IsolatedProxy(ThreadingHTTPServer):
-    def __init__(self):
+    def __init__(self, extra_hosts=()):
+        self.extra_hosts = frozenset(extra_hosts)
+        if any(not isinstance(host, str) or
+               re.fullmatch(r"[a-z0-9-]+(?:\\.[a-z0-9-]+)+", host) is None
+               for host in self.extra_hosts):
+            raise ValueError("unsafe candidate test hostname")
+        self.allowed_hosts = HOSTS | self.extra_hosts
         self.hits = set()
         self.denied = 0
         self.secret = secrets.token_bytes(32)
@@ -68,7 +74,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
             valid_port = parsed.port == self.server.server_port
         except ValueError:
             valid_port = False
-        if (parsed.scheme != "http" or parsed.hostname not in HOSTS
+        if (parsed.scheme != "http" or parsed.hostname not in self.server.allowed_hosts
                 or not valid_port or parsed.username or parsed.password):
             self._deny()
             return
@@ -86,6 +92,15 @@ class ProxyHandler(BaseHTTPRequestHandler):
             dest = f"http://{targets[0]}:{self.server.server_port}/safe.png?token={token}"
             content = ('<!doctype html><html><body><img id="check" src="'
                        + dest + '"></body></html>').encode()
+            mime = "text/html; charset=utf-8"
+        elif parsed.path == "/batch" and parsed.hostname == PAGE:
+            hosts = sorted(self.server.extra_hosts | (HOSTS - {PAGE}))
+            targets = [
+                f'<img src="http://{host}:{self.server.server_port}/safe.png?token={token}" alt="">'
+                for host in hosts
+            ]
+            content = ('<!doctype html><html><body>' +
+                       ''.join(targets) + '</body></html>').encode()
             mime = "text/html; charset=utf-8"
         elif parsed.path == "/safe.png":
             with self.server.guard:

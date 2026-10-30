@@ -294,3 +294,39 @@ and no real login, signed CDN URL or website is exercised. Passing
 this synthetic gate does **not** authorize `removeparam` changes or
 publication: the earlier synthetic HMAC hazard remains a separate NO_GO
 release finding.
+
+## Phase 2g — actual ephemeral Firefox managed candidate rules
+
+The new `firefox-managed-v2-candidates` CI job exercises the **38 actual
+pinned optional tracking rules** inside real Firefox/uBlock Origin. Firefox's
+documented per-user managed-storage manifest mechanism and uBO's supported
+`toOverwrite.filters` configuration are used in a temporary hosted CI
+runner, not on the user's machine. The manifest and XPI never enter Git or
+a persistent user browser. No global Firefox enterprise policy is changed.
+
+Three isolated real Firefox sessions are required: stock uBO, stock uBO with
+38 v2 filters plus a synthetic `.invalid` sentinel managed rule, then stock
+uBO after removing the managed manifest. The test server is the same
+deny-by-default, nonforwarding HTTP proxy, extended for exact pinned hosts
+and a synthetic `/batch` image page. It compares all 38 host requests in
+one bounded fixture without contacting any live third-party domain.
+Normal first-party, same-site and unrelated third-party controls must
+remain reachable in every stage; the sentinel must be reachable, then
+blocked, then reachable again, and all candidate requests must block in
+the middle stage. The restored stock observations must exactly match the
+first stock observations. The independently validated report distinguishes
+hostnames already blocked by stock uBO from *new synthetic blocks* caused
+by activating the candidate rules.
+
+A blocked/ignored managed policy, a browser fixture issue, or unstable
+baseline results are a **FAIL/NOT_VERIFIED**, never silently marked as
+active protection. This test does not validate any real site's traffic,
+actual user-enabled filter subscriptions or behavior on Chromium/uBO Lite,
+and cannot promote a public list. Signed-URL/authorization/media
+real-world compatibility remains independent. **Release NO_GO**.
+
+Upstream primary references:
+- Mozilla native managed storage documentation:
+  https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_manifests
+- Official uBO managed configuration:
+  https://github.com/gorhill/uBlock/wiki/Deploying-uBlock-Origin:-configuration
