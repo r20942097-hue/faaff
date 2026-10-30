@@ -50,7 +50,7 @@ The CLI does **not** start the Inspector's web server or open a listening port. 
 ## Verified smoke (2026-10-30)
 
 - [GitHub Actions run 41031131099](https://github.com/r20942097-hue/faaff/actions/runs/41031131099): Node 22.19.0 setup PASS; Inspector 2.13.0 CLI installation PASS; local synthetic MCP server syntax PASS; strict tools/list and echo tools/call PASS.
-- No external MCP server was contacted, no web Inspector UI was exposed, and no authentication flows were performed. NPM transitive dependency reproducibility remains a separate security gate.
+- No external MCP server was contacted, no web Inspector UI was exposed, and no authentication flows were performed. npm transitive versions are now committed in a lockfile; ongoing vulnerability review and upstream provenance remain separate gates.
 
 ## Verified dependency-lock regression (2026-10-30)
 
@@ -58,3 +58,7 @@ The CLI does **not** start the Inspector's web server or open a listening port. 
 - `npm ci` is the only runtime install method in the test workflow; npm verifies each downloaded integrity digest against the committed lockfile.
 - **PASS** [GitHub Actions run 41033307156](https://github.com/r20942097-hue/faaff/actions/runs/41033307156) — locked installation and existing strict tools/list, tools/call and negative-path fixture tests completed.
 - Locked dependency manifests must be updated with explicit review on version changes. No automatic lockfile rewrite during test execution.
+
+## Negative-path protocol regression
+
+[GitHub Actions run 41032698875](https://github.com/r20942097-hue/faaff/actions/runs/41032698875): the synthetic stdio MCP server rejected unknown tool names and incorrect tool-argument types with JSON-RPC `-32602`; notifications without an ID returned no response. This is an isolated fixture contract test and not an external MCP-service security audit.
