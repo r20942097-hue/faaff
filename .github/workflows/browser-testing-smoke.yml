@@ -76,6 +76,26 @@ jobs:
           }
           console.log('PASS: Mozilla web-ext lint errors=0, warnings=' + (o.warnings?.length ?? 0));
           NODE
+      - name: Inventory Mozilla lint dependency advisories (advisory only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          npm audit --prefix integrations/browser-testing/firefox-lint --omit=dev --json > "$RUNNER_TEMP/firefox-lint-audit.json"
+          audit_status=$?
+          set -e
+          node - "$RUNNER_TEMP/firefox-lint-audit.json" "$audit_status" <<'NODE'
+          const fs = require('node:fs');
+          const o = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const counts = o.metadata?.vulnerabilities;
+          if (o.error || !counts || ![0, 1].includes(Number(process.argv[3]))) {
+            console.error('Mozilla web-ext dependency advisory query incomplete or failed.');
+            process.exit(1);
+          }
+          console.log('Mozilla lint dependency advisory counts: ' +
+            ['critical','high','moderate','low','total']
+              .map(k => k + '=' + (counts[k] ?? 0)).join(' '));
+          NODE
       - name: Verify MV3 Chromium and synthetic Firefox page
         env:
           # The container job runs as root; /github/home is owned by pwuser.
