@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 import tempfile
-from browser_opfs_runtime_probe import make_extension, extension_worker_id
+from browser_opfs_runtime_probe import make_fixture as make_extension, get_id as extension_worker_id
 from isolated_extension_e2e import isolation_check
 
 FLAGS=('prepare_replay','orphan_rollback','commit_replay','corrupt_fail_closed','cross_page_lock','restart_persistence')
@@ -25,13 +25,7 @@ def open_page(ctx,eid):
     return p
 
 def worker_id(ctx):
-    eid=extension_worker_id(ctx.service_workers)
-    if eid:return eid
-    try:ctx.wait_for_event('serviceworker',timeout=12000)
-    except Exception:pass
-    eid=extension_worker_id(ctx.service_workers)
-    if not eid:raise RuntimeError('WORKER_NOT_OBSERVED')
-    return eid
+    return extension_worker_id(ctx)
 
 def run(parent_ns,browser=None):
     result={k:'NOT_RUN' for k in FLAGS}
