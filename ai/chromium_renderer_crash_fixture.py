@@ -90,11 +90,11 @@ def probe():
                     result['staged_manifest_unclosed']='PASS'
                     crashes=[]
                     page.on('crash',lambda _: crashes.append(True))
-                    session=ctx.new_cdp_session(page)
+                    # CDP Page.crash may never reply after the renderer dies.
+                    # A bounded chrome://crash navigation avoids a blocking CDP call.
                     try:
-                        session.send('Page.crash')
-                    except Error:
-                        # The debugger command itself may fail when the target dies.
+                        page.goto('chrome://crash',wait_until='commit',timeout=7000)
+                    except (Error,TimeoutError):
                         pass
                     if not crashes:
                         try:
