@@ -27,7 +27,10 @@ jobs:
         run: |
           set -euo pipefail
           node --version
-          npm install --prefix integrations/browser-testing --no-save --no-audit --no-fund --ignore-scripts --package-lock=false 'playwright@1.64.1'
+          # Bootstrap a lockfile during this temporary, isolated CI run.
+          npm install --prefix integrations/browser-testing --package-lock-only --no-audit --no-fund --ignore-scripts
+          node -e 'const fs=require("fs"); console.log("BROWSER_LOCK_BEGIN"); console.log(fs.readFileSync("integrations/browser-testing/package-lock.json").toString("base64")); console.log("BROWSER_LOCK_END")'
+          npm ci --prefix integrations/browser-testing --no-audit --no-fund --ignore-scripts
           node --check integrations/browser-testing/smoke.mjs
           node --check integrations/browser-testing/fixture-mv3/background.js
           node --check integrations/browser-testing/fixture-mv3/popup.js
