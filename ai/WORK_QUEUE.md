@@ -11,7 +11,7 @@ This is an execution queue, **not** a release registry. Re-read actual Git branc
 
 ## New CI evidence gate — staged in Draft PR #40
 
-- **[IMPLEMENTED_IN_DRAFT / CI_VERIFIED]** The existing `.github/workflows/ci.yml` now runs `ai/test_product_ci_gate.py` (eight offline unit cases) and a `product-evidence` job that distinguishes `PASS / NOT_RUN / NO_GO`. Missing runtime trees are valid only as engineering bootstrap; a partially imported root runtime attempts product tests instead of silently skipping.
+- **[IMPLEMENTED_IN_DRAFT / CI_VERIFIED]** The existing `.github/workflows/ci.yml` now runs `ai/test_product_ci_gate.py` (ten offline unit cases) and a `product-evidence` job that distinguishes `PASS / NOT_RUN / NO_GO`. Missing runtime trees are valid only as engineering bootstrap; a partially imported root runtime attempts product tests instead of silently skipping.
 - **[NOT_A_RELEASE]** The `product-evidence` job can succeed when the baseline is bootstrap-only **while explicitly reporting `product_ci=NOT_RUN` and `release_gate=NO_GO`**. Do not interpret a green workflow as approved product output. Real-site, native Firefox/Windows and signed releases remain separate.
 - **[NEXT / NOT_MERGED]** Review the actual job summary and source change scope before any approval. This proposal must not be treated as active on `main` until a separately approved merge.
 
