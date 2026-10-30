@@ -1,0 +1,39 @@
+# Playwright cross-browser infrastructure fixture
+
+**State: Draft proposal, product-specific E2E NOT_RUN.** This folder contains a safe stand-alone test harness, not the actual RPLAY/YouTube extension source.
+
+## Current browser support boundaries
+
+Playwright v1.64.1 (official stable release, 2026-10-14) is used with the vendor's browser runtime image `mcr.microsoft.com/playwright:v1.64.1-noble` pinned to OCI index SHA-256 `47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea`.
+
+- Chromium: official documentation supports MV3 extension loading only through `chromium.launchPersistentContext` with the bundled `channel: 'chromium'`. The fixture uses zero permissions, no site traffic, a background service worker, and a popup that changes text when clicked. This verifies extension launch and client-side JavaScript in the CI runner, not the user's real add-on.
+- Firefox: Playwright runs its specially patched Firefox build. This test only checks a plain HTML page; **it does not install or run a Firefox XPI**, does not test Firefox extension APIs and does not validate the user's Firefox 159 / Floorp version.
+- No real RPLAY/HLS/DASH downloading, YouTube interactions, logins, service-worker lifecycle stress tests or Windows hardware tests are included.
+
+Official browser docs: https://playwright.dev/docs/chrome-extensions and https://playwright.dev/docs/browsers
+
+## CI and security
+
+- `.github/workflows/browser-testing-smoke.yml` starts only on relevant source/CI changes (or manual dispatch, after the workflow is on the default branch).
+- The official Playwright container is pinned by immutable image digest. npm package `playwright@1.64.1` is version pinned; lifecycle scripts are disabled.
+- Runs headless in GitHub-hosted Linux, using no secrets and with `permissions: contents: read`.
+- npm transitives are not independently hash-locked. Container executes real browser binaries in an ephemeral GitHub runner — review updates before changing the pinned image.
+- No screen recording, private browsing profile, user cookies or network-site probes are performed.
+
+## Future product integration gate
+
+When a real, provenance-verified product extension source is available in a **separate isolated test location**:
+
+1. Record its original SHA256, manifest version, packaging, permissions and whether it truly supports Chromium, Firefox, or both.
+2. Copy it into an isolated CI test workspace, without modifying its original source. Run `node --check`, manifest validation, static lint and SkillSpector/code security checks as appropriate.
+3. For Chromium MV3, load the actual unpacked extension into a fresh persistent context and assert the relevant UI/service-worker, without real credentials.
+4. For Firefox, test a signed/unsigned extension in an appropriate isolated **Firefox-native WebExtension test harness**, not Playwright's patched Firefox alone. Prove Firefox 159/Windows behavior separately.
+5. Add local synthetic HLS/DASH/stream fixtures for RPLAY, keeping external live services and permissions out of default CI.
+6. Keep product-specific static, synthetic and real-device results separate and prohibit claims of real-site PASS without evidence.
+
+No changes to `main`, production subscription URLs, existing package tests, or RPLAY/YouTube releases are made by this proposal.
+
+## Evidence
+
+- Browser runtime, Playwright limitations and version: official published docs/release.
+- CI execution and product E2E: **NOT_RUN until an actual run is observed**; attach run link and record per-browser status.
