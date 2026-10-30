@@ -53,6 +53,31 @@ jobs:
           uv tool install --python 3.12 "$AGENT_REACH_SOURCE"
           uv tool install --python 3.12 "$SKILLSPECTOR_SOURCE"
           uv tool list
+      - name: Inventory resolved Python dependencies for drift analysis
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tool in agent-reach skillspector; do
+            if [[ "$RUNNER_OS" == "Windows" ]]; then
+              python="$UV_TOOL_DIR/$tool/Scripts/python.exe"
+            else
+              python="$UV_TOOL_DIR/$tool/bin/python"
+            fi
+            test -f "$python" || { echo "Missing isolated Python for $tool"; exit 1; }
+            freeze="$RUNNER_TEMP/$tool-freeze.txt"
+            uv pip freeze --python "$python" > "$freeze"
+            python - "$freeze" "$tool" <<'PY'
+          import hashlib
+          from pathlib import Path
+          import sys
+          lines = [line.strip() for line in Path(sys.argv[1]).read_text(encoding="utf-8").splitlines() if line.strip()]
+          assert len(lines) >= 2, "Empty or incomplete dependency resolution"
+          names = [line.split("==", 1)[0].split(" @ ", 1)[0].lower().replace("_", "-") for line in lines]
+          assert sys.argv[2] in names, "Expected tool missing from installed dependency list"
+          digest = hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
+          print(f"Dependency inventory: {sys.argv[2]} packages={len(lines)} sha256={digest}")
+          PY
+          done
       - name: Verify CLIs without setup, login, or credentials
         shell: bash
         run: |
