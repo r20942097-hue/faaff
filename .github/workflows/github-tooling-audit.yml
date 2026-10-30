@@ -61,6 +61,28 @@ jobs:
       - name: Inventory all ignored or suppressed findings (advisory only)
         run: zizmor --offline --no-ignores --no-exit-codes --format=plain .
 
+      - name: Positive control / zizmor must reject a synthetic dangerous workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          file="$RUNNER_TEMP/zizmor-positive.yml"
+          trap 'rm -f "$file"' EXIT
+          # Generate an inert workflow-shaped FILE; never execute or commit it.
+          printf '%s\n' 'name: synthetic-unsafe' 'on: issue_comment' \
+            'jobs:' '  synthetic:' '    runs-on: ubuntu-latest' \
+            '    steps:' '      - name: static-input' > "$file"
+          printf '        run: echo "$%s"\n' '{{ github.event.issue.title }}' >> "$file"
+          set +e
+          zizmor --offline --min-severity=medium --format=plain "$file" > /dev/null 2>&1
+          status=$?
+          set -e
+          if [[ "$status" -ne 1 ]]; then
+            echo "Zizmor positive control FAILED: expected scanner exit 1, got $status."
+            exit 1
+          fi
+          echo 'PASS: zizmor rejects a static synthetic unsafe GitHub workflow.'
+
+
   gitleaks:
     name: gitleaks / block detected secrets with redaction
     runs-on: ubuntu-latest
