@@ -54,8 +54,8 @@ jobs:
           zizmor --version
       - name: Gate unsuppressed medium-or-higher security findings
         run: zizmor --offline --min-severity=medium --format=plain .
-      - name: Inventory high-severity suppressed findings (advisory only)
-        run: zizmor --offline --no-ignores --min-severity=high --no-exit-codes --format=plain .
+      - name: Inventory all ignored or suppressed findings (advisory only)
+        run: zizmor --offline --no-ignores --no-exit-codes --format=plain .
 
   gitleaks:
     name: gitleaks / block detected secrets with redaction
@@ -81,3 +81,11 @@ jobs:
             docker run --rm --network none -v "$GITHUB_WORKSPACE:/repo:ro" -w /repo "$image" \
               git --redact=100 --no-banner --no-color --exit-code 1 --log-opts="origin/main..HEAD" .
           fi
+      - name: Inventory redacted historical secret findings (advisory only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          image='ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f'
+          echo 'Scan all available Git history; fully redact values and do not gate on baseline findings.'
+          docker run --rm --network none -v "$GITHUB_WORKSPACE:/repo:ro" -w /repo "$image" \
+            git --redact=100 --no-banner --no-color --exit-code 0 --log-opts="--all" .
