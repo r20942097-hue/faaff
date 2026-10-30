@@ -191,7 +191,7 @@ class SyntheticControlTests(unittest.TestCase):
                 {'status':'PASS', 'manifest_version':3, 'root':'mv3/'}]}
             with patch.dict(sys.modules, {'extension_source_preflight': fake}):
                 report = gate.source_preflight(p, digest)
-        self.assertEqual(report['manifest_roots'], ['mv3/'])
+        self.assertEqual(report['manifest_roots'], ['.', 'mv3/'])
 
     @patch.object(gate, 'supports_namespace', return_value=True)
     @patch.object(gate.os, 'geteuid', create=True, return_value=1000)
@@ -223,5 +223,97 @@ class SyntheticControlTests(unittest.TestCase):
         source = Path(gate.__file__).read_text()
         self.assertIn("'SYSTEM_OVERRIDE' if browser_executable", source)
         self.assertIn("'PLAYWRIGHT_CHROMIUM'", source)
+
+
+class SyntheticOnlyTests(unittest.TestCase):
+    def test_synthetic_control_pass_reports_no_product(self):
+        observed = []
+        def runner(path, profile, **kwargs):
+            observed.append((path, profile, kwargs))
+            self.assertTrue((path / 'manifest.json').is_file())
+            return {'status': 'PASS', 'worker': 'PASS', 'popup': 'PASS'}
+        with patch.object(gate, 'isolation_check', return_value=[]):
+            r = gate.synthetic_only('net:[4321]', runner=runner)
+        self.assertEqual(r['status'], 'PASS_SYNTHETIC_ONLY')
+        self.assertEqual(r['product_browser'], 'NOT_RUN')
+        self.assertEqual(r['release_decision'], 'CANDIDATE_NO_GO')
+        self.assertTrue(observed[0][2]['control'])
+        self.assertFalse(observed[0][0].exists(), 'temporary fixture should be deleted')
+
+    def test_synthetic_control_not_allowed_when_not_isolated(self):
+        def runner(*args, **kwargs):
+            raise AssertionError('must not run')
+        with patch.object(gate, 'isolation_check', return_value=['DEFAULT_IPV4_ROUTE_PRESENT']):
+            r = gate.synthetic_only(None, runner=runner)
+        self.assertEqual(r['status'], 'BLOCKED')
+        self.assertEqual(r['synthetic_control'], 'NOT_RUN')
+
+    def test_synthetic_control_not_proven_by_worker_only(self):
+        with patch.object(gate, 'isolation_check', return_value=[]):
+            r = gate.synthetic_only('net:[1]', runner=lambda *a, **k: {'status':'PASS', 'worker':'PASS', 'popup':'NOT_RUN'})
+        self.assertEqual(r['reason'], 'SYNTHETIC_CONTROL_NOT_PROVEN')
+
+    def test_synthetic_control_rejects_silent_partial_success(self):
+        with patch.object(gate, 'isolation_check', return_value=[]):
+            r = gate.synthetic_only('net:[1]', runner=lambda *a, **k: {'status':'PASS'})
+        self.assertEqual(r['status'], 'BLOCKED')
+
+    def test_synthetic_runner_exception_is_blocked(self):
+        def runner(*args, **kwargs):
+            raise RuntimeError('browser process failed')
+        with patch.object(gate, 'isolation_check', return_value=[]):
+            r=gate.synthetic_only('net:[1]', runner=runner)
+        self.assertEqual(r['reason'],'SYNTHETIC_HARNESS_ERROR')
+        self.assertEqual(r['release_decision'],'CANDIDATE_NO_GO')
+
+    def test_synthetic_cli_rejects_product_inputs(self):
+        from contextlib import redirect_stderr
+        from io import StringIO
+        for args in [['artifact.zip','--synthetic-only'], ['--synthetic-only','--sha256','0'*64],['--synthetic-only','--root','product/']]:
+            with self.subTest(args=args), redirect_stderr(StringIO()):
+                with self.assertRaises(SystemExit) as error:
+                    gate.main(args)
+            self.assertEqual(error.exception.code, 2)
+
+    def test_product_cli_rejects_missing_inputs(self):
+        from contextlib import redirect_stderr
+        from io import StringIO
+        with redirect_stderr(StringIO()):
+            with self.assertRaises(SystemExit) as error:
+                gate.main([])
+        self.assertEqual(error.exception.code, 2)
+
+
+class RootLevelManifestTests(unittest.TestCase):
+    def test_root_level_valid_source_allowed(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            p = root / 'candidate.zip'
+            manifest = {'manifest_version':3, 'name':'Synthetic fixture', 'version':'1.0',
+                        'background':{'service_worker':'worker.js'}}
+            with zipfile.ZipFile(p,'w') as z:
+                z.writestr('manifest.json',json.dumps(manifest))
+                z.writestr('worker.js','console.log(1)')
+            result=gate.extract_verified_root(p,'.',root/'out')
+            self.assertEqual(result['files'],2)
+            self.assertEqual(json.loads((root/'out'/'manifest.json').read_text())['manifest_version'],3)
+
+    def test_root_level_rejects_cross_package_traversal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp)/'candidate.zip'
+            with zipfile.ZipFile(p,'w') as z:
+                z.writestr('manifest.json','{}')
+                z.writestr('../stolen','x')
+            with self.assertRaisesRegex(ValueError,'UNSAFE_EXTENSION_MEMBER'):
+                gate.extract_verified_root(p,'.',Path(tmp)/'out')
+
+    def test_empty_and_absolute_roots_still_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            p=Path(tmp)/'candidate.zip'
+            with zipfile.ZipFile(p,'w') as z:
+                z.writestr('manifest.json','{}')
+            for root in ('','./','/','../','sub//','sub/../'):
+                with self.subTest(root=root), self.assertRaisesRegex(ValueError,'BAD_SELECTED_EXTENSION_ROOT'):
+                    gate.extract_verified_root(p,root,Path(tmp)/'out')
 
 if __name__=='__main__':unittest.main()
