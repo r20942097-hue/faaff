@@ -29,7 +29,7 @@ Security safeguards:
 - actionlint `v1.7.12` Linux AMD64 tarball downloaded from upstream release and checked against SHA-256 `8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8` before execution.
 - zizmor `1.31.1` installed as a binary wheel from PyPI (`--only-binary`), forcing `--offline`. **PyPI wheel hashes are not locked yet**, so this is a candidate setup rather than a supply-chain-hardened final gate.
 - actionlint returns a failure for lint errors. zizmor deliberately uses `--no-exit-codes`, reports findings, and does not mutate files. Installation or audit runtime failures must still be investigated.
-- Gitleaks is run using a pinned official GHCR image digest for v8.30.1 (`sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f`). The container is network-disabled and mounts the checked-out source read-only. Scan scope is PR-only `origin/main..HEAD`, and `--redact=100 --exit-code 0` protects detected values and makes findings report-only. A passed job does not mean there were no findings; logs need review.
+- Gitleaks is run using a pinned official GHCR image digest for v8.30.1 (`sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f`). The container is network-disabled and mounts the checked-out source read-only. Scan scope is PR-only `origin/main..HEAD` for pull requests and the current worktree (`gitleaks dir`) for manual `workflow_dispatch` runs. `--redact=100 --exit-code 0` masks detected values and makes findings report-only; a pass does not imply a complete historical scan. A passed job does not mean there were no findings; logs need review.
 - None of the tools may commit or auto-fix. No branches are merged automatically.
 
 ## Local use
@@ -78,3 +78,5 @@ A first CI smoke run found a malformed SHA256 verification input (`\\n` instead 
 ## Subsequent adoption decisions
 
 Keep Playwright and MCP Inspector out of this hub PR until the runtime sources / dedicated isolated test hosts are available and acceptance criteria exist. Avoid adding Python/JavaScript static analyzers that largely duplicate CodeQL before a concrete missed-detection case justifies them.
+
+The initial Gitleaks manual trigger used the same Git range as pull requests, which would be empty when HEAD matched `origin/main`. This was repaired: manual dispatch now scans the working tree with `gitleaks dir`, without reading the entire historical Git log. PR scans remain Git-diff-scoped.
