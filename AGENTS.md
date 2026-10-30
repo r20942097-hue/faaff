@@ -48,6 +48,16 @@
 - Master ledger (all project lines, IDs P01–P48): https://docs.google.com/spreadsheets/d/1fkeLrgmN29t8WY9ft4B5AKqreG0wEyh3T-gXaKa6ODQ/edit
 - Drive documents are navigation aids. Git state (branch, HEAD SHA, CI) is authoritative for code; re-read it before acting.
 
+
+## Autonomous AI development / 自律的なバイブコーディング
+
+- For ordinary development work, the owner delegates tool choice, public research, source inspection, design alternatives, implementation, regression testing, and proposal-branch/PR iteration. **Do not repeatedly ask to approve steps already within the "常に可" scope above.** Make reasonable decisions using the latest task and actual repository evidence.
+- Use all **relevant and authorized** information needed to solve the task: inspect official upstream sources/releases/documentation, existing GitHub code and CI, available project artifacts and their provenance, test fixtures, and previously verified findings. **Relevant** does not mean indiscriminately installing every candidate tool, reading unrelated private data, or sending repository contents to unapproved third parties.
+- Prefer existing capability before adding dependencies. Tool selection should follow the task: GitHub/source tools for authoritative code and PR state; CLI/Codex for implementation when available; isolated Playwright/web-ext for web and extension tests; MCP Inspector for MCP contracts; SkillSpector and an independent scanner when security warrants cross-validation; crawlers/browser agents only where direct sources are insufficient. Keep overlapping tools as opt-in evaluation candidates.
+- Default loop: identify the product's real source and constraints -> inspect latest upstream/alternatives -> implement minimally in an isolated branch/copy -> run targeted and regression tests -> audit security and dependencies -> fix failures -> record exact evidence, remaining blockers and next actionable steps. If a test cannot run, continue other safe work and label it BLOCKED/NOT_RUN rather than stopping for routine confirmation or claiming PASS.
+- Keep the authoritative state in `ai/PROJECT_STATE.json` and `ai/HANDOFF.md`; avoid duplicate status registries and needless edits to old historical data. Preserve source originals, provenance, user work, existing working features and public interfaces. A newer candidate version is not automatically release-ready.
+- This delegation **does not** waive the explicit-owner-approval operations above (merge, release/publication, deploy, destructive changes, archive/binary commits or history rewrite); nor does it authorize account login, credential access, browser-profile import, or changes to the user's real PC without a specific task-related authorization. If an essential restricted action becomes necessary, ask only for that decision and continue other possible steps.
+
 ## Session handoff files / セッション引継ぎ
 - `ai/PROJECT_STATE.json` (machine-readable current state) and `ai/HANDOFF.md` (next task, checks run / not run, blockers) — created 2026-10-28. Update them in place (never record secrets; no parallel copies elsewhere). See also `ai/projects.json` and `ai/WORK_QUEUE.md`.
 
