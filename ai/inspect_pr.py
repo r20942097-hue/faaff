@@ -106,6 +106,9 @@ def inspect(repository: str, pr_number: int, ruleset_id: int, expected_head_sha:
     if not isinstance(before, dict):
         raise CollectionError("invalid pull request payload")
     head = before.get("head")
+    initial_base = before.get("base")
+    if not isinstance(initial_base, dict) or not isinstance(initial_base.get("sha"), str):
+        raise CollectionError("missing PR base SHA")
     if not isinstance(head, dict) or not isinstance(head.get("sha"), str) or not re.fullmatch(r"[0-9a-f]{40}", head["sha"]):
         raise CollectionError("missing PR head SHA")
     if expected_head_sha is not None and head["sha"] != expected_head_sha:
@@ -145,7 +148,7 @@ def inspect(repository: str, pr_number: int, ruleset_id: int, expected_head_sha:
             not isinstance(after.get("head"), dict) or
             not isinstance(after.get("base"), dict) or
             after["head"].get("sha") != head["sha"] or
-            after["base"].get("sha") != before.get("base", {}).get("sha")):
+            after["base"].get("sha") != initial_base["sha"]):
         raise CollectionError("PR HEAD/base changed during audit")
     if not isinstance(ruleset, dict):
         raise CollectionError("invalid ruleset response")
@@ -157,6 +160,9 @@ def inspect(repository: str, pr_number: int, ruleset_id: int, expected_head_sha:
     )
     if effective_rules != effective_after:
         raise CollectionError("effective branch rules changed during audit")
+    ruleset_after = get_json(f"{prefix}/rulesets/{ruleset_id}")
+    if ruleset_after != ruleset:
+        raise CollectionError("ruleset changed during audit")
     result = review_evidence(
         repository=repository,
         pull=after,
