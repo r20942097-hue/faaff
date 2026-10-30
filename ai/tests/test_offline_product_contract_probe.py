@@ -176,7 +176,9 @@ class ReviewedSuiteTests(unittest.TestCase):
     def test_edited_test_script_rejected_before_execution(self):
         script=self.base/'evil.js';script.write_bytes(self.suite.read_bytes()+b'\n//surprise')
         self.assertFalse(probe.reviewed_runner_files(script,self.wrapper))
-        with patch.object(probe.subprocess,'run') as exec_mock,patch.object(probe.shutil,'which',return_value='/bin/test'):
+        with patch.object(probe.subprocess,'run') as exec_mock, \
+             patch.object(probe.shutil,'which',return_value='/bin/test'), \
+             patch.object(probe,'linux_namespace_available',return_value=True):
             result=probe.run_isolated(self.base,script,self.wrapper)
         self.assertEqual(result['reason'],'REVIEWED_SUITE_OR_WRAPPER_HASH_MISMATCH')
         exec_mock.assert_not_called()
@@ -202,7 +204,7 @@ class ReviewedSuiteTests(unittest.TestCase):
         with patch.object(probe.subprocess,'run',return_value=type('Result',(),{
              'returncode':0,'stdout':'GPT1_ISOLATION_PROVEN_BY_WRAPPER\n'+json.dumps(verdict)})()), \
              patch.object(probe.shutil,'which',return_value='/bin/tool'), \
-             patch.object(probe.sys,'platform','linux'), \
+             patch.object(probe,'linux_namespace_available',return_value=True), \
              patch.object(probe.os,'readlink',return_value='net:[111]'):
             return probe.run_isolated(self.base,self.suite,self.wrapper)
 
