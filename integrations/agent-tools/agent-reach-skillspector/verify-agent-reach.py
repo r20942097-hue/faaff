@@ -35,7 +35,7 @@ def run(args: list[str], home: Path, timeout: int = 30) -> tuple[int, dict]:
                 "GIT_ASKPASS", "SSH_ASKPASS", "TWITTER_AUTH_TOKEN", "TWITTER_CT0"):
         env.pop(key, None)
     try:
-        p = subprocess.run(["agent-reach", *args], env=env,
+        p = subprocess.run([os.environ.get("AGENT_REACH_TEST_BINARY", "agent-reach"), *args], env=env,
                            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE, timeout=timeout,
                            encoding="utf-8", errors="replace", check=False)
