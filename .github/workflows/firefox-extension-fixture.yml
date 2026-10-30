@@ -33,7 +33,7 @@ jobs:
       - name: Audit Firefox fixture invariant
         run: python -m unittest ai.test_firefox_extension_fixture_e2e -v
       - name: Verify temporary Firefox MV3 add-on on loopback
-        run: python ai/firefox_extension_fixture_e2e.py --executable "${{ steps.firefox.outputs.firefox-path }}" --output firefox-mv3-fixture.json
+        run: python -m ai.firefox_extension_fixture_e2e --executable "${{ steps.firefox.outputs.firefox-path }}" --output firefox-mv3-fixture.json
       - name: Upload scoped evidence
         if: always()
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
