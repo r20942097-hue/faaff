@@ -180,6 +180,36 @@ class CandidateArchiveChecks(unittest.TestCase):
         with self.assertRaisesRegex(IntakeError, "CONTENT_SCRIPT_DECLARATION_INVALID"):
             self.check(entries)
 
+    def test_stale_chrome_version_name_is_rejected(self):
+        entries = addon_fixture()
+        def edit(inner):
+            m = json.loads(inner["manifest.json"])
+            m["version_name"] = "0.79.0 CANDIDATE / NO_GO"
+            inner["manifest.json"] = json.dumps(m).encode()
+        replace_inner(entries, "TabWorkspace_Chrome_MV3.zip", edit)
+        with self.assertRaisesRegex(IntakeError, "CHROME_VERSION_NAME_MISMATCH"):
+            self.check(entries)
+
+    def test_matching_version_but_conflicting_no_go_is_rejected(self):
+        entries = addon_fixture()
+        def edit(inner):
+            m = json.loads(inner["manifest.json"])
+            m["version_name"] = "1.0.0 CANDIDATE / NO_GO"
+            inner["manifest.json"] = json.dumps(m).encode()
+        replace_inner(entries, "TabWorkspace_Chrome_MV3.zip", edit)
+        with self.assertRaisesRegex(IntakeError, "GO_CANDIDATE_CONFLICTING_NO_GO_LABEL"):
+            self.check(entries)
+
+    def test_matching_chrome_version_name_can_be_a_candidate(self):
+        entries = addon_fixture()
+        def edit(inner):
+            m = json.loads(inner["manifest.json"])
+            m["version_name"] = "1.0.0 CANDIDATE / NOT_RELEASED"
+            inner["manifest.json"] = json.dumps(m).encode()
+        replace_inner(entries, "TabWorkspace_Chrome_MV3.zip", edit)
+        result = self.check(entries)
+        self.assertEqual(result["package_count"], 6)
+
     def test_rplay_no_go(self):
         entries = {
             "DEVELOPMENT_HANDOFF_v2.68.0.md": "CANDIDATE / NO GO",
