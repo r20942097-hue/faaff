@@ -46,3 +46,18 @@ The disposable Chromium MV3 fixture tests a Content Script loaded on a loopback 
 
 ## Constraints
 `faaff` remains an engineering hub; `s/main` remains the live filter distribution authority. Do not alter subscribed raw URLs. Keep `main` protected and candidate-only branches unmerged until explicit owner authorization.
+
+
+## v4 progress (2026-10-30)
+
+- Firefox MV3 fixture uses Selenium 4.52.0 and a temporary unsigned add-on in isolated Firefox, with a Firefox event-page background script (not Chromium service worker).
+- CI setup: `.github/workflows/firefox-extension-fixture.yml` installs Firefox through a SHA-pinned setup action and logs the actual browser version; the Selenium-managed geckodriver version is resolved at runtime. The CI passed after correcting the module invocation to `python -m ai.firefox_extension_fixture_e2e`.
+- Media-tooling CI: `.github/workflows/synthetic-media.yml` installs FFmpeg/ffprobe explicitly on `ubuntu-24.04`, because the runner did not have the binaries. It generates a 2-second synthetic TS with video and audio, converts it to MP4, checks packet streams, hashes the files and fully decodes both outputs. A verified run passed after the package-install fix.
+- Evidence remains scoped to temporary fixtures only; **RPLAY/StreamHarbor actual recording, authenticated site access, production Windows browsers, and actual addon source are NOT_RUN**.
+- The real product sources and candidate ZIPs have **not** been synchronized to `faaff/main`; the infrastructure work does not replace product-source provenance or integration gates.
+- `NO_GO` remains the release-readiness status.
+
+### Official technical references
+- Firefox non-persistent MV3 background: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Background_scripts
+- Selenium Firefox addon install: https://www.selenium.dev/documentation/webdriver/browsers/firefox/
+- FFprobe stream/packet evidence: https://ffmpeg.org/ffprobe.html
