@@ -69,6 +69,34 @@ jobs:
           printf '%s\n' '---' 'name: smoke-skill' 'description: Benign smoke skill for scanner testing' '---' '# Smoke skill' 'This is a local no-command sample.' > "$RUNNER_TEMP/synthetic-skill/SKILL.md"
           skillspector scan "$RUNNER_TEMP/synthetic-skill" --no-llm --format json > "$RUNNER_TEMP/synthetic-report.json"
           python -c 'import json,os; d=json.load(open(os.environ["RUNNER_TEMP"]+"/synthetic-report.json",encoding="utf-8")); assert isinstance(d,dict),type(d); print("PASS: JSON report parsed")'
+      - name: Synthetic AST hazard must trigger SkillSpector fail-on-findings (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/synthetic-unsafe-skill"
+          mkdir -p "$dir"
+          printf '%s\n' '---' 'name: ast-test' 'description: Scanner regression input, never executed' '---' '# Static test' > "$dir/SKILL.md"
+          # This is inert source text, not executable in this job.
+          printf '%s\n' 'exec("print(123)")' > "$dir/suspect.py"
+          set +e
+          skillspector scan "$dir" --no-llm --fail-on-findings --format json --output "$RUNNER_TEMP/unsafe-report.json" >/dev/null 2>"$RUNNER_TEMP/scan-error.log"
+          status=$?
+          set -e
+          if [[ "$status" -ne 1 ]]; then
+            echo "Expected SkillSpector detection with exit 1, got $status."
+            # Do not disclose the contents of the analyzed fixture or reports.
+            exit 1
+          fi
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          p = Path(os.environ["RUNNER_TEMP"]) / "unsafe-report.json"
+          obj = json.loads(p.read_text(encoding="utf-8"))
+          assert isinstance(obj, dict) and obj.get("findings"), "Positive report has no findings"
+          print("PASS: static scanner flagged an inert AST hazard and exited 1")
+          PY
       - name: Explain coverage limits
         shell: bash
         run: |
