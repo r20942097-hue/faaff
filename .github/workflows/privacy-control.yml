@@ -1,0 +1,56 @@
+name: Unified Privacy Control offline quality gates
+
+on:
+  pull_request:
+    paths:
+      - 'tools/privacy-control/**'
+      - '.github/workflows/privacy-control.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/privacy-control/**'
+      - '.github/workflows/privacy-control.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-evaluation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile UPC evaluation and regressions
+        run: python -m compileall -q tools/privacy-control
+      - name: Run UPC parser, evidence and no-release regression tests
+        run: python -m unittest discover -s tools/privacy-control -p 'test_*.py' -v
+      - name: Compare immutable pinned stable tracking and candidate scope
+        run: |
+          python tools/privacy-control/cli.py \
+            --check \
+            --report "$RUNNER_TEMP/upc-coverage-report.json" \
+            --github-summary "$GITHUB_STEP_SUMMARY"
+      - name: Confirm no executable blocking layer or new public list is introduced
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          record = json.loads((Path(os.environ['RUNNER_TEMP']) / 'upc-coverage-report.json').read_text())
+          assert record['release'] == 'NO_GO'
+          assert record['rules_published'] == 0
+          assert record['source']['role'] == 'PINNED_NON_PUBLISHING_SNAPSHOT'
+          assert record['browser_stock_coverage'] == 'NOT_RUN'
+          assert record['real_engine_efficacy'] == 'NOT_RUN'
+          print('UPC NO-RELEASE GATE: PASS')
+          PY
