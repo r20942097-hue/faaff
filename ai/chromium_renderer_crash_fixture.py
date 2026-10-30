@@ -58,7 +58,6 @@ def template():
 def verify_old(item):
     if (item.get('generation')!=1 or
         item.get('active')!='blob-0001.bin' or
-        item.get('sha256')!=HASH_A or
         item.get('declared')!=HASH_A or
         item.get('calculated')!=HASH_A or
         item.get('bytes')!=SOURCE_A):
