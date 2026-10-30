@@ -74,6 +74,33 @@ class HubStateTest(unittest.TestCase):
         self.write_metadata()
         self.assertIn("bad project state schema/repository", verify(self.root))
 
+    def test_reject_nonobject_registry(self) -> None:
+        (self.root / "ai/projects.json").write_text("[]", encoding="utf-8")
+        self.assertIn("invalid metadata structure: expected JSON objects", verify(self.root))
+
+    def test_reject_nonobject_import_manifest(self) -> None:
+        (self.root / "ai/imports/s.json").write_text("[]", encoding="utf-8")
+        self.assertIn("invalid metadata structure: expected JSON objects", verify(self.root))
+
+    def test_extra_symlink_is_rejected(self) -> None:
+        imported = self.root / "integrations/browser-filters/source/s"
+        try:
+            (imported / "hidden.txt").symlink_to(imported / "fixture.txt")
+        except (OSError, NotImplementedError):
+            self.skipTest("symlink creation unavailable on this runner")
+        self.assertIn("linked extra source: hidden.txt", verify(self.root))
+
+    def test_linked_parent_cannot_escape_manifest(self) -> None:
+        imported = self.root / "integrations/browser-filters/source/s"
+        try:
+            (imported / "alias").symlink_to(imported, target_is_directory=True)
+        except (OSError, NotImplementedError):
+            self.skipTest("directory symlinks unavailable on this runner")
+        self.source["files"].append(self.source["files"][0] | {"path": "alias/fixture.txt"})
+        self.write_metadata()
+        self.assertIn("missing or linked source: alias/fixture.txt", verify(self.root))
+
+
 
 if __name__ == "__main__":
     unittest.main()
