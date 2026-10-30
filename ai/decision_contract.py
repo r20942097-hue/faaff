@@ -38,6 +38,13 @@ def classify_path(path: str) -> str:
     lower = path.lower()
     if lower.endswith((".zip", ".7z", ".exe", ".dll", ".key", ".pem", ".p12")):
         return "prohibited"
+    parts = lower.split("/")
+    if (
+        any(part in {".git", ".ssh", "secrets", ".env", ".env.local"} for part in parts)
+        or lower.endswith((".token", ".secret"))
+        or any(ord(char) < 32 or ord(char) == 127 for char in path)
+    ):
+        return "prohibited"
     if (
         path.startswith("browser_filter_lists/")
         or path.startswith("releases/")
