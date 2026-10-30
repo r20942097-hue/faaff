@@ -37,7 +37,7 @@ class IsolatedProxy(ThreadingHTTPServer):
     def __init__(self, extra_hosts=()):
         self.extra_hosts = frozenset(extra_hosts)
         if any(not isinstance(host, str) or
-               re.fullmatch(r"[a-z0-9-]+(?:\\.[a-z0-9-]+)+", host) is None
+               re.fullmatch(r"[a-z0-9-]+(?:\.[a-z0-9-]+)+", host) is None
                for host in self.extra_hosts):
             raise ValueError("unsafe candidate test hostname")
         self.allowed_hosts = HOSTS | self.extra_hosts
