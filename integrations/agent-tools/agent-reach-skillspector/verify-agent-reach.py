@@ -103,6 +103,27 @@ def local_checks(home: Path) -> None:
     )
     print("PASS: local read-only checks made no setup or channel-state mutations")
 
+    # These inputs must be rejected by the real CLI *before* any outbound fetch.
+    # Use another disposable HOME because failed backend calls can record
+    # transient error/cooldown information even though no setup took place.
+    reject_home = home / "untrusted-url-negative-paths"
+    unsafe_urls = (
+        "http://127.0.0.1:80/",
+        "http://169.254.169.254/latest/meta-data/",
+        "http://10.0.0.1/private",
+        "http://localhost/",
+        "file:///etc/passwd",
+        "https://example.com@127.0.0.1/",
+        "https://metadata.google.internal/computeMetadata/v1/",
+    )
+    for url in unsafe_urls:
+        rc, rejected = run(["web", "read", url,
+                            "--backend", "jina", "--timeout", "4"], reject_home)
+        if rc != 1 or (rejected.get("error") or {}).get("code") != "BAD_INPUT":
+            raise AssertionError("Blocked/private URL was not rejected by the CLI")
+    print(f"PASS: {len(unsafe_urls)} private, local, credential-disguised and file URLs rejected")
+
+
 
 def public_probe(home: Path, label: str, args: list[str], timeout: int) -> bool:
     try:
