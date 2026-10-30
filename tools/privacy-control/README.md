@@ -330,3 +330,13 @@ Upstream primary references:
   https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Native_manifests
 - Official uBO managed configuration:
   https://github.com/gorhill/uBlock/wiki/Deploying-uBlock-Origin:-configuration
+
+### Candidate-installed safety controls
+
+The new candidate policy experiment also runs `synthetic_safety()`
+during **all three separate Firefox configurations**, so each stage
+checks HMAC-bound `utm_source` query integrity, a synthetic HttpOnly cookie
+login and a 206 HTTP byte-range response. Its independent evidence validator
+requires all nine booleans to be explicitly `true`; a synthetic failure
+blocks the experiment. These remain local fixtures, not real auth or
+streaming site validation. No `removeparam` rewrite is adopted.

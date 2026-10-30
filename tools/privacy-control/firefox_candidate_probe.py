@@ -19,7 +19,7 @@ import threading
 import time
 
 from fetch_firefox_xpi import LOCKFILE, verify_bytes
-from firefox_proxy_probe import IsolatedProxy, PAGE, TRACKER, SAME_SITE, OTHER_SITE
+from firefox_proxy_probe import IsolatedProxy, PAGE, TRACKER, SAME_SITE, OTHER_SITE, synthetic_safety
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "integrations/browser-filters/source/s/v2/tracking.txt"
@@ -118,7 +118,8 @@ def browser_session(proxy, xpi, test_hosts, stage):
         if not ready:
             raise ValueError("official uBO tracking filter not observed ready")
         result = sample_browser(driver, proxy, test_hosts)
-        return result, driver.capabilities.get("browserVersion")
+        safety = synthetic_safety(driver, proxy)
+        return result, driver.capabilities.get("browserVersion"), safety
     finally:
         if driver is not None:
             driver.quit()
@@ -139,17 +140,18 @@ def run(xpi, report):
     stage = "initial"
     results = {}
     versions = {}
+    safety = {}
     try:
         stage = "stock"
-        results["stock"], versions["stock"] = browser_session(server, xpi, hosts, stage)
+        results["stock"], versions["stock"], safety["stock"] = browser_session(server, xpi, hosts, stage)
         stage = "candidate"
         base.mkdir(parents=True, exist_ok=True)
         policy.write_text(json.dumps(managed_policy(lines), sort_keys=True) + "\n",
                           encoding="utf-8")
-        results["candidate"], versions["candidate"] = browser_session(server, xpi, hosts, stage)
+        results["candidate"], versions["candidate"], safety["candidate"] = browser_session(server, xpi, hosts, stage)
         stage = "restored"
         policy.unlink()
-        results["restored"], versions["restored"] = browser_session(server, xpi, hosts, stage)
+        results["restored"], versions["restored"], safety["restored"] = browser_session(server, xpi, hosts, stage)
     finally:
         if policy.exists():
             policy.unlink()
@@ -171,6 +173,8 @@ def run(xpi, report):
     if any(results["stock"][host] != results["restored"][host]
            for host in candidate_hosts):
         raise ValueError("rollback did not restore stock coverage")
+    if any(not all(safety[stage].values()) for stage in ("stock", "candidate", "restored")):
+        raise ValueError("candidate filter broke signed URL, auth cookie, or media range")
     incremental = [host for host in candidate_hosts if results["stock"][host]]
     evidence = {
         "schema":"upc-firefox-managed-candidates/v1",
@@ -184,6 +188,7 @@ def run(xpi, report):
         "candidate_hosts":candidate_hosts,
         "sentinel":SENTINEL,
         "stage_receipts":results,
+        "synthetic_safety":safety,
         "incremental_synthetic_hosts":incremental,
         "incremental_synthetic_host_count":len(incremental),
         "policy_removed":not policy.exists(),

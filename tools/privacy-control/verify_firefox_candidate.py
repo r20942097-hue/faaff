@@ -50,6 +50,15 @@ def audit(report):
     if (report.get("incremental_synthetic_hosts") != incremental
             or report.get("incremental_synthetic_host_count") != len(incremental)):
         errors.append("incremental host counts not evidence-based")
+    safe = report.get("synthetic_safety")
+    checks = {"signed_url_preserved", "auth_cookie_roundtrip", "media_range_206"}
+    if not isinstance(safe, dict) or set(safe) != set(stages):
+        errors.append("missing signed URL/auth/media results by candidate stage")
+    else:
+        for stage, checks_seen in safe.items():
+            if (not isinstance(checks_seen, dict) or set(checks_seen) != checks
+                    or any(value is not True for value in checks_seen.values())):
+                errors.append("candidate stage breaks synthetic normal workflows: " + stage)
     versions=report.get("firefox_versions")
     if not isinstance(versions,dict) or set(versions)!=set(stages) or any(
         not isinstance(value,str) or re.fullmatch(r"\d+(?:\.\d+){1,3}",value) is None

@@ -56,6 +56,10 @@ class CandidateManagedPolicyTests(unittest.TestCase):
             "candidate_hosts":self.hosts,
             "sentinel":SENTINEL,
             "stage_receipts":{"stock":stock,"candidate":stage,"restored":restored},
+            "synthetic_safety":{phase:{"signed_url_preserved":True,
+                                       "auth_cookie_roundtrip":True,
+                                       "media_range_206":True}
+                                for phase in ("stock","candidate","restored")},
             "incremental_synthetic_hosts":[self.hosts[0]],
             "incremental_synthetic_host_count":1,
             "policy_removed":True,
@@ -84,6 +88,17 @@ class CandidateManagedPolicyTests(unittest.TestCase):
                 doc=self.example()
                 doc[field]=value
                 self.assertTrue(audit(doc))
+
+    def test_candidate_synthetic_normal_flows_must_survive(self):
+        for phase in ("stock", "candidate", "restored"):
+            for name in ("signed_url_preserved", "auth_cookie_roundtrip", "media_range_206"):
+                edited=self.example()
+                edited["synthetic_safety"][phase][name]=False
+                with self.subTest(phase=phase, name=name):
+                    self.assertTrue(audit(edited))
+        edited=self.example()
+        del edited["synthetic_safety"]["candidate"]["media_range_206"]
+        self.assertTrue(audit(edited))
 
     def test_incomplete_browser_rules_and_rollback_rejected(self):
         doc=self.example()
