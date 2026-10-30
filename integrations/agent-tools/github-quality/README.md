@@ -1,6 +1,6 @@
 # GitHub development tool assessment / 2026-10-30
 
-**State:** proposal only. The automation is committed to `proposal/github-devtools-audit-20261030`, not merged into `main`. Tool installation in this branch's GitHub Actions is only confirmed after an actual workflow run. It does not install anything on the owner's Windows PC.
+**State:** proposal only. The automation is committed to `proposal/github-devtools-audit-20261030`, not merged into `main`. The three new jobs have run successfully on GitHub-hosted Ubuntu runners (see evidence below). It does not install anything on the owner's Windows PC.
 
 ## Existing baseline checked on `faaff/main`
 
@@ -62,8 +62,19 @@ For **Windows**, use PowerShell/appropriate release binary: no machine-level ins
 - Upstream tool names, version tags and documented CLI usage: **CHECKED from official upstream documentation** on 2026-10-30.
 - Repository baseline: **CHECKED from GitHub files** on 2026-10-30.
 - Branch source upload, blob readback and diff inspection: **can be verified here**.
-- Tool execution on GitHub-hosted runner, Windows installation, actual browser checks, full dependency integrity: **NOT_RUN unless linked CI evidence is recorded separately**.
+- Tool execution on GitHub-hosted Ubuntu runners: **PASS** (see verified runs). Windows installation, browser E2E and full dependency integrity remain **NOT_RUN**.
 
 ## Execution note (2026-10-30)
 
-A first CI smoke run found a malformed SHA256 verification input (`\\n` instead of a newline), and the next run detected an invalid unquoted YAML `run:` value containing `--only-binary=:all:`. Both issues were corrected in subsequent commits. Re-run CI and review job-level evidence before declaring the revised workflows PASS. Original workflow-only CI did not run when initially added on a proposal branch; the existing `ci.yml` is used for isolated temporary smoke jobs. These changes do not authorize merging into `main`.
+A first CI smoke run found a malformed SHA256 verification input (`\\n` instead of a newline), and the next run detected an invalid unquoted YAML `run:` value containing `--only-binary=:all:`. Both issues were corrected and verified by real CI runs. The new `github-tooling-audit.yml` workflow itself ran on the PR. The temporary smoke jobs in `ci.yml` have since been removed, restoring the original required CI. These changes do not authorize merging into `main`.
+
+## Verified GitHub Actions results
+
+- [Workflow run 41028484905](https://github.com/r20942097-hue/faaff/actions/runs/41028484905): actionlint **PASS**, zizmor offline execution **PASS** (no unsuppressed findings, 12 suppressed), Gitleaks **PASS** (no leaks found in the PR-scoped scan). Detection jobs deliberately remain report-only except actionlint.
+- [Workflow run 41028635580](https://github.com/r20942097-hue/faaff/actions/runs/41028635580): follow-up audit after removing temporary smoke steps from existing `ci.yml` — **PASS**.
+- Dependabot `pip` and `github-actions` version-update cooldown increased from GitHub default 3 days to 7 days to address two medium-confidence zizmor findings. GitHub documents that security-update PRs are exempt from cooldown. See https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference.
+- New audit is an **optional PR check until explicitly made required by repository rules**; successful report-only tool exit cannot be conflated with no security risk or full historical secret scan.
+
+## Subsequent adoption decisions
+
+Keep Playwright and MCP Inspector out of this hub PR until the runtime sources / dedicated isolated test hosts are available and acceptance criteria exist. Avoid adding Python/JavaScript static analyzers that largely duplicate CodeQL before a concrete missed-detection case justifies them.
