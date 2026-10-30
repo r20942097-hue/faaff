@@ -97,9 +97,21 @@ def template(browser_name):
         "status":"BLOCKED",
     }
 
-def stop_group(proc):
+def stop_group(proc, observed_descendants=None):
+    """Kill only OS children of our own isolated process, then its session leader."""
     if proc is None:
         return
+    import psutil
+    if observed_descendants is None:
+        try:
+            observed_descendants=psutil.Process(proc.pid).children(recursive=True)
+        except (psutil.NoSuchProcess,psutil.AccessDenied):
+            observed_descendants=[]
+    # psutil kill verifies PID + creation time; never send signals to an arbitrary PID.
+    for child in reversed(observed_descendants):
+        try:child.kill()
+        except (psutil.NoSuchProcess,psutil.AccessDenied,psutil.ZombieProcess):
+            pass
     if proc.poll() is None:
         try:os.killpg(proc.pid,signal.SIGKILL)
         except ProcessLookupError:pass
@@ -114,6 +126,7 @@ def probe(browser_name):
     if sys.platform!="linux" or not hasattr(os,"killpg"):
         raise RuntimeError("LINUX_ISOLATION_REQUIRED")
     from playwright.sync_api import sync_playwright
+    import psutil
     result=template(browser_name)
     with tempfile.TemporaryDirectory(prefix="isolated-opfs-sigkill-") as tmp:
         profile=str(Path(tmp)/"profile")
@@ -134,21 +147,24 @@ def probe(browser_name):
                 await_marker(proc)
                 if os.getpgid(proc.pid)!=proc.pid:
                     raise AssertionError("CHILD_NOT_IN_DEDICATED_PROCESS_GROUP")
-                original=browser_members(proc.pid,browser_name)
+                owned=psutil.Process(proc.pid).children(recursive=True)
+                expected=BROWSER_COMM[browser_name]
+                original=[]
+                for process in owned:
+                    try:
+                        if any(token in process.name().lower() for token in expected):
+                            original.append(process)
+                    except (psutil.NoSuchProcess,psutil.ZombieProcess):
+                        pass
                 if not original:
-                    raise AssertionError("NO_BROWSER_OS_PROCESS_IN_DEDICATED_GROUP")
+                    raise AssertionError("NO_BROWSER_PROCESS_IN_OWNED_CHILD_TREE")
                 result["child_browser_process_detected"]="PASS"
-                group_id=proc.pid
-                stop_group(proc)
+                stop_group(proc,owned)
                 if proc.returncode!=-signal.SIGKILL:
                     raise AssertionError("CHILD_NOT_SIGKILLED")
                 result["browser_group_sigkill"]="PASS"
-                for _ in range(50):
-                    survivors=browser_members(group_id,browser_name)
-                    if not survivors:
-                        break
-                    time.sleep(0.2)
-                else:
+                _,survivors=psutil.wait_procs(original,timeout=8)
+                if survivors:
                     raise AssertionError("BROWSER_PROCESS_SURVIVED_SIGKILL")
                 with sync_playwright() as playwright:
                     context=getattr(playwright,browser_name).launch_persistent_context(
@@ -182,7 +198,8 @@ def probe(browser_name):
 KNOWN_DIAGNOSTIC_CODES = frozenset((
     "ISOLATED_CHILD_EXITED_EARLY", "ISOLATED_CHILD_DID_NOT_STAGE",
     "ISOLATED_CHILD_UNEXPECTED_OUTPUT", "CHILD_NOT_IN_DEDICATED_PROCESS_GROUP",
-    "NO_BROWSER_OS_PROCESS_IN_DEDICATED_GROUP", "CHILD_NOT_SIGKILLED",
+    "NO_BROWSER_OS_PROCESS_IN_DEDICATED_GROUP",
+    "NO_BROWSER_PROCESS_IN_OWNED_CHILD_TREE", "CHILD_NOT_SIGKILLED",
     "BROWSER_PROCESS_SURVIVED_SIGKILL", "STAGED_B_NOT_PRESENT_AFTER_KILL",
     "ORPHAN_CLEANUP_MISMATCH", "UNCOMMITTED_STAGE_NOT_ESTABLISHED",
     "CRASH_RECOVERY_A_SHA256_MISMATCH",
