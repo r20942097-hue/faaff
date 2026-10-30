@@ -201,7 +201,9 @@ class CollectionTests(unittest.TestCase):
                 collect_pages("/repo/files", key="files", max_pages=2)
 
     def test_changed_collection_count_is_rejected(self):
-        with patch("ai.inspect_pr.get_json", return_value={"total_count": 3, "check_runs": [{"name": "a"}]}):
+        def response(url):
+            return {"total_count": 3, "check_runs": [{"name": "a"}]} if "page=1" in url else {"total_count": 3, "check_runs": []}
+        with patch("ai.inspect_pr.get_json", side_effect=response):
             with self.assertRaisesRegex(CollectionError, "incomplete collection"):
                 collect_pages("/check-runs", key="check_runs", max_pages=2)
 
