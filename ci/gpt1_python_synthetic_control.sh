@@ -36,6 +36,10 @@ sudo env PATH="$PATH" GPT1_PARENT_NETNS="$GPT1_PARENT_NETNS" GATE_PYTHON="$GATE_
     GATE_BROWSER="$GATE_BROWSER" GATE_RUNNER="$GATE_RUNNER" unshare --net -- bash -c '
 set -euo pipefail
 ip link set lo up
-exec sudo -u "$GATE_RUNNER" -H env PATH="$PATH" GPT1_PARENT_NETNS="$GPT1_PARENT_NETNS" \
+sudo -u "$GATE_RUNNER" -H env PATH="$PATH" GPT1_PARENT_NETNS="$GPT1_PARENT_NETNS" \
     "$GATE_PYTHON" ai/isolated_extension_e2e.py --synthetic-only --browser-executable "$GATE_BROWSER" --json
+# Separate synthetic MV3 extension origin; no product ZIP, no external URLs.
+exec sudo -u "$GATE_RUNNER" -H env PATH="$PATH" GPT1_PARENT_NETNS="$GPT1_PARENT_NETNS" \
+    "$GATE_PYTHON" ai/browser_opfs_runtime_probe.py \
+      --parent-netns "$GPT1_PARENT_NETNS" --browser-executable "$GATE_BROWSER"
 '
