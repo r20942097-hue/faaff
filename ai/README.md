@@ -53,3 +53,27 @@ prove that the manifest corresponds to the upstream `s` Git commit/tree.
 Compare the upstream Git tree at the pinned SHA separately before changing
 source ownership, publication, or release status. These checks are neither
 product runtime tests nor real-browser E2E tests.
+
+### Independent upstream Git-tree parity (optional, read-only)
+
+When GitHub API access is available, export the immutable upstream commit and
+its full recursive tree to an ignored work directory, then compare every
+manifest path, file size, and Git blob SHA with those records:
+
+```sh
+mkdir -p work/provenance
+gh api repos/r20942097-hue/s/git/commits/20a26610db8970abef1bd7016f5f641ce25b7063 > work/provenance/s-commit.json
+gh api 'repos/r20942097-hue/s/git/trees/f3a2ff2b49124fcaadadb24ed9a17967bbb49256?recursive=1' > work/provenance/s-tree.json
+python ai/compare_pinned_tree.py --commit-json work/provenance/s-commit.json --tree-json work/provenance/s-tree.json
+```
+
+These are the pinned SHA values at the 2026-10-30 observation. On a future
+re-import, take both values from the reviewed `ai/imports/s.json` instead
+of copying the examples above. The comparison explicitly fails on
+truncated tree responses, missing exclusions, unexcluded submodules or symlinks,
+or changed path/size/hash data. If the API fetch fails, report BLOCKED;
+do not substitute a current `main` tree for the pinned revision.
+
+The offline comparison has regression tests under `ai/tests/`; no network
+request is required by CI. Its success proves correspondence to the supplied
+GitHub Git API records, not actual real-browser or product E2E behavior.
