@@ -189,7 +189,7 @@ def verify_positive_control(page) -> bool:
 def browser_probe(extension_dir: Path, profile: Path, *, browser_executable: str | None = None,
                   control: bool = False) -> dict:
     result = {'status': 'BLOCKED', 'browser_process': 'NOT_RUN',
-              'worker': 'NOT_RUN', 'popup': 'NOT_RUN'}
+              'worker': 'NOT_RUN', 'popup': 'NOT_RUN', 'roundtrip': 'NOT_RUN', 'product_functionality': 'NOT_RUN'}
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -256,7 +256,9 @@ def browser_probe(extension_dir: Path, profile: Path, *, browser_executable: str
                         except Exception:
                             result['reason'] = 'CONTROL_POPUP_WORKER_ROUNDTRIP_FAILED'
                             return result
-                    result['popup'] = 'PASS'
+                    result['popup'] = 'PASS' if control else 'RENDERED_ONLY'
+                    if control:
+                        result['roundtrip'] = 'PASS'
                 except Exception:
                     result['reason'] = 'POPUP_NAVIGATION_FAILED'
                     return result
@@ -307,7 +309,8 @@ def inspect(archive: Path, expected_sha256: str, selected_root: str,
             report['reason'] = 'BROWSER_HARNESS_CONTROL_ERROR'
             return report
         report['synthetic_control'] = control
-        if control.get('status') != 'PASS':
+        if (control.get('status') != 'PASS' or control.get('worker') != 'PASS'
+                or control.get('popup') != 'PASS' or control.get('roundtrip') != 'PASS'):
             report['reason'] = 'BROWSER_HARNESS_CONTROL_FAILED'
             return report
         source = work/'source'
@@ -322,11 +325,12 @@ def inspect(archive: Path, expected_sha256: str, selected_root: str,
             report['reason'] = 'PRODUCT_BROWSER_RUNNER_ERROR'
             return report
         report['product_browser'] = product
-        if product.get('status') != 'PASS':
+        if (product.get('status') != 'PASS' or product.get('worker') != 'PASS'
+                or product.get('popup') not in ('RENDERED_ONLY', 'NOT_DECLARED')):
             report['reason'] = 'PRODUCT_OFFLINE_BROWSER_CHECK_INCOMPLETE'
             return report
-    report['status'] = 'PASS_OFFLINE_ONLY'
-    report['reason'] = 'OFFLINE_BROWSER_ONLY_NO_RELEASE_APPROVAL'
+    report['status'] = 'PASS_OFFLINE_LOAD_ONLY'
+    report['reason'] = 'OFFLINE_WORKER_POPUP_LOAD_ONLY_NO_FUNCTIONAL_OR_RELEASE_APPROVAL'
     return report
 
 
@@ -358,7 +362,8 @@ def synthetic_only(parent_netns: str | None, executable: str | None = None,
         report['reason'] = 'SYNTHETIC_HARNESS_ERROR'
         return report
     report['synthetic_control'] = observed
-    if observed.get('status') != 'PASS' or observed.get('worker') != 'PASS' or observed.get('popup') != 'PASS':
+    if (observed.get('status') != 'PASS' or observed.get('worker') != 'PASS'
+            or observed.get('popup') != 'PASS' or observed.get('roundtrip') != 'PASS'):
         report['reason'] = 'SYNTHETIC_CONTROL_NOT_PROVEN'
         return report
     report['status'] = 'PASS_SYNTHETIC_ONLY'
@@ -385,7 +390,7 @@ def main(argv=None) -> int:
                     os.getenv('GPT1_PARENT_NETNS'), args.browser_executable)
     print(json.dumps(r, ensure_ascii=False, indent=2) if args.json else
           f"{r['status']}: {r.get('reason', '')}; release: {r['release_decision']}")
-    return 0 if r['status'] in ('PASS_OFFLINE_ONLY', 'PASS_SYNTHETIC_ONLY') else (1 if r['status'] == 'FAIL' else 2)
+    return 0 if r['status'] in ('PASS_OFFLINE_LOAD_ONLY', 'PASS_SYNTHETIC_ONLY') else (1 if r['status'] == 'FAIL' else 2)
 
 if __name__ == '__main__':
     sys.exit(main())
