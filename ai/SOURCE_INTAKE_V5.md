@@ -31,3 +31,11 @@ Exit code 3: known P0; 2: unknown, absent, malformed, or otherwise non-accepted 
 - Mozilla web-ext v10 requires Node 22+: https://github.com/mozilla/extension-workshop/blob/master/src/content/documentation/develop/web-ext-command-reference.md
 - Chromium extension test requirements: https://playwright.dev/docs/chrome-extensions
 - ffprobe packet inspection: https://ffmpeg.org/ffprobe.html
+
+## Exact-source synthetic defect reproduction
+
+- An isolated Node in-memory OPFS adapter loaded the **actual** `src/segment_store.js` from the user-provided v2.67 archive, after strict SHA256 comparison.
+- Injected `QuotaExceededError` while writing replacement B after saved A; B threw `SEGMENT_QUOTA_EXCEEDED` and previously committed A was no longer present (`old_A_survives=false`). Thus the Issue #31 known-bad symptom is reproduced from these exact bytes.
+- `ai/reproduce_precommit_evict.cjs` is the portable reproducer. It deliberately requires the original file as a positional argument and refuses a different SHA256. The original product source is **not committed**. Run `node ai/reproduce_precommit_evict.cjs PATH_TO_VERIFIED_segment_store.js` in an isolated offline workspace.
+- This is a *known-bad reproducer*, not a passing product regression, nor proof that a proposed patch is safe. Real OPFS crash, storage quota, Web Locks, saved media, and Firefox/Chromium product E2E remain NOT_RUN.
+
