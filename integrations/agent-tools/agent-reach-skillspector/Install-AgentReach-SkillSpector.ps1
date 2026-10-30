@@ -7,6 +7,7 @@ param(
     [ValidateSet('Both', 'AgentReach', 'SkillSpector')]
     [string]$Target = 'Both',
     [switch]$DryRun,
+    [switch]$RunSetup,
     [switch]$SkipSetup
 )
 
@@ -17,6 +18,7 @@ $agentReachRelease = 'https://github.com/Panniantong/Agent-Reach/archive/refs/ta
 $skillSpectorSource = 'git+https://github.com/NVIDIA/skillspector.git'
 $wantAgentReach = $Target -eq 'Both' -or $Target -eq 'AgentReach'
 $wantSkillSpector = $Target -eq 'Both' -or $Target -eq 'SkillSpector'
+if ($RunSetup -and $SkipSetup) { throw 'Choose only one of -RunSetup or -SkipSetup.' }
 
 function Invoke-Checked {
     param([string]$Executable, [string[]]$Arguments)
@@ -37,7 +39,7 @@ if ($DryRun) {
     if ($wantSkillSpector) { Write-Host "PLAN: uv tool install $skillSpectorSource (only if command absent)" }
     if ($wantAgentReach) {
         Write-Host "PLAN: uv tool install $agentReachRelease (only if command absent)"
-        if (-not $SkipSetup) { Write-Host 'PLAN: agent-reach setup (default channels and agent skill)' }
+        if ($RunSetup -and -not $SkipSetup) { Write-Host 'PLAN: agent-reach setup (installs default channels and links agent skill)' }
     }
     return
 }
@@ -81,15 +83,20 @@ if ($wantAgentReach) {
         $reachCmd = Get-Command 'agent-reach' -ErrorAction Stop
         Invoke-Checked -Executable $reachCmd.Source -Arguments @('version')
     }
-    if (-not $SkipSetup -and -not $wasAlreadyInstalled) {
+    if ($RunSetup -and -not $SkipSetup) {
         Write-Host 'Setting up Agent Reach default channels and agent skill. No optional account login is requested.'
         Invoke-Checked -Executable $reachCmd.Source -Arguments @('setup')
     }
     else {
-        Write-Host 'Agent Reach setup skipped for existing installation or by request.'
+        Write-Host 'Agent Reach setup skipped by default. Explicitly use -RunSetup after reviewing its channel/skill changes.'
     }
-    Invoke-Checked -Executable $reachCmd.Source -Arguments @('doctor', '--text')
-    Invoke-Checked -Executable $reachCmd.Source -Arguments @('skill')
+    if ($wasAlreadyInstalled -or ($RunSetup -and -not $SkipSetup)) {
+        Invoke-Checked -Executable $reachCmd.Source -Arguments @('doctor', '--text')
+        Invoke-Checked -Executable $reachCmd.Source -Arguments @('skill')
+    }
+    else {
+        Write-Host 'Fresh installation is staged; doctor and skill checks require -RunSetup.'
+    }
 }
 
 Write-Host 'Completed requested installer steps. Review all diagnostic output above.'
