@@ -1,6 +1,6 @@
 {
   "schema": "ai-hub-registry/v1",
-  "recorded_at": "2026-10-28",
+  "recorded_at": "2026-10-30",
   "hub": "r20942097-hue/faaff",
   "repositories": [
     {
@@ -8,7 +8,7 @@
       "url": "https://github.com/r20942097-hue/faaff",
       "role": "engineering_hub",
       "default_branch": "main",
-      "observed_head": "5aac17cfe4890c01982d4c357c878854988de1e0",
+      "observed_head": "479a15e4cfe43ad487081b0bb0d87a812bb0a24a",
       "source_state": "bootstrap_main",
       "release_authority": false
     },
