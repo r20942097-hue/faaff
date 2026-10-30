@@ -13,8 +13,8 @@
 | Candidate | Upstream | Priority | Why / outcome |
 |---|---|---|---|
 | **actionlint 1.7.12** | https://github.com/rhysd/actionlint | P0 / staged in workflow | Catches workflow configuration, syntax, expression and shell-related errors. Release tarball SHA-256 verified. |
-| **zizmor 1.31.1** | https://github.com/zizmorcore/zizmor | P0 / staged in workflow | Focuses on GitHub Actions security: untrusted expressions, privileges, insecure triggers and supply-chain risks. Offline, report-only until findings are reviewed. |
-| **Gitleaks 8.30.1** | https://github.com/gitleaks/gitleaks | P1 / staged in workflow | Scans PR Git changes in a Docker container with source mounted read-only, no network, secret redaction and report-only exit policy. |
+| **zizmor 1.31.1** | https://github.com/zizmorcore/zizmor | P0 / staged in workflow | Offline workflow-risk gate: unsuppressed medium/high findings fail CI; existing ignored findings remain separately inventoried. |
+| **Gitleaks 8.30.1** | https://github.com/gitleaks/gitleaks | P1 / staged in workflow | Blocks detected PR secrets with complete redaction; reachable-history inventory is separately advisory. |
 | **Playwright 1.64.1** | https://github.com/microsoft/playwright | P1 / evaluated, not installed | Real browser tests for UI/synthetic sites. Its bundled Firefox is not proof of compatibility with the user's installed Firefox. Requires runnable extension source. |
 | **MCP Inspector** | https://github.com/modelcontextprotocol/inspector | P1 / evaluated, not installed | Explicit inspection of local MCP servers. Run in an isolated local session only; do not expose the inspector's web UI to a network or insert secrets into CI. |
 | **Opengrep** | https://github.com/opengrep/opengrep | P2 / evaluated, not installed | Wider rule-based scanning for JavaScript/Python; assess false positives/coverage against existing CodeQL before CI adoption. |
@@ -27,9 +27,9 @@ Security safeguards:
 - `permissions: contents: read`; no write token, credentials persistence, external secrets, deployment or publishing.
 - Official `actions/checkout` and `actions/setup-python` pinned by full SHA, matching this repository's established versions.
 - actionlint `v1.7.12` Linux AMD64 tarball downloaded from upstream release and checked against SHA-256 `8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8` before execution.
-- zizmor `1.31.1` installed as a binary wheel from PyPI (`--only-binary`), forcing `--offline`. **PyPI wheel hashes are not locked yet**, so this is a candidate setup rather than a supply-chain-hardened final gate.
-- actionlint returns a failure for lint errors. zizmor deliberately uses `--no-exit-codes`, reports findings, and does not mutate files. Installation or audit runtime failures must still be investigated.
-- Gitleaks is run using a pinned official GHCR image digest for v8.30.1 (`sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f`). The container is network-disabled and mounts the checked-out source read-only. Scan scope is PR-only `origin/main..HEAD` for pull requests and the current worktree (`gitleaks dir`) for manual `workflow_dispatch` runs. `--redact=100 --exit-code 0` masks detected values and makes findings report-only; a pass does not imply a complete historical scan. A passed job does not mean there were no findings; logs need review.
+- zizmor `1.31.1` Linux x86_64 wheel is installed through the tracked SHA-256 requirements file using `--require-hashes --no-deps --only-binary=:all:`. Other OS/architectures need distinct validated artifacts; this is not a universal or fully audited dependency policy.
+- actionlint returns a failure on lint errors; zizmor fails on unsuppressed medium/high findings using its official exit codes, and only its separate advisory inventory uses `--no-exit-codes`. Both scans are read-only.
+- Gitleaks is run using a pinned official GHCR image digest for v8.30.1 (`sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f`). The container is network-disabled and mounts the checked-out source read-only. Scan scope is PR-only `origin/main..HEAD` for pull requests and the current worktree (`gitleaks dir`) for manual `workflow_dispatch` runs. `--redact=100 --exit-code 1` masks detected secrets while blocking new PR findings; a separate reachable-history inventory uses `--exit-code 0`. A pass does not prove all historical refs or every secret pattern were covered.
 - None of the tools may commit or auto-fix. No branches are merged automatically.
 
 ## Local use
@@ -51,10 +51,10 @@ For **Windows**, use PowerShell/appropriate release binary: no machine-level ins
 ## Promotion criteria
 
 1. Confirm the new GitHub Actions jobs actually executed from the PR. Investigate all nonzero results and every high-severity zizmor finding.
-2. Verify downloaded release file checksum and wheel artifacts, ideally lock exact zizmor wheel hashes or switch to SHA-verified upstream release artifacts.
+2. Maintain the pinned zizmor Linux wheel digest; validate an independent wheel digest before changing version, architecture, or Python compatibility.
 3. Confirm the new workflow does not change existing required checks or published filter URLs.
-4. Switch zizmor to a blocking severity gate only once a reviewed baseline exists.
-5. Review Gitleaks redacted findings and tune a blocking policy without publishing secret values. Add Playwright/MCP Inspector in separate product-scoped PRs after an authoritative source is available.
+4. Review remaining suppressed findings periodically while retaining the existing blocking medium/high policy.
+5. Maintain Gitleaks blocking PR scans with fully redacted output; review separate MCP Inspector PR #37 and Playwright PR #38 as isolated synthetic-only proposals.
 6. Owner must separately authorize merge and production changes.
 
 ## Evidence status
@@ -70,10 +70,10 @@ A first CI smoke run found a malformed SHA256 verification input (`\\n` instead 
 
 ## Verified GitHub Actions results
 
-- [Workflow run 41028484905](https://github.com/r20942097-hue/faaff/actions/runs/41028484905): actionlint **PASS**, zizmor offline execution **PASS** (no unsuppressed findings, 12 suppressed), Gitleaks **PASS** (no leaks found in the PR-scoped scan). Detection jobs deliberately remain report-only except actionlint.
+- [Workflow run 41028484905](https://github.com/r20942097-hue/faaff/actions/runs/41028484905): actionlint **PASS**, zizmor offline execution **PASS** (no unsuppressed findings, 12 suppressed), Gitleaks **PASS** (no leaks found in the PR-scoped scan). At the time of this older run findings were report-only; the current workflow now blocks medium/high zizmor issues and new Gitleaks secret findings.
 - [Workflow run 41028635580](https://github.com/r20942097-hue/faaff/actions/runs/41028635580): follow-up audit after removing temporary smoke steps from existing `ci.yml` — **PASS**.
 - Dependabot `pip` and `github-actions` version-update cooldown increased from GitHub default 3 days to 7 days to address two medium-confidence zizmor findings. GitHub documents that security-update PRs are exempt from cooldown. See https://docs.github.com/en/code-security/reference/supply-chain-security/dependabot-options-reference.
-- New audit is an **optional PR check until explicitly made required by repository rules**; successful report-only tool exit cannot be conflated with no security risk or full historical secret scan.
+- New audit is an **optional PR check until explicitly made required by repository rules**; report-only historical inventory and suppressed findings must not be confused with a clean comprehensive audit.
 
 ## Subsequent adoption decisions
 
@@ -105,3 +105,7 @@ Verified [blocking audit run 41030412200](https://github.com/r20942097-hue/faaff
 ## Hash-locked zizmor and positive audit control — 2026-10-30
 
 The zizmor job now uses a committed wheel pin at `integrations/agent-tools/github-quality/zizmor-linux-requirements.txt` with SHA-256 `58e878eb2dbd2c6183c105e1ac28c14f7dd1eca44a783f1fe2a69647d012c410` for Linux x86_64, and installs using `pip --no-deps --require-hashes --only-binary=:all:`. It fails closed on wheel mutation or mismatch and must be separately pinned for other architectures. A synthetic dangerous GitHub workflow is generated only in runner temporary storage; zizmor is expected to return finding code **13** (medium) or **14** (high), never the audit-error code 1. This positive control was verified by [audit run 41034945285](https://github.com/r20942097-hue/faaff/actions/runs/41034945285). Scanner source and dependency locking do not mean upstream code is guaranteed safe.
+
+## Latest positive control and secret baseline / 2026-10-30
+
+[Audit run 41035589374](https://github.com/r20942097-hue/faaff/actions/runs/41035589374) verified all three jobs PASS with the SHA-256-pinned zizmor wheel. In a dedicated temporary directory, Gitleaks detected a synthetic sensitive value both as a directory scan and as a commit in a brand-new isolated Git repository. The artificial value was never uploaded, published or displayed. Zizmor detected an inert dangerous synthetic workflow using exit 13/14, not a runtime error. Its normal target scan reported no unsuppressed findings (12 suppressed remain). The Gitleaks PR-scoped scan covered 28 commits and the reachable historical baseline 527 commits; neither scope reported leaks. These are the commit counts at this specific run, not a permanent repository-wide guarantee.
