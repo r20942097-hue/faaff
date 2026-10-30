@@ -54,3 +54,48 @@ jobs:
           assert record['real_engine_efficacy'] == 'NOT_RUN'
           print('UPC NO-RELEASE GATE: PASS')
           PY
+
+  pinned-engine-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Fetch SHA-256 locked uBlock Origin engine outside checkout
+        run: |
+          python integrations/browser-filters/source/s/scripts/prepare_engine.py \
+            --directory "$RUNNER_TEMP/upc-ublock-engine"
+      - name: Install locked Ghostery engine without executing package scripts
+        run: |
+          npm ci \
+            --prefix integrations/browser-filters/source/s/verification/ghostery \
+            --ignore-scripts --no-audit --no-fund
+      - name: Run pinned two-engine synthetic request matrix
+        run: |
+          node tools/privacy-control/engine_matrix.mjs \
+            --engine-dir "$RUNNER_TEMP/upc-ublock-engine" \
+            --ghostery-entry "integrations/browser-filters/source/s/verification/ghostery/node_modules/@ghostery/adblocker/dist/esm/index.js" \
+            --report "$RUNNER_TEMP/upc-engine-matrix.json"
+      - name: Fail on missing or overstated actual-engine report
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          x = json.loads((Path(os.environ['RUNNER_TEMP']) / 'upc-engine-matrix.json').read_text())
+          assert x['schema'] == 'upc-engine-matrix/v1'
+          assert x['result'] == 'PASS'
+          assert x['pinned_tracking_rules'] == 47
+          assert x['requests_compared'] == 564
+          assert x['synthetic_only'] is True
+          assert x['actual_stock_lists_enabled'] == 'NOT_RUN'
+          assert x['live_site_compatibility'] == 'NOT_RUN'
+          assert x['publication'] == 'NO_GO'
+          print('UPC ENGINE EVIDENCE: PASS 564 synthetic checks, live sites NOT_RUN')
+          PY
