@@ -98,7 +98,7 @@ class DecisionTests(unittest.TestCase):
         calls=[]
         def runner(*args,**kw):
             calls.append(kw['control'])
-            return (control or {'status':'PASS'}) if kw['control'] else (product or {'status':'PASS'})
+            return (control if control is not None else {'status':'PASS','worker':'PASS','popup':'PASS','roundtrip':'PASS'}) if kw['control'] else (product if product is not None else {'status':'PASS','worker':'PASS','popup':'RENDERED_ONLY'})
         with patch.object(gate,'isolation_check',return_value=[]), patch.object(gate,'make_control_fixture'):
             with patch.object(gate,'extract_verified_root',return_value={'files':1}):
                 result=gate.inspect(Path('fixture.zip'),'0'*64,root,'net:[1]',
@@ -131,7 +131,7 @@ class DecisionTests(unittest.TestCase):
 
     def test_complete_offline_still_no_go(self):
         r,c=self.run_gate()
-        self.assertEqual(r['status'],'PASS_OFFLINE_ONLY');self.assertEqual(c,[True,False]);self.assertEqual(r['release_decision'],'CANDIDATE_NO_GO')
+        self.assertEqual(r['status'],'PASS_OFFLINE_LOAD_ONLY');self.assertEqual(c,[True,False]);self.assertEqual(r['release_decision'],'CANDIDATE_NO_GO')
         self.assertEqual(r['real_site'],'NOT_RUN');self.assertEqual(r['windows_device'],'NOT_RUN')
 
     @patch.object(gate,'isolation_check',return_value=['ROOT_RUNTIME_FORBIDDEN'])
@@ -231,7 +231,7 @@ class SyntheticOnlyTests(unittest.TestCase):
         def runner(path, profile, **kwargs):
             observed.append((path, profile, kwargs))
             self.assertTrue((path / 'manifest.json').is_file())
-            return {'status': 'PASS', 'worker': 'PASS', 'popup': 'PASS'}
+            return {'status': 'PASS', 'worker': 'PASS', 'popup': 'PASS', 'roundtrip': 'PASS'}
         with patch.object(gate, 'isolation_check', return_value=[]):
             r = gate.synthetic_only('net:[4321]', runner=runner)
         self.assertEqual(r['status'], 'PASS_SYNTHETIC_ONLY')
@@ -315,5 +315,42 @@ class RootLevelManifestTests(unittest.TestCase):
             for root in ('','./','/','../','sub//','sub/../'):
                 with self.subTest(root=root), self.assertRaisesRegex(ValueError,'BAD_SELECTED_EXTENSION_ROOT'):
                     gate.extract_verified_root(p,root,Path(tmp)/'out')
+
+
+class StrictEvidenceTests(unittest.TestCase):
+    def test_control_missing_roundtrip_rejects_product(self):
+        probe = DecisionTests()
+        outcome, calls = probe.run_gate(control={'status':'PASS','worker':'PASS','popup':'PASS'})
+        self.assertEqual(outcome['reason'], 'BROWSER_HARNESS_CONTROL_FAILED')
+        self.assertEqual(calls, [True])
+
+    def test_product_only_rendered_not_behavior_pass(self):
+        probe = DecisionTests()
+        outcome, calls = probe.run_gate()
+        self.assertEqual(outcome['status'], 'PASS_OFFLINE_LOAD_ONLY')
+        self.assertEqual(outcome['release_decision'], 'CANDIDATE_NO_GO')
+        self.assertEqual(outcome['product_browser']['popup'], 'RENDERED_ONLY')
+
+    def test_product_popup_cannot_claim_functional_pass(self):
+        probe = DecisionTests()
+        outcome, calls = probe.run_gate(product={'status':'PASS','worker':'PASS','popup':'PASS'})
+        self.assertEqual(outcome['status'], 'BLOCKED')
+        self.assertEqual(outcome['reason'], 'PRODUCT_OFFLINE_BROWSER_CHECK_INCOMPLETE')
+
+    def test_synthetic_worker_popup_without_roundtrip_is_blocked(self):
+        with patch.object(gate, 'isolation_check', return_value=[]):
+            outcome = gate.synthetic_only('net:[1]', runner=lambda *a, **k:
+                {'status':'PASS','worker':'PASS','popup':'PASS'})
+        self.assertEqual(outcome['status'], 'BLOCKED')
+
+    def test_synthetic_pass_does_not_prove_product(self):
+        with patch.object(gate, 'isolation_check', return_value=[]):
+            outcome = gate.synthetic_only('net:[1]', runner=lambda *a, **k:
+                {'status':'PASS','worker':'PASS','popup':'PASS','roundtrip':'PASS'})
+        self.assertEqual(outcome['status'], 'PASS_SYNTHETIC_ONLY')
+        self.assertEqual(outcome['product_browser'], 'NOT_RUN')
+        self.assertEqual(outcome['recording'], 'NOT_RUN')
+        self.assertEqual(outcome['release_decision'], 'CANDIDATE_NO_GO')
+
 
 if __name__=='__main__':unittest.main()
