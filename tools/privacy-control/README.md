@@ -123,3 +123,32 @@ The `pinned-upstream-stock-comparison` CI job also renders the viewer to its
 temporary runner directory and includes the candidate-delta host list in the
 Actions step summary. This is *not* proof of real sites or actual enabled stock
 subscriptions; no automatic filter adoption is authorized.
+
+## Phase 2c: full official EasyPrivacy template **source components** (new)
+
+To reduce the uncertainty from the prior five-component benchmark, an additional
+independent CI job resolves the **39 components included by**
+`easylist/easylist/easyprivacy.template` at immutable upstream commit
+`a69e7f5f3ed2b4893796da9b37bd2db9b6896eb1`. The lock records each
+official Git blob SHA and length, including `template_header.txt`, plus the
+original template blob. Source inputs total **1,508,164 bytes**. The template
+itself is verified and its include order must equal the manifest exactly.
+
+`fetch_full_stock.py` fetches all sources into CI temporary space, verifies
+every blob, compares the template include order and aborts on missing/extra
+entries. `compare_full_stock.mjs` reuses the 38-host, 7-case synthetic
+comparison under the official pinned uBlock Origin and Ghostery engines.
+`verify_stock_report.py --full-template` checks each raw verdict,
+candidate-level summary and source/template identity before rendering a
+self-contained, script-disabled Japanese HTML report.
+
+**Evidence boundary:** this assembles the complete set of source fragments
+listed in the official template at one pinned revision. It is **not a
+cryptographic verification of the published built `easyprivacy.txt`
+artifact**, since official build/transformation settings and the distribution
+snapshot can differ. It also does not verify all lists active in any
+particular Firefox, uBO Lite, Ghostery, AdGuard or Brave installation.
+Real websites, authentication, checkout and video playback remain NOT_RUN.
+The five-component benchmark stays available as a separate reproducible
+comparison. Underlying upstream source is not committed or redistributed,
+and no rule is auto-adopted. Publication remains NO_GO.

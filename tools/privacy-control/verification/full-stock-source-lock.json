@@ -1,0 +1,214 @@
+{
+  "schema": "upc-easyprivacy-template-lock/v1",
+  "snapshot_date": "2026-10-31",
+  "source_repository": "easylist/easylist",
+  "upstream_commit": "a69e7f5f3ed2b4893796da9b37bd2db9b6896eb1",
+  "scope": "PINNED_OFFICIAL_EASYPRIVACY_TEMPLATE_COMPONENTS_NOT_VERIFIED_DISTRIBUTION_BUILD",
+  "template": {
+    "path": "easyprivacy.template",
+    "size": 3557,
+    "git_blob_sha": "deee8365662771ac7c2bfcacc33ee1015c037dc8"
+  },
+  "license": "GPL-3.0-or-later AND CC-BY-SA-3.0",
+  "references": [
+    "https://github.com/easylist/easylist",
+    "https://easylist.to/"
+  ],
+  "files": [
+    {
+      "path": "template_header.txt",
+      "size": 351,
+      "git_blob_sha": "dd412117e521dc5c3c585f51ec36a76a05ae41df"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_general.txt",
+      "size": 58422,
+      "git_blob_sha": "8e7c519a5497b8209d2f15f19021c3cee86f5abe"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_general_emailtrackers.txt",
+      "size": 8393,
+      "git_blob_sha": "b72512c5b43bc1b2f2276052c3198477a30d29e1"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_trackingservers_general.txt",
+      "size": 9550,
+      "git_blob_sha": "5f9be15d88ad76e99c2bb2431386810cf78fff6a"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_trackingservers_thirdparty.txt",
+      "size": 74942,
+      "git_blob_sha": "b3f08c333e2d612967f4f4a6c9404f47f248a6c7"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_trackingservers_mining.txt",
+      "size": 4167,
+      "git_blob_sha": "50b9f715042f00ce6904e071ef581557423685a5"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_trackingservers_admiral.txt",
+      "size": 53601,
+      "git_blob_sha": "67fca1bb5efeddcd388ae2f31fff2465ee437c38"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_trackingservers_notifications.txt",
+      "size": 2397,
+      "git_blob_sha": "78ebd51aa935ff7361000d5e87fa004a2d7c9acb"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_trackingservers.txt",
+      "size": 1267,
+      "git_blob_sha": "db0e0f07e684dd67a0f2ccd2e98d0ad85f52db75"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_trackingservers_international.txt",
+      "size": 26705,
+      "git_blob_sha": "30f619393a010ae527bd3ac5de24ca8bf8c37401"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_thirdparty.txt",
+      "size": 99085,
+      "git_blob_sha": "1e54fa9982eca7bba91cbdb550293dcd2e10cec2"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_thirdparty_international.txt",
+      "size": 31940,
+      "git_blob_sha": "46c9c9b8135da69d96104e2862c199ad51eedca0"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific.txt",
+      "size": 74727,
+      "git_blob_sha": "6fa74d3a8b948d8ebec12ea564197c3501b50321"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_perimeterx.txt",
+      "size": 4859,
+      "git_blob_sha": "4f97fecc3b455d1a327ace8afa0808e30a5081a7"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_abp.txt",
+      "size": 1150,
+      "git_blob_sha": "af896bb5b6470ecfde09396bb1af6951be71ef89"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_uBO.txt",
+      "size": 11953,
+      "git_blob_sha": "c61b3852b194849bbe73653d176a6667e5a44675"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_dataunlocker.txt",
+      "size": 4460,
+      "git_blob_sha": "4c7feabaecdb1977f99b6d6e852420d25f49f5e7"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_a8net.txt",
+      "size": 36163,
+      "git_blob_sha": "fe174f948cfec312357218f6ae746df5b0223706"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_plausible.txt",
+      "size": 22356,
+      "git_blob_sha": "834920c4c880730988f94ed730b67916fe9a311d"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_tracedock.txt",
+      "size": 658,
+      "git_blob_sha": "348a3918d648b68efb5445fee549d9c97d2bffac"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_at-internet.txt",
+      "size": 3049,
+      "git_blob_sha": "1eb3cd517b64c11a3d0b5328a205136024a220f2"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_adobe.txt",
+      "size": 248150,
+      "git_blob_sha": "560b8ac320f0126f2b93749b59bdaddc8d7e2fac"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_acton.txt",
+      "size": 172845,
+      "git_blob_sha": "7005c75ef0088f90b8da9e8d408f49d91ed1fd97"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_otto.txt",
+      "size": 1777,
+      "git_blob_sha": "38762d56400a46790e16184dfaa4e9f7872cb854"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_commanders-act.txt",
+      "size": 654,
+      "git_blob_sha": "aa2d08e7c3aaa268105824c8221a09c4e65106b7"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_ingenious-technologies.txt",
+      "size": 10317,
+      "git_blob_sha": "882242fb74b4532e13979e6d45cb7f83202df654"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_np6.txt",
+      "size": 32212,
+      "git_blob_sha": "de4c3a29fb1f6e82361224b535221acd310cb333"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_criteo.txt",
+      "size": 88775,
+      "git_blob_sha": "29cb5141965720beddac7cfbab9752e4fe784ada"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_oracle.txt",
+      "size": 146075,
+      "git_blob_sha": "42f90285dca9eba31ee2180a82e16b667bd7cf5e"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_ad-ebis.txt",
+      "size": 7545,
+      "git_blob_sha": "48115933f61284c22ac1d2143aa670106e9a4f29"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_eulerian.txt",
+      "size": 11305,
+      "git_blob_sha": "9724abadb76181f958e6f5b3c751308375c550e1"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_keyade.txt",
+      "size": 772,
+      "git_blob_sha": "eeca71af0b6f2542312acc99fbcda8ee60f66130"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_lead-forensics.txt",
+      "size": 20076,
+      "git_blob_sha": "e92c07bf8d0e191f6e7b3f7c85f90dd003078277"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_webtrekk.txt",
+      "size": 9320,
+      "git_blob_sha": "e11a883b1f696bf2904522141d02d28891c8c47f"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_wizaly.txt",
+      "size": 3536,
+      "git_blob_sha": "1f355021c10a62b2a0232b03e3beaebd9cff2e70"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_cname_branch.txt",
+      "size": 98275,
+      "git_blob_sha": "d461332d4d4c0238cb854a71c20fbfc9c9196c30"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific_international.txt",
+      "size": 53670,
+      "git_blob_sha": "af76fdce254d262ddace0725d924f765f55cb56a"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_allowlist.txt",
+      "size": 52078,
+      "git_blob_sha": "062bd75addb167935042e8e697d4f0b4b712eada"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_allowlist_international.txt",
+      "size": 20587,
+      "git_blob_sha": "ca8880e3838d9f0745a15aac30449bbb1cc3c597"
+    }
+  ]
+}

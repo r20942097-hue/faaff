@@ -141,3 +141,43 @@ jobs:
             --report "$RUNNER_TEMP/upc-stock-comparison.json" \
             --html "$RUNNER_TEMP/upc-stock-review.html" \
             --github-summary "$GITHUB_STEP_SUMMARY"
+
+  pinned-full-template-comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Download and verify all pinned official EasyPrivacy template source parts
+        run: |
+          python tools/privacy-control/fetch_full_stock.py \
+            --output-dir "$RUNNER_TEMP/upc-full-template"
+      - name: Prepare pinned uBlock Origin engine in isolated temporary directory
+        run: |
+          python integrations/browser-filters/source/s/scripts/prepare_engine.py \
+            --directory "$RUNNER_TEMP/upc-full-engine"
+      - name: Install locked Ghostery with no install scripts
+        run: |
+          npm ci --prefix integrations/browser-filters/source/s/verification/ghostery \
+            --ignore-scripts --no-audit --no-fund
+      - name: Compare entire pinned official template source vs optional candidates
+        run: |
+          node tools/privacy-control/compare_full_stock.mjs \
+            --stock-dir "$RUNNER_TEMP/upc-full-template" \
+            --engine-dir "$RUNNER_TEMP/upc-full-engine" \
+            --ghostery-entry "integrations/browser-filters/source/s/verification/ghostery/node_modules/@ghostery/adblocker/dist/esm/index.js" \
+            --report "$RUNNER_TEMP/upc-full-template-comparison.json"
+      - name: Fail closed on incomplete comparisons, claims and source drift
+        run: |
+          python tools/privacy-control/verify_stock_report.py \
+            --full-template \
+            --report "$RUNNER_TEMP/upc-full-template-comparison.json" \
+            --html "$RUNNER_TEMP/upc-full-template-review.html" \
+            --github-summary "$GITHUB_STEP_SUMMARY"

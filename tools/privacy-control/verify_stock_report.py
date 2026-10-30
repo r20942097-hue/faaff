@@ -13,23 +13,30 @@ NEGATIVE = frozenset(("first-party-script", "boundary-control",
 ENGINES = ("ubo", "ghostery")
 
 
-def audit(report, lock, source_index):
+def audit(report, lock, source_index, full_template=False):
     errors = []
     counts = report.get("counts", {})
     original = report.get("source", {})
     candidate = report.get("candidate_source", {})
     if not isinstance(counts, dict):
         return ["missing count metadata"]
-    if (report.get("schema") != "upc-stock-fragment-comparison/v1"
+    expected_schema = ("upc-full-template-source-comparison/v1" if full_template
+                       else "upc-stock-fragment-comparison/v1")
+    if (report.get("schema") != expected_schema
             or report.get("result") != "PASS"
             or report.get("synthetic_only") is not True
-            or report.get("selected_upstream_fragments_not_full_list") is not True
+            or report.get("selected_upstream_fragments_not_full_list") is not (not full_template)
             or report.get("actual_browser_enabled_lists") != "NOT_VERIFIED"
             or report.get("production_browser_site_e2e") != "NOT_RUN"
             or report.get("publication") != "NO_GO"
             or type(report.get("adopted_rules")) is not int
             or report["adopted_rules"] != 0):
         errors.append("report falsely claims verification/publication")
+    if full_template and (
+            report.get("template_includes_verified") is not True
+            or report.get("template_source_components_complete") is not True
+            or report.get("published_easyprivacy_distribution_equivalence") != "NOT_VERIFIED"):
+        errors.append("template scope or published-build claim invalid")
     manifest_files = lock.get("files", [])
     if (not isinstance(original, dict)
             or original.get("repository") != "easylist/easylist"
@@ -46,6 +53,15 @@ def audit(report, lock, source_index):
                     or len(actual.get("sha256", "")) != 64):
                 errors.append("stock file identity or hash metadata incorrect")
                 break
+    if full_template:
+        template = lock.get("template", {})
+        observed_template = original.get("template", {}) if isinstance(original, dict) else {}
+        if (not isinstance(observed_template, dict)
+                or observed_template.get("path") != template.get("path")
+                or observed_template.get("git_blob_sha") != template.get("git_blob_sha")
+                or observed_template.get("bytes") != template.get("size")
+                or observed_template.get("verified") is not True):
+            errors.append("template source provenance mismatch")
     expected_candidate = next(
         (x for x in source_index.get("files", []) if x.get("path") == "v2/tracking.txt"),
         None)
@@ -56,7 +72,7 @@ def audit(report, lock, source_index):
             or candidate.get("git_blob_sha") != expected_candidate.get("git_blob_sha")
             or candidate.get("path") != "v2/tracking.txt"):
         errors.append("candidate source provenance mismatch")
-    if (counts.get("source_components") != 5
+    if (counts.get("source_components") != (39 if full_template else 5)
             or counts.get("candidates") != 38
             or counts.get("cases") != 266
             or counts.get("engine_observations") != 1064):
@@ -148,7 +164,7 @@ def summary(report):
         f"Additional synthetic blocks — uBO {c['additional_synthetic_blocks']['ubo']}, Ghostery {c['additional_synthetic_blocks']['ghostery']}.",
         f"Engine disagreements — before {c['engine_disagreements']['baseline']}, after {c['engine_disagreements']['combined']}.",
         "",
-        "**Not a full subscription, actual active browser configuration, or live-site privacy measurement.**",
+        ("**Complete pinned official template source inputs, but published distribution, active stock settings and real-site efficacy NOT_VERIFIED.**" if report["schema"] == "upc-full-template-source-comparison/v1" else "**Not a full subscription, actual active browser configuration, or live-site privacy measurement.**"),
         "No automatic candidate adoption. Release **NO_GO**.",
         "",
         "### Candidate hosts with additional synthetic matches",
@@ -175,14 +191,17 @@ def main():
     p.add_argument("--report", type=Path, required=True)
     p.add_argument("--github-summary", type=Path)
     p.add_argument("--html", type=Path)
+    p.add_argument("--full-template", action="store_true")
     args = p.parse_args()
     try:
         home = Path(__file__).resolve().parent
         project = home.parents[1]
         report = json.loads(args.report.read_text(encoding="utf-8"))
-        lock = json.loads((home / "verification/stock-source-lock.json").read_text(encoding="utf-8"))
+        lock_name = ("full-stock-source-lock.json" if args.full_template
+                     else "stock-source-lock.json")
+        lock = json.loads((home / "verification" / lock_name).read_text(encoding="utf-8"))
         source = json.loads((project / "ai/imports/s.json").read_text(encoding="utf-8"))
-        failures = audit(report, lock, source)
+        failures = audit(report, lock, source, full_template=args.full_template)
         for item in failures:
             print("UPC STOCK EVIDENCE FAIL:", item, file=sys.stderr)
         if failures:

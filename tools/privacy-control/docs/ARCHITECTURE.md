@@ -104,3 +104,16 @@ Metrics to measure (do not preclaim numbers): incremental blocks beyond stock; f
 **Phase 1 implemented in Draft PR #43**: offline read-only normalized exact-overlap analyzer, manifest-pinned Git blob identity checks, deterministic JSON output, 3.11/3.14 Python regression gates. Confirmed on the pinned 2026-10-28 `s/main` snapshot: 9 stable tracking entries, 38 optional v2 entries, nine exact normalized overlaps. This is *not* an EasyPrivacy/uBO Lite stock coverage measurement. Phase 1.5 adds pinned uBO + Ghostery synthetic-request comparison and explicit opt-out precedence controls. Both engines operate in independent, isolated CI fixtures; publication remains NO_GO.
 
 No browser add-on, DNS server, Windows service, HTTPS interception engine, local dashboard or live-site safety test has been implemented. Do not infer actual end-user privacy benefit from the offline or synthetic tests.
+
+## Phase 2c extension — official template closure
+
+A verified source-manifest traversal now resolves the complete pinned source
+closure from the upstream `easyprivacy.template`, with immutable file hashes
+and include-order checks. The fixed-input experiment runs alongside, not in
+place of, the five-part subset. Its purpose is to separate candidate matches
+already covered by the officially templated stock rules from synthetic
+incremental matches, without assuming browser configuration or equating the
+template expansion to the published built subscription.
+
+The CI gate remains **NO_GO** until exact browser stock subscriptions,
+real Firefox/uBO or Chromium/uBOL and essential real-site flows are exercised.

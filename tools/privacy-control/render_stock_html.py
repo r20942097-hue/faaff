@@ -4,6 +4,10 @@ from html import escape
 
 def render_stock(report):
     counts = report["counts"]
+    template_complete = report.get("template_source_components_complete") is True
+    scope_label = ("公式EasyPrivacyテンプレートに記載された全39ソース（公開配布版との同一性は未検証）"
+                   if template_complete else "固定したEasyPrivacyソース5ファイル（部分ベースライン）")
+
     def e(x):
         return escape(str(x), quote=True)
     metrics = [
@@ -52,12 +56,12 @@ footer{margin-top:24px;border-top:1px solid #8885;padding-top:12px;font-size:.85
 </style></head><body>
 <header><small>Unified Privacy Control / Phase 2 / READ-ONLY</small>
 <h1>上流の追跡防止フィルターとの比較</h1>
-<p class="muted">固定したEasyPrivacyソース5ファイルと候補38件を、実際の遮断エンジンが合成通信で比較した結果</p>
+<p class="muted">""" + e(scope_label) + """と候補38件を、実際の遮断エンジンが合成通信で比較した結果</p>
 </header><section><h2>観測の概要</h2><dl class="metrics">
 """ + info + """
 </dl></section><section><h2>解釈上の制約</h2>
 <p class="note"><strong>公開不可（NO_GO）。</strong>
-EasyPrivacy全体ではなく公式ソースの選択した構成ファイルだけを用いた検証です。
+固定ソースの比較であり、公開済み配布リストや実際のブラウザーの有効リストとの同等性は未検証です。
 利用中ブラウザーの購読状態、実サイトの追加追跡防止効果、ログイン・署名URLの安全性は確認されていません。
 遮断した広告数・実利用者の追跡数を表すものでもありません。</p>
 </section><section><h2>候補別の比較</h2><div class="table-scroll"><table>
