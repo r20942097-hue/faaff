@@ -1,0 +1,4 @@
+# Keep reviewed executable test bytes identical on Windows and Linux.
+# The reviewed SHA256 checks are intentionally byte-exact; CRLF changes fail closed.
+ai/tests/product_contracts.js text eol=lf
+ai/tests/isolate_node.sh text eol=lf
