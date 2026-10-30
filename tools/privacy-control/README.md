@@ -87,3 +87,25 @@ Run in ephemeral CI under `pinned-upstream-stock-comparison`. All network
 fetches are bounded, pinned, and validated before being used. Any mismatch
 fails closed. Approved publication remains **NO_GO**; browser real stock
 configuration, Firefox full-uBO, and real sites are still not verified.
+
+### Phase 2b: candidate-level explainability and fail-closed evidence
+
+The selected-source comparison now tests **seven** scenarios per each of 38 candidate
+hosts: third-party scripts/images/XHR, subdomains, first-party traffic, boundary
+hosts and URLs containing the host only as text. For each request, two real
+engines are evaluated both *before* and *after* adding the candidates:
+**266 synthetic requests, 1,064 engine observations**.
+
+The machine-readable report contains all raw request-case booleans and a
+38-host classification of stock-fragment matches and additional synthetic
+matches. `verify_stock_report.py` independently recomputes every count,
+checks source blob provenance, ensures the three negative controls never gain
+a new block, detects false assertions of verified live-site safety and rejects
+automatic adoption. It also verifies that per-host summaries agree with all
+underlying cases. The report itself remains in temporary CI storage and may
+be regenerated with pinned sources.
+
+The absence of an incremental match is NOT proof that an entire default
+browser profile covers the candidate. Likewise the presence of an incremental
+match is NOT proof of real-world privacy benefit. No upstream changes are
+automatically promoted.

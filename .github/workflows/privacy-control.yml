@@ -135,31 +135,8 @@ jobs:
             --engine-dir "$RUNNER_TEMP/upc-engine" \
             --ghostery-entry "integrations/browser-filters/source/s/verification/ghostery/node_modules/@ghostery/adblocker/dist/esm/index.js" \
             --report "$RUNNER_TEMP/upc-stock-comparison.json"
-      - name: Require honest selected-component report and no publication
+      - name: Fail closed on incomplete per-host evidence and release claims
         run: |
-          python - <<'PY'
-          import json, os
-          from pathlib import Path
-          result = json.loads((Path(os.environ["RUNNER_TEMP"]) / "upc-stock-comparison.json").read_text())
-          c = result["counts"]
-          assert result["schema"] == "upc-stock-fragment-comparison/v1"
-          assert result["result"] == "PASS"
-          assert c["source_components"] == 5
-          assert c["candidates"] == 38 and c["cases"] == 228
-          assert c["engine_observations"] == 912
-          assert len(result["findings"]) == 228
-          assert result["selected_upstream_fragments_not_full_list"] is True
-          assert result["actual_browser_enabled_lists"] == "NOT_VERIFIED"
-          assert result["production_browser_site_e2e"] == "NOT_RUN"
-          assert result["adopted_rules"] == 0 and result["publication"] == "NO_GO"
-          assert all(row["real_site_incremental_efficacy"] == "NOT_ESTABLISHED" for row in result["findings"])
-          assert c["baseline_regressions"]["ubo"] == 0 and c["baseline_regressions"]["ghostery"] == 0
-          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as f:
-              f.write("## EasyPrivacy pinned subset — synthetic stock overlap\n\n")
-              f.write("Selected components: 5, candidates: 38, fixture cases: 228, two-engine observations: 912.\n\n")
-              f.write(f"Baseline matched: uBO {c['selected_source_baseline_blocked']['ubo']}, Ghostery {c['selected_source_baseline_blocked']['ghostery']}.\n\n")
-              f.write(f"Additional synthetic matches: uBO {c['additional_synthetic_blocks']['ubo']}, Ghostery {c['additional_synthetic_blocks']['ghostery']}.\n\n")
-              f.write(f"Engine disagreements: baseline {c['engine_disagreements']['baseline']}, combined {c['engine_disagreements']['combined']}.\n\n")
-              f.write("**Not full EasyPrivacy or verified active browser stock; not real-site efficacy; adoption 0, release NO_GO.**\n")
-          print("UPC STOCK SUBSET GATE PASS:", c)
-          PY
+          python tools/privacy-control/verify_stock_report.py \
+            --report "$RUNNER_TEMP/upc-stock-comparison.json" \
+            --github-summary "$GITHUB_STEP_SUMMARY"

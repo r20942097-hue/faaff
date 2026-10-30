@@ -91,6 +91,8 @@ for (const host of hosts) {
      url:'https://' + host + '/probe.js', type:'script'},
     {host, kind:'boundary-control', origin:'https://example.org/',
      url:'https://' + host + '.invalid.test/probe.js', type:'script'},
+    {host, kind:'url-text-control', origin:'https://example.org/',
+     url:'https://example.org/resource/path/' + host, type:'script'},
   );
 }
 const stockRaw = stockParts.join('\n');
@@ -129,13 +131,38 @@ for (let i=0; i<scenarios.length; i++) {
   }
   if (old.ubo !== old.ghostery) counts.engine_disagreements.baseline++;
   if (updated.ubo !== updated.ghostery) counts.engine_disagreements.combined++;
+  if (['first-party-script','boundary-control','url-text-control'].includes(testcase.kind)) {
+    for (const engine of ['ubo','ghostery']) {
+      assert.equal(updated[engine], old[engine],
+        'candidate changed required non-matching control: ' + engine + ' / ' +
+        testcase.host + ' / ' + testcase.kind);
+    }
+  }
   findings.push({host:testcase.host,scenario:testcase.kind,
     stock_fragment_matches:old,candidate_plus_stock_matches:updated,
     actual_browser_stock_profile:'NOT_VERIFIED',
     real_site_incremental_efficacy:'NOT_ESTABLISHED'});
 }
-assert.equal(counts.cases, 228);
-assert.equal(counts.engine_observations, 912);
+const perHost = hosts.map(host => {
+  const subset = findings.filter(x => x.host === host);
+  const incremental = Object.fromEntries(['ubo','ghostery'].map(engine => [
+    engine, subset.filter(row => !row.stock_fragment_matches[engine] &&
+                                row.candidate_plus_stock_matches[engine])
+                  .map(row => row.scenario)
+  ]));
+  const covered = Object.fromEntries(['ubo','ghostery'].map(engine => [
+    engine, subset.filter(row => row.stock_fragment_matches[engine])
+                  .map(row => row.scenario)
+  ]));
+  return {host, selected_fragment_coverage:covered,
+          additional_synthetic_cases:incremental,
+          active_browser_stock_coverage:'NOT_VERIFIED',
+          incremental_real_world_privacy:'NOT_ESTABLISHED',
+          proposed_auto_adoption:false};
+});
+assert.equal(counts.cases, 266);
+assert.equal(counts.engine_observations, 1064);
+assert.equal(perHost.length, 38);
 const report = {
  schema:'upc-stock-fragment-comparison/v1',
  result:'PASS',
@@ -145,7 +172,7 @@ const report = {
                    path:'v2/tracking.txt',git_blob_sha:sourceEntry.git_blob_sha},
  engines:{ublock_origin_commit:engineLock.ublock.commit,
           ghostery_version:engineLock.secondary_engine.version},
- counts, findings, synthetic_only:true,
+ counts, findings, per_host:perHost, synthetic_only:true,
  selected_upstream_fragments_not_full_list:true,
  actual_browser_enabled_lists:'NOT_VERIFIED',
  production_browser_site_e2e:'NOT_RUN',
