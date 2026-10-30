@@ -98,7 +98,7 @@ class DecisionTests(unittest.TestCase):
         calls=[]
         def runner(*args,**kw):
             calls.append(kw['control'])
-            return (control if control is not None else {'status':'PASS','worker':'PASS','popup':'PASS','roundtrip':'PASS'}) if kw['control'] else (product if product is not None else {'status':'PASS','worker':'PASS','popup':'RENDERED_ONLY'})
+            return (control if control is not None else {'status':'PASS','worker':'PASS','worker_identity':'PASS','popup':'PASS','popup_identity':'PASS','roundtrip':'PASS'}) if kw['control'] else (product if product is not None else {'status':'PASS','worker':'PASS','worker_identity':'PASS','popup':'RENDERED_ONLY','popup_identity':'PASS'})
         with patch.object(gate,'isolation_check',return_value=[]), patch.object(gate,'make_control_fixture'):
             with patch.object(gate,'extract_verified_root',return_value={'files':1}):
                 result=gate.inspect(Path('fixture.zip'),'0'*64,root,'net:[1]',
@@ -231,7 +231,7 @@ class SyntheticOnlyTests(unittest.TestCase):
         def runner(path, profile, **kwargs):
             observed.append((path, profile, kwargs))
             self.assertTrue((path / 'manifest.json').is_file())
-            return {'status': 'PASS', 'worker': 'PASS', 'popup': 'PASS', 'roundtrip': 'PASS'}
+            return {'status': 'PASS', 'worker': 'PASS', 'worker_identity': 'PASS', 'popup': 'PASS', 'popup_identity': 'PASS', 'roundtrip': 'PASS'}
         with patch.object(gate, 'isolation_check', return_value=[]):
             r = gate.synthetic_only('net:[4321]', runner=runner)
         self.assertEqual(r['status'], 'PASS_SYNTHETIC_ONLY')
@@ -346,7 +346,7 @@ class StrictEvidenceTests(unittest.TestCase):
     def test_synthetic_pass_does_not_prove_product(self):
         with patch.object(gate, 'isolation_check', return_value=[]):
             outcome = gate.synthetic_only('net:[1]', runner=lambda *a, **k:
-                {'status':'PASS','worker':'PASS','popup':'PASS','roundtrip':'PASS'})
+                {'status':'PASS','worker':'PASS','worker_identity':'PASS','popup':'PASS','popup_identity':'PASS','roundtrip':'PASS'})
         self.assertEqual(outcome['status'], 'PASS_SYNTHETIC_ONLY')
         self.assertEqual(outcome['product_browser'], 'NOT_RUN')
         self.assertEqual(outcome['recording'], 'NOT_RUN')
@@ -354,3 +354,59 @@ class StrictEvidenceTests(unittest.TestCase):
 
 
 if __name__=='__main__':unittest.main()
+
+class RuntimeIdentityTests(unittest.TestCase):
+    def setUp(self):
+        self.ident = 'a' * 32
+        self.manifest = {'background': {'service_worker': 'js/background.js'}}
+        self.url = f'chrome-extension://{self.ident}/js/background.js'
+
+    def test_expected_worker_script_and_id(self):
+        self.assertEqual(gate.worker_extension_id(self.url, self.manifest), self.ident)
+
+    def test_different_worker_script_is_rejected(self):
+        self.assertIsNone(gate.worker_extension_id(self.url.replace('background.js', 'other.js'), self.manifest))
+
+    def test_nonextension_worker_is_rejected(self):
+        self.assertIsNone(gate.worker_extension_id(self.url.replace('chrome-extension:', 'https:'), self.manifest))
+
+    def test_invalid_extension_id_is_rejected(self):
+        self.assertIsNone(gate.worker_extension_id(self.url.replace(self.ident, 'z'*32), self.manifest))
+
+    def test_query_and_fragment_are_rejected(self):
+        for extra in ('?token=x', '#fragment'):
+            with self.subTest(extra=extra):
+                self.assertIsNone(gate.worker_extension_id(self.url + extra, self.manifest))
+
+    def test_missing_declared_script_is_rejected(self):
+        self.assertIsNone(gate.worker_extension_id(self.url, {'background': {}}))
+        self.assertIsNone(gate.worker_extension_id(self.url, {'background': []}))
+
+    def test_encoded_script_url_is_rejected(self):
+        self.assertIsNone(gate.worker_extension_id(self.url.replace('/js/', '/js%2F'), self.manifest))
+
+    def test_popup_origin_and_runtime_id_match(self):
+        self.assertTrue(gate.popup_identity_matches(
+            {'runtime_id': self.ident, 'origin': 'chrome-extension://' + self.ident}, self.ident))
+
+    def test_popup_wrong_id_or_origin_is_rejected(self):
+        for identity in ({'runtime_id': 'b'*32, 'origin': 'chrome-extension://' + self.ident},
+                         {'runtime_id': self.ident, 'origin': 'https://example.test'},
+                         {'runtime_id': self.ident}, {}, None):
+            with self.subTest(identity=identity):
+                self.assertFalse(gate.popup_identity_matches(identity, self.ident))
+
+    def test_control_missing_worker_identity_blocks_product(self):
+        probe = DecisionTests()
+        outcome, calls = probe.run_gate(control={
+            'status': 'PASS', 'worker': 'PASS', 'popup': 'PASS', 'roundtrip': 'PASS'})
+        self.assertEqual(outcome['reason'], 'BROWSER_HARNESS_CONTROL_FAILED')
+        self.assertEqual(calls, [True])
+
+    def test_product_missing_popup_identity_blocks_pass(self):
+        probe = DecisionTests()
+        outcome, calls = probe.run_gate(product={
+            'status': 'PASS', 'worker': 'PASS', 'worker_identity': 'PASS', 'popup': 'RENDERED_ONLY'})
+        self.assertEqual(outcome['reason'], 'PRODUCT_OFFLINE_BROWSER_CHECK_INCOMPLETE')
+        self.assertEqual(calls, [True, False])
+
