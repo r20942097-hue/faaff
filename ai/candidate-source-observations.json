@@ -1,0 +1,125 @@
+{
+  "schema": "candidate-source-observations/v1",
+  "observed_on": "2026-10-30",
+  "authority": "user Library uploaded source archives; NOT a release authority",
+  "verification": "read-only local ZIP/CRC/SHA256 introspection, no user content published",
+  "published_original_archives": false,
+  "legacy_governance": "NO main merge, no ZIP tracked, no release",
+  "candidates": [
+    {
+      "product": "RPLAY Stable Player",
+      "version": "2.68.0",
+      "archive": "RPLAY_Stable_Player_v2.68.0_LEDGER_SELF_CROSS_CANDIDATE_NO_GO(2).zip",
+      "sha256": "e2dba6dbe4fd18efc934f78ab4768fcf66ca5b22cf0d85da7495f4d1f5f7767e",
+      "size_bytes": 42009839,
+      "zip_entries": 5425,
+      "crc": "PASS",
+      "untrusted_path_entries": 0,
+      "manifest_v3_browsers": [
+        "Chromium",
+        "Firefox"
+      ],
+      "source_js_files": 51,
+      "python_test_modules": 47,
+      "gate": "NO_GO",
+      "real_browser": "NOT_RUN",
+      "notes": "RPLAY v2.68 is NOT synonymous with StreamHarbor v2.71.1 in other candidate bundle",
+      "source_syntax": {
+        "node_version": "22.16.0",
+        "standalone_js_pass": 49,
+        "standalone_js_fragments_not_individually_parseable": [
+          "src/offscreen_pre.js",
+          "src/offscreen_post.js"
+        ],
+        "generated_offscreen_js_pass": 2,
+        "python_test_compile_pass": 47,
+        "interpretation": "Offscreen pre/post are intentionally joined by build; generated browser offscreen.js parses. No runtime recorder execution."
+      },
+      "focused_tests_run": {
+        "python_unittest": {
+          "ledger_cross": 15,
+          "assembly": 13,
+          "rec_cross": 13,
+          "total": 41,
+          "failed": 0
+        },
+        "node_test": {
+          "ledger_cross": 21,
+          "assembly": 14,
+          "rec_cross": 12,
+          "total": 47,
+          "failed": 0
+        },
+        "total": 88,
+        "scope": "local source-only extracted copy, no live recordings/site",
+        "status": "PASS"
+      }
+    },
+    {
+      "product": "Three Addons",
+      "bundle": "v11 CROSS_AUDIT",
+      "archive": "Three_Addons_Optimized_20261030_v11_CROSS_AUDIT_GO_CANDIDATE.zip",
+      "sha256": "c000e4f67ece8feee66567c81106b77ee55d544fea1e7c1f6cf1c38715dc7ef6",
+      "size_bytes": 2039916,
+      "zip_entries": 14,
+      "checksum_file_entries": 13,
+      "nested_packages": 6,
+      "nested_sha_size_crc": "PASS",
+      "gate": "GO_CANDIDATE_NOT_RELEASED",
+      "real_browser": "NOT_RUN",
+      "role": "comparison baseline"
+    },
+    {
+      "product": "Three Addons",
+      "bundle": "v12 PHASE_A_READY",
+      "archive": "Three_Addons_Optimized_20261030_v12_PHASE_A_READY_GO_CANDIDATE.zip",
+      "sha256": "0e8b215b5380ee6798e28e5e84288513e2a1f4ce7c21e921e6d9f11eef2f7a98",
+      "size_bytes": 2047093,
+      "zip_entries": 14,
+      "checksum_file_entries": 13,
+      "nested_packages": 6,
+      "nested_sha_size_crc": "PASS",
+      "gate": "GO_CANDIDATE_NOT_RELEASED",
+      "real_browser": "NOT_RUN",
+      "versions": {
+        "StreamHarbor": "2.71.1",
+        "OmniStream & YouTube Optimizer": "2.13.0",
+        "Tab & Stream Workspace": "0.80.0"
+      },
+      "observed_checks": {
+        "datatools_selftest": "41/41 PASS",
+        "node22_js_syntax": "226/226 PASS"
+      },
+      "security_review_pending": [
+        "StreamHarbor and RPLAY broad https://*/* host permission rationale",
+        "No live Firefox/site/recording test"
+      ],
+      "manifest_audit": {
+        "browser_pairs": 3,
+        "declared_background_references_verified": true,
+        "content_script_and_ui_references_verified": true,
+        "high_scope_hosts": "StreamHarbor Chrome and Firefox: https://*/*",
+        "real_chromium_runtime": "BLOCKED: local managed Chromium 144 did not expose extension worker; cannot infer product failure or success",
+        "note": "No package original modified"
+      }
+    }
+  ],
+  "not_acquired": [
+    "v13 or newer addon archive not located in inspected Library folder",
+    "approved production source release provenance",
+    "native Firefox 159 and Windows real-device evidence",
+    "live RPLAY/YouTube tests"
+  ],
+  "references": [
+    "ai/PROJECT_STATE.json",
+    "ai/HANDOFF.md",
+    "ai/tooling-readiness.json"
+  ],
+  "verification_reproduction": "python ai/check_candidate_archive.py <local-archive>; no raw archive upload",
+  "github_prototype_separate": {
+    "branch": "proposal/rplay-3genre-2026-10-28",
+    "status": "SEPARATE_PROTOTYPE_NOT_PRODUCT_RUNTIME"
+  },
+  "last_development_action": "2026-10-30 read-only source tests + PR39 manifest-resource/permissions reviewer",
+  "github_workstream": "proposal/tool-data-readiness-20261030"
+}
