@@ -113,3 +113,19 @@ Agent-Reach v1.6.0 was reinstalled from the reviewed **immutable upstream source
 **This proposal is now a functioning read-only public-data smoke harness, not a fully configured Agent-Reach integration.** A pass on ephemeral GitHub runners does not install Agent-Reach into ChatGPT/Codex, enable a user's optional channels, prove Firefox/Windows browser integration, or certify upstream providers. Transitive Python wheels are not hash-locked.
 
 The test's new negative-path security check additionally exercises localhost/private/cloud-metadata/file URL inputs through the CLI and requires `BAD_INPUT` without following untrusted URLs; successful execution is documented in the latest CI check after this revision.
+
+## Locked Agent-Reach dependency verification — 2026-10-30
+
+A separate and committed [Python 3.12 uv project](locked-agent-reach/pyproject.toml) with [universal `uv.lock`](locked-agent-reach/uv.lock) is now the **test authority for Agent-Reach's runtime**. It pins the complete upstream Git revision `beabda7486e9a666360b18cdb5c0e759c2c4d20f`, resolves **20 packages**, and records **147 PyPI distribution SHA-256 hashes** across the supported locked package assets. These numbers are lockfile records, not the number of actually installed wheels on each OS.
+
+On both GitHub-hosted Linux and Windows, CI now runs:
+1. `uv lock --project locked-agent-reach --check` to reject an out-of-date dependency lock.
+2. `uv sync --project locked-agent-reach --locked --no-dev` to install the immutable resolution in an independent virtual environment.
+3. Version and source-integrity checks with [`verify-lock.py`](locked-agent-reach/verify-lock.py) in that environment, including runtime `agent-reach==1.6.0` and `yt-dlp==2026.8.19`.
+4. All subsequent `doctor`, `channels`, `check github --search`, localhost/private-URL denial, and anonymous public reads are routed to **that locked executable**, not the separately installed `uv tool` on PATH.
+
+The older `uv tool install` path remains tested for existing Windows PowerShell compatibility. However, **the distributable Windows installer has not yet been switched to a lock-enforcing strategy**; therefore this CI lock does not claim the user's eventual installation is fully pinned. SkillSpector's transitive Python dependencies are still not universally locked. The upstream Git project is immutable, but build-system provenance and all future upstream service behavior are outside this CI guarantee.
+
+[uv official lock and sync documentation](https://docs.astral.sh/uv/concepts/projects/sync/) distinguishes `--locked` (checks lock consistency) from `--frozen` (skips validation). The gate uses the former to avoid accepting stale lockfiles.
+
+Status: **cross-platform locked installation and verification PASS** in [CI run 41069643298](https://github.com/r20942097-hue/faaff/actions/runs/41069643298); subsequent functional-probe routing is verified by the most recent PR checks. No setup, login, secret, Windows user's local environment modification, main merge, release, or browser profile access occurred.
