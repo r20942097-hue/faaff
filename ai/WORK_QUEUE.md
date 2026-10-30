@@ -1,4 +1,4 @@
-# Integration queue (observed 2026-10-30; faaff main 479a15e)
+# Integration queue (observed 2026-10-25)
 
 1. [IN_THIS_PR] Add AI navigation, pinned `s/main` import and scoped offline CI without changing subscription URLs or existing `browser_filter_lists/`.
 2. [PENDING] Review stacked graph and PR base refs: #1 -> #2 -> #8; #12 -> #13; #14 (merged) -> #15 -> #16 (both closed 2026-10-28, contained ZIPs). Review and merge only with evidence and preserved dependencies.
