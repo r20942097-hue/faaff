@@ -60,6 +60,19 @@ class RuleParserTests(unittest.TestCase):
             with self.subTest(line=line):
                 self.assertFalse(parse_rule(line).supported)
 
+    def test_trailing_and_empty_options_are_not_accepted(self):
+        for line in ("||site.org^$third-party,",
+                     "||site.org^$,third-party",
+                     "||site.org^$third-party,,script"):
+            with self.subTest(line=line):
+                self.assertFalse(parse_rule(line).supported)
+
+    def test_unknown_bracket_metadata_is_not_silently_dropped(self):
+        parsed = parse_list("[Untrusted Metadata]" + chr(10)
+                            + "||site.org^$third-party" + chr(10), "suspicious")
+        self.assertEqual(len(parsed), 2)
+        self.assertEqual(parsed[0].reason, "UNSUPPORTED_OR_COMPLEX_SYNTAX")
+
     def test_contradictory_first_third_scope_is_rejected(self):
         self.assertEqual(
             parse_rule("||site.org^$first-party,third-party").reason,

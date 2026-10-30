@@ -55,7 +55,11 @@ def parse_rule(raw: str) -> Rule:
     host = match.group(1).lower()
     if not valid_host(host):
         return Rule(text, None, None, (), "INVALID_OR_UNSAFE_HOST")
-    options = tuple(x.lower() for x in (match.group(2) or "").split(",") if x)
+    raw_options = match.group(2)
+    parts = raw_options.split(",") if raw_options is not None else []
+    if any(not part for part in parts):
+        return Rule(text, None, host, (), "UNSUPPORTED_OPTIONS")
+    options = tuple(part.lower() for part in parts)
     if len(options) != len(set(options)) or any(x not in SUPPORTED for x in options):
         return Rule(text, None, host, options, "UNSUPPORTED_OPTIONS")
     if "first-party" in options and "third-party" in options:
@@ -67,7 +71,8 @@ def parse_rule(raw: str) -> Rule:
 
 def extract_active(source: str) -> list[str]:
     return [line.strip() for line in source.splitlines()
-            if line.strip() and not line.lstrip().startswith(("!", "["))]
+            if line.strip() and not line.lstrip().startswith("!")
+            and line.strip() != "[Adblock Plus 2.0]"]
 
 
 def parse_list(source: str, label: str) -> list[Rule]:

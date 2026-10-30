@@ -92,10 +92,11 @@ jobs:
           assert x['schema'] == 'upc-engine-matrix/v1'
           assert x['result'] == 'PASS'
           assert x['pinned_tracking_rules'] == 47
-          assert x['requests_compared'] == 564
+          assert x['requests_compared'] == 568
+          assert x['exception_controls'] == 4
           assert x['synthetic_only'] is True
           assert x['actual_stock_lists_enabled'] == 'NOT_RUN'
           assert x['live_site_compatibility'] == 'NOT_RUN'
           assert x['publication'] == 'NO_GO'
-          print('UPC ENGINE EVIDENCE: PASS 564 synthetic checks, live sites NOT_RUN')
+          print('UPC ENGINE EVIDENCE: PASS 568 synthetic comparisons incl. exception controls, live sites NOT_RUN')
           PY

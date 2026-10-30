@@ -44,3 +44,9 @@ See [architecture](docs/ARCHITECTURE.md) for the full plan.
 ## CLI output and security
 
 `--check` verifies pinned integrity and fail-closed counts. Missing source files, Git blob/size mismatch, duplicate rules or a changed baseline are treated as failures. The CLI refuses writing reports under the repo path; GitHub Actions writes temporary outputs outside checkout. No request URLs or user credentials are collected.
+
+## Phase 1.5: actual pinned engine comparison
+
+The CI now also installs the pinned uBlock Origin matching engine and locked Ghostery 2.20.1 dependency **outside the publishing pipeline**. It verifies each of the 47 tracking rules from the two pinned lists against six synthetic request cases (third-party, subdomain, first-party, hostname boundary, URL text, image), comparing both engines. Separate in-memory exception tests ensure that explicit `@@` overrides win. No dynamic browser extension or production website is used.
+
+Run the engine matrix in CI; it requires the verified `s` engine bundle and the lockfile. An isolated engine match confirms parser/selector behavior on synthetic traffic, **not** incremental blocking over stock subscriptions. The stock-coverage and real-site markers remain `NOT_RUN`.

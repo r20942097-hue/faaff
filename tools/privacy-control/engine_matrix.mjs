@@ -88,10 +88,29 @@ for (const name of sourceFiles) {
     observations.push(host);
     rules++;
   }
-  profiles.push({ path: name, rules: observations.length, scenarios_per_rule: 6 });
+  // A synthetic opt-out must override blocking in both actual engines.
+  // This exception lives in memory only, never in a published filter.
+  const host = observations[0];
+  assert.ok(host, 'no first rule for exception control');
+  const nl = String.fromCharCode(10);
+  const withException = list + nl + '@@||' + host + '^$third-party' + nl;
+  await primary.useLists([{ name, raw: withException }]);
+  const secondaryWithException = ghostery.FiltersEngine.parse(withException);
+  const probe = {
+    originURL: 'https://unrelated.example/',
+    sourceUrl: 'https://unrelated.example/',
+    url: 'https://' + host + '/probe.js', type: 'script',
+  };
+  assert.equal(primary.matchRequest(probe), 2, 'uBO exception not honored');
+  const outcome = secondaryWithException.match(ghostery.Request.fromRawDetails(probe));
+  assert.equal(outcome.match, false, 'Ghostery exception not honored');
+  assert.ok(outcome.exception, 'Ghostery exception not identified');
+  checks += 2;
+  profiles.push({ path: name, rules: observations.length,
+                  scenarios_per_rule: 6, exception_controls: 2 });
 }
 assert.equal(rules, 47);
-assert.equal(checks, 47 * 6 * 2);
+assert.equal(checks, 47 * 6 * 2 + 4);
 const report = {
   schema: 'upc-engine-matrix/v1',
   result: 'PASS',
@@ -99,6 +118,7 @@ const report = {
   engines: { ublock_origin_commit: lock.ublock.commit,
              ghostery_version: lock.secondary_engine.version },
   pinned_tracking_rules: rules,
+  exception_controls: 4,
   requests_compared: checks,
   profiles,
   synthetic_only: true,
