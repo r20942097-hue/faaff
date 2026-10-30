@@ -101,3 +101,7 @@ Verified [blocking audit run 41030412200](https://github.com/r20942097-hue/faaff
 ## Secret scanner positive control (2026-10-30)
 
 [GitHub Actions run 41032532965](https://github.com/r20942097-hue/faaff/actions/runs/41032532965): actionlint, zizmor and Gitleaks jobs **PASS**. Gitleaks additionally detected an artificial high-entropy AWS-formatted identifier created exclusively inside the ephemeral runner, correctly returning exit code 1. The generated value and unredacted scanner output were not uploaded or written to Git history. Reachable history at this run: 484 commits, no leaks detected. The sensitivity test covers one signature only, not all possible secret formats.
+
+## Hash-locked zizmor and positive audit control — 2026-10-30
+
+The zizmor job now uses a committed wheel pin at `integrations/agent-tools/github-quality/zizmor-linux-requirements.txt` with SHA-256 `58e878eb2dbd2c6183c105e1ac28c14f7dd1eca44a783f1fe2a69647d012c410` for Linux x86_64, and installs using `pip --no-deps --require-hashes --only-binary=:all:`. It fails closed on wheel mutation or mismatch and must be separately pinned for other architectures. A synthetic dangerous GitHub workflow is generated only in runner temporary storage; zizmor is expected to return finding code **13** (medium) or **14** (high), never the audit-error code 1. This positive control was verified by [audit run 41034945285](https://github.com/r20942097-hue/faaff/actions/runs/41034945285). Scanner source and dependency locking do not mean upstream code is guaranteed safe.
