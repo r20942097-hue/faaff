@@ -94,3 +94,7 @@ The additional `.github/workflows/agent-tools-install-smoke.yml` installs pinned
 ## Positive security-scanner regression (2026-10-30)
 
 [GitHub Actions run 41032768940](https://github.com/r20942097-hue/faaff/actions/runs/41032768940) **PASS on Linux and Windows installation**. On Linux, a harmless synthetic skill produced valid JSON. A separate inert Python source file containing a direct `exec()` call was never executed, but SkillSpector's static analysis flagged it. With `--fail-on-findings`, the scanner returned exit code 1 and its documented JSON `issues` array was nonempty. This proves detection of that one synthetic risk pattern, not comprehensive malicious-skill coverage.
+
+## Installer identity contract — 2026-10-30
+
+The PowerShell installer now validates the full Agent-Reach v1.6+ JSON version envelope before allowing any optional `setup`: `schema_version=1`, `ok=true`, `action=version`, and a supported semantic version. It rejects malformed, non-version or old responses without overwriting an existing installation. The permanent Windows DryRun test covers a valid response and six invalid cases. SkillSpector's documented `SkillSpector v...` CLI version is validated as well, and a newly installed copy must match the pinned v2.12.0 source. A Windows isolated install CI step exercises that preflight on an actual temporary installation. No account logins or setup are run. These checks are identity/compatibility assertions, not a full malware attestation.
