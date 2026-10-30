@@ -94,7 +94,7 @@ class ProxyHandler(BaseHTTPRequestHandler):
                        + dest + '"></body></html>').encode()
             mime = "text/html; charset=utf-8"
         elif parsed.path == "/batch" and parsed.hostname == PAGE:
-            hosts = sorted(self.server.extra_hosts | (HOSTS - {PAGE}))
+            hosts = sorted(self.server.extra_hosts | HOSTS)
             targets = [
                 f'<img src="http://{host}:{self.server.server_port}/safe.png?token={token}" alt="">'
                 for host in hosts

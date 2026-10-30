@@ -145,7 +145,7 @@ class CandidateManagedPolicyTests(unittest.TestCase):
                 r=conn.getresponse()
                 self.assertEqual(r.status,200)
                 html=r.read().decode()
-                for host in [*self.hosts,SENTINEL,*CONTROL_HOSTS[1:]]:
+                for host in [*self.hosts,SENTINEL,*CONTROL_HOSTS]:
                     self.assertIn("http://"+host+":",html)
                 self.assertNotIn("<script",html)
             finally:
