@@ -191,5 +191,167 @@ class PreflightTests(unittest.TestCase):
         self.assertEqual(m.main([str(self.src)]),2)
 
 
+
+class ManifestCoverageTests(unittest.TestCase):
+    """Negative fixtures for MV2/MV3 package-reference omissions."""
+    setUp = PreflightTests.setUp
+    make_dir = PreflightTests.make_dir
+    report_zip = PreflightTests.report_zip
+
+    def _manifest(self, **fields):
+        base = {"manifest_version": 3, "name": "Synthetic", "version": "1.0"}
+        base.update(fields)
+        return base
+
+    def test_dnr_existing_ruleset_file(self):
+        manifest = self._manifest(declarative_net_request={"rule_resources": [
+            {"id": "base", "enabled": True, "path": "rules.json"}]})
+        self.make_dir(manifest=manifest, files=["rules.json"])
+        self.assertEqual(m.inspect(self.src)["status"], "PASS")
+
+    def test_dnr_missing_ruleset_file_blocks_pass(self):
+        manifest = self._manifest(declarative_net_request={"rule_resources": [
+            {"id": "base", "enabled": False, "path": "missing-rules.json"}]})
+        self.make_dir(manifest=manifest, files=[])
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_dnr_requires_ruleset_path(self):
+        manifest = self._manifest(declarative_net_request={"rule_resources": [
+            {"id": "base", "enabled": True}]})
+        self.make_dir(manifest=manifest, files=[])
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_dnr_null_ruleset_path(self):
+        manifest = self._manifest(declarative_net_request={"rule_resources": [
+            {"id": "base", "enabled": True, "path": None}]})
+        self.make_dir(manifest=manifest, files=[])
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_dnr_invalid_and_duplicate_ids(self):
+        manifest = self._manifest(declarative_net_request={"rule_resources": [
+            {"id": "base", "enabled": True, "path": "rules.json"},
+            {"id": "base", "enabled": False, "path": "rules.json"}]})
+        self.make_dir(manifest=manifest, files=["rules.json"])
+        self.assertIn("duplicate ruleset id", " ".join(m.inspect(self.src)["extensions"][0]["errors"]))
+
+    def test_dnr_bad_enabled_bool(self):
+        manifest = self._manifest(declarative_net_request={"rule_resources": [
+            {"id": "base", "enabled": "true", "path": "rules.json"}]})
+        self.make_dir(manifest=manifest, files=["rules.json"])
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_dnr_not_a_dictionary(self):
+        self.make_dir(manifest=self._manifest(declarative_net_request="bad"), files=[])
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_sandbox_file_reference(self):
+        manifest = self._manifest(sandbox={"pages": ["sandbox/page.html"]})
+        self.make_dir(manifest=manifest, files=["sandbox/page.html"])
+        self.assertEqual(m.inspect(self.src)["status"], "PASS")
+        (self.src/"sandbox/page.html").unlink()
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_mv2_web_accessible_resources(self):
+        manifest = self._manifest(manifest_version=2, web_accessible_resources=["assets/icon.png"])
+        self.make_dir(manifest=manifest, files=["assets/icon.png"])
+        self.assertEqual(m.inspect(self.src)["status"], "PASS")
+        (self.src/"assets/icon.png").unlink()
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_mv3_web_accessible_resources(self):
+        manifest = self._manifest(web_accessible_resources=[{
+            "resources": ["assets/icon.png"], "matches": ["https://example.com/*"]}])
+        self.make_dir(manifest=manifest, files=["assets/icon.png"])
+        self.assertEqual(m.inspect(self.src)["status"], "PASS")
+        (self.src/"assets/icon.png").unlink()
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_mv3_war_extension_ids_alternative(self):
+        manifest = self._manifest(web_accessible_resources=[{
+            "resources": ["/assets/icon.png"], "extension_ids": ["other-extension-id"]}])
+        self.make_dir(manifest=manifest, files=["assets/icon.png"])
+        self.assertEqual(m.inspect(self.src)["status"], "PASS")
+
+    def test_mv3_missing_access_targets_is_failure(self):
+        manifest = self._manifest(web_accessible_resources=[{"resources": ["assets/icon.png"]}])
+        self.make_dir(manifest=manifest, files=["assets/icon.png"])
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_wildcard_resources_exact_and_missing(self):
+        manifest = self._manifest(web_accessible_resources=[{
+            "resources": ["assets/*.png"], "matches": ["https://example.com/*"]}])
+        self.make_dir(manifest=manifest, files=["assets/icon.png"])
+        self.assertEqual(m.inspect(self.src)["status"], "PASS")
+        (self.src/"assets/icon.png").unlink()
+        result = m.inspect(self.src)
+        self.assertEqual(result["status"], "PASS")
+        self.assertTrue(any("no matching packaged file" in w for w in result["extensions"][0]["warnings"]))
+
+    def test_web_resource_traversal_rejected(self):
+        manifest = self._manifest(web_accessible_resources=[{
+            "resources": ["../outside/*.js"], "matches": ["https://example.com/*"]}])
+        self.make_dir(manifest=manifest, files=[])
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_background_type_wrong_fails(self):
+        self.make_dir(manifest=self._manifest(background="worker.js"), files=["worker.js"])
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_content_script_malformed_js(self):
+        manifest = self._manifest(content_scripts=[{"matches": ["https://example.com/*"],
+                                                     "js": "content.js"}])
+        self.make_dir(manifest=manifest, files=["content.js"])
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_zip_dnr_rules_file(self):
+        manifest = self._manifest(declarative_net_request={"rule_resources": [
+            {"id": "base", "enabled": True, "path": "rules.json"}]})
+        good = self.report_zip({"manifest.json": json.dumps(manifest), "rules.json": "[]"})
+        self.assertEqual(good["status"], "PASS")
+        bad = self.report_zip({"manifest.json": json.dumps(manifest)})
+        self.assertEqual(bad["status"], "FAIL")
+
+    def test_bad_war_type_fails(self):
+        self.make_dir(manifest=self._manifest(web_accessible_resources="all"), files=[])
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+    def test_mv3_string_war_rejected(self):
+        self.make_dir(manifest=self._manifest(web_accessible_resources=["icon.png"]), files=["icon.png"])
+        self.assertEqual(m.inspect(self.src)["status"], "FAIL")
+
+
+class RealArchiveGateIntegration(unittest.TestCase):
+    """Actual artifact_gate interface, no monkeypatch; only when module is present."""
+
+    def setUp(self):
+        if not (Path(__file__).resolve().parents[1] / "artifact_gate.py").is_file():
+            self.skipTest("artifact_gate.py not bundled into standalone test package")
+        t = tempfile.TemporaryDirectory()
+        self.addCleanup(t.cleanup)
+        self.archive = Path(t.name) / "fixture.zip"
+
+    def test_real_zip_preflight_passes_integrity_and_manifest(self):
+        with zipfile.ZipFile(self.archive, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("extension/manifest.json", json.dumps({
+                "manifest_version": 3, "name": "Synthetic", "version": "1.0",
+                "declarative_net_request": {"rule_resources": [
+                    {"id": "base", "enabled": True, "path": "rules.json"}]}}))
+            zf.writestr("extension/rules.json", "[]")
+        result = m.inspect(self.archive)
+        self.assertEqual(result["archive"]["status"], "PASS")
+        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(result["real_site_e2e"], "NOT_RUN")
+
+    def test_real_zip_traversal_rejected_before_manifest(self):
+        with zipfile.ZipFile(self.archive, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("../danger.txt", "bad")
+            zf.writestr("manifest.json", json.dumps({
+                "manifest_version": 3, "name": "Synthetic", "version": "1.0"}))
+        result = m.inspect(self.archive)
+        self.assertEqual(result["status"], "FAIL")
+        self.assertEqual(result["reason"], "ARCHIVE_INTEGRITY_FAIL")
+        self.assertEqual(result["extensions"], [])
+
+
 if __name__=='__main__':
     unittest.main()
