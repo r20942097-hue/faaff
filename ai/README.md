@@ -12,7 +12,13 @@ This directory is the cross-project navigation and verification layer for `faaff
 - `faaff/main` is currently the engineering/bootstrap hub; keep its existing `browser_filter_lists/` unchanged.
 - `s/main` is the live subscription authority. Existing raw GitHub URL paths stay there.
 - `integrations/browser-filters/source/s/` is a byte-level pinned import of the source, tests, docs, build scripts and lockfiles, excluding the original repository `.github/` files and AI instruction files (`AGENTS.md`, `CLAUDE.md`, `.cursor/`, `ai/`). Re-import: copy every file of the chosen `s` commit except `excluded_paths`, then update `imports/s.json` (`source_commit`, `source_tree_sha`, file blob SHAs/sizes) and `projects.json` (`s` `observed_head`) together; `python ai/check_hub.py` must pass. A separate scoped workflow performs its checks here.
-- PR #14 was merged. PRs #15/#16 (stacked portfolio changes containing ZIPs) were closed unmerged on 2026-10-28; their branches survive only in the owner's git bundle backup.
+- Earlier **faaff** PR #14 was merged; **faaff** PRs #15/#16 (historical stacked portfolio changes containing ZIPs) were closed unmerged on 2026-10-28. These are distinct from the currently open **s** PR #16; don't confuse identical numbers across repositories.
+
+## CI run efficiency and cancellation scope (2026-10-31)
+
+Five PR workflows (AI hub, CI, CodeQL, Dependency Review and filter validation) can overlap when a PR receives successive commits. Each workflow uses a **workflow-scoped, PR-number-specific concurrency group** and cancels only obsolete `pull_request` runs for that same PR. This avoids expensive stale-SHA jobs and noisy stale results. `main` push, cron and `workflow_dispatch` runs use unique run identifiers and are **not** canceled by this optimization. Cancellation is a normal outcome for superseded commits and must never be called a PASS; a merge decision still requires all mandatory check contexts on the latest HEAD.
+
+Published list files, release gates, CI job identities, required checks, and the separate `s` filter source remain unchanged. The goal is eliminating redundant execution, not skipping coverage on current changes.
 
 ## Offline checks (from faaff root)
 

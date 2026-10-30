@@ -9,6 +9,11 @@ on:
 permissions:
   contents: read
 
+# Only newer commits in the SAME PR cancel obsolete runs of this workflow.
+# Never cancel scheduled, main-push, or manually dispatched checks.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   source-check:
     name: Source synchronization check
