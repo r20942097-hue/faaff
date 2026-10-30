@@ -43,3 +43,20 @@ The source packages to be checked (RPLAY/StreamHarbor/YouTube Optimizer/Three Ad
 - GitHub Actions baseline: https://github.com/r20942097-hue/faaff/actions
 - Playwright real extension testing: https://playwright.dev/docs/chrome-extensions
 - Mozilla web-ext run: https://extensionworkshop.com/documentation/develop/web-ext-command-reference/
+## v2.8 | Extended packaged-resource validation (2026-10-30)
+
+Follow-up to v2.7 after GitHub PR #25 passed 19 checks (one unrelated check skipped). This revision closes false-positive source-layout PASS cases:
+
+- `declarative_net_request.rule_resources[]`: valid IDs, unique IDs, boolean `enabled`, mandatory local `path` and packaged file presence (including disabled rulesets).
+- `sandbox.pages[]`: local files must be packaged when declared.
+- `web_accessible_resources`: MV2 string arrays, MV3 objects with `resources` and `matches`/`extension_ids`; referenced files must exist; leading slash and `*` glob patterns are supported. An unmatched glob is a **warning**, not a claim of browser failure.
+- Reject invalid background and content-script field types that were previously ignored.
+- Includes actual `artifact_gate.py` integration fixtures when run inside the full repository: one valid ZIP and one path-traversal ZIP. The standalone package skips only those two integration fixtures when `artifact_gate.py` is absent. GitHub CI must run them rather than skip them.
+
+This remains an offline, bounded manifest/source-layout check; it **does not** validate DNR rule syntax/semantics, all browser-specific manifest constraints, actual extension installation, popup/service worker runtime, real-site behavior, Windows end-device, or release status. The product archive's trusted source SHA is still required before its evidence can be used in release decisions.
+
+References (checked 2026-10-30):
+- Chrome DNR: https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest/
+- Mozilla DNR manifest: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/declarative_net_request
+- Mozilla WAR manifest: https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/web_accessible_resources
+- Chrome WAR migration: https://developer.chrome.com/docs/extensions/develop/migrate/manifest
