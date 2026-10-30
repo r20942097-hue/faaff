@@ -38,3 +38,13 @@ The code does **not** automatically run user products in public CI. To verify a 
 - RPLAY, StreamHarbor, YouTube Optimizer actual worker/popup: NOT_RUN under the v3.0 harness.
 - Firefox temporary install, real-site E2E, HLS/DASH/MP4 completeness, long-session recovery, Windows user device: NOT_RUN.
 - Main merge, external release, runtime deployment: NO_GO / PUBLICATION_HOLD.
+
+## v3.2 / evidence semantics (2026-10-30)
+
+- A Chromium **process** starting is not a successful extension install.
+- Synthetic control **PASS** requires all of `status=PASS`, `worker=PASS`, `popup=PASS` and a separately recorded `roundtrip=PASS`. The roundtrip is established by dynamic popup JS, runtime messaging and `chrome.storage.local`; mere popup HTML must never count as positive.
+- A product popup may only record `popup=RENDERED_ONLY` when its HTML opened. Product-specific JS workflows, recording, website compatibility and user-device acceptance are **NOT_RUN**.
+- Successful product worker/optional popup checks may produce `PASS_OFFLINE_LOAD_ONLY` (distinct from old `PASS_OFFLINE_ONLY`), but never a functional GO or release approval. All release decisions remain `CANDIDATE_NO_GO`.
+- Tests inject synthetic runner results to ensure a missing positive-control roundtrip and an unsupported product `popup=PASS` cannot cause a false positive. Local regression: 42/42 cases passed on Python 3.13; GitHub CI results must be checked against the latest commit before claiming cross-platform success.
+- Chrome MV3 workers can idle/suspend and restart: evaluate the existing worker handle instead of requiring a second service-worker event. See https://playwright.dev/python/docs/chrome-extensions .
+- For the next real synthetic CI probe, use exact-version Playwright with the matching installed bundled Chromium (regular browser, `channel=chromium`), nonroot runtime, isolated network, sandbox enabled and no user product archive. Never infer a working sandbox from browser version or startup alone.
