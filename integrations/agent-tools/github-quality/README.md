@@ -90,3 +90,10 @@ The project already achieved a clean (unsuppressed) offline zizmor audit and a n
 - `gitleaks git` (PR commit range) or `gitleaks dir` (manual worktree), both `--redact=100 --exit-code 1`. No full-history secret scanning is asserted.
 
 Verified [blocking audit run 41030412200](https://github.com/r20942097-hue/faaff/actions/runs/41030412200): all three audit jobs succeeded. Zizmor: no unsuppressed findings (12 suppressed). Gitleaks: no leaks in scoped PR changes. This does not alter existing branch-protection required-check settings; ruleset changes require separate owner approval.
+
+## Final audit inventory / 2026-10-30
+
+- [GitHub Actions run 41031879081](https://github.com/r20942097-hue/faaff/actions/runs/41031879081) confirmed actionlint, blocking zizmor and blocking Gitleaks jobs **PASS** on the proposal branch.
+- Gitleaks PR range: **18 commits scanned; no leaks found**. Additional Git historical baseline: **481 commits scanned; no leaks found** (fully redacted advisory; local accessible branch history, not an assurance that every lost/orphan commit or external repository was scanned).
+- Zizmor blocking run: **0 active medium/high findings**; ignored/suppressed inventory step with `--no-ignores --no-exit-codes` also reported no active findings, but the tool noted **12 suppressed**. These are not automatically treated as safe and may be reviewed separately.
+- The new quality workflow is CI-enforced within this PR if its job runs. Its check is **not** added to the repository's required branch-protection checks, and merge approval remains separate.
