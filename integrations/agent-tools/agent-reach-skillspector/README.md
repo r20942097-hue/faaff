@@ -81,5 +81,12 @@ The additional `.github/workflows/agent-tools-install-smoke.yml` installs pinned
 
 - Source commit pins are immutable references; **transitive Python package versions/wheel hashes remain unpinned** and may resolve differently in the future.
 - The ephemeral smoke test does not authorize installation on the user's PC, exporting browser credentials, or connecting live MCP services.
-- Status: **NOT_RUN until the two platform jobs report completed success**. Track results in the PR and distinguish install, CLI, scanner, setup, and external-channel checks.
+- Status: **PASS on Linux and Windows** for actual isolated CLI installation, with benign SkillSpector static scan on Linux. [Workflow run 41030702615](https://github.com/r20942097-hue/faaff/actions/runs/41030702615). Separate Windows PowerShell installer execution also **PASS** on an ephemeral runner: [temporary CI run 41030702664](https://github.com/r20942097-hue/faaff/actions/runs/41030702664).
 - Upstream Agent-Reach CLI v1.6 requires Python >=3.10; SkillSpector 2.12.0 requires Python >=3.12,<3.16; use Python 3.12 for compatibility. Source: official `pyproject.toml` files.
+
+## Verified real-install scope (2026-10-30)
+
+- **PASS**: commit-pinned Agent-Reach and SkillSpector installation and CLI invocation on Linux and Windows in GitHub Actions: [41030702615](https://github.com/r20942097-hue/faaff/actions/runs/41030702615).
+- **PASS**: benign fixture scan using SkillSpector `--no-llm`, JSON report parsed on Linux, same run.
+- **PASS**: actual PowerShell installer in ephemeral Windows with `-Target Both` (setup not requested): [41030702664](https://github.com/r20942097-hue/faaff/actions/runs/41030702664). Temporary changes to required `ci.yml` were removed after the result was captured; the independent `agent-tools-install-smoke.yml` is retained.
+- **NOT_RUN**: user's PC installation; Agent-Reach `setup`, login/cookie handling or live web channels; SkillSpector's LLM analysis/MCP server; full dependency lock/wheel hash integrity.
