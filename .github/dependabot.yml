@@ -12,3 +12,5 @@ updates:
     directory: "/browser_filter_lists/tooling"
     schedule:
       interval: weekly
+    cooldown:
+      default-days: 7

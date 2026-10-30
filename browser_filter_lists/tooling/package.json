@@ -4,5 +4,8 @@
   "description": "Pinned, optional lint tooling for browser_filter_lists. Not part of any published list.",
   "devDependencies": {
     "@adguard/aglint": "3.0.3"
+  },
+  "overrides": {
+    "zod": "4.6.6"
   }
 }
