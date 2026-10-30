@@ -62,3 +62,7 @@ The CLI does **not** start the Inspector's web server or open a listening port. 
 ## Negative-path protocol regression
 
 [GitHub Actions run 41032698875](https://github.com/r20942097-hue/faaff/actions/runs/41032698875): the synthetic stdio MCP server rejected unknown tool names and incorrect tool-argument types with JSON-RPC `-32602`; notifications without an ID returned no response. This is an isolated fixture contract test and not an external MCP-service security audit.
+
+## Strict schema and npm advisories — 2026-10-30
+
+The synthetic MCP echo server now enforces `additionalProperties: false` in addition to validating the text argument type. Its negative-path tests cover extra properties, missing text, wrong tool name, unknown methods, notifications without IDs and Unicode/JSON escaping. This is an isolated local server fixture, not proof that production servers reject malicious calls. The committed lockfile is installed using `npm ci`, and a new live npm advisory query fails CI if known **high/critical** vulnerabilities are reported or the advisory response is incomplete. [CI run 41035235846](https://github.com/r20942097-hue/faaff/actions/runs/41035235846) reported critical=0, high=0, moderate=0, low=0, total=0 for the locked production dependencies checked at that time; a future advisory could change the result. No secrets are included in logs.
