@@ -32,12 +32,14 @@ jobs:
         name: Check source tree
         shell: bash
         run: |
-          if [[ -f rplay_watcher/__init__.py && -f pyproject.toml ]]; then
+          # Any top-level runtime fragment must trigger the matrix, even if incomplete.
+          # Otherwise a partial import could look like a successful bootstrap skip.
+          if [[ -d rplay_watcher || -d extension || -d tests ]]; then
             echo "present=true" >> "$GITHUB_OUTPUT"
-            echo "Complete source tree detected; full CI will run."
+            echo "Runtime source indicator found; product checks are required (partial imports must fail)."
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "Repository is in bootstrap/source-sync state; full runtime CI is intentionally not claimed."
+            echo "Bootstrap-only: no runtime source; product CI is NOT_RUN, release NO_GO."
           fi
 
   test:
@@ -78,3 +80,24 @@ jobs:
           node --check extension/options.js
       - name: Smoke CLI
         run: rplay-watcher --version
+
+  product-evidence:
+    name: Product readiness evidence (NOT_RUN is not release PASS)
+    # Run even if source-check or the runtime matrix fails/cancels/skips.
+    if: ${{ always() }}
+    needs: [source-check, test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify CI readiness classification (including negative cases)
+        run: python -m unittest ai/test_product_ci_gate.py -v
+      - name: Report runtime status and fail closed
+        env:
+          SOURCE_CHECK_RESULT: ${{ needs.source-check.result }}
+          SOURCE_PRESENT: ${{ needs.source-check.outputs.source_present }}
+          RUNTIME_TEST_RESULT: ${{ needs.test.result }}
+        run: python ai/product_ci_gate.py
