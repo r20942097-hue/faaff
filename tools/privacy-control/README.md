@@ -340,3 +340,20 @@ login and a 206 HTTP byte-range response. Its independent evidence validator
 requires all nine booleans to be explicitly `true`; a synthetic failure
 blocks the experiment. These remain local fixtures, not real auth or
 streaming site validation. No `removeparam` rewrite is adopted.
+
+### Fail-closed diagnostics for interrupted candidate activation
+
+The full Firefox managed-rules experiment always deletes its ephemeral
+`managed-storage/uBlock0@raymondhill.net.json` policy before leaving the CI
+runner. If installation, policy loading, a normal traffic check, safe
+signed-query/cookie/Range behavior, or baseline restoration fails,
+`firefox_candidate_probe.py` writes a temporary **BLOCKED** evidence JSON
+with the failed stage, machine-readable reason code, partial host receipts,
+policy cleanup state and immutable source references. These diagnostics
+do not claim verified candidate activation; the independent verifier prints
+the stage and returns a failing exit status. The regular release remains
+NO_GO and the incomplete result must never be counted as a pass.
+
+The existing successful isolated signed URL/auth/Range checks are independent
+of this newer candidate-activation experiment, whose success remains
+unconfirmed until its own GitHub Actions job finishes.

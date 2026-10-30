@@ -9,7 +9,8 @@ import unittest
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from firefox_candidate_probe import (
-    SENTINEL, CONTROL_HOSTS, pinned_candidate_rules, managed_policy
+    SENTINEL, CONTROL_HOSTS, pinned_candidate_rules, managed_policy,
+    write_blocked_report
 )
 from firefox_proxy_probe import IsolatedProxy, PAGE
 from verify_firefox_candidate import audit
@@ -114,6 +115,23 @@ class CandidateManagedPolicyTests(unittest.TestCase):
         doc["stage_receipts"]["candidate"][SENTINEL]=True
         self.assertTrue(audit(doc))
 
+    def test_partial_candidate_failure_is_recorded_without_promoting_pass(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as d:
+            evidence = Path(d) / "candidate-blocked.json"
+            output = write_blocked_report(
+                evidence, stage="candidate", reason="STAGE_VALUEERROR",
+                results={"stock":{"synthetic.example.org":True}},
+                versions={"stock":"157.0"},
+                safety={"stock":{"signed_url_preserved":True}},
+                policy_removed=True, source=self.source, xpi_sha="a"*64,
+            )
+            self.assertEqual(output["status"], "BLOCKED")
+            self.assertEqual(output["release"], "NO_GO")
+            self.assertEqual(output["candidate_activation"], "NOT_VERIFIED")
+            self.assertEqual(output["rules_published"], 0)
+            self.assertEqual(json.loads(evidence.read_text()), output)
+            self.assertTrue(audit(output))
     def test_proxy_batch_has_allowlisted_candidate_hosts_only(self):
         server=IsolatedProxy(extra_hosts=[*self.hosts,SENTINEL])
         thread=threading.Thread(target=server.serve_forever,daemon=True)

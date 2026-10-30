@@ -75,6 +75,22 @@ def main():
     args=p.parse_args()
     try:
         data=json.loads(args.report.read_text(encoding="utf-8"))
+        if data.get("schema") == "upc-firefox-managed-candidates-diagnostic/v1":
+            stage = data.get("failed_stage", "UNKNOWN")
+            reason = data.get("reason_code", "UNKNOWN")
+            if (data.get("status") != "BLOCKED" or data.get("release") != "NO_GO"
+                    or data.get("rules_published") != 0
+                    or data.get("candidate_activation") != "NOT_VERIFIED"):
+                raise ValueError("diagnostic violates NO_GO evidence boundaries")
+            if args.github_summary:
+                with args.github_summary.open("a", encoding="utf-8") as stream:
+                    stream.write("## Firefox managed 38 candidates: BLOCKED\\n\\n")
+                    stream.write("Stage: " + str(stage) + "; reason: " + str(reason) + ".\\n\\n")
+                    stream.write("Candidate application not verified; browser stages may be incomplete. ")
+                    stream.write("No publication, release NO_GO.\\n")
+            print("UPC CANDIDATE EVIDENCE BLOCKED:", stage, reason,
+                  "stage receipts", list(data.get("stage_receipts", {})))
+            return 1
         errors=audit(data)
         if errors:
             raise ValueError("; ".join(errors))

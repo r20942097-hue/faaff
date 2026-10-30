@@ -125,22 +125,50 @@ def browser_session(proxy, xpi, test_hosts, stage):
             driver.quit()
 
 
+def write_blocked_report(report, *, stage, reason, results, versions,
+                         safety, policy_removed, source, xpi_sha):
+    """Persist partial evidence without ever treating incomplete stages as PASS."""
+    if not isinstance(reason, str) or not re.fullmatch(r"[A-Z0-9_]{3,100}", reason):
+        reason = "INTERNAL_VALIDATION_FAILURE"
+    output = {
+        "schema": "upc-firefox-managed-candidates-diagnostic/v1",
+        "status": "BLOCKED",
+        "failed_stage": stage,
+        "reason_code": reason,
+        "stage_receipts": results,
+        "firefox_versions": versions,
+        "synthetic_safety": safety,
+        "policy_removed": policy_removed,
+        "candidate_source": source,
+        "xpi_sha256": xpi_sha,
+        "candidate_activation": "NOT_VERIFIED",
+        "real_site_efficacy": "NOT_RUN",
+        "actual_user_configuration": "NOT_VERIFIED",
+        "rules_published": 0,
+        "release": "NO_GO",
+    }
+    report.write_text(json.dumps(output, indent=2, sort_keys=True) + "\n",
+                      encoding="utf-8")
+    return output
+
+
 def run(xpi, report):
     lock = json.loads(LOCKFILE.read_text(encoding="utf-8"))
     verify_bytes(xpi.read_bytes(), lock)
     lines, candidate_hosts, provenance = pinned_candidate_rules()
     hosts = [*candidate_hosts, SENTINEL, *CONTROL_HOSTS]
-    server = IsolatedProxy(extra_hosts=[*candidate_hosts, SENTINEL])
-    thread = threading.Thread(target=server.serve_forever, daemon=True)
-    thread.start()
     base = Path.home() / ".mozilla" / "managed-storage"
     policy = base / (EXTENSION + ".json")
     if policy.exists():
         raise ValueError("refusing existing managed policy; must be an isolated runner")
+    server = IsolatedProxy(extra_hosts=[*candidate_hosts, SENTINEL])
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
     stage = "initial"
     results = {}
     versions = {}
     safety = {}
+    failure = None
     try:
         stage = "stock"
         results["stock"], versions["stock"], safety["stock"] = browser_session(server, xpi, hosts, stage)
@@ -152,29 +180,49 @@ def run(xpi, report):
         stage = "restored"
         policy.unlink()
         results["restored"], versions["restored"], safety["restored"] = browser_session(server, xpi, hosts, stage)
+    except Exception as error:
+        failure = (stage, "STAGE_" + type(error).__name__.upper())
     finally:
-        if policy.exists():
-            policy.unlink()
+        try:
+            if policy.exists():
+                policy.unlink()
+        except OSError:
+            failure = ("cleanup", "POLICY_REMOVAL_FAILED")
         server.shutdown()
         server.server_close()
         thread.join(timeout=3)
+    if failure is not None:
+        write_blocked_report(report, stage=failure[0], reason=failure[1],
+                             results=results, versions=versions, safety=safety,
+                             policy_removed=not policy.exists(),
+                             source=provenance, xpi_sha=lock["sha256"])
+        raise ValueError("candidate test BLOCKED: " + failure[0] + "/" + failure[1])
 
-    if any(not all(results[name].get(host) is True for host in CONTROL_HOSTS)
-           for name in ("stock", "candidate", "restored")):
-        raise ValueError("normal cross-host fixture blocked or not received")
-    if not results["stock"][SENTINEL]:
-        raise ValueError("sentinel pre-policy baseline did not arrive")
-    if results["candidate"][SENTINEL]:
-        raise ValueError("managed policy sentinel not blocked: candidate activation NOT_VERIFIED")
-    if not results["restored"][SENTINEL]:
-        raise ValueError("sentinel did not restore after managed policy removal")
-    if any(results["candidate"][host] for host in candidate_hosts):
-        raise ValueError("one or more candidate rules were not active in actual Firefox")
-    if any(results["stock"][host] != results["restored"][host]
-           for host in candidate_hosts):
-        raise ValueError("rollback did not restore stock coverage")
-    if any(not all(safety[stage].values()) for stage in ("stock", "candidate", "restored")):
-        raise ValueError("candidate filter broke signed URL, auth cookie, or media range")
+    # Every individual check below is independently recorded if it fails.
+    try:
+        if any(not all(results[name].get(host) is True for host in CONTROL_HOSTS)
+               for name in ("stock", "candidate", "restored")):
+            raise ValueError("normal cross-host fixture blocked or not received")
+        if not results["stock"][SENTINEL]:
+            raise ValueError("sentinel pre-policy baseline did not arrive")
+        if results["candidate"][SENTINEL]:
+            raise ValueError("managed policy sentinel not blocked: candidate activation NOT_VERIFIED")
+        if not results["restored"][SENTINEL]:
+            raise ValueError("sentinel did not restore after managed policy removal")
+        if any(results["candidate"][host] for host in candidate_hosts):
+            raise ValueError("one or more candidate rules were not active in actual Firefox")
+        if any(results["stock"][host] != results["restored"][host]
+               for host in candidate_hosts):
+            raise ValueError("rollback did not restore stock coverage")
+        if any(not all(safety[stage].values()) for stage in ("stock", "candidate", "restored")):
+            raise ValueError("candidate filter broke signed URL, auth cookie, or media range")
+    except (ValueError, KeyError, TypeError) as error:
+        write_blocked_report(report, stage="evaluation",
+                             reason="EVALUATION_" + type(error).__name__.upper(),
+                             results=results, versions=versions, safety=safety,
+                             policy_removed=not policy.exists(), source=provenance,
+                             xpi_sha=lock["sha256"])
+        raise
     incremental = [host for host in candidate_hosts if results["stock"][host]]
     evidence = {
         "schema":"upc-firefox-managed-candidates/v1",
