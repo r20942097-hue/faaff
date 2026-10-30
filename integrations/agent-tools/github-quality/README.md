@@ -14,14 +14,14 @@
 |---|---|---|---|
 | **actionlint 1.7.12** | https://github.com/rhysd/actionlint | P0 / staged in workflow | Catches workflow configuration, syntax, expression and shell-related errors. Release tarball SHA-256 verified. |
 | **zizmor 1.31.1** | https://github.com/zizmorcore/zizmor | P0 / staged in workflow | Focuses on GitHub Actions security: untrusted expressions, privileges, insecure triggers and supply-chain risks. Offline, report-only until findings are reviewed. |
-| **Gitleaks 8.30.1** | https://github.com/gitleaks/gitleaks | P1 / evaluated, not installed | Detects accidental tokens and credentials. Evaluate secret-safe output and historical false positives before enabling CI. |
+| **Gitleaks 8.30.1** | https://github.com/gitleaks/gitleaks | P1 / staged in workflow | Scans PR Git changes in a Docker container with source mounted read-only, no network, secret redaction and report-only exit policy. |
 | **Playwright 1.64.1** | https://github.com/microsoft/playwright | P1 / evaluated, not installed | Real browser tests for UI/synthetic sites. Its bundled Firefox is not proof of compatibility with the user's installed Firefox. Requires runnable extension source. |
 | **MCP Inspector** | https://github.com/modelcontextprotocol/inspector | P1 / evaluated, not installed | Explicit inspection of local MCP servers. Run in an isolated local session only; do not expose the inspector's web UI to a network or insert secrets into CI. |
 | **Opengrep** | https://github.com/opengrep/opengrep | P2 / evaluated, not installed | Wider rule-based scanning for JavaScript/Python; assess false positives/coverage against existing CodeQL before CI adoption. |
 
 ## The new scoped workflow
 
-`.github/workflows/github-tooling-audit.yml` runs on PRs that touch workflows, composite actions or this documentation; it can also be started manually after the workflow exists on the default branch.
+`.github/workflows/github-tooling-audit.yml` runs on **all** PRs to detect newly introduced secrets, and can be started manually after the workflow exists on the default branch.
 
 Security safeguards:
 - `permissions: contents: read`; no write token, credentials persistence, external secrets, deployment or publishing.
@@ -29,7 +29,8 @@ Security safeguards:
 - actionlint `v1.7.12` Linux AMD64 tarball downloaded from upstream release and checked against SHA-256 `8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8` before execution.
 - zizmor `1.31.1` installed as a binary wheel from PyPI (`--only-binary`), forcing `--offline`. **PyPI wheel hashes are not locked yet**, so this is a candidate setup rather than a supply-chain-hardened final gate.
 - actionlint returns a failure for lint errors. zizmor deliberately uses `--no-exit-codes`, reports findings, and does not mutate files. Installation or audit runtime failures must still be investigated.
-- Neither tool is allowed to commit or auto-fix. No branches are merged automatically.
+- Gitleaks is run using a pinned official GHCR image digest for v8.30.1 (`sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f`). The container is network-disabled and mounts the checked-out source read-only. Scan scope is PR-only `origin/main..HEAD`, and `--redact=100 --exit-code 0` protects detected values and makes findings report-only. A passed job does not mean there were no findings; logs need review.
+- None of the tools may commit or auto-fix. No branches are merged automatically.
 
 ## Local use
 
@@ -53,7 +54,7 @@ For **Windows**, use PowerShell/appropriate release binary: no machine-level ins
 2. Verify downloaded release file checksum and wheel artifacts, ideally lock exact zizmor wheel hashes or switch to SHA-verified upstream release artifacts.
 3. Confirm the new workflow does not change existing required checks or published filter URLs.
 4. Switch zizmor to a blocking severity gate only once a reviewed baseline exists.
-5. Add Gitleaks with redacted output and a secrets-handling review. Add Playwright/MCP Inspector in separate product-scoped PRs after an authoritative source is available.
+5. Review Gitleaks redacted findings and tune a blocking policy without publishing secret values. Add Playwright/MCP Inspector in separate product-scoped PRs after an authoritative source is available.
 6. Owner must separately authorize merge and production changes.
 
 ## Evidence status
@@ -62,3 +63,7 @@ For **Windows**, use PowerShell/appropriate release binary: no machine-level ins
 - Repository baseline: **CHECKED from GitHub files** on 2026-10-30.
 - Branch source upload, blob readback and diff inspection: **can be verified here**.
 - Tool execution on GitHub-hosted runner, Windows installation, actual browser checks, full dependency integrity: **NOT_RUN unless linked CI evidence is recorded separately**.
+
+## Execution note (2026-10-30)
+
+A first CI smoke run found a malformed SHA256 verification input (`\\n` instead of a newline), and the next run detected an invalid unquoted YAML `run:` value containing `--only-binary=:all:`. Both issues were corrected in subsequent commits. Re-run CI and review job-level evidence before declaring the revised workflows PASS. Original workflow-only CI did not run when initially added on a proposal branch; the existing `ci.yml` is used for isolated temporary smoke jobs. These changes do not authorize merging into `main`.
