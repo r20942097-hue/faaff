@@ -22,8 +22,8 @@ class RendererCrashFixtureTests(unittest.TestCase):
     def test_corrupted_sha_is_rejected(self):
         with self.assertRaises(AssertionError):
             verify_old({'generation':1,'active':'blob-0001.bin',
-                        'sha256':'wrong','declared':HASH_A,
-                        'calculated':HASH_A,'bytes':SOURCE_A})
+                        'declared':HASH_A,
+                        'calculated':'wrong','bytes':SOURCE_A})
 
     def test_cleanup_does_not_remove_active_blob(self):
         self.assertIn("name!==state.active",CLEAN)
