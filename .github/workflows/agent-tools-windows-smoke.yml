@@ -19,6 +19,32 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Validate Agent-Reach version envelope before allowing setup
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $p = '.\integrations\agent-tools\agent-reach-skillspector\Install-AgentReach-SkillSpector.ps1'
+          # Dot-source the no-op DryRun to load the validation function; no uv invocation.
+          . $p -DryRun -Target AgentReach 6>&1 | Out-Null
+          $valid = '{"schema_version":1,"ok":true,"action":"version","result":{"version":"1.6.0","install_method":"uv"},"error":null}'
+          if ((Assert-AgentReachVersionInfo -VersionText $valid) -ne '1.6.0') {
+            throw 'Valid Agent-Reach JSON was rejected'
+          }
+          $badResponses = @(
+            'not-json',
+            '{}',
+            '{"schema_version":1,"ok":false,"action":"version","result":{"version":"1.6.0"}}',
+            '{"schema_version":1,"ok":true,"action":"other","result":{"version":"1.6.0"}}',
+            '{"schema_version":1,"ok":true,"action":"version","result":{"version":"1.5.9"}}',
+            '{"schema_version":1,"ok":true,"action":"version","result":{"version":"arbitrary"}}'
+          )
+          foreach ($bad in $badResponses) {
+            $rejected = $false
+            try { $null = Assert-AgentReachVersionInfo -VersionText $bad }
+            catch { $rejected = $true }
+            if (-not $rejected) { throw 'Invalid Agent-Reach version was accepted' }
+          }
+          Write-Host 'PASS: valid Agent-Reach JSON accepted, six invalid versions rejected.'
       - name: Validate preview, options, and rejected conflicting requests
         shell: pwsh
         run: |
