@@ -1,0 +1,4 @@
+# Python 3.12, Linux x86_64 (manylinux_2_28); obtained on GitHub Actions 2026-10-30.
+# Artifact: zizmor-1.31.1-py3-none-manylinux_2_28_x86_64.whl
+# SHA-256 independently printed by sha256sum in Actions run 41034447151.
+zizmor==1.31.1 --hash=sha256:58e878eb2dbd2c6183c105e1ac28c14f7dd1eca44a783f1fe2a69647d012c410
