@@ -1,0 +1,31 @@
+name: Offline RPLAY segment source fingerprint (synthetic CI only)
+
+on:
+  pull_request:
+    paths:
+      - 'ai/source_segment_fingerprint.py'
+      - 'ai/test_source_segment_fingerprint.py'
+      - 'ai/archive_intake.py'
+      - '.github/workflows/source-segment-fingerprint.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-source-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Validate safe ZIP inspection and fail-closed source fingerprint
+        run: python -m unittest ai.test_source_segment_fingerprint ai.test_archive_intake -v

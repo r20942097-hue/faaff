@@ -83,6 +83,11 @@ def force_terminate_owned(proc,observed=None,required_browser=None):
     if proc is None:
         return
     import psutil
+    # Never re-resolve a PID already reaped by this subprocess handle.
+    if proc.poll() is not None:
+        if proc.stdout and not proc.stdout.closed:
+            proc.stdout.close()
+        return
     try:
         leader=psutil.Process(proc.pid)
         if observed is None:

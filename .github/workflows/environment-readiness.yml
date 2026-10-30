@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: '3.14'
       - name: Validate audit and fixture contracts
-        run: python -m unittest ai.test_audit_environment ai.test_browser_preflight ai.test_extension_fixture_e2e ai.test_archive_intake ai.test_source_intake_guard ai.test_opfs_snapshot_fixture ai.test_opfs_restart_fixture ai.test_toolchain_inventory ai.test_opfs_fault_matrix ai.test_chromium_native_quota ai.test_opfs_worker_sync_fixture ai.test_chromium_renderer_crash_fixture ai.test_opfs_process_kill_fixture ai.test_opfs_postcommit_kill_fixture ai.test_opfs_windows_terminate_fixture -v
+        run: python -m unittest ai.test_audit_environment ai.test_browser_preflight ai.test_extension_fixture_e2e ai.test_archive_intake ai.test_source_intake_guard ai.test_opfs_snapshot_fixture ai.test_opfs_restart_fixture ai.test_toolchain_inventory ai.test_opfs_fault_matrix ai.test_chromium_native_quota ai.test_opfs_worker_sync_fixture ai.test_chromium_renderer_crash_fixture ai.test_opfs_process_kill_fixture ai.test_opfs_postcommit_kill_fixture ai.test_opfs_windows_terminate_fixture ai.test_source_segment_fingerprint -v
       - name: Emit source-readiness evidence without claiming product E2E
         run: python ai/audit_environment.py . --output environment-readiness-${{ matrix.os }}.json
       - name: Record installed toolchain versions without exposing paths
