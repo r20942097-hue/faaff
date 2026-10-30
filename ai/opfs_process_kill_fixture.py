@@ -179,12 +179,23 @@ def probe(browser_name):
         result["status"]="PASS_ISOLATED_OS_BROWSER_KILL"
     return result
 
+KNOWN_DIAGNOSTIC_CODES = frozenset((
+    "ISOLATED_CHILD_EXITED_EARLY", "ISOLATED_CHILD_DID_NOT_STAGE",
+    "ISOLATED_CHILD_UNEXPECTED_OUTPUT", "CHILD_NOT_IN_DEDICATED_PROCESS_GROUP",
+    "NO_BROWSER_OS_PROCESS_IN_DEDICATED_GROUP", "CHILD_NOT_SIGKILLED",
+    "BROWSER_PROCESS_SURVIVED_SIGKILL", "STAGED_B_NOT_PRESENT_AFTER_KILL",
+    "ORPHAN_CLEANUP_MISMATCH", "UNCOMMITTED_STAGE_NOT_ESTABLISHED",
+    "CRASH_RECOVERY_A_SHA256_MISMATCH",
+))
+
 def run(browser_name):
     try:return probe(browser_name)
     except Exception as error:
         result=template(browser_name)
         # Browser profiles, URLs and command-line arguments are deliberately redacted.
         result["error_type"]=type(error).__name__
+        result["failure_code"]=(str(error) if str(error) in KNOWN_DIAGNOSTIC_CODES
+                               else "UNCLASSIFIED")
         return result
 
 def main(argv=None):
