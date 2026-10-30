@@ -107,6 +107,11 @@ def inspect(repository: str, pr_number: int, ruleset_id: int) -> dict:
         if not isinstance(record, dict) or not isinstance(record.get("filename"), str):
             raise CollectionError("invalid changed-file record")
         paths.append(record["filename"])
+        if record.get("status") == "renamed":
+            previous = record.get("previous_filename")
+            if not isinstance(previous, str) or not previous:
+                raise CollectionError("renamed file missing previous filename")
+            paths.append(previous)
     ruleset = get_json(f"{prefix}/rulesets/{ruleset_id}")
     checks, total = collect_pages(
         f"{prefix}/commits/{head['sha']}/check-runs",
@@ -114,8 +119,10 @@ def inspect(repository: str, pr_number: int, ruleset_id: int) -> dict:
     )
     after = get_json(pull_path)
     if (not isinstance(after, dict) or
-            after.get("head", {}).get("sha") != head["sha"] or
-            after.get("base", {}).get("sha") != before.get("base", {}).get("sha")):
+            not isinstance(after.get("head"), dict) or
+            not isinstance(after.get("base"), dict) or
+            after["head"].get("sha") != head["sha"] or
+            after["base"].get("sha") != before.get("base", {}).get("sha")):
         raise CollectionError("PR HEAD/base changed during audit")
     if not isinstance(ruleset, dict):
         raise CollectionError("invalid ruleset response")
