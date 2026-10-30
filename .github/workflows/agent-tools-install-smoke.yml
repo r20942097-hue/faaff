@@ -1,0 +1,74 @@
+name: Agent tool isolated installation verification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/agent-tools-install-smoke.yml'
+      - 'integrations/agent-tools/agent-reach-skillspector/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-install:
+    name: Isolated CLI installation / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      UV_TOOL_DIR: ${{ runner.temp }}/isolated-agent-tools
+      UV_TOOL_BIN_DIR: ${{ runner.temp }}/isolated-bin
+      UV_CACHE_DIR: ${{ runner.temp }}/uv-agent-cache
+      UV_NO_PROGRESS: '1'
+      AGENT_REACH_SOURCE: git+https://github.com/Panniantong/Agent-Reach.git@beabda7486e9a666360b18cdb5c0e759c2c4d20f
+      SKILLSPECTOR_SOURCE: git+https://github.com/NVIDIA/skillspector.git@54921c8c7c23008c8af2328d5ab492a904b6ece4
+    steps:
+      - name: Checkout without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Python 3.12
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Install pinned uv in ephemeral runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check 'uv==0.13.6'
+          uv --version
+          mkdir -p "$UV_TOOL_BIN_DIR"
+          echo "$UV_TOOL_BIN_DIR" >> "$GITHUB_PATH"
+      - name: Install Agent-Reach v1.6.0 and SkillSpector from commit pins
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv tool install --python 3.12 "$AGENT_REACH_SOURCE"
+          uv tool install --python 3.12 "$SKILLSPECTOR_SOURCE"
+          uv tool list
+      - name: Verify CLIs without setup, login, or credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          agent-reach version
+          skillspector --help
+          skillspector scan --help
+      - name: Static scanner test on synthetic harmless skill (Linux only)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/synthetic-skill"
+          printf '%s\n' '---' 'name: smoke-skill' 'description: Benign smoke skill for scanner testing' '---' '# Smoke skill' 'This is a local no-command sample.' > "$RUNNER_TEMP/synthetic-skill/SKILL.md"
+          skillspector scan "$RUNNER_TEMP/synthetic-skill" --no-llm --format json > "$RUNNER_TEMP/synthetic-report.json"
+          python -c 'import json,os; d=json.load(open(os.environ["RUNNER_TEMP"]+"/synthetic-report.json",encoding="utf-8")); assert isinstance(d,dict),type(d); print("PASS: JSON report parsed")'
+      - name: Explain coverage limits
+        shell: bash
+        run: |
+          echo 'CLI installation verified only in ephemeral runner.'
+          echo 'Agent-Reach setup, auth, live channels and the user Windows environment were not changed.'
+          echo 'Dependencies are resolved online and not hash-locked, pending next security gate.'
