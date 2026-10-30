@@ -168,10 +168,10 @@ def verify_addons(z: zipfile.ZipFile) -> dict:
             if browser == "Chrome" and "version_name" in mm:
                 display = mm["version_name"]
                 if not isinstance(display, str) or not re.match(
-                    r"^" + re.escape(mm["version"]) + r"(?:$|\\s)", display
+                    r"^" + re.escape(mm["version"]) + r"(?:$|\s)", display
                 ):
                     raise IntakeError("CHROME_VERSION_NAME_MISMATCH")
-                if re.search(r"\\bNO[_ ]GO\\b", display, flags=re.I) and qa_status == "PASS":
+                if re.search(r"\bNO[_ ]GO\b", display, flags=re.I) and qa_status == "PASS":
                     raise IntakeError("GO_CANDIDATE_CONFLICTING_NO_GO_LABEL")
             if browser == "Firefox":
                 settings = mm.get("browser_specific_settings") or {}
