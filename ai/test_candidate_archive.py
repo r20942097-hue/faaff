@@ -128,6 +128,38 @@ class CandidateArchiveChecks(unittest.TestCase):
         with self.assertRaisesRegex(IntakeError, "MANIFEST_REFERENCED_FILE_MISSING"):
             self.check(entries)
 
+    def test_firefox_background_scripts_required(self):
+        entries = addon_fixture()
+        def edit(inner):
+            m = json.loads(inner["manifest.json"])
+            m["background"] = {}
+            inner["manifest.json"] = json.dumps(m).encode()
+        replace_inner(entries, "OmniStream_Firefox_MV3.zip", edit)
+        with self.assertRaisesRegex(IntakeError, "FIREFOX_BACKGROUND_SCRIPTS_MISSING"):
+            self.check(entries)
+
+    def test_declared_popup_must_exist(self):
+        entries = addon_fixture()
+        def edit(inner):
+            m = json.loads(inner["manifest.json"])
+            m["action"] = {"default_popup": "phantom-popup.html"}
+            inner["manifest.json"] = json.dumps(m).encode()
+        replace_inner(entries, "TabWorkspace_Chrome_MV3.zip", edit)
+        with self.assertRaisesRegex(IntakeError, "MANIFEST_REFERENCED_FILE_MISSING"):
+            self.check(entries)
+
+    def test_sensitive_api_permission_requires_review(self):
+        entries = addon_fixture()
+        def edit(inner):
+            m = json.loads(inner["manifest.json"])
+            m["permissions"] = ["cookies"]
+            inner["manifest.json"] = json.dumps(m).encode()
+        replace_inner(entries, "StreamHarbor_Firefox_MV3.zip", edit)
+        result = self.check(entries)
+        entry = next(x for x in result["packages"] if
+                     x["product"] == "StreamHarbor" and x["browser"] == "Firefox")
+        self.assertIn("SENSITIVE_API_PERMISSION", entry["review_flags"])
+
     def test_rplay_no_go(self):
         entries = {
             "DEVELOPMENT_HANDOFF_v2.68.0.md": "CANDIDATE / NO GO",
