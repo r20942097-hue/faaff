@@ -44,7 +44,19 @@ python integrations/browser-filters/source/s/scripts/validate_lists.py
 python integrations/browser-filters/source/s/scripts/generate_lists.py --check
 ```
 
-The checks are the existing `ai/README.md` baseline. Run only commands supported by the environment. A missing dependency or environment limitation is BLOCKED/NOT_RUN, not a success. Record whether the checkout is main or a proposal branch and check actual current HEAD rather than trusting a dated state document.
+The checks are the existing `ai/README.md` baseline. Run only commands supported by the environment. A missing dependency or environment limitation is BLOCKED/NOT_RUN, not a success.
+
+### Product CI evidence check (proposal branch only until merged)
+
+The existing `CI` workflow now includes a `Product readiness evidence (NOT_RUN is not release PASS)` job in this proposal. It has an independent standard-library test suite and prints **engineering CI**, **product runtime CI**, and **release gate** separately in the GitHub Actions summary. To run its safe synthetic logic locally in Codex Cloud:
+
+```sh
+python -m unittest ai/test_product_ci_gate.py -v
+SOURCE_CHECK_RESULT=success SOURCE_PRESENT=false RUNTIME_TEST_RESULT=skipped python ai/product_ci_gate.py
+```
+
+The expected synthetic bootstrap result is `engineering_ci=PASS`, `product_ci=NOT_RUN`, `release_gate=NO_GO`. This does **not** certify Codex authentication or actual product runtime. If any top-level `rplay_watcher/`, `extension/` or `tests/` directory appears, the workflow attempts the runtime matrix instead of silently treating it as bootstrap; incomplete runtime imports should fail. The classifier never declares a product ready for release, even when runtime CI succeeds.
+ Record whether the checkout is main or a proposal branch and check actual current HEAD rather than trusting a dated state document.
 
 ## 4. Diagnose failures by stage
 
