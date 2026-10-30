@@ -55,7 +55,7 @@ class CandidateArchiveChecks(unittest.TestCase):
         result = self.check(addon_fixture())
         self.assertEqual(result["type"], "three_addons")
         self.assertEqual(result["package_count"], 6)
-        self.assertEqual(result["checksum_file_entries"], 8)
+        self.assertEqual(result["checksum_file_entries"], 9)
         self.assertTrue(all(x["crc_verified"] for x in result["packages"]))
 
     def test_addons_member_changed(self):
