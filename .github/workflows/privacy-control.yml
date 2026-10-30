@@ -39,6 +39,7 @@ jobs:
           python tools/privacy-control/cli.py \
             --check \
             --report "$RUNNER_TEMP/upc-coverage-report.json" \
+            --html "$RUNNER_TEMP/upc-static-viewer.html" \
             --github-summary "$GITHUB_STEP_SUMMARY"
       - name: Confirm no executable blocking layer or new public list is introduced
         shell: bash
@@ -52,6 +53,9 @@ jobs:
           assert record['source']['role'] == 'PINNED_NON_PUBLISHING_SNAPSHOT'
           assert record['browser_stock_coverage'] == 'NOT_RUN'
           assert record['real_engine_efficacy'] == 'NOT_RUN'
+          view = (Path(os.environ['RUNNER_TEMP']) / 'upc-static-viewer.html').read_text(encoding='utf-8')
+          assert "script-src 'none'" in view and '<script>' not in view
+          assert view.count('<tr>') == 39
           print('UPC NO-RELEASE GATE: PASS')
           PY
 

@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 
 from core import build_report, verify_report
+from render_html import render
 
 
 def summary(report):
@@ -40,6 +41,7 @@ def main():
     parser.add_argument("--repository", type=Path,
                         default=Path(__file__).resolve().parents[2])
     parser.add_argument("--report", type=Path)
+    parser.add_argument("--html", type=Path, help="write a static offline viewer outside checkout")
     parser.add_argument("--github-summary", type=Path)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
@@ -57,6 +59,12 @@ def main():
             output.write_text(payload, encoding="utf-8")
         else:
             print(payload)
+        if args.html:
+            viewer = args.html.resolve()
+            if viewer.is_relative_to(base):
+                raise ValueError("HTML viewer must be written outside checkout")
+            viewer.parent.mkdir(parents=True, exist_ok=True)
+            viewer.write_text(render(report), encoding="utf-8")
         if args.github_summary:
             output = args.github_summary.resolve()
             if output.is_relative_to(base):

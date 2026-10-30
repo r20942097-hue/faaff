@@ -13,6 +13,7 @@ from core import (
     parse_rule, pinned_lists, valid_host, verify_report,
 )
 from cli import summary
+from render_html import render
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -171,6 +172,21 @@ class ReleaseGateTests(unittest.TestCase):
         bad["coverage"]["findings"][0]["safe_to_publish"] = True
         with self.assertRaisesRegex(ValueError, "incomplete"):
             verify_report(bad)
+
+    def test_static_report_contains_all_candidates_and_no_active_scripts(self):
+        html = render(self.report)
+        self.assertIn("lang=\"ja\"", html)
+        self.assertIn("NO_GO", html)
+        self.assertIn("script-src 'none'", html)
+        self.assertNotIn("<script", html)
+        self.assertEqual(html.count("<tr>"), 39)
+
+    def test_report_html_escapes_untrusted_rule_strings(self):
+        report = copy.deepcopy(self.report)
+        report["coverage"]["findings"][0]["rule"] = "<script>alert(1)</script>"
+        html = render(report)
+        self.assertIn("&lt;script&gt;alert(1)&lt;/script&gt;", html)
+        self.assertNotIn("<script>alert", html)
 
     def test_revision_or_exact_overlap_count_requires_review(self):
         bad = copy.deepcopy(self.report)

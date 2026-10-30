@@ -108,8 +108,13 @@ def pinned_lists(repository: Path):
         digest = git_blob_sha(content)
         if digest != item.get("git_blob_sha") or len(content) != item.get("size"):
             raise ValueError("pinned blob mismatch: " + name)
-        data[name] = content.decode("utf-8", errors="strict")
+        decoded = content.decode("utf-8", errors="strict")
+        license_id = "CC0-1.0" if name == "tracking.txt" else "GPL-3.0-only"
+        if ("! License: " + license_id) not in decoded.splitlines():
+            raise ValueError("unexpected or missing source license: " + name)
+        data[name] = decoded
         metadata[name] = {
+            "declared_license": license_id,
             "path": "integrations/browser-filters/source/s/" + name,
             "git_blob_sha": digest,
             "sha256": sha256(content).hexdigest(),

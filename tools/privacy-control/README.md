@@ -14,7 +14,7 @@
 
 ```sh
 python -m unittest discover -s tools/privacy-control -p 'test_*.py' -v
-python tools/privacy-control/cli.py --check --report ../upc-coverage.json
+python tools/privacy-control/cli.py --check --report ../upc-coverage.json --html ../upc-coverage.html
 ```
 
 Reports must be created outside the source checkout. The current pinned baseline is expected to be 9 stable tracking entries, 38 optional v2 entries, 9 exact normalized overlaps, and 29 with no demonstrated exact stable overlap. These fixed counts are a **snapshot-change detector**, not a performance metric. A legitimate new pinned source requires reviewing the baseline and updating the tests and release checks intentionally.
@@ -50,3 +50,12 @@ See [architecture](docs/ARCHITECTURE.md) for the full plan.
 The CI now also installs the pinned uBlock Origin matching engine and locked Ghostery 2.20.1 dependency **outside the publishing pipeline**. It verifies each of the 47 tracking rules from the two pinned lists against six synthetic request cases (third-party, subdomain, first-party, hostname boundary, URL text, image), comparing both engines. Separate in-memory exception tests ensure that explicit `@@` overrides win. No dynamic browser extension or production website is used.
 
 Run the engine matrix in CI; it requires the verified `s` engine bundle and the lockfile. An isolated engine match confirms parser/selector behavior on synthetic traffic, **not** incremental blocking over stock subscriptions. The stock-coverage and real-site markers remain `NOT_RUN`.
+
+## Offline HTML viewer
+
+`--html` generates a self-contained, Japanese-language **read-only** report
+with all candidate rule classifications and the current evidence limitations.
+It does not execute JavaScript, load fonts/assets or call remote services; its
+CSP blocks scripts and external resources. Raw rules are HTML-escaped and the
+report is written outside the Git checkout. It is a static review artifact,
+**not** proof of current browser protection or a management extension.
