@@ -58,6 +58,67 @@ def hash_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+SENSITIVE_PERMISSIONS = {
+    "cookies", "debugger", "nativeMessaging", "proxy", "webRequestBlocking",
+    "management", "history", "browsingData"
+}
+
+
+def inspect_extension_manifest(z: zipfile.ZipFile, manifest: dict, browser: str) -> dict:
+    """Validate references and report privileged declarations, without executing code."""
+    names = set(z.namelist())
+    bg = manifest.get("background") or {}
+    if not isinstance(bg, dict):
+        raise IntakeError("EXTENSION_BACKGROUND_INVALID")
+    if browser == "Chrome":
+        worker = bg.get("service_worker")
+        if not isinstance(worker, str) or not worker:
+            raise IntakeError("CHROME_SERVICE_WORKER_MISSING")
+        startup = "service_worker"
+        refs = [worker]
+    else:
+        scripts = bg.get("scripts")
+        if not isinstance(scripts, list) or not scripts or not all(
+            isinstance(x, str) and x for x in scripts
+        ):
+            raise IntakeError("FIREFOX_BACKGROUND_SCRIPTS_MISSING")
+        startup = "background_scripts"
+        refs = list(scripts)
+    for item in manifest.get("content_scripts") or []:
+        if not isinstance(item, dict):
+            raise IntakeError("CONTENT_SCRIPT_DECLARATION_INVALID")
+        for key in ("js", "css"):
+            refs.extend(item.get(key) or [])
+    for icon in (manifest.get("icons") or {}).values():
+        refs.append(icon)
+    action = manifest.get("action") or {}
+    if action.get("default_popup"):
+        refs.append(action["default_popup"])
+    options = manifest.get("options_ui") or {}
+    if options.get("page"):
+        refs.append(options["page"])
+    if any(not isinstance(p, str) or not p or p not in names for p in refs):
+        raise IntakeError("MANIFEST_REFERENCED_FILE_MISSING")
+    permissions = manifest.get("permissions") or []
+    hosts = manifest.get("host_permissions") or []
+    if not isinstance(permissions, list) or not isinstance(hosts, list) or not all(
+        isinstance(p, str) for p in permissions + hosts
+    ):
+        raise IntakeError("MANIFEST_PERMISSIONS_INVALID")
+    warnings = []
+    if any(p in ("<all_urls>", "https://*/*", "http://*/*", "*://*/*") for p in hosts):
+        warnings.append("BROAD_HOST_PERMISSION")
+    if any(p in SENSITIVE_PERMISSIONS for p in permissions):
+        warnings.append("SENSITIVE_API_PERMISSION")
+    return {
+        "startup_mode": startup,
+        "referenced_resources_checked": len(refs),
+        "permissions": sorted(set(permissions)),
+        "host_permissions": sorted(set(hosts)),
+        "review_flags": warnings,
+    }
+
+
 def verify_addons(z: zipfile.ZipFile) -> dict:
     manifest = read_json(z, "PACKAGE_MANIFEST.json")
     if len(manifest) != 6:
@@ -96,10 +157,12 @@ def verify_addons(z: zipfile.ZipFile) -> dict:
                 gecko = (mm.get("browser_specific_settings") or {}).get("gecko") or {}
                 if not gecko.get("id"):
                     raise IntakeError("FIREFOX_GECKO_ID_MISSING")
+            audit = inspect_extension_manifest(inner, mm, browser)
             entries.append({
                 "product": rec["product"], "browser": browser,
                 "version": mm["version"], "files": len(inner.infolist()),
                 "manifest_v3": True, "sha256_verified": True, "crc_verified": True,
+                **audit,
             })
             groups.setdefault(rec["product"], []).append((browser, mm["version"]))
     if len(groups) != 3 or any(sorted(k for k, _ in vals) != ["Chrome", "Firefox"]
@@ -116,11 +179,18 @@ def verify_rplay(z: zipfile.ZipFile) -> dict:
     if "NO GO" not in head and "NO_GO" not in head:
         raise IntakeError("RPLAY_CANDIDATE_GATE_UNCONFIRMED")
     versions = []
-    for path in ("rplay-stable-player-extension/manifest.json",
-                 "rplay-stable-player-extension-firefox/manifest.json"):
-        m = read_json(z, path)
+    audits = []
+    for folder, browser in (("rplay-stable-player-extension", "Chrome"),
+                            ("rplay-stable-player-extension-firefox", "Firefox")):
+        m = read_json(z, folder + "/manifest.json")
         if m.get("manifest_version") != 3:
             raise IntakeError("RPLAY_MANIFEST_NOT_MV3")
+        # Resolve packaging paths in their original directory; never extract.
+        class PrefixZip:
+            def namelist(self_inner):
+                prefix = folder + "/"
+                return [x[len(prefix):] for x in z.namelist() if x.startswith(prefix)]
+        audits.append({"browser": browser, **inspect_extension_manifest(PrefixZip(), m, browser)})
         versions.append(m.get("version"))
     if versions != ["2.68.0", "2.68.0"]:
         raise IntakeError("RPLAY_VERSION_MISMATCH")
@@ -128,6 +198,7 @@ def verify_rplay(z: zipfile.ZipFile) -> dict:
     return {"type": "rplay", "version": "2.68.0",
             "js_source_files": sum(n.startswith("src/") and n.endswith(".js") for n in names),
             "python_test_modules": sum(n.startswith("tests/") and n.endswith(".py") for n in names),
+            "manifest_audits": audits,
             "status": "NO_GO", "real_browser_test": "NOT_RUN"}
 
 
