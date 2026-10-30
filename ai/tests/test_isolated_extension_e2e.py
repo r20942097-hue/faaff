@@ -357,7 +357,7 @@ class StrictEvidenceTests(unittest.TestCase):
         self.assertEqual(outcome['release_decision'], 'CANDIDATE_NO_GO')
 
 
-if __name__=='__main__':unittest.main()
+
 
 class RuntimeIdentityTests(unittest.TestCase):
     def setUp(self):
@@ -483,3 +483,5 @@ class JavaScriptBeforeProductTests(unittest.TestCase):
             inspect=lambda path, sha, root: (path,sha,root))}):
             self.assertEqual(gate.javascript_preflight(Path('a.zip'),'0'*64,'ext/'),
                              (Path('a.zip'),'0'*64,'ext/'))
+
+if __name__=='__main__':unittest.main()
