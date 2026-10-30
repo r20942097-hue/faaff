@@ -37,3 +37,35 @@ Each product import should carry the following, stored in a source-specific area
 The machine-readable inventory is [`ai/tooling-readiness.json`](tooling-readiness.json). Validate it with `python ai/check_tooling_readiness.py`. PR status and evidence age must be refreshed before a promotion or merge decision.
 
 **Authority/permissions:** `faaff` remains the integration hub. `r20942097-hue/s` remains the primary filter distributor. P0 / PUBLICATION_HOLD applies; Draft PRs are proposals, not installed production components. No `main` push, auto-merge, release, URL mutation or product publication is authorized here.
+
+
+## 2026-10-30 verified source-candidate intake
+
+The owner's ChatGPT Library contains actual candidate ZIPs that are **not** on GitHub main. All local checks below were read-only in an isolated directory. Only non-secret hashes, version metadata and findings are added to this public Draft PR. Raw archives, any personal recordings, logs or credentials were never uploaded to GitHub.
+
+| Candidate | Independent verification | Gate |
+|---|---|---|
+| RPLAY Stable Player v2.68.0 | 5,425 entries, ZIP CRC PASS, 0 unsafe paths, 47 Python test modules and MV3 manifests identified | **NO_GO**, real-site and real-browser NOT_RUN |
+| Three Addons v11 | ZIP CRC PASS and six inner packages verified against sizes and SHA-256 in package manifest | GO_CANDIDATE, comparison reference |
+| Three Addons v12 | ZIP CRC PASS, six nested packages verified, JavaScript static syntax **226/226 PASS** using Node 22.16.0, bundled DataTools 1.4.0 --selftest **41/41 PASS** | GO_CANDIDATE, not a released build |
+
+The v12 inner sources are StreamHarbor v2.71.1, OmniStream & YouTube Optimizer v2.13.0, Tab & Stream Workspace v0.80.0 for both Firefox and Chromium. RPLAY v2.68.0 is an **independent older candidate**, not interchangeable with StreamHarbor v2.71.1.
+
+A previously mentioned v13 archive has **not been located in the inspected Library folder**; do not promote v12 over an uninspected newer authoritative version. GitHub branch proposal/rplay-3genre-2026-10-28 is a prototype, not a replacement for the complete RPLAY runtime.
+
+### Intake and reproduction
+
+- Machine-readable observed candidate inventory: ai/candidate-source-observations.json.
+- Offline checker: python ai/check_candidate_archive.py <local-candidate.zip>. It does not extract, execute code, connect to external services or copy ZIPs to GitHub. Validates path safety, size, CRC, SHA-256 sums and nested package manifests.
+- Synthetic regressions: ai/test_candidate_archive.py. They deliberately use generated fake archives; real candidate archives remain Library-only and are not ingested by public CI.
+
+### Current official guidance
+
+- [uv locking and syncing](https://docs.astral.sh/uv/concepts/projects/sync/): use a committed universal uv.lock, verify via uv lock --check, install with uv sync --locked once the project and source references are selected.
+- [Mozilla web-ext command reference](https://extensionworkshop.com/documentation/develop/web-ext-command-reference/): static lint does not substitute for native Firefox extension runtime testing.
+- [Firefox Gecko manifest details](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/browser_specific_settings): verify Gecko ID, minimum version and any data-collection permissions.
+- [GitHub artifact attestations](https://docs.github.com/en/actions/concepts/security/artifact-attestations): reserve for distributable builds; not an assertion that synthetic tests prove production safety.
+
+### Remaining gates
+
+Review actual candidate source and provenance in a private isolated workspace, identify newer canonical versions, then reuse the Playwright/Firefox and MCP test infrastructure on reviewed product code. All real RPLAY service, long-duration recording, Windows Firefox 159 and user machine tests remain NOT_RUN. Publication and main merge require separate owner approval.
