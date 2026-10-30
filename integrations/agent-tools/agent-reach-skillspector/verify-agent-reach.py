@@ -93,6 +93,15 @@ def local_checks(home: Path) -> None:
     assert rc == 1 and bad.get("ok") is False
     assert (bad.get("error") or {}).get("code") == "BAD_INPUT"
     print("PASS: invalid GitHub action rejected without contacting upstream")
+    rc, skill = run(["skill"], home)
+    assert rc == 0 and skill.get("action") == "skill"
+    assert isinstance(skill.get("result"), dict)
+    print("PASS: skill installation inventory readable without modifying agent configurations")
+
+    assert not (home / ".agent-reach" / "state.json").exists(), (
+        "Read-only CLI tests must not create an Agent-Reach state ledger"
+    )
+    print("PASS: local read-only checks made no setup or channel-state mutations")
 
 
 def public_probe(home: Path, label: str, args: list[str], timeout: int) -> bool:
@@ -131,9 +140,39 @@ def main() -> int:
                                                   "--backend", "github-api", "--timeout", "18"], 35),
         ("Public website read", ["web", "read", "https://example.com",
                                  "--backend", "jina", "--timeout", "18"], 35),
+        ("V2EX public topics", ["v2ex", "hot", "--limit", "2",
+                                "--backend", "v2ex-api", "--timeout", "12"], 28),
+        ("YouTube public video metadata", ["youtube", "read",
+                                           "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+                                           "--backend", "yt-dlp", "--timeout", "15"], 32),
+        ("Bilibili public popular videos", ["bilibili", "hot", "--limit", "2",
+                                            "--backend", "bilibili-api", "--timeout", "12"], 30),
     ]
     passed = sum(public_probe(home, label, cmd, budget) for label, cmd, budget in checks)
     print(f"PUBLIC_NETWORK: {passed}/{len(checks)} providers PASS; remaining BLOCKED, not falsely passed")
+
+    # The official `check` command performs a live query, records evidence, and
+    # is distinct from the offline doctor. This also tests the local-only state
+    # transition in the disposable CI HOME.
+    rc, check = run(["check", "github", "--search", "--timeout", "18"], home, timeout=40)
+    records = check.get("results")
+    assert isinstance(records, list) and len(records) >= 1
+    assert all(row.get("channel") == "github" and row.get("action") == "search"
+               for row in records)
+    if rc == 0:
+        assert any(row.get("passed") is True and row.get("item_count", 0) > 0
+                   for row in records)
+        dc, doctor = run(["doctor"], home)
+        assert dc == 0
+        github = next(x for x in doctor["result"]["channels"]
+                      if x["channel"] == "github")
+        assert github["status"] in ("search_ready", "ready"), github["status"]
+        print("PASS: official live `check github --search` updated doctor to search_ready")
+    else:
+        codes = {(row.get("error") or {}).get("code") for row in records if not row.get("passed")}
+        assert codes.issubset(ALLOWED_PUBLIC_ERRORS), codes
+        print(f"BLOCKED: official live check github search, codes={','.join(sorted(codes))}")
+
     return 0
 
 
