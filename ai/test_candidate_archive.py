@@ -160,6 +160,26 @@ class CandidateArchiveChecks(unittest.TestCase):
                      x["product"] == "StreamHarbor" and x["browser"] == "Firefox")
         self.assertIn("SENSITIVE_API_PERMISSION", entry["review_flags"])
 
+    def test_malformed_icons_type_rejected_without_crash(self):
+        entries = addon_fixture()
+        def edit(inner):
+            m = json.loads(inner["manifest.json"])
+            m["icons"] = ["wrong-type"]
+            inner["manifest.json"] = json.dumps(m).encode()
+        replace_inner(entries, "TabWorkspace_Chrome_MV3.zip", edit)
+        with self.assertRaisesRegex(IntakeError, "MANIFEST_RESOURCE_FIELDS_INVALID"):
+            self.check(entries)
+
+    def test_malformed_content_script_type_rejected(self):
+        entries = addon_fixture()
+        def edit(inner):
+            m = json.loads(inner["manifest.json"])
+            m["content_scripts"] = {"js": "background.js"}
+            inner["manifest.json"] = json.dumps(m).encode()
+        replace_inner(entries, "OmniStream_Chrome_MV3.zip", edit)
+        with self.assertRaisesRegex(IntakeError, "CONTENT_SCRIPT_DECLARATION_INVALID"):
+            self.check(entries)
+
     def test_rplay_no_go(self):
         entries = {
             "DEVELOPMENT_HANDOFF_v2.68.0.md": "CANDIDATE / NO GO",
