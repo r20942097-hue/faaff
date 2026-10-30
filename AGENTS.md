@@ -58,6 +58,11 @@
 - Keep the authoritative state in `ai/PROJECT_STATE.json` and `ai/HANDOFF.md`; avoid duplicate status registries and needless edits to old historical data. Preserve source originals, provenance, user work, existing working features and public interfaces. A newer candidate version is not automatically release-ready.
 - This delegation **does not** waive the explicit-owner-approval operations above (merge, release/publication, deploy, destructive changes, archive/binary commits or history rewrite); nor does it authorize account login, credential access, browser-profile import, or changes to the user's real PC without a specific task-related authorization. If an essential restricted action becomes necessary, ask only for that decision and continue other possible steps.
 
+### Human-intervention threshold / 人間介入の最小化
+- **Research first, solve autonomously:** In every authorized engineering, research, analysis, and documentation task, use existing context and reliable primary sources before asking the user to investigate, operate tools, or confirm routine choices. Adapt search depth to impact; do not browse or build tools unnecessarily.
+- **Escalate only when unavoidable:** Request human input only when a material security decision genuinely requires the owner, or indispensable authentication, permission, or explicit approval cannot be obtained by an authorized method. First check legitimate alternatives; do not bypass controls. Present the evidence, recommended option, and minimum action required.
+- **Keep independent work moving:** Block only the specific step that needs human action; continue other safe, authorized tasks. Record PASS/FAIL/BLOCKED/NOT_RUN accurately, preserve provenance, and do not confuse proposed, tested, approved, or deployed states. The approval boundaries above remain unchanged.
+
 ## Session handoff files / セッション引継ぎ
 - `ai/PROJECT_STATE.json` (machine-readable current state) and `ai/HANDOFF.md` (next task, checks run / not run, blockers) — created 2026-10-28. Update them in place (never record secrets; no parallel copies elsewhere). See also `ai/projects.json` and `ai/WORK_QUEUE.md`.
 
