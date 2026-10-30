@@ -69,3 +69,13 @@ A previously mentioned v13 archive has **not been located in the inspected Libra
 ### Remaining gates
 
 Review actual candidate source and provenance in a private isolated workspace, identify newer canonical versions, then reuse the Playwright/Firefox and MCP test infrastructure on reviewed product code. All real RPLAY service, long-duration recording, Windows Firefox 159 and user machine tests remain NOT_RUN. Publication and main merge require separate owner approval.
+
+## 2026-10-30 follow-up: real-source smoke and manifest gate
+
+- **RPLAY v2.68.0 source-only local tests**: Python unit tests 41/41 PASS (ledger cross 15, assembly 13, self cross report 13), JavaScript Node tests 47/47 PASS (21, 14, 12 respectively). In total 88 focused tests. This is a subset of the candidate's suite and **does not** assert successful live recording or completion of all published test claims.
+- **Three Addons v12 manifest references**: both browser packages of the three products were inspected locally. Referenced background scripts, service worker, declared content scripts, icons and popup/options pages were all present; the new validator reports each package's startup mode, listed permissions, declared hosts and review flags. This is validation, not automatic permission minimization.
+- **Permission review**: StreamHarbor's Chrome/Firefox manifest declares `https://*/*`. It is an important site-scope review item but was deliberately **not** removed because broad host access may be required for the recorder's current architecture. Narrowing it requires explicit site-by-site behavior testing.
+- **Chromium local runtime**: an attempt to load the actual v12 Chrome extension in this ephemeral local Chromium 144 environment did **not** expose a service worker; the environment also blocked `chrome://extensions/`. The result is **BLOCKED by local browser environment / NOT_VERIFIED for the product**, not an observed product failure. Existing PR #38 synthetic Chromium PASS is a separate test and cannot replace this gate.
+- **Manifest checker hardening**: new synthetic negative tests cover missing worker/background resources, missing popup files, invalid manifest field types, broad host access as an advisory, and sensitive API permissions. Tests must pass without executing scripts from archives.
+
+The original archived candidates remain unchanged, and none are published into this public repository. Progress is recorded in `ai/candidate-source-observations.json`.
