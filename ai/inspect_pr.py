@@ -16,6 +16,7 @@ import sys
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 from urllib.request import HTTPRedirectHandler, Request, build_opener
+from datetime import datetime, timezone
 
 from ai.github_evidence import review_evidence
 
@@ -93,9 +94,11 @@ def collect_pages(path: str, *, key: str, max_pages: int = 20) -> tuple[list, in
     raise CollectionError("pagination limit reached; refusing partial evidence")
 
 
-def inspect(repository: str, pr_number: int, ruleset_id: int) -> dict:
+def inspect(repository: str, pr_number: int, ruleset_id: int, expected_head_sha: str | None = None) -> dict:
     if not REPO.fullmatch(repository) or pr_number < 1 or ruleset_id < 1:
         raise CollectionError("invalid repository, PR number or ruleset ID")
+    if expected_head_sha is not None and not re.fullmatch(r"[0-9a-f]{40}", expected_head_sha):
+        raise CollectionError("invalid expected PR HEAD SHA")
     owner, name = repository.split("/")
     prefix = f"/repos/{quote(owner)}/{quote(name)}"
     pull_path = f"{prefix}/pulls/{pr_number}"
@@ -105,6 +108,8 @@ def inspect(repository: str, pr_number: int, ruleset_id: int) -> dict:
     head = before.get("head")
     if not isinstance(head, dict) or not isinstance(head.get("sha"), str) or not re.fullmatch(r"[0-9a-f]{40}", head["sha"]):
         raise CollectionError("missing PR head SHA")
+    if expected_head_sha is not None and head["sha"] != expected_head_sha:
+        raise CollectionError("event PR HEAD does not match live PR HEAD")
     changed, _ = collect_pages(pull_path + "/files", key="files")
     changed_count = before.get("changed_files")
     if type(changed_count) is not int or changed_count != len(changed):
@@ -146,6 +151,12 @@ def inspect(repository: str, pr_number: int, ruleset_id: int) -> dict:
         raise CollectionError("invalid ruleset response")
     if ruleset.get("id") != ruleset_id:
         raise CollectionError("ruleset ID mismatch")
+    # Prevent a policy snapshot from being reused after protection changed.
+    effective_after, _ = collect_pages(
+        f"{prefix}/rules/branches/main", key="rules",
+    )
+    if effective_rules != effective_after:
+        raise CollectionError("effective branch rules changed during audit")
     result = review_evidence(
         repository=repository,
         pull=after,
@@ -155,6 +166,11 @@ def inspect(repository: str, pr_number: int, ruleset_id: int) -> dict:
     )
     result["live_api_collected"] = True
     result["effective_branch_rule_count"] = len(effective_rules)
+    result["observed_at_utc"] = datetime.now(timezone.utc).isoformat()
+    result["pr_number"] = pr_number
+    result["repository"] = repository
+    result["base_sha"] = after["base"]["sha"]
+    result["event_head_verified"] = expected_head_sha is not None
     return result
 
 
@@ -163,9 +179,10 @@ def main() -> int:
     parser.add_argument("repository", help="owner/name")
     parser.add_argument("pull_request", type=int)
     parser.add_argument("--ruleset-id", type=int, required=True)
+    parser.add_argument("--expected-head-sha", help="fail if PR HEAD differs from the event commit")
     args = parser.parse_args()
     try:
-        result = inspect(args.repository, args.pull_request, args.ruleset_id)
+        result = inspect(args.repository, args.pull_request, args.ruleset_id, args.expected_head_sha)
     except CollectionError as exc:
         result = {"status": "BLOCKED", "reasons": [str(exc)]}
     print(json.dumps(result, ensure_ascii=False, sort_keys=True, indent=2))
