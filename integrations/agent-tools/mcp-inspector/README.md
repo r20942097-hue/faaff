@@ -44,5 +44,10 @@ The CLI does **not** start the Inspector's web server or open a listening port. 
 ## Evidence states
 
 - Upstream version, Node requirements and CLI syntax: official source documentation checked.
-- GitHub branch source, CI registration and execution: record links when observed.
+- GitHub source + CLI real execution: **PASS** in [MCP Inspector isolated CLI run 41031131099](https://github.com/r20942097-hue/faaff/actions/runs/41031131099). Both `tools/list --strict` and `tools/call` completed successfully against the local stdio fixture.
 - Real MCP server, remote login, Windows local install, production compatibility, browser extension runtime: **NOT_RUN**.
+
+## Verified smoke (2026-10-30)
+
+- [GitHub Actions run 41031131099](https://github.com/r20942097-hue/faaff/actions/runs/41031131099): Node 22.19.0 setup PASS; Inspector 2.13.0 CLI installation PASS; local synthetic MCP server syntax PASS; strict tools/list and echo tools/call PASS.
+- No external MCP server was contacted, no web Inspector UI was exposed, and no authentication flows were performed. NPM transitive dependency reproducibility remains a separate security gate.
