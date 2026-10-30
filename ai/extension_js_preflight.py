@@ -66,8 +66,12 @@ def _node_syntax(source: bytes, is_module: bool, node: str, timeout: int = 7) ->
     try:
         proc = subprocess.run([node, '--check', '--input-type=' + ('module' if is_module else 'commonjs')],
                               input=source, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              timeout=timeout, check=False, env={'PATH': os.environ.get('PATH', ''),
-                                                                  'LANG': 'C', 'NODE_OPTIONS': ''})
+                              timeout=timeout, check=False, env={'PATH': os.environ.get('PATH', ''), 'LANG': 'C',
+                                   'NODE_OPTIONS': '', 'NODE_PATH': '',
+                                   'SystemRoot': os.environ.get('SystemRoot', ''),
+                                   'WINDIR': os.environ.get('WINDIR', ''),
+                                   'TEMP': os.environ.get('TEMP', ''),
+                                   'TMP': os.environ.get('TMP', '')})
     except (OSError, subprocess.TimeoutExpired):
         return 'UNAVAILABLE'
     return 'PASS' if proc.returncode == 0 else 'FAIL'
