@@ -11,7 +11,7 @@ from typing import Mapping, Sequence
 import re
 
 SHA40 = re.compile(r"[0-9a-f]{40}\Z")
-RISK_ORDER = ("documentation", "metadata", "implementation", "publication", "prohibited")
+RISK_ORDER = ("documentation", "metadata", "infrastructure", "implementation", "publication", "prohibited")
 
 
 @dataclass(frozen=True)
@@ -45,7 +45,7 @@ def classify_path(path: str) -> str:
     ):
         return "publication"
     if path.startswith((".github/workflows/", "ai/imports/")):
-        return "implementation"
+        return "infrastructure"
     if path.startswith(("rplay_watcher/", "extension/", "integrations/")):
         return "implementation"
     if path in {"AGENTS.md", "ai/PROJECT_STATE.json", "ai/projects.json"}:
@@ -53,7 +53,7 @@ def classify_path(path: str) -> str:
     if path.startswith("ai/") and path.endswith(".md"):
         return "documentation"
     if path.startswith("ai/"):
-        return "implementation" if lower.endswith((".py", ".sh", ".js", ".yml", ".yaml")) else "metadata"
+        return "infrastructure" if lower.endswith((".py", ".sh", ".js", ".yml", ".yaml")) else "metadata"
     if lower.endswith((".md", ".rst")):
         return "documentation"
     # Unknown file types are not automatically low risk.
@@ -98,9 +98,8 @@ def assess_change(
             if checks.get(check) != "success":
                 failures.append("missing_or_nonpassing_check:" + check)
     if risk == "implementation" and not product_verified:
-        # Source/CI edits can be tested without a real device, but a real
-        # runtime product change cannot be assumed release-ready. This
-        # conservative assessment asks for independent product evidence.
+        # A real product change must not be treated as release-ready merely
+        # because unrelated infrastructure CI succeeded.
         failures.append("implementation_verification_not_supplied")
     if failures:
         return Assessment(risk, "BLOCKED", tuple(failures))
