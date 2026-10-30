@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "integrations/browser-filters/source/s/v2/tracking.txt"
 INDEX = ROOT / "ai/imports/s.json"
 EXTENSION = "uBlock0@raymondhill.net"
-SENTINEL = "upc-candidate.invalid"
+SENTINEL = "upc-candidate.example.org"
 CONTROL_HOSTS = (PAGE, SAME_SITE, OTHER_SITE)
 
 

@@ -305,7 +305,7 @@ runner, not on the user's machine. The manifest and XPI never enter Git or
 a persistent user browser. No global Firefox enterprise policy is changed.
 
 Three isolated real Firefox sessions are required: stock uBO, stock uBO with
-38 v2 filters plus a synthetic `.invalid` sentinel managed rule, then stock
+38 v2 filters plus a synthetic `example.org` sentinel managed rule, then stock
 uBO after removing the managed manifest. The test server is the same
 deny-by-default, nonforwarding HTTP proxy, extended for exact pinned hosts
 and a synthetic `/batch` image page. It compares all 38 host requests in
