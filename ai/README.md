@@ -64,6 +64,14 @@ The ruleset IDs above are the branch-protection rulesets verified on 2026-10-31.
 
 `ai/inspect_pr.py` paginates the complete changed-file/check-run collections, checks exact HEAD/base stability by re-fetching the PR, uses both names on rename, checks active ruleset scope, and matches the required check `context`, issuing GitHub App `integration_id`, HEAD SHA, completed status, and successful conclusion. Missing, duplicate, skipped, in-progress, mismatched, inaccessible or incomplete evidence is **BLOCKED**. `AWAITING_OWNER_APPROVAL` means evidence passed this selected snapshot's checks but owner authorization and every other GitHub/release gate are **still required**. It does not merge, review, post data, write files, or claim product E2E acceptance. Re-run the command after any PR head, ruleset, or CI status changes.
 
+For reproducible checks, pass the expected PR head from the event or immediately prior trusted PR read:
+
+```sh
+python -m ai.inspect_pr r20942097-hue/faaff 44 --ruleset-id 26005483 --expected-head-sha <40-hex-PR-head>
+```
+
+The PR CI smoke passes `github.event.pull_request.head.sha` automatically and fails if a newer commit replaced it before the audit. The CLI re-reads both the effective-branch rules and the selected ruleset before recording its result, rejecting a mid-audit policy change. Successful network collection records `observed_at_utc`, `repository`, `pr_number`, `head_sha`, `base_sha` and `event_head_verified`. These describe a **point-in-time observation**, not an indefinitely reusable merge decision. Do not reuse the JSON for a later HEAD or after rule/check changes.
+
 The live CLI also checks GitHub's **effective rules for the main branch** (`GET /repos/{owner}/{repo}/rules/branches/main`), which includes inherited organization rules. A second active ruleset or unknown rule association returns `BLOCKED` instead of silently ignoring additional protections. This does not replace a separate owner-authorization or legacy branch-protection review.
 
 The existing AI hub workflow now includes a non-required `Read-only GitHub API smoke (not a merge gate)` job on PRs after the Linux/Windows checks. Its token is scoped to repository contents, PR and check **read** access. `LIVE_API_SMOKE_PASS` means that all read-only API requests completed and a valid advisory result was produced; the policy result can still be `BLOCKED`, and neither result authorizes a merge. The existing 3-hour GitHub quality audit can inspect this run; no additional scheduled task is created.
