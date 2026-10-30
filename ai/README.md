@@ -50,7 +50,7 @@ The existing `AI hub and pinned filter source` workflow includes this suite on p
 Python 3.15.2 (released 2026-10-25) is the first 3.15 patch tested here; 3.15.0/3.15.1 are not an acceptable security baseline for this evaluation. The pinned `3.15.2` setup-python entry runs actual hub state/import verification, decision-contract regression tests, imported filter unit tests, and generated-list parity. Versions 3.11 and 3.14 remain available and required by the current Ruleset.
 
 - **Purpose:** catch 3.15 interpreter, stdlib, and UTF-8 default encoding compatibility problems without modifying the owner's Windows installation or publishing releases.
-- **Scope:** this is the engineering hub and its pinned filter snapshot; it does **not** establish Windows, third-party wheel/extension, production watcher, or real browser compatibility.
+- **Scope:** Linux Python 3.15.2 runs the hub and pinned snapshot tests. A separate optional Windows-hosted Python 3.15.2 job runs the same checks. Even if both pass, this does **not** establish compatibility with the owner's PC, arbitrary wheels/extensions, a production watcher runtime, or real browsers.
 - **Promotion:** require a successful job for the exact PR HEAD and reproduce with the actual application source and dependencies before treating 3.15 as a supported production target.
 - **Security:** prefer the latest security-maintained patch in the 3.15 line for future upgrades after checking upstream changes and test evidence; do not silently downgrade below 3.15.2.
 
