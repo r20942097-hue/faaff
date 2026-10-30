@@ -94,7 +94,7 @@ jobs:
           from pathlib import Path
           p = Path(os.environ["RUNNER_TEMP"]) / "unsafe-report.json"
           obj = json.loads(p.read_text(encoding="utf-8"))
-          assert isinstance(obj, dict) and obj.get("findings"), "Positive report has no findings"
+          assert isinstance(obj, dict) and obj.get("issues"), "Positive report has no issues"
           print("PASS: static scanner flagged an inert AST hazard and exited 1")
           PY
       - name: Explain coverage limits
