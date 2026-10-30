@@ -4,10 +4,15 @@ on:
   pull_request:
     paths:
       - 'ai/chromium_renderer_crash_fixture.py'
+      - 'ai/opfs_restart_fixture.py'
       - 'ai/test_chromium_renderer_crash_fixture.py'
       - 'ai/requirements-browser.txt'
       - '.github/workflows/chromium-renderer-crash.yml'
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
