@@ -48,6 +48,14 @@ jobs:
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.12'
+      - name: Inspect zizmor wheel SHA-256 for fully pinned installer
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/zizmor-dist"
+          python -m pip download --no-deps --only-binary=:all: \
+            --dest "$RUNNER_TEMP/zizmor-dist" 'zizmor==1.31.1'
+          sha256sum "$RUNNER_TEMP"/zizmor-dist/*.whl
       - name: Install pinned zizmor release
         run: |
           python -m pip install --disable-pip-version-check --only-binary=:all: zizmor==1.31.1
