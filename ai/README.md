@@ -30,3 +30,26 @@ python browser_filter_lists/scripts/test_promotion.py
 
 ## Migration gate
 After import checks pass, compare `s/main` against the pinned source commit, pick a single writable canonical source, then establish a tested least-privilege publishing path (or keep `s` authoritative). Reconcile the `filter-profiles.json` `faaff` output scope with existing `browser_filter_lists/` policy before any cutover. Do not infer parity from similar filenames or pass a release based only on an imported snapshot.
+
+## Pinned import safety regressions
+
+The existing `python ai/check_hub.py` validates the local import against the
+recorded Git blob hashes and manifest file set. It also rejects malformed JSON
+metadata, unsafe or colliding portable paths, excluded/imported path overlap,
+and symlinks in the imported tree or its parent components.
+
+Run the offline fault-injection tests with:
+
+```sh
+python -m unittest discover -s ai/tests -p 'test_*.py' -v
+```
+
+`.github/workflows/ai-hub-import-safety.yml` runs these tests on Python 3.11
+and 3.14 when the validator, tests, or workflow change. The existing AI hub
+workflow continues to run the validator on the actual pinned import.
+
+**Boundary:** matching the manifest's local blob hashes does *not* independently
+prove that the manifest corresponds to the upstream `s` Git commit/tree.
+Compare the upstream Git tree at the pinned SHA separately before changing
+source ownership, publication, or release status. These checks are neither
+product runtime tests nor real-browser E2E tests.
