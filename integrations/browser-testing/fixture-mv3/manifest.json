@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Isolated MV3 Fixture",
+  "version": "0.0.1",
+  "description": "Safe browser harness only; not the user's product",
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": []
+}
