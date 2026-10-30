@@ -1,0 +1,64 @@
+name: Windows agent tool installer smoke
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-dry-run:
+    name: PowerShell safe no-install validation
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate Agent-Reach version envelope before allowing setup
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $p = '.\integrations\agent-tools\agent-reach-skillspector\Install-AgentReach-SkillSpector.ps1'
+          # Dot-source the no-op DryRun to load the validation function; no uv invocation.
+          . $p -DryRun -Target AgentReach 6>&1 | Out-Null
+          $valid = '{"schema_version":1,"ok":true,"action":"version","result":{"version":"1.6.0","install_method":"uv"},"error":null}'
+          if ((Assert-AgentReachVersionInfo -VersionText $valid) -ne '1.6.0') {
+            throw 'Valid Agent-Reach JSON was rejected'
+          }
+          $badResponses = @(
+            'not-json',
+            '{}',
+            '{"schema_version":1,"ok":false,"action":"version","result":{"version":"1.6.0"}}',
+            '{"schema_version":1,"ok":true,"action":"other","result":{"version":"1.6.0"}}',
+            '{"schema_version":1,"ok":true,"action":"version","result":{"version":"1.5.9"}}',
+            '{"schema_version":1,"ok":true,"action":"version","result":{"version":"arbitrary"}}'
+          )
+          foreach ($bad in $badResponses) {
+            $rejected = $false
+            try { $null = Assert-AgentReachVersionInfo -VersionText $bad }
+            catch { $rejected = $true }
+            if (-not $rejected) { throw 'Invalid Agent-Reach version was accepted' }
+          }
+          Write-Host 'PASS: valid Agent-Reach JSON accepted, six invalid versions rejected.'
+      - name: Validate preview, options, and rejected conflicting requests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $scriptPath = '.\\integrations\\agent-tools\\agent-reach-skillspector\\Install-AgentReach-SkillSpector.ps1'
+          $base = (& $scriptPath -DryRun -Target Both 6>&1 | Out-String)
+          if ($base -notmatch 'No commands executed') { throw 'DryRun guarantee missing' }
+          $single = (& $scriptPath -DryRun -Target SkillSpector 6>&1 | Out-String)
+          if ($single -notmatch 'SkillSpector') { throw 'Target selection failed' }
+          $without = (& $scriptPath -DryRun -Target AgentReach 6>&1 | Out-String)
+          if ($without -match 'PLAN: agent-reach setup') { throw 'Setup unexpectedly enabled' }
+          $with = (& $scriptPath -DryRun -Target AgentReach -RunSetup 6>&1 | Out-String)
+          if ($with -notmatch 'PLAN: agent-reach setup') { throw 'Explicit setup planning failed' }
+          $threw = $false
+          try { & $scriptPath -DryRun -RunSetup -SkipSetup | Out-Null } catch { $threw = $true }
+          if (-not $threw) { throw 'Conflicting flags should be rejected' }
+          Write-Host 'PASS: Windows offline option smoke only; no third-party installation performed.'

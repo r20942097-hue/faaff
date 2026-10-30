@@ -1,0 +1,188 @@
+name: Agent tool isolated installation verification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/agent-tools-install-smoke.yml'
+      - 'integrations/agent-tools/agent-reach-skillspector/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-install:
+    name: Isolated CLI installation / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      UV_NO_PROGRESS: '1'
+      AGENT_REACH_SOURCE: git+https://github.com/Panniantong/Agent-Reach.git@beabda7486e9a666360b18cdb5c0e759c2c4d20f
+      SKILLSPECTOR_SOURCE: git+https://github.com/NVIDIA/skillspector.git@54921c8c7c23008c8af2328d5ab492a904b6ece4
+    steps:
+      - name: Initialize ephemeral uv paths
+        shell: bash
+        run: |
+          echo "UV_TOOL_DIR=$RUNNER_TEMP/isolated-agent-tools" >> "$GITHUB_ENV"
+          echo "UV_TOOL_BIN_DIR=$RUNNER_TEMP/isolated-bin" >> "$GITHUB_ENV"
+          echo "UV_CACHE_DIR=$RUNNER_TEMP/uv-agent-cache" >> "$GITHUB_ENV"
+      - name: Checkout without credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Python 3.12
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Install pinned uv in ephemeral runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check 'uv==0.13.6'
+          uv --version
+          mkdir -p "$UV_TOOL_BIN_DIR"
+          echo "$UV_TOOL_BIN_DIR" >> "$GITHUB_PATH"
+      - name: Verify locked Agent-Reach dependency graph and install (both OS)
+        shell: bash
+        run: |
+          set -euo pipefail
+          project=integrations/agent-tools/agent-reach-skillspector/locked-agent-reach
+          uv lock --project "$project" --check
+          uv sync --project "$project" --locked --no-dev
+          uv run --project "$project" --locked --no-sync agent-reach version > "$RUNNER_TEMP/locked-agent-version.json"
+          python - "$RUNNER_TEMP/locked-agent-version.json" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          output = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          assert output.get("schema_version") == 1
+          assert output.get("ok") is True
+          assert output.get("action") == "version"
+          assert output.get("result", {}).get("version") == "1.6.0"
+          print("PASS: independently synced Agent-Reach v1.6.0 from immutable Git source and uv.lock")
+          PY
+          uv run --project "$project" --locked --no-sync python "$project/verify-lock.py"
+          git diff --exit-code -- "$project/uv.lock"
+      - name: Select locked Agent-Reach executable for all functional probes
+        shell: bash
+        run: |
+          set -euo pipefail
+          directory="$GITHUB_WORKSPACE/integrations/agent-tools/agent-reach-skillspector/locked-agent-reach/.venv"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            binary="$directory/Scripts/agent-reach.exe"
+          else
+            binary="$directory/bin/agent-reach"
+          fi
+          test -f "$binary"
+          printf 'AGENT_REACH_TEST_BINARY=%s\n' "$binary" >> "$GITHUB_ENV"
+          echo "PASS: functional probes will run the verified uv.lock executable"
+      - name: Install Agent-Reach v1.6.0 and SkillSpector from commit pins
+        shell: bash
+        run: |
+          set -euo pipefail
+          uv tool install --python 3.12 "$AGENT_REACH_SOURCE"
+          uv tool install --python 3.12 "$SKILLSPECTOR_SOURCE"
+          uv tool list
+      - name: Inventory resolved Python dependencies for drift analysis
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tool in agent-reach skillspector; do
+            if [[ "$RUNNER_OS" == "Windows" ]]; then
+              python="$UV_TOOL_DIR/$tool/Scripts/python.exe"
+            else
+              python="$UV_TOOL_DIR/$tool/bin/python"
+            fi
+            test -f "$python" || { echo "Missing isolated Python for $tool"; exit 1; }
+            freeze="$RUNNER_TEMP/$tool-freeze.txt"
+            uv pip freeze --python "$python" > "$freeze"
+            python - "$freeze" "$tool" <<'PY'
+          import hashlib
+          from pathlib import Path
+          import sys
+          lines = [line.strip() for line in Path(sys.argv[1]).read_text(encoding="utf-8").splitlines() if line.strip()]
+          assert len(lines) >= 2, "Empty or incomplete dependency resolution"
+          names = [line.split("==", 1)[0].split(" @ ", 1)[0].lower().replace("_", "-") for line in lines]
+          assert sys.argv[2] in names, "Expected tool missing from installed dependency list"
+          digest = hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
+          print(f"Dependency inventory: {sys.argv[2]} packages={len(lines)} sha256={digest}")
+          PY
+          done
+      - name: Verify CLIs without setup, login, or credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          agent-reach version
+          skillspector --help
+          skillspector scan --help
+      - name: Agent-Reach JSON, channel registry and offline doctor contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python integrations/agent-tools/agent-reach-skillspector/verify-agent-reach.py \
+            --home "$RUNNER_TEMP/agent-reach-probe-home"
+      - name: Agent-Reach anonymous live public-data probes (network diagnostic)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python integrations/agent-tools/agent-reach-skillspector/verify-agent-reach.py \
+            --home "$RUNNER_TEMP/agent-reach-probe-home" --live
+      - name: Exercise Windows SkillSpector identity preflight against installed CLI
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $p = '.\\integrations\\agent-tools\\agent-reach-skillspector\\Install-AgentReach-SkillSpector.ps1'
+          & $p -Target SkillSpector
+          if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+            throw 'Existing SkillSpector version validation failed'
+          }
+          Write-Host 'PASS: preinstalled SkillSpector verified without reinstallation.'
+      - name: Static scanner test on synthetic harmless skill (Linux only)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/synthetic-skill"
+          printf '%s\n' '---' 'name: smoke-skill' 'description: Benign smoke skill for scanner testing' '---' '# Smoke skill' 'This is a local no-command sample.' > "$RUNNER_TEMP/synthetic-skill/SKILL.md"
+          skillspector scan "$RUNNER_TEMP/synthetic-skill" --no-llm --format json > "$RUNNER_TEMP/synthetic-report.json"
+          python -c 'import json,os; d=json.load(open(os.environ["RUNNER_TEMP"]+"/synthetic-report.json",encoding="utf-8")); assert isinstance(d,dict),type(d); print("PASS: JSON report parsed")'
+      - name: Synthetic AST hazard must trigger SkillSpector fail-on-findings (Linux)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/synthetic-unsafe-skill"
+          mkdir -p "$dir"
+          printf '%s\n' '---' 'name: ast-test' 'description: Scanner regression input, never executed' '---' '# Static test' > "$dir/SKILL.md"
+          # This is inert source text, not executable in this job.
+          printf '%s\n' 'exec("print(123)")' > "$dir/suspect.py"
+          set +e
+          skillspector scan "$dir" --no-llm --fail-on-findings --format json --output "$RUNNER_TEMP/unsafe-report.json" >/dev/null 2>"$RUNNER_TEMP/scan-error.log"
+          status=$?
+          set -e
+          if [[ "$status" -ne 1 ]]; then
+            echo "Expected SkillSpector detection with exit 1, got $status."
+            # Do not disclose the contents of the analyzed fixture or reports.
+            exit 1
+          fi
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          p = Path(os.environ["RUNNER_TEMP"]) / "unsafe-report.json"
+          obj = json.loads(p.read_text(encoding="utf-8"))
+          assert isinstance(obj, dict) and obj.get("issues"), "Positive report has no issues"
+          print("PASS: static scanner flagged an inert AST hazard and exited 1")
+          PY
+      - name: Explain coverage limits
+        shell: bash
+        run: |
+          echo 'CLI installation verified only in ephemeral runner.'
+          echo 'Agent-Reach setup, auth, live channels and the user Windows environment were not changed.'
+          echo 'Dependencies are resolved online and not hash-locked, pending next security gate.'

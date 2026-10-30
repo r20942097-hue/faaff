@@ -1,0 +1,12 @@
+[project]
+name = "faaff-agent-reach-validation"
+version = "0.0.0"
+description = "Locked isolated verification environment for Agent-Reach v1.6.0"
+requires-python = ">=3.12,<3.13"
+dependencies = ["agent-reach==1.6.0"]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+agent-reach = { git = "https://github.com/Panniantong/Agent-Reach.git", rev = "beabda7486e9a666360b18cdb5c0e759c2c4d20f" }
