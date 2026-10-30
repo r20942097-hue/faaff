@@ -113,6 +113,13 @@ jobs:
               raise SystemExit("LIVE_API_SMOKE_FAIL: observed PR HEAD is not the triggering event HEAD")
           if result.get("status") not in {"BLOCKED", "AWAITING_OWNER_APPROVAL"}:
               raise SystemExit("LIVE_API_SMOKE_FAIL: unknown policy status")
+          if result.get("status") == "BLOCKED":
+              pending = result.get("pending_checks", [])
+              nonpassing = result.get("nonpassing_checks", [])
+              if pending and not nonpassing:
+                  print("LIVE_API_AUDIT_PENDING: required checks still running =", ", ".join(pending))
+              else:
+                  print("LIVE_API_AUDIT_BLOCKED: inspect reasons and nonpassing checks", nonpassing)
           print("LIVE_API_SMOKE_PASS: API queries completed; advisory policy status =", result["status"])
           print("LIVE_API_SMOKE_PASS is NOT a merge, review, or release authorization")
           PY

@@ -80,6 +80,8 @@ The PR CI smoke passes `github.event.pull_request.head.sha` automatically and fa
 
 The live CLI also checks GitHub's **effective rules for the main branch** (`GET /repos/{owner}/{repo}/rules/branches/main`), which includes inherited organization rules. A second active ruleset or unknown rule association returns `BLOCKED` instead of silently ignoring additional protections. This does not replace a separate owner-authorization or legacy branch-protection review.
 
+The live audit emits `pending_checks` for queued/in-progress required jobs and `nonpassing_checks` for completed unsuccessful/skipped checks. Its conservative overall `BLOCKED` status is unchanged. A snapshot with only pending checks is **not** a test failure; inspect the latest PR HEAD checks again rather than raising a new incident. Unknown or incomplete evidence is never treated as successful.
+
 The existing AI hub workflow now includes a non-required `Read-only GitHub API smoke (not a merge gate)` job on PRs after the Linux/Windows checks. Its token is scoped to repository contents, PR and check **read** access. `LIVE_API_SMOKE_PASS` means that all read-only API requests completed and a valid advisory result was produced; the policy result can still be `BLOCKED`, and neither result authorizes a merge. The existing 3-hour GitHub quality audit can inspect this run; no additional scheduled task is created.
 
 The deterministic adversarial fixtures are tested offline in `ai/tests/test_github_evidence.py`; executing those fixtures does **not** prove the remote GitHub API was contacted successfully. Network failures must be reported `BLOCKED`, not silently inferred as a green gate.

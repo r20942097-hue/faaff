@@ -98,6 +98,8 @@ def review_evidence(
             type(total_count) is not int or total_count != len(raw_checks)):
         return {"status": "BLOCKED", "reasons": failures + ["incomplete_check_runs_collection"]}
     observed: dict[str, str] = {}
+    pending_checks: list[str] = []
+    nonpassing_checks: list[str] = []
     for name in names:
         candidates = [c for c in raw_checks if isinstance(c, dict) and c.get("name") == name]
         if len(candidates) != 1:
@@ -109,11 +111,17 @@ def review_evidence(
             failures.append("check_publisher_mismatch:" + name)
         if c.get("head_sha") != head_sha:
             failures.append("check_head_mismatch:" + name)
-        observed[name] = "success" if c.get("status") == "completed" and c.get("conclusion") == "success" else "incomplete"
+        status, conclusion = c.get("status"), c.get("conclusion")
+        if status in ("queued", "pending", "in_progress"):
+            pending_checks.append(name)
+        elif status != "completed" or conclusion != "success":
+            nonpassing_checks.append(name)
+        observed[name] = "success" if status == "completed" and conclusion == "success" else "incomplete"
     if failures:
         return {
             "status": "BLOCKED", "reasons": sorted(set(failures)),
             "head_sha": head_sha, "required_checks": names,
+            "pending_checks": pending_checks, "nonpassing_checks": nonpassing_checks,
         }
     result = assess_change(
         paths=paths,
@@ -130,4 +138,5 @@ def review_evidence(
         "reasons": list(result.reasons),
         "head_sha": head_sha,
         "required_checks": names,
+        "pending_checks": pending_checks, "nonpassing_checks": nonpassing_checks,
     }

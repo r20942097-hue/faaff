@@ -89,10 +89,21 @@ class EvidenceContractTests(unittest.TestCase):
         r = assess(alter=lambda p, s, c: c["check_runs"][0].update(conclusion="skipped"))
         self.assertEqual(r["status"], "BLOCKED")
         self.assertIn("missing_or_nonpassing_check:validate", r["reasons"])
+        self.assertIn("validate", r["nonpassing_checks"])
 
     def test_pending_check_is_not_success(self):
         r = assess(alter=lambda p, s, c: c["check_runs"][0].update(status="in_progress"))
         self.assertIn("missing_or_nonpassing_check:validate", r["reasons"])
+        self.assertEqual(r["pending_checks"], ["validate"])
+        self.assertEqual(r["nonpassing_checks"], [])
+
+    def test_failed_check_is_not_pending(self):
+        def alter(p, s, c):
+            c["check_runs"][0].update(status="completed", conclusion="failure")
+        r = assess(alter=alter)
+        self.assertEqual(r["status"], "BLOCKED")
+        self.assertEqual(r["pending_checks"], [])
+        self.assertEqual(r["nonpassing_checks"], ["validate"])
 
     def test_partial_check_collection_is_blocked(self):
         r = assess(alter=lambda p, s, c: c.update(total_count=3))
