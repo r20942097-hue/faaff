@@ -44,7 +44,7 @@ class ClassifierTests(unittest.TestCase):
         self.assertEqual(classify_paths(["README.md", "browser_filter_lists/foo.txt"]), "publication")
 
     def test_invalid_paths_and_archives_never_downgrade(self):
-        for path in ("", "../outside", "/root/secrets", r"foo\\bar", "releases/data.zip", "secret.pem"):
+        for path in ("", "../outside", "/root/secrets", r"foo\\\\bar", "releases/data.zip", "secret.pem", ".env", "config/.env.local", ".ssh/id_rsa", "private/secrets/key", "api.token", "bad\u000achar"):
             with self.subTest(path=path):
                 self.assertEqual(classify_path(path), "prohibited")
 
