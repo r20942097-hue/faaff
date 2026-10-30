@@ -1,0 +1,42 @@
+name: Synthetic media pipeline (not product recording)
+
+on:
+  pull_request:
+    paths:
+      - 'ai/media_fixture.py'
+      - 'ai/test_media_fixture.py'
+      - '.github/workflows/synthetic-media.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  synthetic-media:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Verify media tooling
+        shell: bash
+        run: |
+          command -v ffmpeg
+          command -v ffprobe
+          ffmpeg -version | head -n 1
+      - name: Check FFmpeg fixture invariants
+        run: python -m unittest ai.test_media_fixture -v
+      - name: Generate, convert, probe and fully decode synthetic TS/MP4
+        run: python ai/media_fixture.py --output synthetic-media.json
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: synthetic-media-evidence
+          path: synthetic-media.json
+          retention-days: 14
+          if-no-files-found: warn
