@@ -15,7 +15,7 @@ import re
 import sys
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from ai.github_evidence import review_evidence
 
@@ -25,6 +25,13 @@ API = "https://api.github.com"
 
 class CollectionError(Exception):
     pass
+
+
+class _DenyRedirect(HTTPRedirectHandler):
+    """Never forward an optional GitHub token to a redirected host."""
+
+    def redirect_request(self, request, fp, code, msg, headers, newurl):
+        return None
 
 
 def get_json(path: str) -> object:
@@ -38,7 +45,7 @@ def get_json(path: str) -> object:
         headers["Authorization"] = "Bearer " + token
     request = Request(API + path, headers=headers)
     try:
-        with urlopen(request, timeout=20) as response:
+        with build_opener(_DenyRedirect()).open(request, timeout=20) as response:
             data = response.read(4_000_001)
     except HTTPError as exc:
         raise CollectionError("GitHub API returned HTTP " + str(exc.code)) from None
