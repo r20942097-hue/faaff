@@ -54,3 +54,7 @@ No changes to `main`, production subscription URLs, existing package tests, or R
 ## Profile restart regression
 
 [GitHub Actions run 41032867618](https://github.com/r20942097-hue/faaff/actions/runs/41032867618): after a clean browser process shutdown and restart using the same temporary Chromium profile, the synthetic extension ID and popup interaction remained valid. This does not simulate OS power loss or prove crash recovery for a real recorder.
+
+## MV3 worker transport and npm advisory gate — 2026-10-30
+
+The synthetic manifest is now asserted to request zero permissions, no host permissions and no content scripts. A real `chrome.runtime.sendMessage` roundtrip must receive the expected response from the MV3 service worker before the Popup test passes; the same assertion is repeated after a clean browser restart with the same isolated profile. This is browser infrastructure verification, not HLS recording or forced crash recovery. The `npm ci` install uses a committed integrity-locked dependency graph, and an npm advisory query fails CI on known high/critical vulnerabilities or incomplete queries. [Browser CI run 41035241296](https://github.com/r20942097-hue/faaff/actions/runs/41035241296) reported no npm advisories (critical=0, high=0, moderate=0, low=0) for this pinned dependency graph.
