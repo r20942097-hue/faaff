@@ -16,6 +16,8 @@ CORE=(
     "ai/test_ci_workflow_audit.py",
     "ai/requirements-ci-audit.txt",
     "ai/CI_GOVERNANCE_V11.md",
+    "ai/ci_governance_bundle_v11.py",
+    "ai/test_ci_governance_bundle_v11.py",
 )
 README="""# CI Governance v11 — workflow audit source package
 
