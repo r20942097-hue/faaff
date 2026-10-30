@@ -1,0 +1,1 @@
+# Pinned YAML syntax parser for repository-local workflow governance\nPyYAML==6.0.3\n
