@@ -84,17 +84,25 @@ def inspect_extension_manifest(z: zipfile.ZipFile, manifest: dict, browser: str)
             raise IntakeError("FIREFOX_BACKGROUND_SCRIPTS_MISSING")
         startup = "background_scripts"
         refs = list(scripts)
-    for item in manifest.get("content_scripts") or []:
+    content_scripts = manifest.get("content_scripts") or []
+    if not isinstance(content_scripts, list):
+        raise IntakeError("CONTENT_SCRIPT_DECLARATION_INVALID")
+    for item in content_scripts:
         if not isinstance(item, dict):
             raise IntakeError("CONTENT_SCRIPT_DECLARATION_INVALID")
         for key in ("js", "css"):
-            refs.extend(item.get(key) or [])
-    for icon in (manifest.get("icons") or {}).values():
-        refs.append(icon)
+            resources = item.get(key) or []
+            if not isinstance(resources, list):
+                raise IntakeError("CONTENT_SCRIPT_DECLARATION_INVALID")
+            refs.extend(resources)
+    icons = manifest.get("icons") or {}
     action = manifest.get("action") or {}
+    options = manifest.get("options_ui") or {}
+    if not all(isinstance(value, dict) for value in (icons, action, options)):
+        raise IntakeError("MANIFEST_RESOURCE_FIELDS_INVALID")
+    refs.extend(icons.values())
     if action.get("default_popup"):
         refs.append(action["default_popup"])
-    options = manifest.get("options_ui") or {}
     if options.get("page"):
         refs.append(options["page"])
     if any(not isinstance(p, str) or not p or p not in names for p in refs):
@@ -154,8 +162,11 @@ def verify_addons(z: zipfile.ZipFile) -> dict:
             if mm.get("manifest_version") != 3 or mm.get("version") != rec.get("version"):
                 raise IntakeError("MANIFEST_VERSION_MISMATCH")
             if browser == "Firefox":
-                gecko = (mm.get("browser_specific_settings") or {}).get("gecko") or {}
-                if not gecko.get("id"):
+                settings = mm.get("browser_specific_settings") or {}
+                if not isinstance(settings, dict):
+                    raise IntakeError("FIREFOX_GECKO_ID_MISSING")
+                gecko = settings.get("gecko") or {}
+                if not isinstance(gecko, dict) or not isinstance(gecko.get("id"), str) or not gecko["id"]:
                     raise IntakeError("FIREFOX_GECKO_ID_MISSING")
             audit = inspect_extension_manifest(inner, mm, browser)
             entries.append({
