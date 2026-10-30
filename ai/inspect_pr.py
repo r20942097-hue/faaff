@@ -119,6 +119,17 @@ def inspect(repository: str, pr_number: int, ruleset_id: int) -> dict:
             if not isinstance(previous, str) or not previous:
                 raise CollectionError("renamed file missing previous filename")
             paths.append(previous)
+    # GitHub's effective-branch endpoint includes organization-level rules.
+    # A single repository ruleset cannot establish full merge eligibility.
+    effective_rules, _ = collect_pages(
+        f"{prefix}/rules/branches/main", key="rules",
+    )
+    if not effective_rules:
+        raise CollectionError("effective branch rule collection is empty")
+    if any(not isinstance(entry, dict) or
+           type(entry.get("ruleset_id")) is not int or
+           entry["ruleset_id"] != ruleset_id for entry in effective_rules):
+        raise CollectionError("other applicable or invalid branch rules; manual audit needed")
     ruleset = get_json(f"{prefix}/rulesets/{ruleset_id}")
     checks, total = collect_pages(
         f"{prefix}/commits/{head['sha']}/check-runs",
@@ -135,13 +146,16 @@ def inspect(repository: str, pr_number: int, ruleset_id: int) -> dict:
         raise CollectionError("invalid ruleset response")
     if ruleset.get("id") != ruleset_id:
         raise CollectionError("ruleset ID mismatch")
-    return review_evidence(
+    result = review_evidence(
         repository=repository,
         pull=after,
         paths=paths,
         ruleset=ruleset,
         check_runs={"total_count": total, "check_runs": checks},
     )
+    result["live_api_collected"] = True
+    result["effective_branch_rule_count"] = len(effective_rules)
+    return result
 
 
 def main() -> int:
