@@ -36,6 +36,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          npm install --prefix integrations/agent-tools/mcp-inspector --package-lock-only --no-audit --no-fund --ignore-scripts
+          node -e 'const fs=require("fs"); console.log("INSPECTOR_LOCK_BEGIN"); console.log(fs.readFileSync("integrations/agent-tools/mcp-inspector/package-lock.json").toString("base64")); console.log("INSPECTOR_LOCK_END")'
           npm install --prefix "$RUNNER_TEMP/mcp-inspector" --no-save --no-audit --no-fund --ignore-scripts '@modelcontextprotocol/inspector@2.13.0'
           inspector="$RUNNER_TEMP/mcp-inspector/node_modules/.bin/mcp-inspector"
           test -x "$inspector"
