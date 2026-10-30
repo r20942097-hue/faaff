@@ -9,8 +9,12 @@ permissions:
 
 jobs:
   readiness:
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -18,15 +22,15 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.14'
-      - name: Check auditor invariants
-        run: python -m unittest ai.test_audit_environment ai.test_browser_preflight -v
-      - name: Produce explicit source-readiness evidence
-        run: python ai/audit_environment.py . --output environment-readiness.json
-      - name: Upload JSON evidence
+      - name: Validate audit and fixture contract
+        run: python -m unittest ai.test_audit_environment ai.test_browser_preflight ai.test_extension_fixture_e2e ai.test_archive_intake -v
+      - name: Emit source-readiness evidence without claiming product E2E
+        run: python ai/audit_environment.py . --output environment-readiness-${{ matrix.os }}.json
+      - name: Upload scoped JSON evidence
         if: always()
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
-          name: environment-readiness
-          path: environment-readiness.json
+          name: environment-readiness-${{ matrix.os }}
+          path: environment-readiness-${{ matrix.os }}.json
           retention-days: 14
           if-no-files-found: warn
