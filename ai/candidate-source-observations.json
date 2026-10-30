@@ -34,6 +34,25 @@
         "generated_offscreen_js_pass": 2,
         "python_test_compile_pass": 47,
         "interpretation": "Offscreen pre/post are intentionally joined by build; generated browser offscreen.js parses. No runtime recorder execution."
+      },
+      "focused_tests_run": {
+        "python_unittest": {
+          "ledger_cross": 15,
+          "assembly": 13,
+          "rec_cross": 13,
+          "total": 41,
+          "failed": 0
+        },
+        "node_test": {
+          "ledger_cross": 21,
+          "assembly": 14,
+          "rec_cross": 12,
+          "total": 47,
+          "failed": 0
+        },
+        "total": 88,
+        "scope": "local source-only extracted copy, no live recordings/site",
+        "status": "PASS"
       }
     },
     {
@@ -74,7 +93,15 @@
       "security_review_pending": [
         "StreamHarbor and RPLAY broad https://*/* host permission rationale",
         "No live Firefox/site/recording test"
-      ]
+      ],
+      "manifest_audit": {
+        "browser_pairs": 3,
+        "declared_background_references_verified": true,
+        "content_script_and_ui_references_verified": true,
+        "high_scope_hosts": "StreamHarbor Chrome and Firefox: https://*/*",
+        "real_chromium_runtime": "BLOCKED: local managed Chromium 144 did not expose extension worker; cannot infer product failure or success",
+        "note": "No package original modified"
+      }
     }
   ],
   "not_acquired": [
@@ -92,5 +119,7 @@
   "github_prototype_separate": {
     "branch": "proposal/rplay-3genre-2026-10-28",
     "status": "SEPARATE_PROTOTYPE_NOT_PRODUCT_RUNTIME"
-  }
+  },
+  "last_development_action": "2026-10-30 read-only source tests + PR39 manifest-resource/permissions reviewer",
+  "github_workstream": "proposal/tool-data-readiness-20261030"
 }
