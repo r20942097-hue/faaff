@@ -2,12 +2,13 @@
   "schema": "project-state/v1",
   "repository": "r20942097-hue/faaff",
   "role": "engineering / integration hub（Watcher ランタイムは main に無い bootstrap 状態）",
-  "updated": "2026-10-28",
+  "updated": "2026-10-31",
   "default_branch": "main",
   "heads": {
     "main_before_governance_pr": "5aac17cfe4890c01982d4c357c878854988de1e0",
     "s_main_pinned_import": "20a26610db8970abef1bd7016f5f641ce25b7063",
-    "note": "最新の main head は `git rev-parse origin/main` で確認してください。この値は本ファイル作成時点の記録です。"
+    "note": "最新の main head は `git rev-parse origin/main` で確認してください。この値は本ファイル作成時点の記録です。",
+    "governance_policy_merge_2026_10_31": "d1989e657001f8de054a8d168c9601692c0c8d43"
   },
   "gates": {
     "P0": "active",
@@ -15,8 +16,22 @@
     "NO_NEW_INTERNAL_PUSH": "active: main への直接 push 禁止（作業ブランチへの push と PR 作成は可）"
   },
   "permissions": {
-    "always_allowed": ["read", "create proposal/feature branches", "push to proposal/feature branches", "open draft/normal PRs", "rerun CI", "run local verification"],
-    "requires_owner_approval": ["merge to main", "delete original branches/files", "visibility/publication changes", "force-push / history rewrite", "production deploy", "add ZIP/binary artifacts"]
+    "always_allowed": [
+      "read",
+      "create proposal/feature branches",
+      "push to proposal/feature branches",
+      "open draft/normal PRs",
+      "rerun CI",
+      "run local verification"
+    ],
+    "requires_owner_approval": [
+      "merge to main",
+      "delete original branches/files",
+      "visibility/publication changes",
+      "force-push / history rewrite",
+      "production deploy",
+      "add ZIP/binary artifacts"
+    ]
   },
   "protection": {
     "main_ruleset": "PR必須（承認0）・必須チェック（CI / AI hub and pinned filter source / Validate browser filter lists / CodeQL Python）・force-push禁止・削除禁止",
@@ -26,7 +41,8 @@
     "manifest": "ai/imports/s.json",
     "source_commit": "20a26610db8970abef1bd7016f5f641ce25b7063",
     "imported_at": "2026-10-28",
-    "check": "python ai/check_hub.py"
+    "check": "python ai/check_hub.py",
+    "policy_only_source_merge": "s AGENTS.md only at c0fd5f5 (excluded_paths includes AGENTS.md); pinned distributable source remains 20a2661; no re-import needed until an included file changes."
   },
   "closed_2026_10_28": [
     "PR #15 / #16（workspace-management / portfolio、ZIP を含むためクローズ。ブランチは git bundle でバックアップ後に削除）",
@@ -39,5 +55,19 @@
     "LICENSE ファイル未配置（最終ライセンスは所有者判断）",
     "Actions に main に存在しないワークフロー 7 件が登録残り（disable 候補）",
     "s の公開配布と faaff 取り込みの正本一本化（ai/WORK_QUEUE.md 3〜4）"
-  ]
+  ],
+  "governance": {
+    "authority": "AGENTS.md on current main; re-read exact main/PR HEAD and checks before each change",
+    "policy_merge": {
+      "pull_request": 42,
+      "commit": "d1989e657001f8de054a8d168c9601692c0c8d43",
+      "date_jst": "2026-10-31",
+      "scope": "AI instructions only (AGENTS.md)"
+    },
+    "scope": "Autonomous research, method selection, multilingual research, implementation and tests only within authorized permissions",
+    "approval_gate": "GitHub Ruleset requires 0 code reviews, but repository policy separately requires explicit owner approval for main merges; the 2026-10-31 governance PR merge received direct delegated approval",
+    "continuation": "News monitoring observes material AI changes; existing development quality audit checks applicability. Neither guarantees automatic memory synchronization or unattended commits.",
+    "production_impact": "No release, product runtime, public filter path, subscription URL, deployment, or distribution changed by the governance merge",
+    "verification_note": "PR required checks succeeded; post-merge main CI/AI hub/CodeQL succeeded; product runtime tests skipped because source absent on main"
+  }
 }
