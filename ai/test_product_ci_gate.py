@@ -2,11 +2,17 @@
 from __future__ import annotations
 
 import unittest
+from contextlib import redirect_stdout, redirect_stderr
+import io
+import os
+from pathlib import Path
+import tempfile
+from unittest.mock import patch
 
 try:
-    from ai.product_ci_gate import evaluate, report
+    from ai.product_ci_gate import evaluate, report, main
 except ModuleNotFoundError:
-    from product_ci_gate import evaluate, report
+    from product_ci_gate import evaluate, report, main
 
 
 class ProductCIGateTests(unittest.TestCase):
@@ -56,6 +62,31 @@ class ProductCIGateTests(unittest.TestCase):
         self.assertIn("NOT_RUN", summary)
         self.assertIn("NO_GO", summary)
         self.assertNotIn("GO_CANDIDATE", summary)
+
+
+    def test_cli_records_bootstrap_outputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            summary = Path(directory) / "summary.md"
+            outputs = Path(directory) / "outputs.txt"
+            env = {
+                "SOURCE_CHECK_RESULT": "success", "SOURCE_PRESENT": "false",
+                "RUNTIME_TEST_RESULT": "skipped", "GITHUB_STEP_SUMMARY": str(summary),
+                "GITHUB_OUTPUT": str(outputs),
+            }
+            with patch.dict(os.environ, env, clear=True), redirect_stdout(io.StringIO()):
+                code = main()
+            self.assertEqual(code, 0)
+            self.assertIn("**NOT_RUN**", summary.read_text(encoding="utf-8"))
+            self.assertIn("product_ci=NOT_RUN", outputs.read_text(encoding="utf-8"))
+            self.assertIn("release_gate=NO_GO", outputs.read_text(encoding="utf-8"))
+
+    def test_cli_rejects_inconsistent_job_result(self):
+        env = {
+            "SOURCE_CHECK_RESULT": "success", "SOURCE_PRESENT": "true",
+            "RUNTIME_TEST_RESULT": "skipped",
+        }
+        with patch.dict(os.environ, env, clear=True), redirect_stderr(io.StringIO()), redirect_stdout(io.StringIO()):
+            self.assertEqual(main(), 1)
 
 
 if __name__ == "__main__":
