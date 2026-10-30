@@ -47,6 +47,8 @@ def review_evidence(
         failures.append("not_open_ready_pr")
     if pull.get("merged") is True:
         failures.append("already_merged")
+    if pull.get("mergeable") is not True:
+        failures.append("not_confirmed_mergeable")
     if not paths or any(not isinstance(p, str) or not p for p in paths):
         failures.append("invalid_changed_files")
     if len(paths) != len(set(str(p) for p in paths)):
@@ -59,8 +61,7 @@ def review_evidence(
     exclude = ref_names.get("exclude") if isinstance(ref_names, dict) else None
     if (not isinstance(include, list) or
             not any(name in ("~DEFAULT_BRANCH", "refs/heads/main") for name in include) or
-            not isinstance(exclude, list) or
-            any(name in ("~DEFAULT_BRANCH", "refs/heads/main") for name in exclude)):
+            not isinstance(exclude, list) or exclude):
         failures.append("unverified_ruleset_scope")
     rule_list = ruleset.get("rules")
     if not isinstance(rule_list, list):
