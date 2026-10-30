@@ -57,6 +57,12 @@ class CandidateManagedPolicyTests(unittest.TestCase):
             "candidate_hosts":self.hosts,
             "sentinel":SENTINEL,
             "stage_receipts":{"stock":stock,"candidate":stage,"restored":restored},
+            "two_round_receipts":{"stock":[dict(stock),dict(stock)],
+                                  "candidate":[dict(stage),dict(stage)],
+                                  "restored":[dict(restored),dict(restored)]},
+            "already_blocked_by_stock_synthetic_hosts":self.hosts[1:],
+            "additional_host_inference":"ONE_IMAGE_FIXTURE_PER_HOST_NOT_REAL_WORLD_EFFICACY",
+            "auto_promote_candidates":False,
             "synthetic_safety":{phase:{"signed_url_preserved":True,
                                        "auth_cookie_roundtrip":True,
                                        "media_range_206":True}
@@ -91,6 +97,26 @@ class CandidateManagedPolicyTests(unittest.TestCase):
         self.assertFalse(log["persistent_browser_user_settings_changed"])
         self.assertEqual(log["rules_published"],0)
         self.assertEqual(log["release"],"NO_GO")
+
+    def test_repeated_rounds_and_stock_overlap_are_audited(self):
+        reference=self.example()
+        self.assertEqual(len(reference["already_blocked_by_stock_synthetic_hosts"]),37)
+        self.assertEqual(audit(reference),[])
+        for stage in ("stock", "candidate", "restored"):
+            item=self.example()
+            item["two_round_receipts"][stage][1][self.hosts[0]]=not (
+                item["two_round_receipts"][stage][1][self.hosts[0]])
+            with self.subTest(stage=stage):
+                self.assertTrue(audit(item))
+        item=self.example()
+        item["already_blocked_by_stock_synthetic_hosts"]=[]
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["auto_promote_candidates"]=True
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["additional_host_inference"]="REAL_WORLD_SAFETY_VERIFIED"
+        self.assertTrue(audit(item))
 
     def test_complete_evidence_is_accepted(self):
         self.assertEqual(audit(self.example()),[])
