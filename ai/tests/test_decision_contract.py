@@ -40,6 +40,22 @@ class ClassifierTests(unittest.TestCase):
     def test_published_filters_are_high_risk(self):
         self.assertEqual(classify_path("browser_filter_lists/filters/universal-web-ad.txt"), "publication")
 
+    def test_publication_case_variants_cannot_downgrade_on_windows(self):
+        for path in ("Browser_Filter_Lists/stable.txt", "RELEASES/data.txt", "DIST/package.txt"):
+            with self.subTest(path=path):
+                self.assertEqual(classify_path(path), "publication")
+                self.assertEqual(assess([path], owner_approved=True, product_verified=True).status, "BLOCKED")
+
+    def test_windows_case_variants_preserve_infrastructure(self):
+        self.assertEqual(classify_path(".GITHUB/WORKFLOWS/ci.yml"), "infrastructure")
+        self.assertEqual(classify_path("AI/PROJECT_STATE.JSON"), "metadata")
+        self.assertEqual(classify_path("AI/TESTS/test_check_hub.py"), "infrastructure")
+
+    def test_ntfs_alternate_streams_are_prohibited(self):
+        for path in ("README.md:payload", "C:/work/file", "ai/file.txt:secret"):
+            with self.subTest(path=path):
+                self.assertEqual(classify_path(path), "prohibited")
+
     def test_mixed_scope_uses_maximum_risk(self):
         self.assertEqual(classify_paths(["README.md", "browser_filter_lists/foo.txt"]), "publication")
 
