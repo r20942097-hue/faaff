@@ -34,6 +34,29 @@ try {
   await context.close();
   context = undefined;
 
+  // Restart the actual browser process with the SAME isolated profile.
+  // This is a persistence/extension registration regression check, not a crash-recovery test.
+  context = await chromium.launchPersistentContext(profile, {
+    channel: 'chromium',
+    headless: true,
+    args: [
+      `--disable-extensions-except=${extensionDir}`,
+      `--load-extension=${extensionDir}`
+    ]
+  });
+  const resumedWorker = context.serviceWorkers()[0] ??
+    await context.waitForEvent('serviceworker', { timeout: 20000 });
+  const resumedId = new URL(resumedWorker.url()).host;
+  assert.equal(resumedId, extensionId, 'Reopened profile must retain the same extension ID');
+  const resumedPopup = await context.newPage();
+  await resumedPopup.goto(`chrome-extension://${resumedId}/popup.html`);
+  assert.equal(await resumedPopup.locator('#heading').textContent(), 'Fixture ready');
+  await resumedPopup.locator('#activate').click();
+  assert.equal(await resumedPopup.locator('#result').textContent(), 'Activated');
+  console.log('PASS: isolated profile reopen preserves MV3 ID and popup functionality');
+  await context.close();
+  context = undefined;
+
   firefoxBrowser = await firefox.launch({ headless: true });
   const page = await firefoxBrowser.newPage();
   await page.setContent('<!doctype html><html><head><title>Firefox fixture</title></head><body><main id="test">Ready</main></body></html>');
