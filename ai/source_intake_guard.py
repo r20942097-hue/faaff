@@ -63,7 +63,11 @@ def inspect(path, expected_sha256=None):
                         report['issues'].append('INVALID_SOURCE_MEMBER')
                         continue
                     try:
-                        content = z.read(record)
+                        with z.open(record) as stream:
+                            content = stream.read(MAX_SOURCE + 1)
+                        if len(content) != record.file_size or len(content) > MAX_SOURCE:
+                            report['issues'].append('SOURCE_LENGTH_MISMATCH')
+                            continue
                     except (RuntimeError, OSError, zipfile.BadZipFile, EOFError):
                         report['issues'].append('SOURCE_CRC_OR_READ_FAILURE')
                         continue
@@ -87,7 +91,7 @@ def inspect(path, expected_sha256=None):
         report['status'] = 'NEEDS_REVIEW'
     report['issues'] = sorted(set(report['issues']))
     if any(x in report['issues'] for x in
-           ('DUPLICATE_CANONICAL_SOURCE', 'INVALID_SOURCE_MEMBER', 'SOURCE_CRC_OR_READ_FAILURE')):
+           ('DUPLICATE_CANONICAL_SOURCE', 'INVALID_SOURCE_MEMBER', 'SOURCE_CRC_OR_READ_FAILURE', 'SOURCE_LENGTH_MISMATCH')):
         report['status'] = 'BLOCKED_KNOWN_P0' if report['known_p0'] else 'BLOCKED_INTAKE'
     if len({s['sha256'] for s in report['source_files']}) > 1:
         report['issues'].append('DIVERGENT_SOURCE_COPIES')
