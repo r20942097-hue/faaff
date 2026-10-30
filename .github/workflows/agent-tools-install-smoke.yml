@@ -46,21 +46,26 @@ jobs:
           uv --version
           mkdir -p "$UV_TOOL_BIN_DIR"
           echo "$UV_TOOL_BIN_DIR" >> "$GITHUB_PATH"
-      - name: Generate proposed Agent-Reach uv lock for review (Linux only)
-        if: runner.os == 'Linux'
+      - name: Verify locked Agent-Reach dependency graph and install (both OS)
         shell: bash
         run: |
           set -euo pipefail
           project=integrations/agent-tools/agent-reach-skillspector/locked-agent-reach
-          uv lock --project "$project"
-          python - "$project/uv.lock" <<'PY'
+          uv lock --project "$project" --check
+          uv sync --project "$project" --locked --no-dev
+          uv run --project "$project" --locked --no-sync agent-reach version > "$RUNNER_TEMP/locked-agent-version.json"
+          python - "$RUNNER_TEMP/locked-agent-version.json" <<'PY'
+          import json
           from pathlib import Path
-          import base64, sys
-          raw = Path(sys.argv[1]).read_bytes()
-          print("AGENT_REACH_LOCK_B64_BEGIN")
-          print(base64.b64encode(raw).decode())
-          print("AGENT_REACH_LOCK_B64_END")
+          import sys
+          output = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+          assert output.get("schema_version") == 1
+          assert output.get("ok") is True
+          assert output.get("action") == "version"
+          assert output.get("result", {}).get("version") == "1.6.0"
+          print("PASS: independently synced Agent-Reach v1.6.0 from immutable Git source and uv.lock")
           PY
+          git diff --exit-code -- "$project/uv.lock"
       - name: Install Agent-Reach v1.6.0 and SkillSpector from commit pins
         shell: bash
         run: |
