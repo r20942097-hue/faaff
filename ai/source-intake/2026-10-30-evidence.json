@@ -1,0 +1,108 @@
+{
+  "schema": "faaff/source-intake/v1",
+  "observed_at_jst": "2026-10-30",
+  "origin": "owner Library archives (read-only); source provenance not independently authenticated",
+  "intake_state": "METADATA_VERIFIED_RELEASE_BLOCKED",
+  "repositories": {
+    "engineering_hub": "r20942097-hue/faaff",
+    "distribution": "r20942097-hue/s"
+  },
+  "checks_performed": [
+    "zip.crc",
+    "zip.safe_paths",
+    "zip.duplicate_paths",
+    "nested_sha256",
+    "nested_manifest_version",
+    "data_tool.sha256",
+    "kit_entry_sha256",
+    "datatool_41_selftests",
+    "rplay_kit_11_31_101_7_synthetic_tests"
+  ],
+  "archives": [
+    {
+      "name": "Three_Addons_Optimized_20261030_v12_PHASE_A_READY_GO_CANDIDATE.zip",
+      "sha256": "0e8b215b5380ee6798e28e5e84288513e2a1f4ce7c21e921e6d9f11eef2f7a98",
+      "size_bytes": 2047093,
+      "top_level_files": 14,
+      "integrity": "PASS",
+      "product_state": "GO_CANDIDATE_ONLY",
+      "real_browser_e2e": "NOT_RUN",
+      "data_tool": {
+        "path": "DataTools/omnistream_data_tool.py",
+        "version": "1.4.0",
+        "sha256": "9455f01243a49fdf865e6e614748179f1c5c60a351a3716f58321aa442340fe6",
+        "selftest": "41/41 PASS; run independently in isolated interpreter"
+      },
+      "packages": [
+        {
+          "path": "Extensions/Chrome/StreamHarbor_Chrome_MV3.zip",
+          "version": "2.71.1",
+          "sha256": "a3a7ed10cc0cb6969600d1b06d25b70eb34c241cce5e61e73e43067784e7246d"
+        },
+        {
+          "path": "Extensions/Firefox/StreamHarbor_Firefox_MV3.zip",
+          "version": "2.71.1",
+          "sha256": "d0d7744074eec40231a07a02931285c819d4170fd12ed3c3165270ab7b7abd42"
+        },
+        {
+          "path": "Extensions/Chrome/OmniStream_YouTube_Optimizer_Chrome_MV3.zip",
+          "version": "2.13.0",
+          "sha256": "f8cf2f95957bda5135fb6aaee2e2147b4827dc302e355fd4c4625907743c88f2"
+        },
+        {
+          "path": "Extensions/Firefox/OmniStream_YouTube_Optimizer_Firefox_MV3.zip",
+          "version": "2.13.0",
+          "sha256": "86691cc64fd032efe41c3091c8d711a902feb598cb04c95ce4627fcb23970924"
+        },
+        {
+          "path": "Extensions/Chrome/Tab_Stream_Workspace_Chrome_MV3.zip",
+          "version": "0.80.0",
+          "sha256": "107ff735b35012e7ba6929939441f16eee01269ac031ef740bfcfde6f9f03a3e"
+        },
+        {
+          "path": "Extensions/Firefox/Tab_Stream_Workspace_Firefox_MV3.zip",
+          "version": "0.80.0",
+          "sha256": "48aa5aebaa96fa3c536c335be04be579e2b530bc8bb2a9bd3f83cc97d08cabbc"
+        }
+      ],
+      "security_review": {
+        "streamharbor_chrome_host_permissions": [
+          "https://*/*"
+        ],
+        "streamharbor_firefox_host_permissions": [
+          "https://*/*"
+        ],
+        "note": "Broad host permissions are declared; review necessity before public source sync; no credentials or real traffic were inspected."
+      }
+    },
+    {
+      "name": "RPLAY_OPFS_v15.1_FORENSIC_BACKUP_TEST_KIT_CANDIDATE_NO_GO.zip",
+      "sha256": "f2889d4c6a90776db3fc59562c2a24a72a3c9d87a1af87197229176a5d0bf879",
+      "size_bytes": 105293,
+      "top_level_files": 35,
+      "integrity": "PASS",
+      "internal_manifest_entries": 34,
+      "product_state": "NO_GO",
+      "real_browser_e2e": "NOT_RUN",
+      "synthetic_tests": {
+        "forensic": 11,
+        "repair": 31,
+        "coordinator": 101,
+        "node_sigkill_cuts": 7
+      },
+      "limitations": [
+        "repair kit only, not a deployable extension",
+        "legacy regression failures remain",
+        "real OPFS quota, power loss, and browser runtime NOT_RUN",
+        "additional backup capacity and cleanup policy required"
+      ]
+    }
+  ],
+  "controls": {
+    "main_merge": "NOT_AUTHORIZED",
+    "release": "NOT_AUTHORIZED",
+    "production": "NOT_RUN",
+    "zip_upload": "PROHIBITED_BY_HUB_POLICY",
+    "source_sync": "BLOCKED_PENDING_PROVENANCE_SECURITY_REVIEW"
+  }
+}
