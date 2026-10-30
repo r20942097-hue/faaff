@@ -7,6 +7,7 @@ No extraction, network access, browser launch or credentials are needed.
 from __future__ import annotations
 
 import argparse
+import fnmatch
 import hashlib
 import json
 import re
@@ -95,6 +96,16 @@ def _manifest_refs(manifest: dict) -> list[tuple[str, str]]:
             if isinstance(icons, dict):
                 for size, item in icons.items():
                     add(k + ".default_icon." + str(size), item)
+    # DNR static rule files and sandbox pages are packaged local files too.
+    dnr = manifest.get("declarative_net_request")
+    if isinstance(dnr, dict) and isinstance(dnr.get("rule_resources"), list):
+        for i, ruleset in enumerate(dnr["rule_resources"]):
+            if isinstance(ruleset, dict):
+                add(f"declarative_net_request.rule_resources[{i}].path", ruleset.get("path"))
+    sandbox = manifest.get("sandbox")
+    if isinstance(sandbox, dict) and isinstance(sandbox.get("pages"), list):
+        for i, page in enumerate(sandbox["pages"]):
+            add(f"sandbox.pages[{i}]", page)
     css = manifest.get("content_scripts")
     if isinstance(css, list):
         for i, content in enumerate(css):
@@ -109,6 +120,60 @@ def _manifest_refs(manifest: dict) -> list[tuple[str, str]]:
                     else:
                         add(f"content_scripts[{i}].{name}", content[name])
     return refs
+
+
+def _resource_reference(value, root: str, names: set[str]) -> tuple[str | None, str | None]:
+    """Validate Web Accessible Resource path; allow only '*' glob syntax.
+
+    A leading '/' is allowed for WAR per Chrome/Firefox documentation, unlike
+    ordinary file references. Empty matches are warnings, not malformed paths.
+    """
+    if not isinstance(value, str) or not value:
+        return "unsafe/non-string resource reference", None
+    pattern = value[1:] if value.startswith("/") else value
+    if not _relative_file(pattern.replace("*", "x")):
+        return "unsafe resource reference", None
+    if "*" in pattern:
+        found = any(fnmatch.fnmatchcase(name, _path_key(root + pattern)) for name in names)
+        return None, (None if found else "resource wildcard has no matching packaged file")
+    if _path_key(root + pattern) not in names:
+        return "resource file missing", None
+    return None, None
+
+
+def _validate_web_resources(obj: dict, mv, root: str, names: set[str],
+                            errors: list[str], warnings: list[str]) -> None:
+    resources = obj.get("web_accessible_resources")
+    if resources is None:
+        return
+    if not isinstance(resources, list):
+        errors.append("web_accessible_resources must be an array")
+        return
+    for i, entry in enumerate(resources):
+        label = f"web_accessible_resources[{i}]"
+        if mv == 2:
+            values = [entry]
+        else:
+            if not isinstance(entry, dict):
+                errors.append(label + ": MV3 resource entry must be an object")
+                continue
+            values = entry.get("resources")
+            if not isinstance(values, list) or not values:
+                errors.append(label + ": resources must be a nonempty array")
+                continue
+            targets = (entry.get("matches"), entry.get("extension_ids"))
+            if not any(isinstance(t, list) and t for t in targets):
+                errors.append(label + ": missing matches/extension_ids")
+            for field, target in zip(("matches", "extension_ids"), targets):
+                if target is not None and (not isinstance(target, list)
+                                           or not target or any(not isinstance(t, str) or not t for t in target)):
+                    errors.append(label + "." + field + ": expected nonempty string array")
+        for j, resource in enumerate(values):
+            err, warn = _resource_reference(resource, root, names)
+            if err:
+                errors.append(f"{label}.resources[{j}]: {err}")
+            if warn:
+                warnings.append(f"{label}.resources[{j}]: {warn}")
 
 
 def _manifest_validate(data: bytes, root: str, names: set[str]) -> dict:
@@ -135,6 +200,41 @@ def _manifest_validate(data: bytes, root: str, names: set[str]) -> dict:
     version = obj.get("version")
     if not isinstance(version, str) or VALID_VERSION.fullmatch(version) is None:
         errors.append("invalid/missing extension version")
+    if "background" in obj and not isinstance(obj["background"], dict):
+        errors.append("background must be an object")
+    bg = obj.get("background")
+    if isinstance(bg, dict) and "scripts" in bg and (
+            not isinstance(bg["scripts"], list)
+            or any(not isinstance(item, str) or not item for item in bg["scripts"])):
+        errors.append("background.scripts must be an array of file paths")
+    dnr = obj.get("declarative_net_request")
+    if dnr is not None:
+        if not isinstance(dnr, dict) or not isinstance(dnr.get("rule_resources"), list) or not dnr["rule_resources"]:
+            errors.append("declarative_net_request.rule_resources must be a nonempty array")
+        else:
+            ids = set()
+            for i, ruleset in enumerate(dnr["rule_resources"]):
+                label = f"declarative_net_request.rule_resources[{i}]"
+                if not isinstance(ruleset, dict):
+                    errors.append(label + ": expected object")
+                    continue
+                identifier = ruleset.get("id")
+                if not isinstance(identifier, str) or not identifier or identifier.startswith("_"):
+                    errors.append(label + ": invalid/missing ruleset id")
+                elif identifier in ids:
+                    errors.append(label + ": duplicate ruleset id")
+                else:
+                    ids.add(identifier)
+                if type(ruleset.get("enabled")) is not bool:
+                    errors.append(label + ": enabled must be boolean")
+                if not isinstance(ruleset.get("path"), str) or not ruleset["path"]:
+                    errors.append(label + ": missing/invalid ruleset path")
+    sandbox = obj.get("sandbox")
+    if sandbox is not None and (not isinstance(sandbox, dict)
+                                or not isinstance(sandbox.get("pages"), list)
+                                or any(not isinstance(item, str) or not item for item in sandbox["pages"])):
+        errors.append("sandbox.pages must be an array of file paths")
+    _validate_web_resources(obj, mv, root, names, errors, warnings)
     for label, ref in _manifest_refs(obj):
         if not _relative_file(ref):
             errors.append(label + ": unsafe/non-string file reference")
@@ -147,8 +247,15 @@ def _manifest_validate(data: bytes, root: str, names: set[str]) -> dict:
         errors.append("content_scripts must be an array")
     if isinstance(content_scripts, list):
         for i, item in enumerate(content_scripts):
-            if not isinstance(item, dict) or not isinstance(item.get("matches"), list):
-                errors.append(f"content_scripts[{i}] missing matches array")
+            if (not isinstance(item, dict) or not isinstance(item.get("matches"), list)
+                    or not item["matches"]
+                    or any(not isinstance(match, str) or not match for match in item["matches"])):
+                errors.append(f"content_scripts[{i}] missing/invalid matches array")
+            if isinstance(item, dict):
+                for key in ("js", "css"):
+                    if key in item and (not isinstance(item[key], list)
+                                        or any(not isinstance(v, str) or not v for v in item[key])):
+                        errors.append(f"content_scripts[{i}].{key} must be an array of file paths")
     permissions = obj.get("host_permissions", [])
     if permissions is not None and not isinstance(permissions, list):
         errors.append("host_permissions must be an array")
