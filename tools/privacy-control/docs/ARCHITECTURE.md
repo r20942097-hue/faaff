@@ -127,3 +127,12 @@ synthetic hostname resolves only to loopback. This is an incremental
 browser gate beyond the two in-process parsing engines and does not
 replace real-site testing or actual user stock-list review. The XPI is
 downloaded only to ephemeral storage, not committed to the repository.
+
+## Browser observation caveat (2026-10-31)
+
+Full Firefox signed uBO CI testing is **BLOCKED** by failed benign cross-host
+negative controls. Target blocking and same-origin availability are observed,
+but target-specificity and post-removal rollback are NOT_VERIFIED. Five
+records are preserved in `../verification/firefox-isolation-diagnostic.json`.
+The browser job requires manual research invocation and is not a release gate.
+The stable UPC offline/engine evaluation remains available; release NO_GO.

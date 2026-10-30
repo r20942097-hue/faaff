@@ -183,3 +183,25 @@ rules against a locally mapped tracking hostname. It is not a test that the
 login, checkout, media or signed requests are safe. Any failure means the
 browser gate is **FAIL/NOT_VERIFIED**, not permission to weaken the probe.
 Release stays NO_GO.
+
+### Measured installed-Firefox gate: BLOCKED, not a pass (2026-10-31)
+
+Five independent GitHub Actions attempts were run with the official signed
+uBO 1.75.0 and synthetic HTTP against isolated test hostnames. A target
+tracking-host request stopped after installing the extension. **However,
+ordinary cross-host images also stopped**, including a benign same-site
+hostname even when an RFC5737 TEST-NET IP was assigned to CI's loopback
+device. A same-origin request continued to reach the local server. Because
+the benign cross-host negative control fails, these observations **cannot
+prove target-specific blocker efficacy**. Post-uninstall restoration was
+not reached in a valid run. Root cause remains unknown.
+
+For transparency, immutable run IDs and precise PASS/FAIL/NOT_RUN results
+are recorded in `verification/firefox-isolation-diagnostic.json`.
+The experimental installed-Firefox job is now limited to explicit manual
+`workflow_dispatch` research. The normal pull-request CI independently
+asserts the browser status is `BLOCKED`, preventing accidental elevation
+to `PASS`; 38 candidate rules remain unapproved. This is not a workaround
+for a real Firefox profile and **no user PC or installed extension was
+modified**. Future work must establish a valid benign cross-host control
+and full removal/rollback before this gate can be marked PASS.

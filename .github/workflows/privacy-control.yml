@@ -41,6 +41,25 @@ jobs:
             --report "$RUNNER_TEMP/upc-coverage-report.json" \
             --html "$RUNNER_TEMP/upc-static-viewer.html" \
             --github-summary "$GITHUB_STEP_SUMMARY"
+      - name: Assert unresolved real Firefox browser gate is explicitly recorded
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          record = json.loads(Path("tools/privacy-control/verification/firefox-isolation-diagnostic.json").read_text())
+          assert record["schema"] == "upc-firefox-browser-isolation-diagnostic/v1"
+          assert record["status"] == "BLOCKED" and record["publication"] == "NO_GO"
+          assert record["observed"]["benign_cross_host_control_when_installed"] == "FAIL"
+          assert record["observed"]["target_specificity"] == "NOT_ESTABLISHED"
+          assert record["observed"]["after_uninstall_restoration"] == "NOT_RUN"
+          assert len(record["runs"]) == 5
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as out:
+              out.write("\\n**Firefox installed-uBO host-isolation gate: BLOCKED.**\\n")
+              out.write("Five isolated runs could not preserve a benign cross-host control. ")
+              out.write("Target-specificity and post-uninstall restoration NOT_VERIFIED. ")
+              out.write("This browser job is manual research-only; publication NO_GO.\\n")
+          print("UPC FIREFOX GATE: BLOCKED, NOT_VERIFIED; no publication")
+          PY
       - name: Confirm no executable blocking layer or new public list is introduced
         shell: bash
         run: |
@@ -182,7 +201,11 @@ jobs:
             --html "$RUNNER_TEMP/upc-full-template-review.html" \
             --github-summary "$GITHUB_STEP_SUMMARY"
 
+  # Manual research gate only: five actual CI attempts showed benign cross-host
+  # controls blocked, so the browser result is BLOCKED, not proven PASS.
+  # Do not make candidate publication depend on a misleading localhost test.
   firefox-full-ubo-real-loopback:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     timeout-minutes: 12
     steps:

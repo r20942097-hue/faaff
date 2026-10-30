@@ -81,6 +81,17 @@ class FirefoxXpiPolicyTests(unittest.TestCase):
             "release":"NO_GO",
         }
 
+    def test_failed_cross_host_firefox_trials_are_not_silently_promoted(self):
+        diagnostic = json.loads(
+            (Path(__file__).resolve().parent / "verification"
+             / "firefox-isolation-diagnostic.json").read_text(encoding="utf-8"))
+        self.assertEqual(diagnostic["status"], "BLOCKED")
+        self.assertEqual(diagnostic["publication"], "NO_GO")
+        self.assertEqual(len(diagnostic["runs"]), 5)
+        self.assertEqual(diagnostic["observed"]["benign_cross_host_control_when_installed"], "FAIL")
+        self.assertEqual(diagnostic["observed"]["target_specificity"], "NOT_ESTABLISHED")
+        self.assertEqual(diagnostic["observed"]["after_uninstall_restoration"], "NOT_RUN")
+
     def test_minimal_record_audits(self):
         self.assertEqual(audit(self.example_report(), self.lock), [])
 

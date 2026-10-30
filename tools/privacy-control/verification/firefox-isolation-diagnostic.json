@@ -1,0 +1,54 @@
+{
+  "schema": "upc-firefox-browser-isolation-diagnostic/v1",
+  "date": "2026-10-31",
+  "status": "BLOCKED",
+  "engine": "official signed Firefox uBlock Origin 1.75.0",
+  "xpi_sha256": "5b74415860456370644bd80f16125e865b0e6c356bb5dfcfb84069967eaa5287",
+  "test_environment": "GitHub Actions isolated ubuntu-24.04 Firefox+Geckodriver",
+  "runs": [
+    {
+      "id": 41094099667,
+      "scenario": "127.0.0.1 synthetic hosts with /probe.gif",
+      "outcome": "FAIL",
+      "reason": "target blocked, unrelated third-party control did not arrive"
+    },
+    {
+      "id": 41094392401,
+      "scenario": "127.0.0.1 synthetic hosts with /asset.png",
+      "outcome": "FAIL",
+      "reason": "same unexpected third-party control failure"
+    },
+    {
+      "id": 41094812775,
+      "scenario": "127.0.0.1 synthetic hosts, independent same-origin probe",
+      "outcome": "FAIL",
+      "reason": "target blocked; same-origin reached; independent third-party control did not arrive"
+    },
+    {
+      "id": 41095436113,
+      "scenario": "same-site and independent third-party controls on 127.0.0.1",
+      "outcome": "FAIL",
+      "reason": "same-origin reached; same-site and unrelated third-party did not arrive"
+    },
+    {
+      "id": 41095864768,
+      "scenario": "RFC5737 192.0.2.10 on runner lo with hosts mapping",
+      "outcome": "FAIL",
+      "reason": "target blocked; same-origin reached; same-site and unrelated third-party did not arrive"
+    }
+  ],
+  "observed": {
+    "official_signed_xpi_hash": "PASS",
+    "loopback_or_testnet_route_verified": "PASS",
+    "baseline_local_http": "PASS",
+    "observed_target_block_when_extension_installed": "PASS",
+    "same_origin_control_when_installed": "PASS",
+    "benign_cross_host_control_when_installed": "FAIL",
+    "target_specificity": "NOT_ESTABLISHED",
+    "after_uninstall_restoration": "NOT_RUN",
+    "real_websites": "NOT_RUN",
+    "user_browser_profile": "NOT_TOUCHED"
+  },
+  "resolution": "Do not claim target-specific full Firefox uBO efficacy. Experimental browser job is manually dispatched only until a well-isolated benign cross-host control can be verified. Do not change published filters.",
+  "publication": "NO_GO"
+}
