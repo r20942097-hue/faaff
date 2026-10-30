@@ -1,3 +1,6 @@
+# NOTE: main には rplay_watcher/ パッケージ（ランタイムソース）が存在しません。
+# 現状このファイルではインストールできません。ソースの同期・分離の判断は
+# ai/WORK_QUEUE.md の関連項目を参照してください。
 [build-system]
 requires = ["setuptools>=76", "wheel"]
 build-backend = "setuptools.build_meta"
