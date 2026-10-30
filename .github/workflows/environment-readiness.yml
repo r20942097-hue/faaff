@@ -23,10 +23,10 @@ jobs:
         with:
           python-version: '3.14'
       - name: Validate audit and fixture contract
-        run: python -m unittest ai.test_audit_environment ai.test_browser_preflight ai.test_extension_fixture_e2e ai.test_archive_intake ai.test_source_intake_guard ai.test_opfs_snapshot_fixture ai.test_opfs_restart_fixture -v
+        run: python -m unittest ai.test_audit_environment ai.test_browser_preflight ai.test_extension_fixture_e2e ai.test_archive_intake ai.test_source_intake_guard ai.test_opfs_snapshot_fixture ai.test_opfs_restart_fixture ai.test_toolchain_inventory -v
       - name: Emit source-readiness evidence without claiming product E2E
         run: python ai/audit_environment.py . --output environment-readiness-${{ matrix.os }}.json
-      - name: Upload scoped JSON evidence
+      - name: Record installed toolchain versions (no install or paths)\n        run: python -m ai.toolchain_inventory --output toolchain-\${{ matrix.os }}.json\n      - name: Upload scoped JSON evidence
         if: always()
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
