@@ -139,4 +139,5 @@ jobs:
         run: |
           python tools/privacy-control/verify_stock_report.py \
             --report "$RUNNER_TEMP/upc-stock-comparison.json" \
+            --html "$RUNNER_TEMP/upc-stock-review.html" \
             --github-summary "$GITHUB_STEP_SUMMARY"

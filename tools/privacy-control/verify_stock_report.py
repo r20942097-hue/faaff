@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 import sys
+from render_stock_html import render_stock
 
 CASES = ("third-party-script", "third-party-image", "third-party-xhr",
          "subdomain-script", "first-party-script",
@@ -173,6 +174,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--report", type=Path, required=True)
     p.add_argument("--github-summary", type=Path)
+    p.add_argument("--html", type=Path)
     args = p.parse_args()
     try:
         home = Path(__file__).resolve().parent
@@ -185,6 +187,12 @@ def main():
             print("UPC STOCK EVIDENCE FAIL:", item, file=sys.stderr)
         if failures:
             return 1
+        if args.html:
+            viewer = args.html.resolve()
+            if viewer.is_relative_to(project.resolve()):
+                raise ValueError("cannot write HTML inside source checkout")
+            viewer.parent.mkdir(parents=True, exist_ok=True)
+            viewer.write_text(render_stock(report), encoding="utf-8")
         if args.github_summary:
             with args.github_summary.open("a", encoding="utf-8") as f:
                 f.write(summary(report))

@@ -7,6 +7,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from verify_stock_report import audit, summary, CASES
+from render_stock_html import render_stock
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -79,6 +80,20 @@ class StockVerdictTests(unittest.TestCase):
         self.assertIn(host, rendered)
         self.assertIn("fixture cases", rendered)
         self.assertIn("NO_GO", rendered)
+
+    def test_static_html_report_has_all_hosts_and_no_script(self):
+        page = render_stock(self.document)
+        self.assertIn('lang="ja"', page)
+        self.assertIn("script-src 'none'", page)
+        self.assertNotIn("<script", page)
+        self.assertEqual(page.count("<tr>"), 39)
+        self.assertIn("NO_GO", page)
+
+    def test_static_html_escapes_all_hostnames(self):
+        self.document["per_host"][0]["host"] = "<script>alert(1)</script>"
+        page = render_stock(self.document)
+        self.assertIn("&lt;script&gt;alert(1)&lt;/script&gt;", page)
+        self.assertNotIn("<script>alert", page)
 
     def test_fake_publication_and_user_stock_claim_rejected(self):
         for key, wrong in (("publication","GO"),

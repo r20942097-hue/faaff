@@ -109,3 +109,17 @@ The absence of an incremental match is NOT proof that an entire default
 browser profile covers the candidate. Likewise the presence of an incremental
 match is NOT proof of real-world privacy benefit. No upstream changes are
 automatically promoted.
+
+### Japanese standalone review
+
+The validated `upc-stock-fragment-comparison/v1` JSON can now be rendered
+offline through `verify_stock_report.py --html <output.html>`. The HTML
+contains a 38-host comparison table: baseline synthetic matches versus the
+additional candidate matches for uBO and Ghostery. It is a **read-only static
+file**, with HTML escaping, no JavaScript, no remote fonts/assets, and a
+restrictive Content Security Policy. Generated outputs remain outside Git.
+
+The `pinned-upstream-stock-comparison` CI job also renders the viewer to its
+temporary runner directory and includes the candidate-delta host list in the
+Actions step summary. This is *not* proof of real sites or actual enabled stock
+subscriptions; no automatic filter adoption is authorized.
