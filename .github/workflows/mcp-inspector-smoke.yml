@@ -1,0 +1,52 @@
+name: MCP Inspector isolated CLI verification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/mcp-inspector-smoke.yml'
+      - 'integrations/agent-tools/mcp-inspector/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-stdio-only:
+    name: Inspector v2 local stdio tools/list + tools/call
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout with no persisted Git credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node.js 22.19.0
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.19.0'
+      - name: Check deterministic MCP fixture
+        shell: bash
+        run: node --check integrations/agent-tools/mcp-inspector/mock-stdio-server.mjs
+      - name: Install pinned MCP Inspector CLI only into temporary runner directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm install --prefix "$RUNNER_TEMP/mcp-inspector" --no-save --no-audit --no-fund --ignore-scripts '@modelcontextprotocol/inspector@2.13.0'
+          inspector="$RUNNER_TEMP/mcp-inspector/node_modules/.bin/mcp-inspector"
+          test -x "$inspector"
+          echo "MCP_INSPECTOR_BIN=$inspector" >> "$GITHUB_ENV"
+          "$inspector" --cli --help >/dev/null
+      - name: Validate stdio tools/list and schema portability
+        shell: bash
+        run: |
+          set -euo pipefail
+          server="$GITHUB_WORKSPACE/integrations/agent-tools/mcp-inspector/mock-stdio-server.mjs"
+          "$MCP_INSPECTOR_BIN" --cli node "$server" --method tools/list --format json --strict > "$RUNNER_TEMP/mcp-tools.json"
+          node -e 'const fs=require("node:fs"); const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!r.result?.tools?.some(t=>t.name==="echo_text")) process.exit(1); console.log("PASS: tool listed")' "$RUNNER_TEMP/mcp-tools.json"
+      - name: Validate stdio tools/call
+        shell: bash
+        run: |
+          set -euo pipefail
+          server="$GITHUB_WORKSPACE/integrations/agent-tools/mcp-inspector/mock-stdio-server.mjs"
+          "$MCP_INSPECTOR_BIN" --cli node "$server" --method tools/call --tool-name echo_text --tool-arg text=hello --format json > "$RUNNER_TEMP/mcp-call.json"
+          node -e 'const fs=require("node:fs"); const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!r.result?.content?.some(c=>c.type==="text" && c.text==="hello")) process.exit(1); console.log("PASS: fixture tool called")' "$RUNNER_TEMP/mcp-call.json"
