@@ -1,0 +1,128 @@
+name: Browser test infrastructure smoke
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/browser-testing-smoke.yml'
+      - 'integrations/browser-testing/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chromium-mv3-and-patched-firefox:
+    name: Playwright 1.64.1 isolated synthetic browser tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:47b510dd9230bf0b9bfc9b20102241e577ea7a99334ab4c3ca19f19770e9b8ea
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned Playwright runtime without npm lifecycle scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --version
+          # npm ci checks the committed lock and verifies registry integrity hashes.
+          npm ci --prefix integrations/browser-testing --no-audit --no-fund --ignore-scripts
+          node --check integrations/browser-testing/smoke.mjs
+          node --check integrations/browser-testing/fixture-mv3/background.js
+          node --check integrations/browser-testing/fixture-mv3/popup.js
+      - name: Gate high/critical npm advisories for locked dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          npm audit --prefix integrations/browser-testing --omit=dev --json > "$RUNNER_TEMP/npm-audit.json"
+          audit_status=$?
+          set -e
+          node - "$RUNNER_TEMP/npm-audit.json" "$audit_status" <<'NODE'
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const status = Number(process.argv[3]);
+          const vuln = report.metadata?.vulnerabilities;
+          if (report.error || !vuln || ![0, 1].includes(status)) {
+            console.error('npm advisory query failed or returned an incomplete report.');
+            process.exit(1);
+          }
+          console.log('Published npm advisory counts: ' +
+            ['critical', 'high', 'moderate', 'low', 'total']
+              .map(key => key + '=' + (vuln[key] ?? 0)).join(' '));
+          if ((vuln.critical ?? 0) > 0 || (vuln.high ?? 0) > 0) {
+            console.error('Known high/critical npm vulnerabilities violate the CI gate.');
+            process.exit(1);
+          }
+          NODE
+      - name: Mozilla web-ext 10.8.0 manifest lint diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="integrations/browser-testing/firefox-lint"
+          # Use the reviewed Mozilla web-ext lockfile, not a fresh resolution.
+          npm ci --prefix "$dir" --no-audit --no-fund --ignore-scripts
+          set +e
+          "$dir/node_modules/.bin/web-ext" lint \
+            --source-dir integrations/browser-testing/fixture-mv3 \
+            --self-hosted --no-input --warnings-as-errors --output json > "$RUNNER_TEMP/firefox-lint.json"
+          lint_status=$?
+          set -e
+          node - "$RUNNER_TEMP/firefox-lint.json" "$lint_status" <<'NODE'
+          const fs = require('node:fs');
+          const o = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const errors = o.errors ?? [];
+          const warnings = o.warnings ?? [];
+          console.log('Firefox lint diagnostic: status=' + process.argv[3] +
+            ' errors=' + errors.length + ' warnings=' + warnings.length);
+          for (const item of [...errors, ...warnings].slice(0, 12)) {
+            console.log('Firefox lint issue: ' + (item.code ?? item.type ?? 'unknown') +
+              ' ' + (item.message ?? ''));
+          }
+          // This is intentional in the MDN-supported cross-browser MV3
+          // manifest: Firefox uses background.scripts, Chromium uses service_worker.
+          const allowed = new Set(['BACKGROUND_SERVICE_WORKER_IGNORED']);
+          const unexpected = warnings.filter(v => !allowed.has(v.code));
+          if (errors.length > 0 || unexpected.length > 0 ||
+              ![0, 1].includes(Number(process.argv[3])) ||
+              (Number(process.argv[3]) === 1 && warnings.length === 0)) {
+            console.error('Firefox lint failed: errors or unexpected warnings remain.');
+            process.exit(1);
+          }
+          console.log('PASS: Mozilla web-ext lint; only documented Firefox MV3 fallback warning allowed.');
+          NODE
+      - name: Gate high/critical Mozilla lint dependency advisories
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          npm audit --prefix integrations/browser-testing/firefox-lint --omit=dev --json > "$RUNNER_TEMP/firefox-lint-audit.json"
+          audit_status=$?
+          set -e
+          node - "$RUNNER_TEMP/firefox-lint-audit.json" "$audit_status" <<'NODE'
+          const fs = require('node:fs');
+          const o = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const counts = o.metadata?.vulnerabilities;
+          if (o.error || !counts || ![0, 1].includes(Number(process.argv[3]))) {
+            console.error('Mozilla web-ext dependency advisory query incomplete or failed.');
+            process.exit(1);
+          }
+          console.log('Mozilla lint dependency advisory counts: ' +
+            ['critical','high','moderate','low','total']
+              .map(k => k + '=' + (counts[k] ?? 0)).join(' '));
+          if ((counts.high ?? 0) > 0 || (counts.critical ?? 0) > 0) {
+            console.error('High/critical vulnerability in Mozilla lint dependencies');
+            process.exit(1);
+          }
+          NODE
+      - name: Verify MV3 Chromium and synthetic Firefox page
+        env:
+          # The container job runs as root; /github/home is owned by pwuser.
+          # Firefox requires HOME to be owned by the launching user.
+          HOME: /root
+        shell: bash
+        run: |
+          set -euo pipefail
+          node integrations/browser-testing/smoke.mjs

@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "Isolated MV3 Fixture",
+  "version": "0.0.1",
+  "description": "Safe browser harness only; not the user's product",
+  "background": {
+    "service_worker": "background.js",
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": [],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "fixture@faaff.invalid",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    }
+  }
+}
