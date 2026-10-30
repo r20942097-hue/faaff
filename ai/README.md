@@ -77,3 +77,22 @@ do not substitute a current `main` tree for the pinned revision.
 The offline comparison has regression tests under `ai/tests/`; no network
 request is required by CI. Its success proves correspondence to the supplied
 GitHub Git API records, not actual real-browser or product E2E behavior.
+
+### Cross-platform Python and byte-exact imports (2026-10-30)
+
+The dedicated `AI hub import safety regression` workflow covers Linux
+(Python 3.11, 3.12, 3.13, 3.14.10, 3.15.2) and Windows
+(Python 3.14.10, 3.15.2). It records the exact interpreter with
+`python -VV`; the `3.11`, `3.12` and `3.13` selectors are not
+claims that the GitHub runner has the latest source-only security patch.
+
+Git for Windows may rewrite LF into CRLF on checkout. That changes the
+byte-level Git blob SHA even when text appears equivalent, so the root
+`.gitattributes` uses `-text` **only** for
+`integrations/browser-filters/source/s/**`. This preserves the original
+Git blob bytes on checkout without changing `s` or the published lists.
+Windows CI must pass `python ai/check_hub.py` against the actual checkout;
+normalizing a hash after reading or silently ignoring mismatches is forbidden.
+
+Windows Actions tests do not establish local Windows GUI, real-browser,
+login, recording, or product E2E readiness.
