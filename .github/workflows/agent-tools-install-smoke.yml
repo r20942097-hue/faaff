@@ -20,13 +20,16 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     env:
-      UV_TOOL_DIR: ${{ runner.temp }}/isolated-agent-tools
-      UV_TOOL_BIN_DIR: ${{ runner.temp }}/isolated-bin
-      UV_CACHE_DIR: ${{ runner.temp }}/uv-agent-cache
       UV_NO_PROGRESS: '1'
       AGENT_REACH_SOURCE: git+https://github.com/Panniantong/Agent-Reach.git@beabda7486e9a666360b18cdb5c0e759c2c4d20f
       SKILLSPECTOR_SOURCE: git+https://github.com/NVIDIA/skillspector.git@54921c8c7c23008c8af2328d5ab492a904b6ece4
     steps:
+      - name: Initialize ephemeral uv paths
+        shell: bash
+        run: |
+          echo "UV_TOOL_DIR=$RUNNER_TEMP/isolated-agent-tools" >> "$GITHUB_ENV"
+          echo "UV_TOOL_BIN_DIR=$RUNNER_TEMP/isolated-bin" >> "$GITHUB_ENV"
+          echo "UV_CACHE_DIR=$RUNNER_TEMP/uv-agent-cache" >> "$GITHUB_ENV"
       - name: Checkout without credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
