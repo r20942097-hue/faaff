@@ -140,6 +140,8 @@ class CollectionTests(unittest.TestCase):
         def transport(url):
             if "/check-runs" in url:
                 return checks
+            if "/rules/branches/main?" in url:
+                return [{"type": "required_status_checks", "ruleset_id": 26005483}]
             if url.endswith("/rulesets/26005483"):
                 return rules
             if "/files?" in url:
@@ -159,6 +161,8 @@ class CollectionTests(unittest.TestCase):
         def transport(url):
             if "/check-runs" in url:
                 return checks
+            if "/rules/branches/main?" in url:
+                return [{"type": "required_status_checks", "ruleset_id": 26005483}]
             if url.endswith("/rulesets/26005483"):
                 return rules
             if "/files?" in url:
@@ -182,6 +186,8 @@ class CollectionTests(unittest.TestCase):
             nonlocal calls
             if "/check-runs" in url:
                 return checks
+            if "/rules/branches/main?" in url:
+                return [{"type": "required_status_checks", "ruleset_id": 26005483}]
             if url.endswith("/rulesets/26005483"):
                 return rules
             if "/files?" in url:
@@ -206,6 +212,43 @@ class CollectionTests(unittest.TestCase):
         with patch("ai.inspect_pr.get_json", side_effect=response):
             with self.assertRaisesRegex(CollectionError, "incomplete collection"):
                 collect_pages("/check-runs", key="check_runs", max_pages=2)
+
+    def test_additional_effective_ruleset_blocks_eligibility(self):
+        pr, rules, checks = fixture()
+
+        def transport(url):
+            if "/rules/branches/main?" in url:
+                return [{"type": "required_status_checks", "ruleset_id": 26005483},
+                        {"type": "pull_request", "ruleset_id": 12345}]
+            if "/check-runs" in url:
+                return checks
+            if url.endswith("/rulesets/26005483"):
+                return rules
+            if "/files?" in url:
+                return [{"filename": "README.md", "status": "modified"}]
+            if url.endswith("/pulls/44"):
+                return pr
+            raise AssertionError(url)
+
+        with patch("ai.inspect_pr.get_json", side_effect=transport):
+            with self.assertRaisesRegex(CollectionError, "other applicable"):
+                inspect(REPO, 44, 26005483)
+
+    def test_missing_effective_rules_are_blocked(self):
+        pr, rules, checks = fixture()
+
+        def transport(url):
+            if "/rules/branches/main?" in url:
+                return []
+            if "/files?" in url:
+                return [{"filename": "README.md", "status": "modified"}]
+            if url.endswith("/pulls/44"):
+                return pr
+            raise AssertionError(url)
+
+        with patch("ai.inspect_pr.get_json", side_effect=transport):
+            with self.assertRaisesRegex(CollectionError, "effective branch rule collection is empty"):
+                inspect(REPO, 44, 26005483)
 
     def test_invalid_repository_is_rejected_before_network(self):
         with self.assertRaisesRegex(CollectionError, "invalid repository"):
