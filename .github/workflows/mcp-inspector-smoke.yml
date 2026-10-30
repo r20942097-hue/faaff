@@ -42,6 +42,27 @@ jobs:
           test -x "$inspector"
           echo "MCP_INSPECTOR_BIN=$inspector" >> "$GITHUB_ENV"
           "$inspector" --cli --help >/dev/null
+      - name: Inventory published npm advisories (report counts, no credentials)
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          npm audit --prefix integrations/agent-tools/mcp-inspector --omit=dev --json > "$RUNNER_TEMP/npm-audit.json"
+          audit_status=$?
+          set -e
+          node - "$RUNNER_TEMP/npm-audit.json" "$audit_status" <<'NODE'
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const status = Number(process.argv[3]);
+          const vuln = report.metadata?.vulnerabilities;
+          if (report.error || !vuln || ![0, 1].includes(status)) {
+            console.error('npm advisory query failed or returned an incomplete report.');
+            process.exit(1);
+          }
+          console.log('Published npm advisory counts: ' +
+            ['critical', 'high', 'moderate', 'low', 'total']
+              .map(key => key + '=' + (vuln[key] ?? 0)).join(' '));
+          NODE
       - name: Validate stdio tools/list and schema portability
         shell: bash
         run: |
