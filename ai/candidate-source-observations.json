@@ -23,7 +23,18 @@
       "python_test_modules": 47,
       "gate": "NO_GO",
       "real_browser": "NOT_RUN",
-      "notes": "RPLAY v2.68 is NOT synonymous with StreamHarbor v2.71.1 in other candidate bundle"
+      "notes": "RPLAY v2.68 is NOT synonymous with StreamHarbor v2.71.1 in other candidate bundle",
+      "source_syntax": {
+        "node_version": "22.16.0",
+        "standalone_js_pass": 49,
+        "standalone_js_fragments_not_individually_parseable": [
+          "src/offscreen_pre.js",
+          "src/offscreen_post.js"
+        ],
+        "generated_offscreen_js_pass": 2,
+        "python_test_compile_pass": 47,
+        "interpretation": "Offscreen pre/post are intentionally joined by build; generated browser offscreen.js parses. No runtime recorder execution."
+      }
     },
     {
       "product": "Three Addons",
@@ -59,7 +70,11 @@
       "observed_checks": {
         "datatools_selftest": "41/41 PASS",
         "node22_js_syntax": "226/226 PASS"
-      }
+      },
+      "security_review_pending": [
+        "StreamHarbor and RPLAY broad https://*/* host permission rationale",
+        "No live Firefox/site/recording test"
+      ]
     }
   ],
   "not_acquired": [
@@ -73,5 +88,9 @@
     "ai/HANDOFF.md",
     "ai/tooling-readiness.json"
   ],
-  "verification_reproduction": "python ai/check_candidate_archive.py <local-archive>; no raw archive upload"
+  "verification_reproduction": "python ai/check_candidate_archive.py <local-archive>; no raw archive upload",
+  "github_prototype_separate": {
+    "branch": "proposal/rplay-3genre-2026-10-28",
+    "status": "SEPARATE_PROTOTYPE_NOT_PRODUCT_RUNTIME"
+  }
 }
