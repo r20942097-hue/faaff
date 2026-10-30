@@ -21,8 +21,8 @@ from fetch_firefox_xpi import LOCKFILE, verify_bytes
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 TRACKING_HOST = "probe.scorecardresearch.com"
-CONTROL_HOST = "upc-control.test"
-EXPECTED_HOSTS = {TRACKING_HOST, CONTROL_HOST}
+CONTROL_HOST = "assets.example.com"
+EXPECTED_HOSTS = {TRACKING_HOST, CONTROL_HOST, "127.0.0.1"}
 
 
 class LabServer(ThreadingHTTPServer):
@@ -139,10 +139,14 @@ def probe(xpi, report_path):
                 break
             time.sleep(1)
         control_on = observe(driver, server, CONTROL_HOST)
+        same_origin_on = observe(driver, server, "127.0.0.1")
+        print("UPC FIREFOX LOCAL CONTROLS:", "target_blocked", blocked,
+              "third_party_reached", control_on,
+              "same_origin_reached", same_origin_on, flush=True)
         if not blocked:
             raise ValueError("uBO did not demonstrate default tracking block in isolated Firefox")
-        if not control_on:
-            raise ValueError("normal third-party control unexpectedly blocked")
+        if not control_on or not same_origin_on:
+            raise ValueError("normal third-party or same-origin loopback control unexpectedly blocked")
         driver.uninstall_addon(addon_id)
         restored = False
         for _ in range(12):
@@ -163,6 +167,7 @@ def probe(xpi, report_path):
             "control_before": "RECEIVED",
             "extension_on": "BLOCKED",
             "control_while_installed": "RECEIVED",
+            "same_origin_while_installed": "RECEIVED",
             "after_uninstall": "RECEIVED",
             "network_scope": "LOCAL_LOOPBACK_ONLY_WITH_TEMPORARY_HOSTS_FILE",
             "actual_live_websites": "NOT_RUN",

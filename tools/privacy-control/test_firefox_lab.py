@@ -68,6 +68,7 @@ class FirefoxXpiPolicyTests(unittest.TestCase):
             "baseline":"RECEIVED","control_before":"RECEIVED",
             "extension_on":"BLOCKED",
             "control_while_installed":"RECEIVED",
+            "same_origin_while_installed":"RECEIVED",
             "after_uninstall":"RECEIVED",
             "network_scope":"LOCAL_LOOPBACK_ONLY_WITH_TEMPORARY_HOSTS_FILE",
             "actual_live_websites":"NOT_RUN",

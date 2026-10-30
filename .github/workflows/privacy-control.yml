@@ -204,12 +204,12 @@ jobs:
             --output "$RUNNER_TEMP/upc-ubo-signed.xpi"
       - name: Resolve strictly synthetic hostnames to runner loopback
         run: |
-          printf '127.0.0.1 probe.scorecardresearch.com upc-control.test\n' \
+          printf '127.0.0.1 probe.scorecardresearch.com assets.example.com\n' \
             | sudo tee -a /etc/hosts
           python - <<'PY'
           import socket
           assert socket.gethostbyname("probe.scorecardresearch.com") == "127.0.0.1"
-          assert socket.gethostbyname("upc-control.test") == "127.0.0.1"
+          assert socket.gethostbyname("assets.example.com") == "127.0.0.1"
           print("UPC FIREFOX NETWORK ISOLATION: loopback-only resolution PASS")
           PY
       - name: Test Firefox before, while real uBO installed, after uninstall

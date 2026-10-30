@@ -163,7 +163,7 @@ and SHA-256/size verified (GitHub release asset digest
 `5b74415860456370644bd80f16125e865b0e6c356bb5dfcfb84069967eaa5287`).
 
 The disposable runner resolves `probe.scorecardresearch.com` and
-`upc-control.test` to `127.0.0.1`, serves a local synthetic image,
+`assets.example.com` to `127.0.0.1`, serves a local synthetic image,
 disables Firefox's independent tracking-protection feature inside the
 temporary profile, and measures the actual HTTP requests (not HTML-only
 visibility). Test transitions: baseline HTTP received → addon installed,

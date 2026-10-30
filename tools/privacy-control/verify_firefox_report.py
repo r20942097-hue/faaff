@@ -17,6 +17,7 @@ def audit(record, lock):
             or record.get("control_before") != "RECEIVED"
             or record.get("extension_on") != "BLOCKED"
             or record.get("control_while_installed") != "RECEIVED"
+            or record.get("same_origin_while_installed") != "RECEIVED"
             or record.get("after_uninstall") != "RECEIVED"):
         errors.append("actual HTTP blocking/unblocking sequence unverified")
     version = record.get("firefox_version")
