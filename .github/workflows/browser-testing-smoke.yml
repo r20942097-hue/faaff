@@ -32,6 +32,27 @@ jobs:
           node --check integrations/browser-testing/smoke.mjs
           node --check integrations/browser-testing/fixture-mv3/background.js
           node --check integrations/browser-testing/fixture-mv3/popup.js
+      - name: Inventory published npm advisories (report counts, no credentials)
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          npm audit --prefix integrations/browser-testing --omit=dev --json > "$RUNNER_TEMP/npm-audit.json"
+          audit_status=$?
+          set -e
+          node - "$RUNNER_TEMP/npm-audit.json" "$audit_status" <<'NODE'
+          const fs = require('node:fs');
+          const report = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const status = Number(process.argv[3]);
+          const vuln = report.metadata?.vulnerabilities;
+          if (report.error || !vuln || ![0, 1].includes(status)) {
+            console.error('npm advisory query failed or returned an incomplete report.');
+            process.exit(1);
+          }
+          console.log('Published npm advisory counts: ' +
+            ['critical', 'high', 'moderate', 'low', 'total']
+              .map(key => key + '=' + (vuln[key] ?? 0)).join(' '));
+          NODE
       - name: Verify MV3 Chromium and synthetic Firefox page
         env:
           # The container job runs as root; /github/home is owned by pwuser.
