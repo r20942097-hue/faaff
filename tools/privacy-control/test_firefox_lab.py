@@ -73,7 +73,7 @@ class FirefoxXpiPolicyTests(unittest.TestCase):
             "independent_third_party_control":"RECEIVED",
             "target_specificity":"PROVISIONAL_LOOPBACK_ONLY",
             "after_uninstall":"RECEIVED",
-            "network_scope":"LOCAL_LOOPBACK_ONLY_WITH_TEMPORARY_HOSTS_FILE",
+            "network_scope":"RFC5737_TEST_NET_IP_ASSIGNED_TO_CI_LOOPBACK",
             "actual_live_websites":"NOT_RUN",
             "actual_user_configuration":"NOT_VERIFIED",
             "real_signed_url_safety":"NOT_RUN",

@@ -164,7 +164,8 @@ and SHA-256/size verified (GitHub release asset digest
 
 The disposable runner resolves `probe.scorecardresearch.com`,
 `pages.example.com`, `assets.example.com` and `unrelated.example.org`
-to `127.0.0.1`, serves a local synthetic image,
+to RFC5737 documentation IP `192.0.2.10` assigned to the runner's `lo`
+interface, serves a local synthetic image,
 disables Firefox's independent tracking-protection feature inside the
 temporary profile, and measures the actual HTTP requests (not HTML-only
 visibility). Test transitions: baseline HTTP received → addon installed,

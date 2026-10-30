@@ -31,7 +31,7 @@ def audit(record, lock):
     version = record.get("firefox_version")
     if not isinstance(version, str) or not re.fullmatch(r"\d+(?:\.\d+){1,3}", version):
         errors.append("missing real Firefox version")
-    if (record.get("network_scope") != "LOCAL_LOOPBACK_ONLY_WITH_TEMPORARY_HOSTS_FILE"
+    if (record.get("network_scope") != "RFC5737_TEST_NET_IP_ASSIGNED_TO_CI_LOOPBACK"
             or record.get("actual_live_websites") != "NOT_RUN"
             or record.get("actual_user_configuration") != "NOT_VERIFIED"
             or record.get("real_signed_url_safety") != "NOT_RUN"

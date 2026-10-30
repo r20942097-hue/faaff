@@ -202,17 +202,19 @@ jobs:
         run: |
           python tools/privacy-control/fetch_firefox_xpi.py \
             --output "$RUNNER_TEMP/upc-ubo-signed.xpi"
-      - name: Resolve strictly synthetic hostnames to runner loopback
+      - name: Bind reserved documentation TEST-NET IP only on disposable runner lo
         run: |
-          printf '127.0.0.1 probe.scorecardresearch.com assets.example.com pages.example.com unrelated.example.org\n' \
+          sudo ip address add 192.0.2.10/32 dev lo
+          ip -4 route get 192.0.2.10 | grep -F 'local 192.0.2.10 dev lo'
+          printf '192.0.2.10 probe.scorecardresearch.com assets.example.com pages.example.com unrelated.example.org\n' \
             | sudo tee -a /etc/hosts
           python - <<'PY'
           import socket
-          assert socket.gethostbyname("probe.scorecardresearch.com") == "127.0.0.1"
-          assert socket.gethostbyname("assets.example.com") == "127.0.0.1"
-          assert socket.gethostbyname("pages.example.com") == "127.0.0.1"
-          assert socket.gethostbyname("unrelated.example.org") == "127.0.0.1"
-          print("UPC FIREFOX NETWORK ISOLATION: loopback-only resolution PASS")
+          assert socket.gethostbyname("probe.scorecardresearch.com") == "192.0.2.10"
+          assert socket.gethostbyname("assets.example.com") == "192.0.2.10"
+          assert socket.gethostbyname("pages.example.com") == "192.0.2.10"
+          assert socket.gethostbyname("unrelated.example.org") == "192.0.2.10"
+          print("UPC FIREFOX NETWORK ISOLATION: RFC5737 IP bound to lo PASS")
           PY
       - name: Test Firefox before, while real uBO installed, after uninstall
         run: |

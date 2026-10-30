@@ -25,13 +25,14 @@ CONTROL_HOST = "assets.example.com"
 PAGE_HOST = "pages.example.com"
 OTHER_HOST = "unrelated.example.org"
 EXPECTED_HOSTS = {TRACKING_HOST, CONTROL_HOST, PAGE_HOST, OTHER_HOST}
+TEST_IP = "192.0.2.10"  # RFC 5737 TEST-NET-1, assigned to lo only inside CI
 
 
 class LabServer(ThreadingHTTPServer):
-    def __init__(self):
+    def __init__(self, bind_ip="127.0.0.1"):
         self.requests_seen = set()
         self.counter_lock = threading.Lock()
-        super().__init__(("127.0.0.1", 0), LabHandler)
+        super().__init__((bind_ip, 0), LabHandler)
 
     def observed(self, token):
         with self.counter_lock:
@@ -76,7 +77,7 @@ class LabHandler(BaseHTTPRequestHandler):
 
 def assert_loopback_mapping():
     for host in EXPECTED_HOSTS:
-        if socket.gethostbyname(host) != "127.0.0.1":
+        if socket.gethostbyname(host) != TEST_IP:
             raise ValueError("CI host mapping missing (refusing network request): " + host)
 
 
@@ -119,7 +120,7 @@ def probe(xpi, report_path):
 
     geckodriver = shutil.which("geckodriver")
     driver = None
-    server = LabServer()
+    server = LabServer(TEST_IP)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     try:
@@ -180,7 +181,7 @@ def probe(xpi, report_path):
                 else "NOT_ESTABLISHED"),
             "same_origin_while_installed": "RECEIVED",
             "after_uninstall": "RECEIVED",
-            "network_scope": "LOCAL_LOOPBACK_ONLY_WITH_TEMPORARY_HOSTS_FILE",
+            "network_scope": "RFC5737_TEST_NET_IP_ASSIGNED_TO_CI_LOOPBACK",
             "actual_live_websites": "NOT_RUN",
             "actual_user_configuration": "NOT_VERIFIED",
             "real_signed_url_safety": "NOT_RUN",
