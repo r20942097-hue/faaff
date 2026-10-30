@@ -1,0 +1,46 @@
+{
+  "schema": "reference-research-catalog/v1",
+  "observed_at": "2026-10-30",
+  "policy": "direct source copy and modified reuse permitted after source/license/security/compatibility review; keep external binary archives out of Git",
+  "adoption_methods": [
+    "REFERENCE_ONLY",
+    "DIRECT_COPY",
+    "MODIFIED_COPY",
+    "INDEPENDENT_IMPLEMENTATION",
+    "REJECTED"
+  ],
+  "references": [
+    {
+      "id": "twitchnosub",
+      "source": "https://github.com/besuper/TwitchNoSub",
+      "revision": "e01ccfe6a878fb9fc561ac80c85de6244e54b4c9",
+      "release_observed": "0.9.3 (2025-11-12)",
+      "license_note": "LICENSE Apache-2.0; package.json ISC; bundled Amazon IVS SDK separately review",
+      "local_archive": "TwitchNoSub_Analysis_Source_20261030.zip",
+      "archive_sha256": "fa19c86732259bc1abc5db8465d0ec9bba1bb4ae303cef94a96b585daa106477",
+      "adoption": "REFERENCE_ONLY",
+      "candidate_ideas": [
+        "HLS manifest structural interpretation",
+        "selective Worker observation",
+        "injection compatibility diagnostics"
+      ],
+      "limitations": [
+        "copying access-control bypass behavior not part of RPLAY requirements",
+        "real-site browser tests NOT_RUN"
+      ]
+    },
+    {
+      "id": "rplay-media-typing",
+      "source": "local_candidate_archive",
+      "revision": "LOCAL_ZIP_ONLY_NOT_IN_FAAFF_MAIN",
+      "local_archive": "RPLAY_v2.68.0_MEDIA_FORMAT_CLASSIFICATION_CANDIDATE_NO_GO.zip",
+      "archive_sha256": "524236c05c2e49ec00a35721c00c2a2c854014db1849675548d2e14463f5fb8e",
+      "adoption": "IMPLEMENTED_CANDIDATE",
+      "product_gate": "NO_GO",
+      "real_browser": "NOT_RUN",
+      "real_recording": "NOT_RUN",
+      "note": "archive evidence; diagnostic typing only; not a verified recording-pipeline upgrade"
+    }
+  ],
+  "verification_note": "Reference ZIPs inspected externally: 15 + 5431 items ZIP CRC PASS; offline intake tool 10 unittest PASS. No browser / product E2E in this repository."
+}
