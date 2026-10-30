@@ -40,6 +40,13 @@ jobs:
         run: python -m unittest discover -s ai/tests -p test_extension_source_preflight.py -v
       - name: Test Node syntax and MV3 import preflight (synthetic ZIP only)
         run: python -m unittest discover -s ai/tests -p test_extension_js_preflight.py -v
+      - name: Test RPLAY pure-module contract verification gate (synthetic ZIP only)
+        run: python -m unittest discover -s ai/tests -p test_offline_product_contract_probe.py -v
+      - name: Check reviewed contract JS suite syntax (no product code executed)
+        run: node --check ai/tests/product_contracts.js
+      - name: Check isolated Node launcher shell syntax (Linux only)
+        if: runner.os == 'Linux'
+        run: bash -n ai/tests/isolate_node.sh
       - name: Test product evidence gate (offline)
         run: python -m unittest discover -s ai/tests -p test_product_quality.py -v
       - name: Test nested extension manifest inventory (offline)
