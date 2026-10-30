@@ -8,6 +8,11 @@ import { chromium, firefox } from 'playwright';
 
 const baseDir = path.dirname(fileURLToPath(import.meta.url));
 const extensionDir = path.join(baseDir, 'fixture-mv3');
+const fixtureManifest = JSON.parse(fs.readFileSync(path.join(extensionDir, 'manifest.json'), 'utf8'));
+assert.equal(fixtureManifest.manifest_version, 3);
+assert.deepEqual(fixtureManifest.permissions, [], 'Fixture must use zero privileges');
+assert.equal(fixtureManifest.host_permissions, undefined, 'Fixture must not request host permissions');
+assert.equal(fixtureManifest.content_scripts, undefined, 'Fixture must not inject content scripts');
 const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'pw-mv3-profile-'));
 
 let context;
@@ -29,8 +34,8 @@ try {
   await popup.goto(`chrome-extension://${extensionId}/popup.html`);
   assert.equal(await popup.locator('#heading').textContent(), 'Fixture ready');
   await popup.locator('#activate').click();
-  assert.equal(await popup.locator('#result').textContent(), 'Activated');
-  console.log('PASS: bundled Chromium loaded synthetic MV3 and exercised popup script');
+  await popup.waitForFunction(() => document.querySelector('#result')?.textContent === 'Activated');
+  console.log('PASS: Chromium MV3 popup sent a real runtime message and worker responded');
   await context.close();
   context = undefined;
 
@@ -52,8 +57,8 @@ try {
   await resumedPopup.goto(`chrome-extension://${resumedId}/popup.html`);
   assert.equal(await resumedPopup.locator('#heading').textContent(), 'Fixture ready');
   await resumedPopup.locator('#activate').click();
-  assert.equal(await resumedPopup.locator('#result').textContent(), 'Activated');
-  console.log('PASS: isolated profile reopen preserves MV3 ID and popup functionality');
+  await resumedPopup.waitForFunction(() => document.querySelector('#result')?.textContent === 'Activated');
+  console.log('PASS: MV3 ID and popup-worker messaging survive profile reopen');
   await context.close();
   context = undefined;
 
