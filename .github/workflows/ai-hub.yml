@@ -69,3 +69,41 @@ jobs:
         run: python integrations/browser-filters/source/s/scripts/validate_lists.py
       - name: Verify pinned filter generation parity
         run: python integrations/browser-filters/source/s/scripts/generate_lists.py --check
+
+  # Advisory API smoke after all hub jobs; never a merge or release gate.
+  live-pr-evidence-smoke:
+    name: Read-only GitHub API smoke (not a merge gate)
+    if: github.event_name == 'pull_request'
+    needs: [pinned-import, windows315-compat]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.11'
+      - name: Fetch live PR, effective rules, and check-run evidence
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python -m ai.inspect_pr "$GITHUB_REPOSITORY" "$PR_NUMBER" --ruleset-id 26005483 > "$RUNNER_TEMP/evidence.json" || true
+          cat "$RUNNER_TEMP/evidence.json"
+          python - "$RUNNER_TEMP/evidence.json" <<'PY'
+          import json, sys
+          with open(sys.argv[1], encoding="utf-8") as f:
+              result = json.load(f)
+          if result.get("live_api_collected") is not True:
+              raise SystemExit("LIVE_API_SMOKE_FAIL: evidence was not collected from all required API endpoints")
+          if result.get("status") not in {"BLOCKED", "AWAITING_OWNER_APPROVAL"}:
+              raise SystemExit("LIVE_API_SMOKE_FAIL: unknown policy status")
+          print("LIVE_API_SMOKE_PASS: API queries completed; advisory policy status =", result["status"])
+          print("LIVE_API_SMOKE_PASS is NOT a merge, review, or release authorization")
+          PY
