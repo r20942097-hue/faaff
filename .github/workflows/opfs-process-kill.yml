@@ -8,6 +8,7 @@ on:
       - 'ai/opfs_restart_fixture.py'
       - 'ai/chromium_renderer_crash_fixture.py'
       - 'ai/requirements-browser.txt'
+      - 'ai/requirements-process.txt'
       - '.github/workflows/opfs-process-kill.yml'
   workflow_dispatch:
 
@@ -30,7 +31,7 @@ jobs:
         with:
           python-version: '3.13'
       - name: Install browser tools
-        run: python -m pip install -r ai/requirements-browser.txt
+        run: python -m pip install -r ai/requirements-browser.txt -r ai/requirements-process.txt
       - name: Install isolated browser
         run: python -m playwright install --with-deps ${{ matrix.browser }}
       - name: Test process-group isolation and fail-closed contracts
