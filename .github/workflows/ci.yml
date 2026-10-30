@@ -85,11 +85,14 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 25
     env:
-      UV_TOOL_DIR: ${{ runner.temp }}/uv-agent-install
-      UV_TOOL_BIN_DIR: ${{ runner.temp }}/uv-agent-bin
-      UV_CACHE_DIR: ${{ runner.temp }}/uv-agent-cache
       UV_NO_PROGRESS: '1'
     steps:
+      - name: Initialize ephemeral uv paths
+        shell: pwsh
+        run: |
+          "UV_TOOL_DIR=$env:RUNNER_TEMP/uv-agent-install" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+          "UV_TOOL_BIN_DIR=$env:RUNNER_TEMP/uv-agent-bin" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+          "UV_CACHE_DIR=$env:RUNNER_TEMP/uv-agent-cache" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
       - name: Checkout without persistent credentials
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
