@@ -85,6 +85,19 @@ jobs:
           agent-reach version
           skillspector --help
           skillspector scan --help
+      - name: Agent-Reach JSON, channel registry and offline doctor contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python integrations/agent-tools/agent-reach-skillspector/verify-agent-reach.py \
+            --home "$RUNNER_TEMP/agent-reach-probe-home"
+      - name: Agent-Reach anonymous live public-data probes (network diagnostic)
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python integrations/agent-tools/agent-reach-skillspector/verify-agent-reach.py \
+            --home "$RUNNER_TEMP/agent-reach-probe-home" --live
       - name: Exercise Windows SkillSpector identity preflight against installed CLI
         if: runner.os == 'Windows'
         shell: pwsh
