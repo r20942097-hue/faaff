@@ -1,0 +1,205 @@
+{
+  "schema": "engineering-tool-readiness/v1",
+  "recorded_at": "2026-10-30",
+  "repository": "r20942097-hue/faaff",
+  "baseline": "main engineering/bootstrap only",
+  "release_gate": "P0/PUBLICATION_HOLD",
+  "authority": {
+    "engineering": "r20942097-hue/faaff",
+    "filter_distribution": "r20942097-hue/s",
+    "current_state": "ai/PROJECT_STATE.json",
+    "handoff": "ai/HANDOFF.md",
+    "projects": "ai/projects.json"
+  },
+  "toolchains": [
+    {
+      "id": "github-native",
+      "tools": [
+        "GitHub Actions",
+        "CodeQL Python",
+        "Dependency Review",
+        "Dependabot",
+        "source/ZIP guard",
+        "AI hub and filter validation"
+      ],
+      "state": "MAIN_PRESENT",
+      "source": "main:.github/workflows/",
+      "test": "existing main workflows",
+      "next": "preserve existing required checks"
+    },
+    {
+      "id": "workflow-security",
+      "tools": [
+        "actionlint 1.7.12",
+        "zizmor 1.31.1",
+        "Gitleaks 8.30.1"
+      ],
+      "state": "DRAFT_VERIFIED",
+      "pr": 36,
+      "source": "proposal/github-devtools-audit-20261030",
+      "test": "GitHub Actions synthetic detections and source audits",
+      "next": "review 12 suppressed zizmor findings before any ruleset promotion"
+    },
+    {
+      "id": "agent-tools",
+      "tools": [
+        "Agent-Reach v1.6.0",
+        "NVIDIA SkillSpector v2.12.0",
+        "uv 0.13.6"
+      ],
+      "state": "DRAFT_VERIFIED_SYNTHETIC",
+      "pr": 35,
+      "source": "proposal/agent-reach-skillspector-setup-20261030",
+      "test": "isolated Linux/Windows install, PowerShell opt-in, synthetic static hazard",
+      "next": "cross-platform Python dependency lock, audited installation provenance and authoritatively sourced product integration"
+    },
+    {
+      "id": "mcp",
+      "tools": [
+        "MCP Inspector 2.13.0",
+        "Node.js 22.19.0"
+      ],
+      "state": "DRAFT_VERIFIED_SYNTHETIC",
+      "pr": 37,
+      "source": "proposal/mcp-inspector-cli-gate-20261030",
+      "test": "stdio initialization, list/call, negative cases, locked npm ci",
+      "next": "use approved local server only after tool permissions and secrets boundary reviewed"
+    },
+    {
+      "id": "browser",
+      "tools": [
+        "Playwright 1.64.1",
+        "Chromium MV3 synthetic fixture",
+        "Playwright patched Firefox",
+        "Mozilla web-ext 10.8.0"
+      ],
+      "state": "DRAFT_VERIFIED_SYNTHETIC",
+      "pr": 38,
+      "source": "proposal/playwright-browser-fixture-20261030",
+      "test": "Chromium worker/popup/reopen, synthetic Firefox HTML, web-ext static lint",
+      "next": "actual RPLAY/YouTube source and Firefox-native isolated WebExtension harness"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "rplay-source",
+      "priority": "P0",
+      "state": "MISSING_MAIN",
+      "canonical": "product version-specific original source/manifest/packaging",
+      "needed": [
+        "RPLAY source tree or authoritative unpacked release",
+        "SHA-256 and version mapping",
+        "HLS/DASH fixture license/provenance",
+        "expected behavior and target browser versions"
+      ],
+      "blocks": [
+        "real recorder E2E",
+        "regressions for missing/duplicate segments",
+        "browser-specific recording validation"
+      ],
+      "action": "locate authoritative source in accessible assets or repository; never infer from synthetic harness"
+    },
+    {
+      "id": "addons-source",
+      "priority": "P0",
+      "state": "MISSING_MAIN",
+      "needed": [
+        "three addon source trees, exact versions",
+        "manifest and permissions",
+        "original artifact SHA-256",
+        "known-good settings import/export fixtures"
+      ],
+      "blocks": [
+        "YouTube actual extension E2E",
+        "Firefox 159 actual XPI compatibility",
+        "feature regression tests"
+      ],
+      "action": "source acquisition then isolated manifest/lint validation"
+    },
+    {
+      "id": "python-lock",
+      "priority": "P1",
+      "state": "PARTIAL",
+      "needed": [
+        "per-target Python 3.12 resolution and per-platform markers",
+        "uv.lock or PEP 751 lock created from pinned upstream commits",
+        "checksummed wheels and repeatable isolated installation"
+      ],
+      "blocks": [
+        "byte-reproducible Python environment"
+      ],
+      "action": "create reviewed locks using official uv; compare Linux vs Windows resolution; do not claim cross-platform parity from package counts"
+    },
+    {
+      "id": "security-review",
+      "priority": "P1",
+      "state": "PARTIAL",
+      "needed": [
+        "individual review and owner decision for 12 suppressed zizmor findings",
+        "three low npm advisories in Mozilla linter",
+        "pin check on future releases"
+      ],
+      "blocks": [
+        "unqualified secure-by-default claim",
+        "promoting new checks to required ruleset"
+      ],
+      "action": "assess exploitability and scope with dated evidence, no automatic broad ignore"
+    },
+    {
+      "id": "native-firefox",
+      "priority": "P1",
+      "state": "BLOCKED_BY_SOURCE_AND_ENV",
+      "needed": [
+        "real extension source",
+        "isolated Firefox native WebExtension runner",
+        "Windows Firefox 159 test host"
+      ],
+      "blocks": [
+        "real Firefox add-on PASS"
+      ],
+      "action": "use Mozilla web-ext run/test or extension-native runner, separate patched-Playwright Firefox page result from XPI runtime"
+    },
+    {
+      "id": "product-mcp",
+      "priority": "P2",
+      "state": "NEEDS_SCOPE",
+      "needed": [
+        "specific approved server",
+        "enumerated tools/scopes",
+        "safe test credentials",
+        "local test data"
+      ],
+      "blocks": [
+        "real MCP integration PASS"
+      ],
+      "action": "keep synthetic-only tests until permissions and secrets handling are approved"
+    }
+  ],
+  "avoid": [
+    {
+      "item": "duplicate CodeQL-equivalent SAST",
+      "reason": "already available; add only on proved coverage gap"
+    },
+    {
+      "item": "broad third-party agent installations",
+      "reason": "source and tool permissions must be reviewed per target"
+    },
+    {
+      "item": "new release/ZIP publication pipeline",
+      "reason": "publication hold and unchanged canonical distribution URLs"
+    },
+    {
+      "item": "generic Firefox Playwright page tests labelled extension E2E",
+      "reason": "patched Firefox cannot establish native Firefox XPI behavior"
+    }
+  ],
+  "acceptance": {
+    "source_provenance": true,
+    "isolated_install": true,
+    "manifest_permissions": true,
+    "security_scan": true,
+    "synthetic_test": true,
+    "real_device_required_for_product_pass": true,
+    "merge_requires_approval": true
+  }
+}
