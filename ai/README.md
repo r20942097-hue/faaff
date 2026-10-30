@@ -44,9 +44,11 @@ Run the offline fault-injection tests with:
 python -m unittest discover -s ai/tests -p 'test_*.py' -v
 ```
 
-`.github/workflows/ai-hub-import-safety.yml` runs these tests on Python 3.11
-and 3.14 when the validator, tests, or workflow change. The existing AI hub
-workflow continues to run the validator on the actual pinned import.
+`.github/workflows/ai-hub-import-safety.yml` runs the safety tests **and**
+the full pinned-import checks across seven Linux/Windows interpreter combinations
+when AI metadata, validator, tests, or the workflow change. The existing
+`ai-hub.yml` continues its two-version baseline without overlapping the
+governance changes proposed in PR #24.
 
 **Boundary:** matching the manifest's local blob hashes does *not* independently
 prove that the manifest corresponds to the upstream `s` Git commit/tree.
@@ -96,3 +98,21 @@ normalizing a hash after reading or silently ignoring mismatches is forbidden.
 
 Windows Actions tests do not establish local Windows GUI, real-browser,
 login, recording, or product E2E readiness.
+
+#### Verified CI interpreter snapshots (not a security-patch guarantee)
+
+At commit `97498655f4cc8eab604d913524dd471b4fca4fe2`, the expanded
+cross-platform import workflow (run `41008850963`) executed **23 safety tests**
+and **50 imported-source unit tests** in each of seven jobs, with all
+seven jobs PASS and both list checks PASS:
+
+| Runner | Reported interpreter |
+|---|---|
+| Linux | Python 3.11.17, 3.12.15, 3.13.17, 3.14.10, 3.15.2 |
+| Windows | Python 3.14.10, 3.15.2 |
+
+The release-day 2026-10-25 security patches are Python **3.11.18,
+3.12.16, 3.13.18, 3.14.10, and 3.15.2**. The first three are
+source-only releases; compatibility with these particular patched sources
+is **NOT_RUN**. When revisiting this matrix, confirm exact runner
+versions and don't infer patch-level security from major/minor selectors.
