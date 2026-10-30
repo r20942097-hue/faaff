@@ -50,7 +50,11 @@ rl.on('line', (line) => {
       });
       break;
     case 'tools/call':
-      if (req.params?.name !== 'echo_text' || typeof req.params?.arguments?.text !== 'string') {
+      const args = req.params?.arguments;
+      const validArgs = args !== null && typeof args === 'object' &&
+        !Array.isArray(args) && Object.keys(args).length === 1 &&
+        typeof args.text === 'string';
+      if (req.params?.name !== 'echo_text' || !validArgs) {
         respond({ ...envelope, error: { code: -32602, message: 'Invalid tool arguments' } });
       } else {
         respond({
