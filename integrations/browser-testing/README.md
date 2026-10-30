@@ -50,3 +50,7 @@ No changes to `main`, production subscription URLs, existing package tests, or R
 - `npm ci` is the only runtime install method in the test workflow; npm verifies each downloaded integrity digest against the committed lockfile.
 - **PASS** [GitHub Actions run 41033301417](https://github.com/r20942097-hue/faaff/actions/runs/41033301417) — locked installation and existing Chromium MV3 profile persistence and patched Firefox synthetic page tests completed.
 - Locked dependency manifests must be updated with explicit review on version changes. No automatic lockfile rewrite during test execution.
+
+## Profile restart regression
+
+[GitHub Actions run 41032867618](https://github.com/r20942097-hue/faaff/actions/runs/41032867618): after a clean browser process shutdown and restart using the same temporary Chromium profile, the synthetic extension ID and popup interaction remained valid. This does not simulate OS power loss or prove crash recovery for a real recorder.
