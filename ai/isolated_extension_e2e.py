@@ -93,7 +93,7 @@ def source_preflight(path: Path, expected: str) -> dict:
             'reason': r.get('reason'),
             'manifest_roots': [x.get('root') for x in r.get('extensions', [])
                                if x.get('status') == 'PASS' and x.get('manifest_version') == 3
-                               and x.get('root') != '.'],
+                               ],
             'manifest_count': len(r.get('extensions', []))}
 
 
@@ -103,18 +103,18 @@ def extract_verified_root(path: Path, root: str, dst: Path) -> dict:
     Rechecks each path independently rather than trusting a previous status,
     rejects symlinks, and bounds every read; executable bits are not restored.
     """
-    if not root or root.startswith('/') or '\\' in root or not root.endswith('/'):
+    if not root or root.startswith('/') or '\\' in root or (root != '.' and not root.endswith('/')):
         raise ValueError('BAD_SELECTED_EXTENSION_ROOT')
-    if any(x in ('', '.', '..') for x in root.rstrip('/').split('/')):
+    if root != '.' and ('//' in root or any(x in ('', '.', '..') for x in root.rstrip('/').split('/'))):
         raise ValueError('BAD_SELECTED_EXTENSION_ROOT')
     seen = set()
     selected = []
     total = 0
     with zipfile.ZipFile(path) as z:
         for item in z.infolist():
-            if not item.filename.startswith(root):
+            if root != '.' and not item.filename.startswith(root):
                 continue
-            rel = item.filename[len(root):]
+            rel = item.filename if root == '.' else item.filename[len(root):]
             if not rel:
                 continue
             parts = rel.rstrip('/').split('/')
@@ -301,7 +301,11 @@ def inspect(archive: Path, expected_sha256: str, selected_root: str,
     with tempfile.TemporaryDirectory(prefix='gpt1-offline-browser-') as temp:
         work = Path(temp)
         fixture = work/'fixture'; make_control_fixture(fixture)
-        control = runner(fixture, work/'control-profile', browser_executable=executable, control=True)
+        try:
+            control = runner(fixture, work/'control-profile', browser_executable=executable, control=True)
+        except (OSError, RuntimeError, ValueError, ImportError):
+            report['reason'] = 'BROWSER_HARNESS_CONTROL_ERROR'
+            return report
         report['synthetic_control'] = control
         if control.get('status') != 'PASS':
             report['reason'] = 'BROWSER_HARNESS_CONTROL_FAILED'
@@ -312,7 +316,11 @@ def inspect(archive: Path, expected_sha256: str, selected_root: str,
         except (OSError, RuntimeError, ValueError, zipfile.BadZipFile):
             report.update(status='FAIL', reason='VERIFIED_ROOT_EXTRACTION_FAILED')
             return report
-        product = runner(source, work/'product-profile', browser_executable=executable, control=False)
+        try:
+            product = runner(source, work/'product-profile', browser_executable=executable, control=False)
+        except (OSError, RuntimeError, ValueError, ImportError):
+            report['reason'] = 'PRODUCT_BROWSER_RUNNER_ERROR'
+            return report
         report['product_browser'] = product
         if product.get('status') != 'PASS':
             report['reason'] = 'PRODUCT_OFFLINE_BROWSER_CHECK_INCOMPLETE'
@@ -322,19 +330,62 @@ def inspect(archive: Path, expected_sha256: str, selected_root: str,
     return report
 
 
+def synthetic_only(parent_netns: str | None, executable: str | None = None,
+                   runner=browser_probe) -> dict:
+    """Prove the environment without reading or running *any* product artifact.
+
+    This is an independent runner/harness health check. A synthetic PASS must
+    never be confused with product load, real-site, device or release approval.
+    """
+    report = {'schema': 'gpt1-isolated-synthetic-control/v1',
+              'scope': 'disposable synthetic MV3 worker / popup / storage',
+              'status': 'BLOCKED', 'synthetic_control': 'NOT_RUN',
+              'product_browser': 'NOT_RUN', 'real_site': 'NOT_RUN',
+              'recording': 'NOT_RUN', 'windows_device': 'NOT_RUN',
+              'release_decision': 'CANDIDATE_NO_GO'}
+    errors = isolation_check(parent_netns)
+    if errors:
+        report.update(reason='ISOLATION_PRECONDITION_FAILED', isolation_errors=errors)
+        return report
+    try:
+        with tempfile.TemporaryDirectory(prefix='gpt1-synthetic-only-') as temp:
+            work = Path(temp)
+            fixture = work / 'fixture'
+            make_control_fixture(fixture)
+            observed = runner(fixture, work / 'control-profile',
+                              browser_executable=executable, control=True)
+    except (OSError, RuntimeError, ValueError, ImportError):
+        report['reason'] = 'SYNTHETIC_HARNESS_ERROR'
+        return report
+    report['synthetic_control'] = observed
+    if observed.get('status') != 'PASS' or observed.get('worker') != 'PASS' or observed.get('popup') != 'PASS':
+        report['reason'] = 'SYNTHETIC_CONTROL_NOT_PROVEN'
+        return report
+    report['status'] = 'PASS_SYNTHETIC_ONLY'
+    report['reason'] = 'SYNTHETIC_CONTROL_ONLY_NO_PRODUCT_APPROVAL'
+    return report
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('archive', type=Path)
-    parser.add_argument('--sha256', required=True)
-    parser.add_argument('--root', required=True, help='Root inside ZIP including trailing slash')
+    parser.add_argument('archive', nargs='?', type=Path)
+    parser.add_argument('--sha256')
+    parser.add_argument('--root', help='Manifest root inside ZIP: . for archive root or subdir/ with trailing slash')
+    parser.add_argument('--synthetic-only', action='store_true', help='No product ZIP, synthetic environment probe only')
     parser.add_argument('--browser-executable', help='Nonbundled Chromium; compatibility not guaranteed')
     parser.add_argument('--json', action='store_true')
     args = parser.parse_args(argv)
-    r = inspect(args.archive, args.sha256, args.root,
-                os.getenv('GPT1_PARENT_NETNS'), args.browser_executable)
+    if args.synthetic_only:
+        if args.archive is not None or args.sha256 is not None or args.root is not None:
+            parser.error('--synthetic-only forbids product archive, --sha256 and --root')
+        r = synthetic_only(os.getenv('GPT1_PARENT_NETNS'), args.browser_executable)
+    else:
+        if args.archive is None or args.sha256 is None or args.root is None:
+            parser.error('product mode requires archive, --sha256 and --root')
+        r = inspect(args.archive, args.sha256, args.root,
+                    os.getenv('GPT1_PARENT_NETNS'), args.browser_executable)
     print(json.dumps(r, ensure_ascii=False, indent=2) if args.json else
           f"{r['status']}: {r.get('reason', '')}; release: {r['release_decision']}")
-    return 0 if r['status'] == 'PASS_OFFLINE_ONLY' else (1 if r['status'] == 'FAIL' else 2)
+    return 0 if r['status'] in ('PASS_OFFLINE_ONLY', 'PASS_SYNTHETIC_ONLY') else (1 if r['status'] == 'FAIL' else 2)
 
 if __name__ == '__main__':
     sys.exit(main())
