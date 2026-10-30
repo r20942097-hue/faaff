@@ -69,6 +69,9 @@ class FirefoxXpiPolicyTests(unittest.TestCase):
             "extension_on":"BLOCKED",
             "control_while_installed":"RECEIVED",
             "same_origin_while_installed":"RECEIVED",
+            "control_site_relation":"SAME_SITE_DIFFERENT_HOST",
+            "independent_third_party_control":"RECEIVED",
+            "target_specificity":"PROVISIONAL_LOOPBACK_ONLY",
             "after_uninstall":"RECEIVED",
             "network_scope":"LOCAL_LOOPBACK_ONLY_WITH_TEMPORARY_HOSTS_FILE",
             "actual_live_websites":"NOT_RUN",
@@ -80,6 +83,15 @@ class FirefoxXpiPolicyTests(unittest.TestCase):
 
     def test_minimal_record_audits(self):
         self.assertEqual(audit(self.example_report(), self.lock), [])
+
+    def test_blocked_third_party_control_must_be_reported_as_partial(self):
+        record = self.example_report()
+        record["status"] = "PARTIAL"
+        record["independent_third_party_control"] = "BLOCKED_IN_SYNTHETIC_LOOPBACK"
+        record["target_specificity"] = "NOT_ESTABLISHED"
+        self.assertEqual(audit(record, self.lock), [])
+        record["status"] = "PASS"
+        self.assertTrue(audit(record, self.lock))
 
     def test_forged_lifecycle_or_safety_claim_rejected(self):
         for field, value in (

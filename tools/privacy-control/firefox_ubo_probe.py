@@ -22,7 +22,9 @@ from fetch_firefox_xpi import LOCKFILE, verify_bytes
 REPOSITORY = Path(__file__).resolve().parents[2]
 TRACKING_HOST = "probe.scorecardresearch.com"
 CONTROL_HOST = "assets.example.com"
-EXPECTED_HOSTS = {TRACKING_HOST, CONTROL_HOST, "127.0.0.1"}
+PAGE_HOST = "pages.example.com"
+OTHER_HOST = "unrelated.example.org"
+EXPECTED_HOSTS = {TRACKING_HOST, CONTROL_HOST, PAGE_HOST, OTHER_HOST}
 
 
 class LabServer(ThreadingHTTPServer):
@@ -80,7 +82,7 @@ def assert_loopback_mapping():
 
 def observe(driver, server, host):
     token = secrets.token_hex(16)
-    url = "http://127.0.0.1:" + str(server.server_port)
+    url = "http://" + PAGE_HOST + ":" + str(server.server_port)
     driver.get(url + "/index?host=" + host + "&token=" + token)
     end = time.monotonic() + 1.5
     while time.monotonic() < end:
@@ -139,14 +141,17 @@ def probe(xpi, report_path):
                 break
             time.sleep(1)
         control_on = observe(driver, server, CONTROL_HOST)
-        same_origin_on = observe(driver, server, "127.0.0.1")
+        same_origin_on = observe(driver, server, PAGE_HOST)
+        independent_third_party_on = observe(driver, server, OTHER_HOST)
         print("UPC FIREFOX LOCAL CONTROLS:", "target_blocked", blocked,
               "third_party_reached", control_on,
-              "same_origin_reached", same_origin_on, flush=True)
+              "same_origin_reached", same_origin_on,
+              "independent_third_party_reached", independent_third_party_on,
+              flush=True)
         if not blocked:
             raise ValueError("uBO did not demonstrate default tracking block in isolated Firefox")
         if not control_on or not same_origin_on:
-            raise ValueError("normal third-party or same-origin loopback control unexpectedly blocked")
+            raise ValueError("same-site or same-origin loopback control unexpectedly blocked")
         driver.uninstall_addon(addon_id)
         restored = False
         for _ in range(12):
@@ -158,7 +163,7 @@ def probe(xpi, report_path):
             raise ValueError("post-uninstall tracking request not restored")
         result = {
             "schema": "upc-firefox-ubo-loopback/v1",
-            "status": "PASS",
+            "status": "PASS" if independent_third_party_on else "PARTIAL",
             "firefox_version": driver.capabilities.get("browserVersion"),
             "official_ubo_version": lock["tag"],
             "xpi_sha256": sha256(xpi.read_bytes()).hexdigest(),
@@ -167,6 +172,12 @@ def probe(xpi, report_path):
             "control_before": "RECEIVED",
             "extension_on": "BLOCKED",
             "control_while_installed": "RECEIVED",
+            "control_site_relation": "SAME_SITE_DIFFERENT_HOST",
+            "independent_third_party_control": (
+                "RECEIVED" if independent_third_party_on else "BLOCKED_IN_SYNTHETIC_LOOPBACK"),
+            "target_specificity": (
+                "PROVISIONAL_LOOPBACK_ONLY" if independent_third_party_on
+                else "NOT_ESTABLISHED"),
             "same_origin_while_installed": "RECEIVED",
             "after_uninstall": "RECEIVED",
             "network_scope": "LOCAL_LOOPBACK_ONLY_WITH_TEMPORARY_HOSTS_FILE",
@@ -177,8 +188,10 @@ def probe(xpi, report_path):
             "release": "NO_GO",
         }
         report_path.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
-        print("UPC FIREFOX OFFICIAL uBO LOOPBACK PASS: before received,"
-              " installed blocked, control preserved, uninstall restored")
+        print("UPC FIREFOX OFFICIAL uBO LOOPBACK", result["status"],
+              ": target blocked, same-site/same-origin controls preserved,",
+              "third-party control", result["independent_third_party_control"],
+              ", uninstall restored, release NO_GO")
     finally:
         if driver is not None:
             driver.quit()

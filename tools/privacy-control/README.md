@@ -162,13 +162,16 @@ documented Firefox add-on API. Official signed uBO `1.75.0` XPI is downloaded
 and SHA-256/size verified (GitHub release asset digest
 `5b74415860456370644bd80f16125e865b0e6c356bb5dfcfb84069967eaa5287`).
 
-The disposable runner resolves `probe.scorecardresearch.com` and
-`assets.example.com` to `127.0.0.1`, serves a local synthetic image,
+The disposable runner resolves `probe.scorecardresearch.com`,
+`pages.example.com`, `assets.example.com` and `unrelated.example.org`
+to `127.0.0.1`, serves a local synthetic image,
 disables Firefox's independent tracking-protection feature inside the
 temporary profile, and measures the actual HTTP requests (not HTML-only
 visibility). Test transitions: baseline HTTP received → addon installed,
-target block observed while unblocked control remains reachable → addon
-uninstalled, target HTTP restored. The independent
+target block observed while same-site/same-origin controls remain reachable →
+addon uninstalled, target HTTP restored. An independent third-party control
+is recorded separately. If that control is blocked, target-specificity
+remains NOT_ESTABLISHED and the outcome is PARTIAL, never falsely PASS. The independent
 `verify_firefox_report.py` rejects missing lifecycle observations or
 misleading claims. No user browser profile, production network rule,
 Windows registry, DNS configuration or real website is touched.
