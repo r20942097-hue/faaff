@@ -1,0 +1,167 @@
+name: GitHub workflow quality audit
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+# This workflow never publishes releases, writes repository content, or reads secrets.
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: actionlint / syntax and expressions
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install pinned and checksum-verified actionlint
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=1.7.12
+          archive="$RUNNER_TEMP/actionlint.tar.gz"
+          curl -fsSL --retry 3 "https://github.com/rhysd/actionlint/releases/download/v${version}/actionlint_${version}_linux_amd64.tar.gz" -o "$archive"
+          echo '8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  '"$archive" | sha256sum --check --status
+          mkdir -p "$RUNNER_TEMP/actionlint"
+          tar -xzf "$archive" -C "$RUNNER_TEMP/actionlint" actionlint
+          "$RUNNER_TEMP/actionlint/actionlint" -version
+          echo "$RUNNER_TEMP/actionlint" >> "$GITHUB_PATH"
+      - name: Validate GitHub Actions workflow files
+        run: actionlint -oneline
+
+  zizmor:
+    name: zizmor / block medium and high security findings
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ZIZMOR_OFFLINE: '1'
+    steps:
+      - name: Checkout without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python for official zizmor wheel
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Install hash-locked Linux zizmor wheel
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --only-binary=:all: \
+            --no-deps --require-hashes \
+            -r integrations/agent-tools/github-quality/zizmor-linux-requirements.txt
+          zizmor --version
+      - name: Gate unsuppressed medium-or-higher security findings
+        run: zizmor --offline --min-severity=medium --format=plain .
+      - name: Inventory all ignored or suppressed findings (advisory only)
+        run: zizmor --offline --no-ignores --no-exit-codes --format=plain .
+
+      - name: Positive control / zizmor must reject a synthetic dangerous workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          file="$RUNNER_TEMP/zizmor-positive.yml"
+          trap 'rm -f "$file"' EXIT
+          # Generate an inert workflow-shaped FILE; never execute or commit it.
+          printf '%s\n' 'name: synthetic-unsafe' 'on: issue_comment' \
+            'jobs:' '  synthetic:' '    runs-on: ubuntu-latest' \
+            '    steps:' '      - name: static-input' > "$file"
+          printf '        run: echo "$%s"\n' '{{ github.event.issue.title }}' >> "$file"
+          set +e
+          zizmor --offline --min-severity=medium --format=plain "$file" > /dev/null 2>&1
+          status=$?
+          set -e
+          # zizmor exit codes: 13 = medium finding, 14 = high finding.
+          # 1/2/3 mean audit/runtime/collection failure, not detection.
+          if [[ "$status" -ne 13 && "$status" -ne 14 ]]; then
+            echo "Zizmor positive control FAILED: expected finding exit 13/14, got $status."
+            exit 1
+          fi
+          echo 'PASS: zizmor detected a static synthetic unsafe workflow (exit 13/14).'
+
+
+  gitleaks:
+    name: gitleaks / block detected secrets with redaction
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout history without persisted credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Check proposed changes for secrets (no source writes)
+        shell: bash
+        run: |
+          set -euo pipefail
+          image='ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f'
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            echo 'Manual mode: scan current working tree; no Git history included.'
+            docker run --rm --network none -v "$GITHUB_WORKSPACE:/repo:ro" -w /repo "$image" \
+              dir --redact=100 --no-banner --no-color --exit-code 1 .
+          else
+            echo 'Pull request mode: scan commits introduced by the PR.'
+            docker run --rm --network none -v "$GITHUB_WORKSPACE:/repo:ro" -w /repo "$image" \
+              git --redact=100 --no-banner --no-color --exit-code 1 --log-opts="origin/main..HEAD" .
+          fi
+      - name: Inventory redacted historical secret findings (advisory only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          image='ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f'
+          echo 'Scan all available Git history; fully redact values and do not gate on baseline findings.'
+          docker run --rm --network none -v "$GITHUB_WORKSPACE:/repo:ro" -w /repo "$image" \
+            git --redact=100 --no-banner --no-color --exit-code 0 --log-opts="--all" .
+
+      - name: Sensitivity regression / synthetic secret must be detected
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/gitleaks-synthetic"
+          mkdir -p "$dir"
+          trap 'rm -rf "$dir"' EXIT
+          # Generate an entirely artificial AWS-shaped identifier at runtime.
+          # Never write the value to logs, the repository, or workflow artifacts.
+          python - "$dir" <<'PY'
+          from pathlib import Path
+          from secrets import choice
+          import string
+          import sys
+          alphabet = string.ascii_uppercase + "234567"
+          fake = "AKIA" + "".join(choice(alphabet) for _ in range(16))
+          Path(sys.argv[1], "fixture.txt").write_text(
+              "aws_access_key_id = '" + fake + "'\n", encoding="utf-8"
+          )
+          PY
+          image='ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f'
+          set +e
+          docker run --rm --network none -v "$dir:/fixture:ro" -w /fixture "$image" \
+            dir --redact=100 --no-banner --no-color --exit-code 1 . >/dev/null 2>&1
+          status=$?
+          set -e
+          if [[ "$status" -ne 1 ]]; then
+            echo "Gitleaks synthetic positive detection FAILED (expected 1, got $status)"
+            exit 1
+          fi
+          echo 'PASS: the pinned Gitleaks engine rejects an ephemeral synthetic credential.'
+          # Also validate the exact Git-history detection mode used for pull requests.
+          git -C "$dir" init -q
+          git -C "$dir" config user.name "CI synthetic fixture"
+          git -C "$dir" config user.email "synthetic@example.invalid"
+          git -C "$dir" add fixture.txt
+          git -C "$dir" commit -qm 'Synthetic sensitive fixture, never published'
+          set +e
+          docker run --rm --network none -v "$dir:/fixture:ro" -w /fixture "$image" \
+            git --redact=100 --no-banner --no-color --exit-code 1 --log-opts="--all" . >/dev/null 2>&1
+          git_status=$?
+          set -e
+          if [[ "$git_status" -ne 1 ]]; then
+            echo "Gitleaks Git-mode positive control FAILED (expected 1, got $git_status)"
+            exit 1
+          fi
+          echo 'PASS: the pinned Gitleaks Git-history mode rejects a synthetic commit.'
