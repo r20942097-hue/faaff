@@ -54,13 +54,13 @@ const ghostery = await import(pathToFileURL(packageEntry));
 pslInit(fs.readFileSync(path.join(engineDir, 'public_suffix_list.dat'), 'utf8'));
 
 const sourceFiles = ['tracking.txt', 'v2/tracking.txt'];
+const primary = await StaticNetFilteringEngine.create({ noPSL: true });
 let checks = 0, rules = 0;
 const profiles = [];
 for (const name of sourceFiles) {
   const list = readPinned(name);
   const parsed = list.split(/\r?\n/).map(x => x.trim())
     .filter(x => x && !x.startsWith('!') && !x.startsWith('['));
-  const primary = await StaticNetFilteringEngine.create({ noPSL: true });
   await primary.useLists([{ name, raw: list }]);
   const secondary = ghostery.FiltersEngine.parse(list);
   const observations = [];
