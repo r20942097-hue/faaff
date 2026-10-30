@@ -3,14 +3,12 @@ name: AI hub import safety regression
 on:
   pull_request:
     paths:
-      - 'ai/check_hub.py'
-      - 'ai/tests/test_check_hub.py'
+      - 'ai/**'
       - '.github/workflows/ai-hub-import-safety.yml'
   push:
     branches: [main]
     paths:
-      - 'ai/check_hub.py'
-      - 'ai/tests/test_check_hub.py'
+      - 'ai/**'
       - '.github/workflows/ai-hub-import-safety.yml'
   workflow_dispatch:
 
