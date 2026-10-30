@@ -45,11 +45,30 @@ rl.on('line', (line) => {
               required: ['text'],
               additionalProperties: false
             }
+          }, {
+            name: 'always_deny',
+            title: 'Synthetic denied operation',
+            description: 'Always returns isError true, with no side effects',
+            inputSchema: { type: 'object', properties: {}, additionalProperties: false }
           }]
         }
       });
       break;
     case 'tools/call':
+      if (req.params?.name === 'always_deny' &&
+          req.params?.arguments !== null &&
+          typeof req.params?.arguments === 'object' &&
+          !Array.isArray(req.params.arguments) &&
+          Object.keys(req.params.arguments).length === 0) {
+        respond({
+          ...envelope,
+          result: {
+            content: [{ type: 'text', text: 'Synthetic operation denied by policy' }],
+            isError: true
+          }
+        });
+        break;
+      }
       const args = req.params?.arguments;
       const validArgs = args !== null && typeof args === 'object' &&
         !Array.isArray(args) && Object.keys(args).length === 1 &&
