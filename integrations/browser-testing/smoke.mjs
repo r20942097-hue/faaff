@@ -10,6 +10,9 @@ const baseDir = path.dirname(fileURLToPath(import.meta.url));
 const extensionDir = path.join(baseDir, 'fixture-mv3');
 const fixtureManifest = JSON.parse(fs.readFileSync(path.join(extensionDir, 'manifest.json'), 'utf8'));
 assert.equal(fixtureManifest.manifest_version, 3);
+assert.equal(fixtureManifest.background?.service_worker, 'background.js');
+assert.deepEqual(fixtureManifest.background?.scripts, ['background.js'],
+  'Firefox MV3 event-page fallback must be present');
 assert.deepEqual(fixtureManifest.permissions, [], 'Fixture must use zero privileges');
 assert.equal(fixtureManifest.host_permissions, undefined, 'Fixture must not request host permissions');
 assert.equal(fixtureManifest.content_scripts, undefined, 'Fixture must not inject content scripts');
