@@ -64,6 +64,10 @@ The ruleset IDs above are the branch-protection rulesets verified on 2026-10-31.
 
 `ai/inspect_pr.py` paginates the complete changed-file/check-run collections, checks exact HEAD/base stability by re-fetching the PR, uses both names on rename, checks active ruleset scope, and matches the required check `context`, issuing GitHub App `integration_id`, HEAD SHA, completed status, and successful conclusion. Missing, duplicate, skipped, in-progress, mismatched, inaccessible or incomplete evidence is **BLOCKED**. `AWAITING_OWNER_APPROVAL` means evidence passed this selected snapshot's checks but owner authorization and every other GitHub/release gate are **still required**. It does not merge, review, post data, write files, or claim product E2E acceptance. Re-run the command after any PR head, ruleset, or CI status changes.
 
+The live CLI also checks GitHub's **effective rules for the main branch** (`GET /repos/{owner}/{repo}/rules/branches/main`), which includes inherited organization rules. A second active ruleset or unknown rule association returns `BLOCKED` instead of silently ignoring additional protections. This does not replace a separate owner-authorization or legacy branch-protection review.
+
+The existing AI hub workflow now includes a non-required `Read-only GitHub API smoke (not a merge gate)` job on PRs after the Linux/Windows checks. Its token is scoped to repository contents, PR and check **read** access. `LIVE_API_SMOKE_PASS` means that all read-only API requests completed and a valid advisory result was produced; the policy result can still be `BLOCKED`, and neither result authorizes a merge. The existing 3-hour GitHub quality audit can inspect this run; no additional scheduled task is created.
+
 The deterministic adversarial fixtures are tested offline in `ai/tests/test_github_evidence.py`; executing those fixtures does **not** prove the remote GitHub API was contacted successfully. Network failures must be reported `BLOCKED`, not silently inferred as a green gate.
 
 ## Python 3.15 compatibility (2026-10-31)
