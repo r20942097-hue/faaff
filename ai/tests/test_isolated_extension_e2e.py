@@ -26,7 +26,10 @@ class IsolationTests(unittest.TestCase):
     def test_parent_namespace_equal_rejected(self, *_):
         self.assertIn('PARENT_NETNS_NOT_ISOLATED', gate.isolation_check('net:[123]'))
 
-    def test_missing_receipt_rejected(self):
+    @patch.object(gate, 'supports_namespace', return_value=True)
+    @patch.object(gate.os, 'geteuid', create=True, return_value=501)
+    @patch.object(gate.os, 'readlink', return_value='net:[123]')
+    def test_missing_receipt_rejected(self, *_):
         self.assertIn('PARENT_NETNS_RECEIPT_MISSING', gate.isolation_check(None))
 
     def test_digest_validator(self):
