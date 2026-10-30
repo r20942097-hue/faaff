@@ -37,7 +37,7 @@ const sha256 = data => crypto.createHash('sha256').update(data).digest('hex');
 const stockParts = [];
 for (let i = 0; i < lock.files.length; i++) {
   const record = lock.files[i];
-  assert.ok(/^(?:template_header\.txt|easyprivacy\/[a-z0-9_-]+\.txt)$/.test(record.path));
+  assert.ok(/^(?:template_header\.txt|easyprivacy\/[a-zA-Z0-9_-]+\.txt)$/.test(record.path));
   const contents = fs.readFileSync(path.join(stockRoot, record.path));
   assert.equal(contents.length, record.size);
   assert.equal(gitHash(contents), record.git_blob_sha);

@@ -38,7 +38,7 @@ def validate_lock(lock):
     paths = []
     for record in rows:
         path = record.get("path", "")
-        if (not re.fullmatch(r"(template_header\.txt|easyprivacy/[a-z0-9_-]+\.txt)", path)
+        if (not re.fullmatch(r"(template_header\.txt|easyprivacy/[a-zA-Z0-9_-]+\.txt)", path)
                 or type(record.get("size")) is not int
                 or not 100 <= record["size"] <= 500_000
                 or not re.fullmatch(r"[0-9a-f]{40}", record.get("git_blob_sha", ""))):
