@@ -93,7 +93,7 @@ jobs:
           }
           console.log('PASS: Mozilla web-ext lint; only documented Firefox MV3 fallback warning allowed.');
           NODE
-      - name: Inventory Mozilla lint dependency advisories (advisory only)
+      - name: Gate high/critical Mozilla lint dependency advisories
         shell: bash
         run: |
           set -euo pipefail
@@ -112,6 +112,10 @@ jobs:
           console.log('Mozilla lint dependency advisory counts: ' +
             ['critical','high','moderate','low','total']
               .map(k => k + '=' + (counts[k] ?? 0)).join(' '));
+          if ((counts.high ?? 0) > 0 || (counts.critical ?? 0) > 0) {
+            console.error('High/critical vulnerability in Mozilla lint dependencies');
+            process.exit(1);
+          }
           NODE
       - name: Verify MV3 Chromium and synthetic Firefox page
         env:
