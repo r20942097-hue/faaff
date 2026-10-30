@@ -142,6 +142,7 @@ def verify_addons(z: zipfile.ZipFile) -> dict:
     for name, digest in sums.items():
         if hash_bytes(z.read(name)) != digest:
             raise IntakeError("SHA256SUMS_MISMATCH")
+    qa_status = read_json(z, "QA_REPORT.json").get("status")
     entries = []
     groups = {}
     for basename, rec in sorted(manifest.items()):
@@ -161,6 +162,17 @@ def verify_addons(z: zipfile.ZipFile) -> dict:
             mm = read_json(inner, "manifest.json")
             if mm.get("manifest_version") != 3 or mm.get("version") != rec.get("version"):
                 raise IntakeError("MANIFEST_VERSION_MISMATCH")
+            # The published package version and visible display name must agree.
+            # A prior GO candidate had 0.80.0 in version but a stale
+            # "0.79.0 CANDIDATE / NO_GO" Chrome version_name.
+            if browser == "Chrome" and "version_name" in mm:
+                display = mm["version_name"]
+                if not isinstance(display, str) or not re.match(
+                    r"^" + re.escape(mm["version"]) + r"(?:$|\\s)", display
+                ):
+                    raise IntakeError("CHROME_VERSION_NAME_MISMATCH")
+                if re.search(r"\\bNO[_ ]GO\\b", display, flags=re.I) and qa_status == "PASS":
+                    raise IntakeError("GO_CANDIDATE_CONFLICTING_NO_GO_LABEL")
             if browser == "Firefox":
                 settings = mm.get("browser_specific_settings") or {}
                 if not isinstance(settings, dict):
@@ -181,7 +193,7 @@ def verify_addons(z: zipfile.ZipFile) -> dict:
         raise IntakeError("PRODUCT_BROWSER_PAIR_MISMATCH")
     return {"type": "three_addons", "package_count": len(entries),
             "checksum_file_entries": len(sums), "packages": entries,
-            "qa_claim_only": read_json(z, "QA_REPORT.json").get("status"),
+            "qa_claim_only": qa_status,
             "status": "CANDIDATE_NOT_RELEASED"}
 
 
