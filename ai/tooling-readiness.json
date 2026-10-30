@@ -97,7 +97,9 @@
         "regressions for missing/duplicate segments",
         "browser-specific recording validation"
       ],
-      "action": "locate authoritative source in accessible assets or repository; never infer from synthetic harness"
+      "action": "Read-only candidate RPLAY v2.68 archive now observed with verified hash and CRC; keep MAIN missing until reviewed source-only extraction + approval.",
+      "candidate_archive_observed": true,
+      "candidate_gate": "NO_GO"
     },
     {
       "id": "addons-source",
@@ -114,7 +116,9 @@
         "Firefox 159 actual XPI compatibility",
         "feature regression tests"
       ],
-      "action": "source acquisition then isolated manifest/lint validation"
+      "action": "v11/v12 archive candidates observed with verified inner package hashes; seek newer v13 authoritative source before promotion, review source-only import and actual E2E.",
+      "candidate_archive_observed": true,
+      "candidate_gate": "GO_CANDIDATE_NOT_RELEASED"
     },
     {
       "id": "python-lock",
@@ -201,5 +205,6 @@
     "synthetic_test": true,
     "real_device_required_for_product_pass": true,
     "merge_requires_approval": true
-  }
+  },
+  "candidate_source_ledger": "ai/candidate-source-observations.json"
 }
