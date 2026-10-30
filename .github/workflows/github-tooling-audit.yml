@@ -34,7 +34,7 @@ jobs:
         run: actionlint -oneline
 
   zizmor:
-    name: zizmor / offline security findings (report-only)
+    name: zizmor / block medium and high security findings
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -53,10 +53,10 @@ jobs:
           python -m pip install --disable-pip-version-check --only-binary=:all: zizmor==1.31.1
           zizmor --version
       - name: Report security findings without modifying repository
-        run: zizmor --offline --format=plain --no-exit-codes .
+        run: zizmor --offline --min-severity=medium --format=plain .
 
   gitleaks:
-    name: gitleaks / PR secret scan (redacted, report-only)
+    name: gitleaks / block detected secrets with redaction
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -73,9 +73,9 @@ jobs:
           if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
             echo 'Manual mode: scan current working tree; no Git history included.'
             docker run --rm --network none -v "$GITHUB_WORKSPACE:/repo:ro" -w /repo "$image" \
-              dir --redact=100 --no-banner --no-color --exit-code 0 .
+              dir --redact=100 --no-banner --no-color --exit-code 1 .
           else
             echo 'Pull request mode: scan commits introduced by the PR.'
             docker run --rm --network none -v "$GITHUB_WORKSPACE:/repo:ro" -w /repo "$image" \
-              git --redact=100 --no-banner --no-color --exit-code 0 --log-opts="origin/main..HEAD" .
+              git --redact=100 --no-banner --no-color --exit-code 1 --log-opts="origin/main..HEAD" .
           fi
