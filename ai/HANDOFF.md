@@ -10,3 +10,4 @@
    - CI に ZIP/7z 混入チェックを追加。AI hub・フィルター検証は PR で常に実行（必須チェック化のため）。
 4. 検証: `python ai/check_hub.py` と `ai/README.md` のオフライン検査。実機・実ブラウザ・ログイン系は未実施なら NOT_RUN と報告する。
 5. 次の候補: `PROJECT_STATE.json` の `open_items`。`s` を変更したら本リポジトリで取り込み更新PRを作る。
+6. Codex 初回利用時は [`CODEX_SETUP.md`](CODEX_SETUP.md) に従って、アカウント/Cloud起動、対象リポジトリの実アクセス、既存オフライン検証、製品実機検証を別々に判定する。GitHub接続やCI成功だけでCodex接続・製品動作をPASSにしない。
