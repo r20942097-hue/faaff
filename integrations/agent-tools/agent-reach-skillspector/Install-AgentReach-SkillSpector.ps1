@@ -73,13 +73,26 @@ $env:PATH = $binDirectory + [IO.Path]::PathSeparator + $env:PATH
 
 if ($wantSkillSpector) {
     $spectorCmd = Get-Command 'skillspector' -ErrorAction SilentlyContinue
-    if ($spectorCmd) {
+    $spectorWasPresent = [bool]$spectorCmd
+    if ($spectorWasPresent) {
         Write-Host 'SkillSpector already present; leaving the installation unchanged.'
     }
     else {
         Invoke-Checked -Executable $uvExe -Arguments @('tool', 'install', $skillSpectorSource)
         $spectorCmd = Get-Command 'skillspector' -ErrorAction Stop
     }
+    $spectorVersionText = (& $spectorCmd.Source --version | Out-String).Trim() -replace '\x1b\[[0-9;]*m', ''
+    if ($LASTEXITCODE -ne 0 -or $spectorVersionText -notmatch '^SkillSpector v([0-9]+\.[0-9]+\.[0-9]+)$') {
+        throw 'SkillSpector CLI did not return its documented version response.'
+    }
+    $spectorActualVersion = $Matches[1]
+    if ([version]$spectorActualVersion -lt [version]'2.12.0') {
+        throw 'Existing SkillSpector is older than the verified 2.12.0 minimum.'
+    }
+    if (-not $spectorWasPresent -and $spectorActualVersion -ne '2.12.0') {
+        throw 'Fresh SkillSpector installation does not match pinned source version 2.12.0.'
+    }
+    Write-Host "Verified SkillSpector v$spectorActualVersion."
     Invoke-Checked -Executable $spectorCmd.Source -Arguments @('--help')
 }
 
