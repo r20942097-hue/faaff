@@ -67,6 +67,19 @@ jobs:
           PY
           uv run --project "$project" --locked --no-sync python "$project/verify-lock.py"
           git diff --exit-code -- "$project/uv.lock"
+      - name: Select locked Agent-Reach executable for all functional probes
+        shell: bash
+        run: |
+          set -euo pipefail
+          directory="$GITHUB_WORKSPACE/integrations/agent-tools/agent-reach-skillspector/locked-agent-reach/.venv"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            binary="$directory/Scripts/agent-reach.exe"
+          else
+            binary="$directory/bin/agent-reach"
+          fi
+          test -f "$binary"
+          printf 'AGENT_REACH_TEST_BINARY=%s\n' "$binary" >> "$GITHUB_ENV"
+          echo "PASS: functional probes will run the verified uv.lock executable"
       - name: Install Agent-Reach v1.6.0 and SkillSpector from commit pins
         shell: bash
         run: |
