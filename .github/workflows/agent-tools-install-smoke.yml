@@ -65,6 +65,7 @@ jobs:
           assert output.get("result", {}).get("version") == "1.6.0"
           print("PASS: independently synced Agent-Reach v1.6.0 from immutable Git source and uv.lock")
           PY
+          uv run --project "$project" --locked --no-sync python "$project/verify-lock.py"
           git diff --exit-code -- "$project/uv.lock"
       - name: Install Agent-Reach v1.6.0 and SkillSpector from commit pins
         shell: bash
