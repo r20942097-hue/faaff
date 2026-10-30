@@ -90,7 +90,7 @@ Dependency notes for `browser_filter_lists/tooling`:
 - `package.json` overrides `zod` to 4.6.6. AGLint 3.0.3 depends on `@adguard/agtree` 3.3.1, which pins `zod` 3.24.4 (memory-exhaustion advisory GHSA-mrhx-c7xc-m3w5, fixed in 4.6.6). On a mixed corpus of valid and invalid rules, AGLint output was identical with and without the override. Remove the override once AGLint ships an `agtree` with a fixed `zod`.
 - `npm audit` still reports one low advisory for `deepmerge` 4.3.1 (GHSA-gcqx-w48m-w2h4, prototype poisoning when merging untrusted objects). No fixed version exists, and AGLint only merges this repository's own configuration.
 - `tooling/control/bad.txt` is a negative control: CI requires AGLint to reject it, so a dependency change cannot silently turn the lint into a no-op.
-- Dependabot waits 7 days after a release before proposing it. The same cooldown applies to the pip and github-actions entries; security updates are not delayed by it.
+- Dependabot waits 7 days after a release before proposing an update for this directory (`cooldown`); security updates are not delayed by it.
 
 GitHub Actions runs compilation, regression tests, stable-list validation, candidate-evidence freshness validation, cross-source promotion gates, generated-report consistency checks, and the AGLint syntax lint on relevant pushes and pull requests, plus a weekly scheduled check.
 
