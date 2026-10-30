@@ -48,7 +48,7 @@ The checks are the existing `ai/README.md` baseline. Run only commands supported
 
 ### Product CI evidence check (proposal branch only until merged)
 
-The existing `CI` workflow now includes a `Product readiness evidence (NOT_RUN is not release PASS)` job in this proposal. It has an independent standard-library test suite and prints **engineering CI**, **product runtime CI**, and **release gate** separately in the GitHub Actions summary. To run its safe synthetic logic locally in Codex Cloud:
+The existing `CI` workflow now includes a `Product readiness evidence (NOT_RUN is not release PASS)` job in this proposal. It has an independent standard-library test suite (10 cases, including CLI exit codes and GitHub summary files) and prints **engineering CI**, **product runtime CI**, and **release gate** separately in the GitHub Actions summary. To run its safe synthetic logic locally in Codex Cloud:
 
 ```sh
 python -m unittest ai/test_product_ci_gate.py -v
