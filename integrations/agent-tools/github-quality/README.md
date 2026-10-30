@@ -80,3 +80,13 @@ A first CI smoke run found a malformed SHA256 verification input (`\\n` instead 
 Keep Playwright and MCP Inspector out of this hub PR until the runtime sources / dedicated isolated test hosts are available and acceptance criteria exist. Avoid adding Python/JavaScript static analyzers that largely duplicate CodeQL before a concrete missed-detection case justifies them.
 
 The initial Gitleaks manual trigger used the same Git range as pull requests, which would be empty when HEAD matched `origin/main`. This was repaired: manual dispatch now scans the working tree with `gitleaks dir`, without reading the entire historical Git log. PR scans remain Git-diff-scoped.
+
+## 2026-10-30 CI escalation — actual blocking checks
+
+The project already achieved a clean (unsuppressed) offline zizmor audit and a no-leaks Gitleaks PR scan. This proposal therefore now **fails the CI job** for:
+
+- `actionlint -oneline` errors (unchanged).
+- `zizmor --offline --min-severity=medium --format=plain .` reporting new unsuppressed **medium/high** findings. Existing 12 suppressed findings remain suppressed and are **not proof of being safe**. Low severity findings are filtered; the job retains nonzero tool failures.
+- `gitleaks git` (PR commit range) or `gitleaks dir` (manual worktree), both `--redact=100 --exit-code 1`. No full-history secret scanning is asserted.
+
+Verified [blocking audit run 41030412200](https://github.com/r20942097-hue/faaff/actions/runs/41030412200): all three audit jobs succeeded. Zizmor: no unsuppressed findings (12 suppressed). Gitleaks: no leaks in scoped PR changes. This does not alter existing branch-protection required-check settings; ruleset changes require separate owner approval.
