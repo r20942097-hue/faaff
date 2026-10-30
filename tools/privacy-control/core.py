@@ -47,7 +47,7 @@ def valid_host(name: str) -> bool:
 
 def parse_rule(raw: str) -> Rule:
     text = raw.strip()
-    if not text or text.startswith(("!", "[")):
+    if not text or text.startswith("!") or text == "[Adblock Plus 2.0]":
         raise ValueError("metadata lines must be removed before parsing")
     match = PATTERN.fullmatch(text)
     if not match:
