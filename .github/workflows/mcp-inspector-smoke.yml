@@ -73,7 +73,28 @@ jobs:
           set -euo pipefail
           server="$GITHUB_WORKSPACE/integrations/agent-tools/mcp-inspector/mock-stdio-server.mjs"
           "$MCP_INSPECTOR_BIN" --cli node "$server" --method tools/list --format json --strict > "$RUNNER_TEMP/mcp-tools.json"
-          node -e 'const fs=require("node:fs"); const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!r.result?.tools?.some(t=>t.name==="echo_text")) process.exit(1); console.log("PASS: tool listed")' "$RUNNER_TEMP/mcp-tools.json"
+          node - "$RUNNER_TEMP/mcp-tools.json" <<'NODE'
+          const fs = require('node:fs');
+          const r = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const tools = r.result?.tools ?? [];
+          const names = tools.map(t => t.name).sort();
+          if (JSON.stringify(names) !== JSON.stringify(['always_deny','echo_text'])) {
+            console.error('Synthetic MCP tool allowlist changed');
+            process.exit(1);
+          }
+          const echo = tools.find(t => t.name === 'echo_text');
+          if (echo.inputSchema?.additionalProperties !== false ||
+              JSON.stringify(echo.inputSchema?.required) !== JSON.stringify(['text'])) {
+            console.error('Synthetic MCP input schema has lost strict constraints');
+            process.exit(1);
+          }
+          const findings = r.schemaFindings?.flatMap(v => v.findings ?? []) ?? [];
+          if (findings.some(v => v.severity === 'error')) {
+            console.error('Inspector returned error-level portability findings');
+            process.exit(1);
+          }
+          console.log('PASS: strict MCP allowlist, input schema, portability');
+          NODE
       - name: Verify Inspector initialize handshake and declared capabilities
         shell: bash
         run: |
