@@ -118,15 +118,23 @@ def inspect(repository: str, pr_number: int, ruleset_id: int, expected_head_sha:
     if type(changed_count) is not int or changed_count != len(changed):
         raise CollectionError("PR changed-file count mismatch")
     paths = []
+    seen_filenames = set()
     for record in changed:
         if not isinstance(record, dict) or not isinstance(record.get("filename"), str):
             raise CollectionError("invalid changed-file record")
-        paths.append(record["filename"])
+        filename = record["filename"]
+        if filename in seen_filenames:
+            raise CollectionError("duplicate PR file record")
+        seen_filenames.add(filename)
+        paths.append(filename)
         if record.get("status") == "renamed":
             previous = record.get("previous_filename")
             if not isinstance(previous, str) or not previous:
                 raise CollectionError("renamed file missing previous filename")
             paths.append(previous)
+    # A renamed source may legitimately also be an added destination filename.
+    # Deduplicate assessment paths, not underlying GitHub changed-file records.
+    paths = list(dict.fromkeys(paths))
     # GitHub's effective-branch endpoint includes organization-level rules.
     # A single repository ruleset cannot establish full merge eligibility.
     effective_rules, _ = collect_pages(

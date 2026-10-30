@@ -215,6 +215,51 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual(r["status"], "BLOCKED")
         self.assertIn("publication_hold", r["reasons"])
 
+    def test_rename_and_replacement_at_old_name_are_not_false_duplicates(self):
+        pr, rules, checks = fixture()
+        pr["changed_files"] = 2
+        changed = [
+            {"filename": "ai/new.md", "previous_filename": "ai/old.md", "status": "renamed"},
+            {"filename": "ai/old.md", "status": "added"},
+        ]
+
+        def transport(url):
+            if "/rules/branches/main?" in url:
+                return [{"type": "required_status_checks", "ruleset_id": 26005483}]
+            if "/check-runs" in url:
+                return checks
+            if url.endswith("/rulesets/26005483"):
+                return rules
+            if "/files?" in url:
+                return changed
+            if url.endswith("/pulls/44"):
+                return pr
+            raise AssertionError(url)
+
+        with patch("ai.inspect_pr.get_json", side_effect=transport):
+            result = inspect(REPO, 44, 26005483)
+        self.assertEqual(result["status"], "AWAITING_OWNER_APPROVAL")
+        self.assertEqual(result["risk"], "documentation")
+
+    def test_duplicate_api_file_records_are_rejected(self):
+        pr, rules, checks = fixture()
+        pr["changed_files"] = 2
+        changed = [
+            {"filename": "ai/old.md", "status": "modified"},
+            {"filename": "ai/old.md", "status": "modified"},
+        ]
+
+        def transport(url):
+            if "/files?" in url:
+                return changed
+            if url.endswith("/pulls/44"):
+                return pr
+            raise AssertionError(url)
+
+        with patch("ai.inspect_pr.get_json", side_effect=transport):
+            with self.assertRaisesRegex(CollectionError, "duplicate PR file record"):
+                inspect(REPO, 44, 26005483)
+
     def test_head_change_during_audit_is_blocked(self):
         pr, rules, checks = fixture()
         other = deepcopy(pr)
