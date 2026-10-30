@@ -9,7 +9,7 @@
 - **固定取り込み:** `s` PR #15 は `AGENTS.md` のみ。 `ai/imports/s.json` の `excluded_paths` に該当するため、取り込み元コード/フィルターの再インポートは不要。実際にインポート対象ファイルに差分があるときだけ別PRで更新する。
 - **次に優先:** 定期ニュース監視のAI更新 → 実務影響評価 → 提案ブランチ最小差分 → CI/監査 → 明示的な適用履歴、の一連の完走証拠を得る。メモリ直接同期は未実証。従来のP0/公開HOLDを解除したとは扱わない。
 
-## 2026-10-28 の履歴（参照用）
+## 2026-10-28 の履歴（旧記録・新しい判断は上記を優先）
 
 1. まず [`AGENTS.md`](../AGENTS.md)、次に [`PROJECT_STATE.json`](PROJECT_STATE.json)・[`projects.json`](projects.json)・[`WORK_QUEUE.md`](WORK_QUEUE.md) を読む。
 2. 権限は「常に可」「要承認」の2段階。`main` への直接 push は禁止（Ruleset で技術的にも保護）。作業は `proposal/*` 等のブランチ → PR。
