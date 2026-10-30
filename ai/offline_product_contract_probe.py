@@ -30,8 +30,8 @@ MAX_RATIO = 1000
 SHA = re.compile(r'[0-9a-f]{64}\Z')
 WINDOWS_DEVICE = re.compile(r'^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$',re.I)
 
-
-
+# Content identities bind the diagnostic to the reviewed suite and wrapper.
+# These hashes establish *suite consistency*, NOT the provenance of the ZIP.
 PINNED_SUITE_SHA256 = '875ada3ea10b862b251299d6fff6efbc91e5e1235dedeb8c2e7da67ff89cbfab'
 PINNED_WRAPPER_SHA256 = 'a71dba8f85418c0d8dd9cc4f4511d51ecc84dfe67d0da20697b4d5306ab76ea6'
 EXPECTED_COUNT = 417
@@ -40,7 +40,7 @@ EXPECTED_SCOPE = ('RPLAY v2.67 actual pure HLS ledger/window/range JS; '
 
 
 def reviewed_runner_files(suite: Path, wrapper: Path) -> bool:
-    """Reject symlinked, missing, oversized, or modified diagnostic executables."""
+    """Fail closed if the diagnostic or sandbox launcher differs from the reviewed bytes."""
     if suite.is_symlink() or wrapper.is_symlink() or not suite.is_file() or not wrapper.is_file():
         return False
     try:
@@ -50,6 +50,7 @@ def reviewed_runner_files(suite: Path, wrapper: Path) -> bool:
                 and hashlib.sha256(wrapper.read_bytes()).hexdigest() == PINNED_WRAPPER_SHA256)
     except OSError:
         return False
+
 
 
 def archive_bytes(path: Path, expected: str) -> bytes:
