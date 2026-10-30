@@ -97,6 +97,30 @@ def source_preflight(path: Path, expected: str) -> dict:
             'manifest_count': len(r.get('extensions', []))}
 
 
+def javascript_preflight(path: Path, expected_sha256: str, selected_root: str) -> dict:
+    """Run independent, fail-closed ZIP/JS syntax and static worker import checks.
+
+    Any PARTIAL result, unavailable Node runtime, unknown worker imports, or
+    syntax error blocks product execution. Product JS is never evaluated here.
+    """
+    from extension_js_preflight import inspect as inspect_js
+    return inspect_js(path, expected_sha256, selected_root)
+
+
+def javascript_gate_approved(result: dict, expected_sha256: str, selected_root: str) -> bool:
+    """Accept only *complete* evidence tied to this exact archive and root."""
+    return (isinstance(result, dict)
+            and result.get('status') == 'PASS_SYNTAX_REFS_ONLY'
+            and result.get('sha256') == expected_sha256
+            and result.get('root') == selected_root
+            and type(result.get('scripts_checked')) is int
+            and result['scripts_checked'] > 0
+            and result.get('issues') == []
+            and result.get('warnings') == []
+            and result.get('syntax_failures') == []
+            and result.get('release_decision') == 'CANDIDATE_NO_GO')
+
+
 def extract_verified_root(path: Path, root: str, dst: Path) -> dict:
     """Extract only an exact validated extension root after source preflight.
 
@@ -325,11 +349,13 @@ def browser_probe(extension_dir: Path, profile: Path, *, browser_executable: str
 
 def inspect(archive: Path, expected_sha256: str, selected_root: str,
             parent_netns: str | None, executable: str | None = None,
-            preflight=source_preflight, runner=browser_probe) -> dict:
+            preflight=source_preflight, runner=browser_probe,
+            js_preflight=javascript_preflight) -> dict:
     report = {'schema': 'gpt1-isolated-real-extension-e2e/v1',
               'candidate': archive.name, 'scope': 'offline browser load / MV3 worker / popup',
               'status': 'BLOCKED', 'product_browser': 'NOT_RUN',
-              'synthetic_control': 'NOT_RUN', 'real_site': 'NOT_RUN',
+              'synthetic_control': 'NOT_RUN', 'js_preflight': 'NOT_RUN',
+              'real_site': 'NOT_RUN',
               'recording': 'NOT_RUN', 'windows_device': 'NOT_RUN',
               'release_decision': 'CANDIDATE_NO_GO'}
     failures = isolation_check(parent_netns)
@@ -346,6 +372,19 @@ def inspect(archive: Path, expected_sha256: str, selected_root: str,
     if checked['status'] != 'PASS' or selected_root not in checked.get('manifest_roots', []):
         report['status'] = 'FAIL' if checked['status'] == 'FAIL' else 'BLOCKED'
         report['reason'] = 'SOURCE_PREFLIGHT_NOT_PASS_OR_ROOT_NOT_FOUND'
+        return report
+    # A passing ZIP/manifest scan does not imply that its JavaScript can parse.
+    # Do not create even a disposable product profile unless independent JS
+    # preflight passes without warnings, missing tools or mismatched identity.
+    try:
+        js = js_preflight(archive, expected_sha256, selected_root)
+    except (OSError, RuntimeError, ImportError, ValueError, zipfile.BadZipFile):
+        report['reason'] = 'JS_PREFLIGHT_UNAVAILABLE_OR_INVALID'
+        return report
+    report['js_preflight'] = js
+    if not javascript_gate_approved(js, expected_sha256, selected_root):
+        report['status'] = 'FAIL' if isinstance(js, dict) and js.get('status') == 'FAIL' else 'BLOCKED'
+        report['reason'] = 'JS_PREFLIGHT_NOT_FULLY_PASS_OR_WRONG_ARTIFACT'
         return report
     with tempfile.TemporaryDirectory(prefix='gpt1-offline-browser-') as temp:
         work = Path(temp)
