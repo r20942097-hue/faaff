@@ -90,3 +90,7 @@ The additional `.github/workflows/agent-tools-install-smoke.yml` installs pinned
 - **PASS**: benign fixture scan using SkillSpector `--no-llm`, JSON report parsed on Linux, same run.
 - **PASS**: actual PowerShell installer in ephemeral Windows with `-Target Both` (setup not requested): [41030702664](https://github.com/r20942097-hue/faaff/actions/runs/41030702664). Temporary changes to required `ci.yml` were removed after the result was captured; the independent `agent-tools-install-smoke.yml` is retained.
 - **NOT_RUN**: user's PC installation; Agent-Reach `setup`, login/cookie handling or live web channels; SkillSpector's LLM analysis/MCP server; full dependency lock/wheel hash integrity.
+
+## Positive security-scanner regression (2026-10-30)
+
+[GitHub Actions run 41032768940](https://github.com/r20942097-hue/faaff/actions/runs/41032768940) **PASS on Linux and Windows installation**. On Linux, a harmless synthetic skill produced valid JSON. A separate inert Python source file containing a direct `exec()` call was never executed, but SkillSpector's static analysis flagged it. With `--fail-on-findings`, the scanner returned exit code 1 and its documented JSON `issues` array was nonempty. This proves detection of that one synthetic risk pattern, not comprehensive malicious-skill coverage.
