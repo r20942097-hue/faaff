@@ -151,8 +151,13 @@ class CollectionTests(unittest.TestCase):
             raise AssertionError("unexpected URL: " + url)
 
         with patch("ai.inspect_pr.get_json", side_effect=transport):
-            r = inspect(REPO, 44, 26005483)
+            r = inspect(REPO, 44, 26005483, expected_head_sha=HEAD)
         self.assertEqual(r["status"], "AWAITING_OWNER_APPROVAL")
+        self.assertTrue(r["event_head_verified"])
+        self.assertEqual(r["head_sha"], HEAD)
+        self.assertEqual(r["base_sha"], BASE)
+        self.assertEqual(r["effective_branch_rule_count"], 1)
+        self.assertIn("observed_at_utc", r)
 
     def test_renamed_publication_path_is_never_downgraded(self):
         pr, rules, checks = fixture()
@@ -248,6 +253,79 @@ class CollectionTests(unittest.TestCase):
 
         with patch("ai.inspect_pr.get_json", side_effect=transport):
             with self.assertRaisesRegex(CollectionError, "effective branch rule collection is empty"):
+                inspect(REPO, 44, 26005483)
+
+    def test_event_sha_mismatch_blocks_before_check_collection(self):
+        pr, rules, checks = fixture()
+        with patch("ai.inspect_pr.get_json", return_value=pr) as fetch:
+            with self.assertRaisesRegex(CollectionError, "event PR HEAD"):
+                inspect(REPO, 44, 26005483, expected_head_sha=BASE)
+        self.assertEqual(fetch.call_count, 1)
+
+    def test_invalid_expected_sha_is_rejected_before_network(self):
+        with self.assertRaisesRegex(CollectionError, "invalid expected PR HEAD"):
+            inspect(REPO, 44, 26005483, expected_head_sha="short")
+
+    def test_ruleset_change_during_audit_is_blocked(self):
+        pr, rules, checks = fixture()
+        reads = 0
+
+        def transport(url):
+            nonlocal reads
+            if "/rules/branches/main?" in url:
+                return [{"type": "required_status_checks", "ruleset_id": 26005483}]
+            if "/rulesets/26005483" in url:
+                reads += 1
+                if reads == 1:
+                    return rules
+                changed = deepcopy(rules)
+                changed["rules"][0]["parameters"]["required_status_checks"].append(
+                    {"context": "new-mandatory-job", "integration_id": 15368}
+                )
+                return changed
+            if "/check-runs?" in url:
+                return checks
+            if "/files?" in url:
+                return [{"filename": "README.md", "status": "modified"}]
+            if url.endswith("/pulls/44"):
+                return pr
+            raise AssertionError(url)
+
+        with patch("ai.inspect_pr.get_json", side_effect=transport):
+            with self.assertRaisesRegex(CollectionError, "ruleset changed during audit"):
+                inspect(REPO, 44, 26005483)
+
+    def test_effective_rule_change_during_audit_is_blocked(self):
+        pr, rules, checks = fixture()
+        reads = 0
+
+        def transport(url):
+            nonlocal reads
+            if "/rules/branches/main?" in url:
+                reads += 1
+                if reads == 1:
+                    return [{"type": "required_status_checks", "ruleset_id": 26005483}]
+                return [{"type": "required_status_checks", "ruleset_id": 26005483},
+                        {"type": "pull_request", "ruleset_id": 26005483}]
+            if "/rulesets/26005483" in url:
+                return rules
+            if "/check-runs?" in url:
+                return checks
+            if "/files?" in url:
+                return [{"filename": "README.md", "status": "modified"}]
+            if url.endswith("/pulls/44"):
+                return pr
+            raise AssertionError(url)
+
+        with patch("ai.inspect_pr.get_json", side_effect=transport):
+            with self.assertRaisesRegex(CollectionError, "effective branch rules changed"):
+                inspect(REPO, 44, 26005483)
+
+    def test_invalid_base_metadata_blocks_cleanly(self):
+        pr, _, _ = fixture()
+        pr["base"] = None
+        with patch("ai.inspect_pr.get_json", return_value=pr):
+            with self.assertRaisesRegex(CollectionError, "missing PR base"):
                 inspect(REPO, 44, 26005483)
 
     def test_invalid_repository_is_rejected_before_network(self):
