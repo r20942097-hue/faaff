@@ -181,3 +181,45 @@ jobs:
             --report "$RUNNER_TEMP/upc-full-template-comparison.json" \
             --html "$RUNNER_TEMP/upc-full-template-review.html" \
             --github-summary "$GITHUB_STEP_SUMMARY"
+
+  firefox-full-ubo-real-loopback:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Verify installed real Firefox and geckodriver
+        run: |
+          firefox --version
+          geckodriver --version
+      - name: Install pinned Selenium CI harness (not application runtime)
+        run: python -m pip install --disable-pip-version-check selenium==4.52.0
+      - name: Pin and verify official signed Firefox uBO extension
+        run: |
+          python tools/privacy-control/fetch_firefox_xpi.py \
+            --output "$RUNNER_TEMP/upc-ubo-signed.xpi"
+      - name: Resolve strictly synthetic hostnames to runner loopback
+        run: |
+          printf '127.0.0.1 probe.scorecardresearch.com upc-control.test\n' \
+            | sudo tee -a /etc/hosts
+          python - <<'PY'
+          import socket
+          assert socket.gethostbyname("probe.scorecardresearch.com") == "127.0.0.1"
+          assert socket.gethostbyname("upc-control.test") == "127.0.0.1"
+          print("UPC FIREFOX NETWORK ISOLATION: loopback-only resolution PASS")
+          PY
+      - name: Test Firefox before, while real uBO installed, after uninstall
+        run: |
+          python tools/privacy-control/firefox_ubo_probe.py \
+            --xpi "$RUNNER_TEMP/upc-ubo-signed.xpi" \
+            --report "$RUNNER_TEMP/upc-firefox-loopback.json"
+      - name: Verify browser evidence and explicit real-site limits
+        run: |
+          python tools/privacy-control/verify_firefox_report.py \
+            --report "$RUNNER_TEMP/upc-firefox-loopback.json" \
+            --lock tools/privacy-control/verification/firefox-ubo-xpi-lock.json \
+            --github-summary "$GITHUB_STEP_SUMMARY"

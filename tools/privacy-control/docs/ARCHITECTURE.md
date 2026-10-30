@@ -117,3 +117,13 @@ template expansion to the published built subscription.
 
 The CI gate remains **NO_GO** until exact browser stock subscriptions,
 real Firefox/uBO or Chromium/uBOL and essential real-site flows are exercised.
+
+## Isolated installed-browser gate
+
+A separately pinned official signed Firefox uBO XPI and an ephemeral
+Firefox+Selenium profile exercise **actual local HTTP interception**:
+baseline → installed extension → uninstall and restoration. The runner's
+synthetic hostname resolves only to loopback. This is an incremental
+browser gate beyond the two in-process parsing engines and does not
+replace real-site testing or actual user stock-list review. The XPI is
+downloaded only to ephemeral storage, not committed to the repository.
