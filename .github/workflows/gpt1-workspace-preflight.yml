@@ -34,6 +34,23 @@ jobs:
         run: python -m unittest discover -s ai/tests -p test_source_sync_guard.py -v
       - name: Test bounded ZIP artifact security gate
         run: python -m unittest discover -s ai/tests -p test_artifact_gate.py -v
+      - name: Test isolated extension E2E decision gate (offline mocks only)
+        run: python -m unittest discover -s ai/tests -p test_isolated_extension_e2e.py -v
+      - name: Test synthetic OPFS browser probe evidence gate (offline mocks only)
+        run: python -m unittest discover -s ai/tests -p test_browser_opfs_runtime_probe.py -v
+      - name: Test synthetic journal replay evidence gate (offline mocks only)
+        run: python -m unittest discover -s ai/tests -p test_browser_opfs_journal_synthetic.py -v
+      - name: Test extension source preflight (offline)
+        run: python -m unittest discover -s ai/tests -p test_extension_source_preflight.py -v
+      - name: Test Node syntax and MV3 import preflight (synthetic ZIP only)
+        run: python -m unittest discover -s ai/tests -p test_extension_js_preflight.py -v
+      - name: Test RPLAY pure-module contract verification gate (synthetic ZIP only)
+        run: python -m unittest discover -s ai/tests -p test_offline_product_contract_probe.py -v
+      - name: Check reviewed contract JS suite syntax (no product code executed)
+        run: node --check ai/tests/product_contracts.js
+      - name: Check isolated Node launcher shell syntax (Linux only)
+        if: runner.os == 'Linux'
+        run: bash -n ai/tests/isolate_node.sh
       - name: Test product evidence gate (offline)
         run: python -m unittest discover -s ai/tests -p test_product_quality.py -v
       - name: Test nested extension manifest inventory (offline)
@@ -160,3 +177,10 @@ jobs:
         run: python3 -m unittest discover -s ai/tests -p test_browser_render_smoke.py -v
       - name: Render localhost fixture in Firefox and Chromium (ephemeral profiles)
         run: python3 ai/browser_render_smoke.py --browser both --allow-no-sandbox-ephemeral --json
+      - name: Python Playwright synthetic MV3 control (isolated, no product ZIP)
+        if: matrix.os == 'ubuntu-24.04'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --no-cache-dir 'playwright==1.64.1'
+          bash ci/gpt1_python_synthetic_control.sh
