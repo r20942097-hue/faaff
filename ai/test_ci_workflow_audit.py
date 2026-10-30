@@ -34,6 +34,7 @@ class WorkflowGovernanceTest(unittest.TestCase):
     def test_scoped_codeql_write_allowed(self):
         s=self.base()
         s["permissions"]["security-events"]="write"
+        s["on"]["pull_request"]["paths"]=[".github/workflows/codeql.yml"]
         self.assertEqual(validate_document(".github/workflows/codeql.yml",s),[])
     def test_unpinned_action_rejected(self):
         s=self.base()
