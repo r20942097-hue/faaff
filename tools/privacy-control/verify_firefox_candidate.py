@@ -46,6 +46,22 @@ def audit(report):
         errors.append("not all pinned candidate rules block in browser")
     if any(stages["stock"][host] != stages["restored"][host] for host in hosts):
         errors.append("candidate removal does not restore baseline")
+    rounds=report.get("two_round_receipts")
+    if not isinstance(rounds,dict) or set(rounds)!=set(stages):
+        errors.append("missing independent repeated samples")
+    else:
+        for stage, samples in rounds.items():
+            if (not isinstance(samples,list) or len(samples)!=2
+                    or any(type(sample) is not dict or sample!=stages[stage]
+                           for sample in samples)):
+                errors.append("repeated samples disagree or are incomplete: "+stage)
+    if report.get("auto_promote_candidates") is not False:
+        errors.append("automatic rule promotion is forbidden")
+    if report.get("additional_host_inference") != "ONE_IMAGE_FIXTURE_PER_HOST_NOT_REAL_WORLD_EFFICACY":
+        errors.append("host outcome overclaim or missing experimental scope")
+    already=[host for host in hosts if not stages["stock"][host]]
+    if report.get("already_blocked_by_stock_synthetic_hosts") != already:
+        errors.append("stock-covered candidate list not evidence based")
     incremental=[host for host in hosts if stages["stock"][host]]
     if (report.get("incremental_synthetic_hosts") != incremental
             or report.get("incremental_synthetic_host_count") != len(incremental)):
@@ -101,11 +117,19 @@ def main():
                 stream.write("Stock → managed candidates → policy removed; ")
                 stream.write("three separate disposable Firefox sessions and ")
                 stream.write("sentinel/benign-control gates passed.\n\n")
-                stream.write(f"Additional synthetic hostnames vs stock: **{data['incremental_synthetic_host_count']}/38**. ")
+                stream.write(f"Additional synthetic hostnames vs stock: **{data['incremental_synthetic_host_count']}/38**.\\n\\n")
+                stream.write("**Additional observed hostnames:** " +
+                             (", ".join("`"+host+"`" for host in data["incremental_synthetic_hosts"]) or "none") +
+                             ".\\n\\n")
+                stream.write("**Already blocked in this installed stock-uBO image fixture:** "+
+                             str(len(data["already_blocked_by_stock_synthetic_hosts"])) +
+                             "/38. Two repeated independent samples per stage agree.\\n\\n")
                 stream.write("This is NOT real-site protection or proof of user stock configurations. ")
                 stream.write("No public rules modified; release NO_GO.\n")
         print("UPC CANDIDATE EVIDENCE PASS: real Firefox, pinned 38, delta",
-              data["incremental_synthetic_host_count"], "synthetic hosts; NO_GO")
+              data["incremental_synthetic_host_count"],
+              ",".join(data["incremental_synthetic_hosts"]) or "(none)",
+              "synthetic hosts; 2 rounds/stage; NO_GO")
         return 0
     except (OSError,ValueError,KeyError,TypeError) as error:
         print("UPC CANDIDATE EVIDENCE FAIL:",error,file=sys.stderr)

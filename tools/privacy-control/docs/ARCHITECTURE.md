@@ -152,3 +152,16 @@ This establishes **isolated installed-extension HTTP behavior only**.
 The candidate list was not installed, and user-specific enabled subscriptions,
 live websites, signed URLs, authentication, media and Windows/Floorp still
 need separate validation. Release gate is **NO_GO**.
+
+## Phase 2h decision record
+
+Observed in [real ephemeral Firefox CI 41102700720](https://github.com/r20942097-hue/faaff/actions/runs/41102700720):
+one additionally blocked third-party image-host fixture vs the installed
+signed uBO's stock configuration; 37 of 38 candidate host fixtures were
+already blocked by stock. The exact additional hostname was not captured
+on this first run. No claim of independent per-rule effectiveness.
+Each stage now requires two matching independent image-batch samples.
+The experiment records per-host deltas and retains a NO_GO release gate.
+The complete official EasyPrivacy template-source comparison and real
+installed uBO stock experiment have different scopes; no numerical
+equivalence is inferred.

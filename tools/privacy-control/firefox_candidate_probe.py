@@ -117,9 +117,14 @@ def browser_session(proxy, xpi, test_hosts, stage):
                 break
         if not ready:
             raise ValueError("official uBO tracking filter not observed ready")
-        result = sample_browser(driver, proxy, test_hosts)
+        first = sample_browser(driver, proxy, test_hosts)
+        second = sample_browser(driver, proxy, test_hosts)
+        if first != second:
+            differences = [host for host in test_hosts if first[host] != second[host]]
+            raise ValueError("inconsistent independent HTTP samples: " +
+                             ",".join(differences))
         safety = synthetic_safety(driver, proxy)
-        return result, driver.capabilities.get("browserVersion"), safety
+        return first, driver.capabilities.get("browserVersion"), safety, [first, second]
     finally:
         if driver is not None:
             driver.quit()
@@ -168,18 +173,19 @@ def run(xpi, report):
     results = {}
     versions = {}
     safety = {}
+    rounds = {}
     failure = None
     try:
         stage = "stock"
-        results["stock"], versions["stock"], safety["stock"] = browser_session(server, xpi, hosts, stage)
+        results["stock"], versions["stock"], safety["stock"], rounds["stock"] = browser_session(server, xpi, hosts, stage)
         stage = "candidate"
         base.mkdir(parents=True, exist_ok=True)
         policy.write_text(json.dumps(managed_policy(lines), sort_keys=True) + "\n",
                           encoding="utf-8")
-        results["candidate"], versions["candidate"], safety["candidate"] = browser_session(server, xpi, hosts, stage)
+        results["candidate"], versions["candidate"], safety["candidate"], rounds["candidate"] = browser_session(server, xpi, hosts, stage)
         stage = "restored"
         policy.unlink()
-        results["restored"], versions["restored"], safety["restored"] = browser_session(server, xpi, hosts, stage)
+        results["restored"], versions["restored"], safety["restored"], rounds["restored"] = browser_session(server, xpi, hosts, stage)
     except Exception as error:
         failure = (stage, "STAGE_" + type(error).__name__.upper())
     finally:
@@ -236,8 +242,12 @@ def run(xpi, report):
         "candidate_hosts":candidate_hosts,
         "sentinel":SENTINEL,
         "stage_receipts":results,
+        "two_round_receipts":rounds,
         "synthetic_safety":safety,
         "incremental_synthetic_hosts":incremental,
+        "already_blocked_by_stock_synthetic_hosts":[host for host in candidate_hosts if not results["stock"][host]],
+        "additional_host_inference":"ONE_IMAGE_FIXTURE_PER_HOST_NOT_REAL_WORLD_EFFICACY",
+        "auto_promote_candidates":False,
         "incremental_synthetic_host_count":len(incremental),
         "policy_removed":not policy.exists(),
         "controls":list(CONTROL_HOSTS),
@@ -250,8 +260,9 @@ def run(xpi, report):
         "release":"NO_GO"
     }
     report.write_text(json.dumps(evidence,indent=2,sort_keys=True)+"\n",encoding="utf-8")
-    print("UPC CANDIDATE FIREFOX PASS: 38 pinned managed filters, incremental synthetic hosts",
-          len(incremental), "controls maintained, three disposable profiles and rollback PASS")
+    print("UPC CANDIDATE FIREFOX PASS: 38 pinned rule host outcomes, additional synthetic hosts",
+          len(incremental), ",".join(incremental) or "(none)",
+          "; 2 consistent independent samples per stage; benign controls and rollback PASS")
     return 0
 
 

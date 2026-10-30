@@ -75,6 +75,23 @@ class CandidateManagedPolicyTests(unittest.TestCase):
             "release":"NO_GO",
         }
 
+    def test_committed_prior_evidence_is_scoped_and_not_promoted(self):
+        log = json.loads((Path(__file__).resolve().parent /
+                          "verification/firefox-managed-candidates-validation.json").read_text())
+        self.assertEqual(log["schema"],"upc-managed-firefox-candidate-evidence-index/v1")
+        self.assertEqual(log["run_id"],41102700720)
+        self.assertEqual(log["commit"],"6cb0f8946344a0a4a4d538ea686f45ffa9c380ab")
+        self.assertEqual(log["status"],"PASS")
+        self.assertEqual(log["candidates"],38)
+        self.assertEqual(log["newly_blocked_synthetic_image_hosts_over_stock"],1)
+        self.assertEqual(log["already_blocked_by_stock_synthetic_image_hosts"],37)
+        self.assertEqual(log["newly_blocked_hostname"],"NOT_LOGGED_IN_FIRST_RUN")
+        self.assertEqual(log["full_active_stock_subscriptions"],"NOT_VERIFIED")
+        self.assertEqual(log["production_website_safety"],"NOT_RUN")
+        self.assertFalse(log["persistent_browser_user_settings_changed"])
+        self.assertEqual(log["rules_published"],0)
+        self.assertEqual(log["release"],"NO_GO")
+
     def test_complete_evidence_is_accepted(self):
         self.assertEqual(audit(self.example()),[])
 

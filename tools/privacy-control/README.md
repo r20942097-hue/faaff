@@ -357,3 +357,43 @@ NO_GO and the incomplete result must never be counted as a pass.
 The existing successful isolated signed URL/auth/Range checks are independent
 of this newer candidate-activation experiment, whose success remains
 unconfirmed until its own GitHub Actions job finishes.
+
+## Phase 2h — real installed Firefox stock coverage and repeatability
+
+[UPC CI 41102700720](https://github.com/r20942097-hue/faaff/actions/runs/41102700720)
+is the first **verified PASS** for three independent ephemeral Firefox
+sessions with the official signed uBO extension: stock → managed
+38-candidate rules → managed policy removed and stock restored. One
+synthetic third-party **image-host** request per candidate was measured.
+All 38 were blocked in the candidate-activated run, **37 of those 38
+were already blocked by the tested installed-uBO stock configuration**,
+and just **one was additional relative to stock**. The activation
+sentinel and benign first-party/same-site/unrelated cross-site requests
+passed, signed-query/cookie/Range fixtures survived all three sessions,
+and baseline outcomes returned after removing the managed policy.
+
+The original run's single additional hostname was **not logged by name**;
+do not invent its identity. Aggregate provenance, CI run/job/commit IDs,
+scoping and NO_GO are now recorded in
+`verification/firefox-managed-candidates-validation.json`.
+
+From now on each real Firefox stage performs **two independently tokenized
+batch fetches** and refuses to claim a consistent browser decision when
+their per-host results disagree. Both round receipts are checked against
+the recorded stage result by an independent validator. CI summary exposes
+the exact additional hostname(s) and records stock-covered vs incremental
+outcomes. No outcome is promoted automatically.
+
+**Meaning of 1/38:** synthetic third-party image request blocking in
+one installed pinned Firefox/uBO test configuration. It is neither the
+effect of all 38 rules independently (the other 37 were masked by stock
+rules), nor the number of prevented tracking events, nor a claim that
+actual users have those subscriptions enabled. It cannot be numerically
+compared to the earlier "23 extra synthetic request cases" from the
+template-source-only two-engine study because fixture type, rule source
+and effective stock lists differ.
+
+Next checks: independent rerun of the exact live Firefox experiment,
+other request methods/types, effective stock subscriptions in additional
+browsers, and actual site compatibility. None authorizes publication:
+**Draft / PUBLICATION_HOLD / NO_GO**.
