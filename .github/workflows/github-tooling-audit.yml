@@ -76,11 +76,13 @@ jobs:
           zizmor --offline --min-severity=medium --format=plain "$file" > /dev/null 2>&1
           status=$?
           set -e
-          if [[ "$status" -ne 1 ]]; then
-            echo "Zizmor positive control FAILED: expected scanner exit 1, got $status."
+          # zizmor exit codes: 13 = medium finding, 14 = high finding.
+          # 1/2/3 mean audit/runtime/collection failure, not detection.
+          if [[ "$status" -ne 13 && "$status" -ne 14 ]]; then
+            echo "Zizmor positive control FAILED: expected finding exit 13/14, got $status."
             exit 1
           fi
-          echo 'PASS: zizmor rejects a static synthetic unsafe GitHub workflow.'
+          echo 'PASS: zizmor detected a static synthetic unsafe workflow (exit 13/14).'
 
 
   gitleaks:
