@@ -97,3 +97,7 @@ Verified [blocking audit run 41030412200](https://github.com/r20942097-hue/faaff
 - Gitleaks PR range: **18 commits scanned; no leaks found**. Additional Git historical baseline: **481 commits scanned; no leaks found** (fully redacted advisory; local accessible branch history, not an assurance that every lost/orphan commit or external repository was scanned).
 - Zizmor blocking run: **0 active medium/high findings**; ignored/suppressed inventory step with `--no-ignores --no-exit-codes` also reported no active findings, but the tool noted **12 suppressed**. These are not automatically treated as safe and may be reviewed separately.
 - The new quality workflow is CI-enforced within this PR if its job runs. Its check is **not** added to the repository's required branch-protection checks, and merge approval remains separate.
+
+## Secret scanner positive control (2026-10-30)
+
+[GitHub Actions run 41032532965](https://github.com/r20942097-hue/faaff/actions/runs/41032532965): actionlint, zizmor and Gitleaks jobs **PASS**. Gitleaks additionally detected an artificial high-entropy AWS-formatted identifier created exclusively inside the ephemeral runner, correctly returning exit code 1. The generated value and unredacted scanner output were not uploaded or written to Git history. Reachable history at this run: 484 commits, no leaks detected. The sensitivity test covers one signature only, not all possible secret formats.
