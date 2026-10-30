@@ -2,10 +2,6 @@ name: GitHub workflow quality audit
 
 on:
   pull_request:
-    paths:
-      - '.github/workflows/**'
-      - '.github/actions/**'
-      - 'integrations/agent-tools/github-quality/**'
   workflow_dispatch:
 
 # This workflow never publishes releases, writes repository content, or reads secrets.
