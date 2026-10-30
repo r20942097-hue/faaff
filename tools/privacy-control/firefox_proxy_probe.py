@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 from hashlib import sha256
+import hmac
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
@@ -19,7 +20,7 @@ import socket
 import sys
 import threading
 import time
-from urllib.parse import parse_qs, urlsplit
+from urllib.parse import parse_qs, urlsplit, urlencode
 
 from fetch_firefox_xpi import LOCKFILE, verify_bytes
 
@@ -36,12 +37,17 @@ class IsolatedProxy(ThreadingHTTPServer):
     def __init__(self):
         self.hits = set()
         self.denied = 0
+        self.secret = secrets.token_bytes(32)
+        self.flow_events = []
         self.guard = threading.Lock()
         super().__init__(("127.0.0.1", 0), ProxyHandler)
 
     def seen(self, host, token):
         with self.guard:
             return (host, token) in self.hits
+
+    def signed_digest(self, token, tag):
+        return hmac.new(self.secret, f"{token}|{tag}".encode(), "sha256").hexdigest()
 
 
 class ProxyHandler(BaseHTTPRequestHandler):
@@ -86,6 +92,53 @@ class ProxyHandler(BaseHTTPRequestHandler):
                 self.server.hits.add((parsed.hostname, token))
             content = GIF
             mime = "image/gif"
+        elif parsed.hostname == PAGE and parsed.path == "/signed":
+            tag = args.get("utm_source", [])
+            digest = args.get("sig", [])
+            if (len(tag) != 1 or tag[0] != "synthetic-campaign"
+                    or len(digest) != 1
+                    or not hmac.compare_digest(digest[0], self.server.signed_digest(token, tag[0]))):
+                self._deny()
+                return
+            content = b"UPC_SIGNED_OK"
+            mime = "text/plain; charset=utf-8"
+            with self.server.guard:
+                self.server.flow_events.append(("signed", token))
+        elif parsed.hostname == PAGE and parsed.path == "/auth/login":
+            content = b"UPC_AUTH_LOGIN_OK"
+            mime = "text/plain; charset=utf-8"
+            self.send_response(200)
+            self.send_header("Set-Cookie", "upc_lab=synthetic; Path=/; SameSite=Lax; HttpOnly")
+            self.send_header("Content-Type", mime)
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+            return
+        elif parsed.hostname == PAGE and parsed.path == "/auth/check":
+            if "upc_lab=synthetic" not in self.headers.get("Cookie", "").split("; "):
+                self._deny()
+                return
+            content = b"UPC_AUTH_COOKIE_OK"
+            mime = "text/plain; charset=utf-8"
+            with self.server.guard:
+                self.server.flow_events.append(("auth", token))
+        elif parsed.hostname == PAGE and parsed.path == "/media":
+            if self.headers.get("Range", "") != "bytes=0-31":
+                self._deny()
+                return
+            content = bytes(range(32))
+            self.send_response(206)
+            self.send_header("Content-Type", "application/octet-stream")
+            self.send_header("Accept-Ranges", "bytes")
+            self.send_header("Content-Range", "bytes 0-31/256")
+            self.send_header("Cache-Control", "no-store")
+            self.send_header("Content-Length", str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+            with self.server.guard:
+                self.server.flow_events.append(("range", token))
+            return
         else:
             self._deny()
             return
@@ -112,6 +165,44 @@ def observe(driver, server, host, seconds=2.25):
     return server.seen(host, token)
 
 
+def synthetic_safety(driver, server):
+    """Real browser checks for auth, signed query integrity, and byte ranges."""
+    from selenium.webdriver.common.by import By
+
+    token = secrets.token_hex(16)
+    base = f"http://{PAGE}:{server.server_port}"
+    tag = "synthetic-campaign"
+    sig = server.signed_digest(token, tag)
+    signed_url = base + "/signed?" + urlencode({
+        "token": token, "utm_source": tag, "sig": sig
+    })
+    driver.get(signed_url)
+    signed_ok = "UPC_SIGNED_OK" in driver.find_element(By.TAG_NAME, "body").text
+
+    driver.get(base + "/auth/login?token=" + token)
+    driver.get(base + "/auth/check?token=" + token)
+    auth_ok = "UPC_AUTH_COOKIE_OK" in driver.find_element(By.TAG_NAME, "body").text
+
+    driver.get(base + "/index?host=" + PAGE + "&token=" + token)
+    media = driver.execute_async_script("""
+        const done = arguments[arguments.length - 1];
+        const token = arguments[0];
+        fetch('/media?token=' + token, {headers: {Range: 'bytes=0-31'}})
+            .then(async r => ({status:r.status, range:r.headers.get('Content-Range'),
+                               length:(await r.arrayBuffer()).byteLength}))
+            .then(done, e => done({error:e.name}));
+    """, token)
+    range_ok = (media == {"status": 206, "range": "bytes 0-31/256", "length": 32})
+    with server.guard:
+        observed = {(kind, event_token) for kind, event_token in server.flow_events}
+    result = {
+        "signed_url_preserved": signed_ok and ("signed", token) in observed,
+        "auth_cookie_roundtrip": auth_ok and ("auth", token) in observed,
+        "media_range_206": range_ok and ("range", token) in observed,
+    }
+    return result
+
+
 def verify_before(server, driver):
     results = {host: observe(driver, server, host) for host in (PAGE, SAME_SITE, OTHER_SITE, TRACKER)}
     if not all(results.values()):
@@ -132,6 +223,7 @@ def run(xpi: Path, report_path: Path):
     driver = None
     addon_id = None
     seen = {"before": {}, "with_addon": {}, "after_uninstall": {}}
+    safety = {"before": {}, "with_addon": {}, "after_uninstall": {}}
     result = {
         "schema": "upc-firefox-isolated-proxy/v1",
         "status": "BLOCKED",
@@ -144,6 +236,7 @@ def run(xpi: Path, report_path: Path):
         "target_host": TRACKER,
         "controls": {"first_party": PAGE, "same_site": SAME_SITE, "other_site": OTHER_SITE},
         "observations": seen,
+        "safety_controls": safety,
         "extension_uninstalled": False,
         "real_websites": "NOT_RUN",
         "user_profile": "NOT_TOUCHED",
@@ -180,6 +273,7 @@ def run(xpi: Path, report_path: Path):
         result["firefox_version"] = driver.capabilities.get("browserVersion", "UNKNOWN")
         driver.set_page_load_timeout(22)
         seen["before"] = verify_before(server, driver)
+        safety["before"] = synthetic_safety(driver, server)
         addon_id = driver.install_addon(str(xpi), temporary=True)
         if not addon_id:
             result["reason"] = "INSTALL_ID_MISSING"
@@ -193,10 +287,15 @@ def run(xpi: Path, report_path: Path):
             if target_blocked:
                 break
             time.sleep(1)
+        safety["with_addon"] = synthetic_safety(driver, server)
         seen["with_addon"][TRACKER] = not target_blocked
         for host in (PAGE, SAME_SITE, OTHER_SITE):
             seen["with_addon"][host] = observe(driver, server, host)
-        if not target_blocked:
+        if not all(safety["before"].values()):
+            result["reason"] = "SYNTHETIC_BASELINE_SAFETY_INVALID"
+        elif not all(safety["with_addon"].values()):
+            result["reason"] = "SYNTHETIC_SAFETY_REGRESSION"
+        elif not target_blocked:
             result["reason"] = "TARGET_BLOCK_NOT_OBSERVED"
         elif not all(seen["with_addon"][key] for key in (PAGE, SAME_SITE, OTHER_SITE)):
             result["reason"] = "BENIGN_CONTROL_BLOCKED"
@@ -214,6 +313,7 @@ def run(xpi: Path, report_path: Path):
                     result["extension_uninstalled"] = True
                     for host in (TRACKER, PAGE, SAME_SITE, OTHER_SITE):
                         seen["after_uninstall"][host] = observe(driver, server, host)
+                    safety["after_uninstall"] = synthetic_safety(driver, server)
                 except Exception:
                     result["reason"] += "_ROLLBACK_FAILED"
             try:
@@ -229,13 +329,18 @@ def run(xpi: Path, report_path: Path):
     if (result["reason"] == "CONTROLS_OK_PENDING_ROLLBACK"
             and result["extension_uninstalled"]
             and len(seen["after_uninstall"]) == 4
-            and all(seen["after_uninstall"].values())):
+            and all(seen["after_uninstall"].values())
+            and all(safety[phase].get(k) is True
+                    for phase in ("before", "with_addon", "after_uninstall")
+                    for k in ("signed_url_preserved", "auth_cookie_roundtrip",
+                              "media_range_206"))):
         result["status"] = "PASS"
         result["reason"] = "TARGET_SPECIFIC_LOOPBACK_ONLY"
     report_path.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print("UPC FIREFOX PROXY LAB:", result["status"], result["reason"],
           "controls", seen["with_addon"], "rollback", seen["after_uninstall"],
-          "denied_requests", result["denied_proxy_requests"], flush=True)
+          "denied_requests", result["denied_proxy_requests"],
+          "safety", safety, flush=True)
     return result["status"] == "PASS"
 
 

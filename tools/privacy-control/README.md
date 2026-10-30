@@ -266,3 +266,31 @@ The successful isolated-proxy run is indexed in
 official XPI hash and measured controls. Runtime JSON stays in the CI
 runner rather than Git. **No change to active subscriptions or system
 settings; release remains NO_GO.**
+
+## Phase 2f — synthetic signed URL, cookie and byte-range regressions
+
+The installed-Firefox/official-uBO nonforwarding proxy lab now adds three
+**actual browser HTTP flow controls in each lifecycle stage**: before the
+extension, while enabled, and after uninstall. A signed query includes
+`utm_source=synthetic-campaign` and an in-memory HMAC-SHA256 signature
+binding `token|utm_source`. Removing or altering the query parameter
+makes the synthetic endpoint reject the request. A login-check route
+requires an HttpOnly/SameSite cookie, and a binary endpoint returns a
+206 `Content-Range: bytes 0-31/256` response only to a matching HTTP
+Range request. All requests use ephemeral synthetic data, local proxy
+responses and a transient browser profile; nothing is forwarded externally.
+
+`verify_firefox_proxy.py` now requires all nine safety result booleans
+(three checks across three stages) in addition to specific blocking,
+the three benign network controls and full uninstall restoration.
+The offline unit tests verify HMAC tamper failure, cookie enforcement,
+Range 206, and forged/omitted safety-evidence rejection. A failure is
+retained as BLOCKED with a reason; **never count it as safe to publish**.
+
+This tests a baseline signed-query/cookie/byte-range scenario against the
+currently installed official uBO stock configuration only. The 38
+`v2/tracking.txt` candidate rules are NOT loaded, no real MP4 is played,
+and no real login, signed CDN URL or website is exercised. Passing
+this synthetic gate does **not** authorize `removeparam` changes or
+publication: the earlier synthetic HMAC hazard remains a separate NO_GO
+release finding.

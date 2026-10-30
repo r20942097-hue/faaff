@@ -61,6 +61,56 @@ class ProxyContainmentTests(unittest.TestCase):
                 self.assertEqual(code, 403)
         self.assertEqual(len(self.proxy.hits), 0)
 
+    def test_signed_url_integrity_rejects_removed_or_changed_parameter(self):
+        token = "c" * 32
+        tag = "synthetic-campaign"
+        digest = self.proxy.signed_digest(token, tag)
+        base = f"http://{PAGE}:{self.proxy.server_port}/signed?token={token}"
+        ok, body = self.get(base + f"&utm_source={tag}&sig={digest}")
+        self.assertEqual(ok, 200)
+        self.assertIn(b"UPC_SIGNED_OK", body)
+        for bad in (base + f"&sig={digest}",
+                    base + f"&utm_source=changed&sig={digest}",
+                    base + f"&utm_source={tag}&sig=" + "0"*64):
+            with self.subTest(url=bad):
+                code, _ = self.get(bad)
+                self.assertEqual(code, 403)
+
+    def test_synthetic_auth_requires_session_cookie(self):
+        token = "d" * 32
+        base = f"http://{PAGE}:{self.proxy.server_port}"
+        code, _ = self.get(base + f"/auth/check?token={token}")
+        self.assertEqual(code, 403)
+        connection = HTTPConnection("127.0.0.1", self.proxy.server_port, timeout=3)
+        try:
+            connection.request("GET", base + f"/auth/login?token={token}")
+            response = connection.getresponse()
+            self.assertEqual(response.status, 200)
+            self.assertIn("HttpOnly", response.getheader("Set-Cookie"))
+            response.read()
+            connection.request("GET", base + f"/auth/check?token={token}",
+                               headers={"Cookie":"upc_lab=synthetic"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 200)
+            self.assertEqual(response.read(), b"UPC_AUTH_COOKIE_OK")
+        finally:
+            connection.close()
+
+    def test_synthetic_media_range_requires_byte_request(self):
+        token = "e" * 32
+        address = f"http://{PAGE}:{self.proxy.server_port}/media?token={token}"
+        code, _ = self.get(address)
+        self.assertEqual(code, 403)
+        connection = HTTPConnection("127.0.0.1", self.proxy.server_port, timeout=3)
+        try:
+            connection.request("GET", address, headers={"Range":"bytes=0-31"})
+            response = connection.getresponse()
+            self.assertEqual(response.status, 206)
+            self.assertEqual(response.getheader("Content-Range"), "bytes 0-31/256")
+            self.assertEqual(response.read(), bytes(range(32)))
+        finally:
+            connection.close()
+
     def test_https_connect_refused(self):
         connection = HTTPConnection("127.0.0.1", self.proxy.server_port, timeout=3)
         try:
@@ -92,6 +142,10 @@ class ProxyEvidenceTests(unittest.TestCase):
                         "other_site":"unrelated.example.org"},
             "observations":{"before":stages,"with_addon":with_addon,"after_uninstall":stages},
             "extension_uninstalled":True,"denied_proxy_requests":1,
+            "safety_controls":{phase:{"signed_url_preserved":True,
+                                        "auth_cookie_roundtrip":True,
+                                        "media_range_206":True}
+                               for phase in ("before","with_addon","after_uninstall")},
             "real_websites":"NOT_RUN","user_profile":"NOT_TOUCHED",
             "candidate_rules_installed":False,"released_rules":0,
             "publication":"NO_GO",
@@ -129,6 +183,17 @@ class ProxyEvidenceTests(unittest.TestCase):
             record["observations"][stage][host] = not record["observations"][stage][host]
             with self.subTest(stage=stage,host=host):
                 self.assertTrue(audit(record,self.lock))
+
+    def test_synthetic_safety_coverage_required_in_all_three_phases(self):
+        for phase in ("before", "with_addon", "after_uninstall"):
+            for kind in ("signed_url_preserved", "auth_cookie_roundtrip", "media_range_206"):
+                edited = copy.deepcopy(self.example)
+                edited["safety_controls"][phase][kind] = False
+                with self.subTest(phase=phase,kind=kind):
+                    self.assertTrue(audit(edited,self.lock))
+        edited = copy.deepcopy(self.example)
+        del edited["safety_controls"]["with_addon"]["media_range_206"]
+        self.assertTrue(audit(edited,self.lock))
 
     def test_missing_rollback_or_forged_publication_rejected(self):
         for key,value in [("extension_uninstalled",False),

@@ -45,6 +45,21 @@ def audit(report, lock):
                 host not in HOSTS or type(value) is not bool
                 for host, value in observed.items()):
             errors.append("invalid phase or host event: " + stage)
+    safety = report.get("safety_controls", {})
+    cases = ("signed_url_preserved", "auth_cookie_roundtrip", "media_range_206")
+    if not isinstance(safety, dict) or set(safety) != {
+            "before", "with_addon", "after_uninstall"}:
+        errors.append("missing synthetic signed-url/auth/range stages")
+    else:
+        for phase in ("before", "with_addon", "after_uninstall"):
+            if not isinstance(safety[phase], dict) or any(
+                    key not in cases or type(value) is not bool
+                    for key, value in safety[phase].items()):
+                errors.append("malformed synthetic safety fixture: " + phase)
+        if report.get("status") == "PASS":
+            for phase in ("before", "with_addon", "after_uninstall"):
+                if set(safety[phase]) != set(cases) or not all(safety[phase].values()):
+                    errors.append("signed-url/auth/range safety not established: " + phase)
     if report.get("status") == "PASS":
         if (report.get("reason") != "TARGET_SPECIFIC_LOOPBACK_ONLY"
                 or report.get("extension_uninstalled") is not True
