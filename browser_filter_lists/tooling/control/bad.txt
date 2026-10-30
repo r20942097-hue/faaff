@@ -1,0 +1,5 @@
+[Adblock Plus 2.0]
+! Negative control: every rule below is intentionally invalid and must be rejected.
+||example.com^$bogusoption
+||example.com^$third-party,third-party
+##div[

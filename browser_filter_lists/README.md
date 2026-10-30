@@ -76,7 +76,23 @@ python browser_filter_lists/scripts/validate_candidate_promotion.py
 python browser_filter_lists/scripts/render_candidate_report.py --check
 ```
 
-GitHub Actions runs compilation, regression tests, stable-list validation, candidate-evidence freshness validation, cross-source promotion gates, and generated-report consistency checks on relevant pushes and pull requests, plus a weekly scheduled check.
+Optional independent syntax lint with the pinned [AGLint](https://github.com/AdguardTeam/AGLint) (MIT; requires Node.js 18 or later; no install scripts are run):
+
+```bash
+npm ci --prefix browser_filter_lists/tooling --ignore-scripts --no-audit --no-fund
+cd browser_filter_lists && ./tooling/node_modules/.bin/aglint filters/*.txt
+```
+
+The tooling is lint-only and is not part of any published list. Update its pin through the Dependabot PRs for `browser_filter_lists/tooling`.
+
+Dependency notes for `browser_filter_lists/tooling`:
+
+- `package.json` overrides `zod` to 4.6.6. AGLint 3.0.3 depends on `@adguard/agtree` 3.3.1, which pins `zod` 3.24.4 (memory-exhaustion advisory GHSA-mrhx-c7xc-m3w5, fixed in 4.6.6). On a mixed corpus of valid and invalid rules, AGLint output was identical with and without the override. Remove the override once AGLint ships an `agtree` with a fixed `zod`.
+- `npm audit` still reports one low advisory for `deepmerge` 4.3.1 (GHSA-gcqx-w48m-w2h4, prototype poisoning when merging untrusted objects). No fixed version exists, and AGLint only merges this repository's own configuration.
+- `tooling/control/bad.txt` is a negative control: CI requires AGLint to reject it, so a dependency change cannot silently turn the lint into a no-op.
+- Dependabot waits 7 days after a release before proposing an update for this directory (`cooldown`); security updates are not delayed by it.
+
+GitHub Actions runs compilation, regression tests, stable-list validation, candidate-evidence freshness validation, cross-source promotion gates, generated-report consistency checks, and the AGLint syntax lint on relevant pushes and pull requests, plus a weekly scheduled check.
 
 ## Shared workspace generation
 
