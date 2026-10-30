@@ -74,6 +74,22 @@ jobs:
           server="$GITHUB_WORKSPACE/integrations/agent-tools/mcp-inspector/mock-stdio-server.mjs"
           "$MCP_INSPECTOR_BIN" --cli node "$server" --method tools/list --format json --strict > "$RUNNER_TEMP/mcp-tools.json"
           node -e 'const fs=require("node:fs"); const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!r.result?.tools?.some(t=>t.name==="echo_text")) process.exit(1); console.log("PASS: tool listed")' "$RUNNER_TEMP/mcp-tools.json"
+      - name: Verify Inspector initialize handshake and declared capabilities
+        shell: bash
+        run: |
+          set -euo pipefail
+          server="$GITHUB_WORKSPACE/integrations/agent-tools/mcp-inspector/mock-stdio-server.mjs"
+          "$MCP_INSPECTOR_BIN" --cli node "$server" --method initialize --format json --connect-timeout 10000 > "$RUNNER_TEMP/mcp-initialize.json"
+          node - "$RUNNER_TEMP/mcp-initialize.json" <<'NODE'
+          const fs = require('node:fs');
+          const response = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          const value = response.result;
+          if (value?.serverInfo?.name !== 'synthetic-mcp-echo' || !value?.capabilities?.tools) {
+            console.error('Incorrect MCP initialize handshake or capabilities');
+            process.exit(1);
+          }
+          console.log('PASS: Inspector completed MCP initialize handshake');
+          NODE
       - name: Validate stdio tools/call
         shell: bash
         run: |
@@ -81,3 +97,17 @@ jobs:
           server="$GITHUB_WORKSPACE/integrations/agent-tools/mcp-inspector/mock-stdio-server.mjs"
           "$MCP_INSPECTOR_BIN" --cli node "$server" --method tools/call --tool-name echo_text --tool-arg text=hello --format json > "$RUNNER_TEMP/mcp-call.json"
           node -e 'const fs=require("node:fs"); const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!r.result?.content?.some(c=>c.type==="text" && c.text==="hello")) process.exit(1); console.log("PASS: fixture tool called")' "$RUNNER_TEMP/mcp-call.json"
+      - name: Verify Inspector denies invalid tool arguments (not just local mock)
+        shell: bash
+        run: |
+          set -euo pipefail
+          server="$GITHUB_WORKSPACE/integrations/agent-tools/mcp-inspector/mock-stdio-server.mjs"
+          set +e
+          "$MCP_INSPECTOR_BIN" --cli node "$server" --method tools/call --tool-name echo_text --tool-args-json '{"text":42}' --format json --connect-timeout 10000 > "$RUNNER_TEMP/mcp-reject.json" 2> "$RUNNER_TEMP/mcp-reject.stderr"
+          status=$?
+          set -e
+          if [[ "$status" -ne 5 ]]; then
+            echo "Inspector failed to classify a rejected tool invocation: expected exit 5, got $status"
+            exit 1
+          fi
+          echo 'PASS: Inspector negative tools/call returned tool-error exit 5'
