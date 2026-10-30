@@ -26,6 +26,7 @@ def _clean_path(path: object) -> bool:
         isinstance(path, str)
         and bool(path)
         and "\\" not in path
+        and ":" not in path  # no NTFS alternate data streams or drive-like paths
         and not path.startswith("/")
         and all(part not in ("", ".", "..") for part in path.split("/"))
     )
@@ -46,20 +47,20 @@ def classify_path(path: str) -> str:
     ):
         return "prohibited"
     if (
-        path.startswith("browser_filter_lists/")
-        or path.startswith("releases/")
-        or path.startswith("dist/")
+        lower.startswith("browser_filter_lists/")
+        or lower.startswith("releases/")
+        or lower.startswith("dist/")
     ):
         return "publication"
-    if path.startswith((".github/workflows/", "ai/imports/")):
+    if lower.startswith((".github/workflows/", "ai/imports/")):
         return "infrastructure"
-    if path.startswith(("rplay_watcher/", "extension/", "integrations/")):
+    if lower.startswith(("rplay_watcher/", "extension/", "integrations/")):
         return "implementation"
-    if path in {"AGENTS.md", "ai/PROJECT_STATE.json", "ai/projects.json"}:
+    if lower in {"agents.md", "ai/project_state.json", "ai/projects.json"}:
         return "metadata"
-    if path.startswith("ai/") and path.endswith(".md"):
+    if lower.startswith("ai/") and lower.endswith(".md"):
         return "documentation"
-    if path.startswith("ai/"):
+    if lower.startswith("ai/"):
         return "infrastructure" if lower.endswith((".py", ".sh", ".js", ".yml", ".yaml")) else "metadata"
     if lower.endswith((".md", ".rst")):
         return "documentation"
