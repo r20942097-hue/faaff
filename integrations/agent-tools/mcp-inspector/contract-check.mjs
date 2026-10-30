@@ -9,7 +9,10 @@ const cases = [
   { jsonrpc: '2.0', id: 1, method: 'ping' },
   { jsonrpc: '2.0', id: 2, method: 'tools/call', params: { name: 'not_authorized', arguments: { text: 'x' } } },
   { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'echo_text', arguments: { text: 12 } } },
-  { jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'echo_text', arguments: { text: 'safe' } } },
+  { jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'echo_text', arguments: { text: 'safe', unexpected: 'reject' } } },
+  { jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: 'echo_text', arguments: {} } },
+  { jsonrpc: '2.0', id: 6, method: 'tools/call', params: { name: 'echo_text', arguments: { text: 'safe\n日本語\t{"a":1}' } } },
+  { jsonrpc: '2.0', id: 7, method: 'unknown/method' },
   { jsonrpc: '2.0', method: 'notifications/initialized' }
 ];
 const proc = spawnSync(process.execPath, [server], {
@@ -19,9 +22,9 @@ const proc = spawnSync(process.execPath, [server], {
 });
 assert.equal(proc.status, 0, 'Synthetic MCP server must exit normally');
 const actual = proc.stdout.trim().split('\n').map(x => JSON.parse(x));
-assert.equal(actual.length, 4, 'Notifications without IDs must not receive a response');
+assert.equal(actual.length, 7, 'Notifications without IDs must not receive a response');
 assert.equal(actual[0].result && Object.keys(actual[0].result).length, 0);
-assert.equal(actual[1].error?.code, -32602);
-assert.equal(actual[2].error?.code, -32602);
-assert.equal(actual[3].result?.content?.[0]?.text, 'safe');
-console.log('PASS: MCP fixture rejects unknown tools and invalid tool arguments');
+for (let i = 1; i <= 4; i++) assert.equal(actual[i].error?.code, -32602);
+assert.equal(actual[5].result?.content?.[0]?.text, 'safe\n日本語\t{"a":1}');
+assert.equal(actual[6].error?.code, -32601);
+console.log('PASS: MCP fixture enforces strict args, JSON text escaping and no-notification response');
