@@ -39,7 +39,11 @@ ip link set lo up
 sudo -u "$GATE_RUNNER" -H env PATH="$PATH" GPT1_PARENT_NETNS="$GPT1_PARENT_NETNS" \
     "$GATE_PYTHON" ai/isolated_extension_e2e.py --synthetic-only --browser-executable "$GATE_BROWSER" --json
 # Separate synthetic MV3 extension origin; no product ZIP, no external URLs.
-exec sudo -u "$GATE_RUNNER" -H env PATH="$PATH" GPT1_PARENT_NETNS="$GPT1_PARENT_NETNS" \
+sudo -u "$GATE_RUNNER" -H env PATH="$PATH" GPT1_PARENT_NETNS="$GPT1_PARENT_NETNS" \
     "$GATE_PYTHON" ai/browser_opfs_runtime_probe.py \
+      --parent-netns "$GPT1_PARENT_NETNS" --browser-executable "$GATE_BROWSER"
+# Additional synthetic OPFS journal probe; no user/product source or URLs.
+exec sudo -u "$GATE_RUNNER" -H env PATH="$PATH" GPT1_PARENT_NETNS="$GPT1_PARENT_NETNS" \
+    "$GATE_PYTHON" ai/browser_opfs_journal_synthetic.py \
       --parent-netns "$GPT1_PARENT_NETNS" --browser-executable "$GATE_BROWSER"
 '
