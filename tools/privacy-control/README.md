@@ -59,3 +59,31 @@ It does not execute JavaScript, load fonts/assets or call remote services; its
 CSP blocks scripts and external resources. Raw rules are HTML-escaped and the
 report is written outside the Git checkout. It is a static review artifact,
 **not** proof of current browser protection or a management extension.
+
+## Pinned EasyPrivacy upstream comparison (Phase 2a)
+
+The engine comparison optionally reads **five immutable EasyPrivacy source
+components**, pinned to an exact upstream Git commit with byte-size and Git
+blob SHA checks. Source is downloaded only into isolated CI temporary space;
+the repo stores only the path/size/hash manifest. This prevents invisible
+upstream drift and respects EasyPrivacy attribution/licensing.
+
+This is deliberately **NOT the full compiled EasyPrivacy subscription**,
+nor proof that a particular browser has enabled these lists. The selected
+fragments include third-party, general, specific and allowlist components.
+The synthetic comparison runs 38 pinned candidate domains against six
+request scenarios in both the official uBO matching engine and locked
+Ghostery. It compares the selected source fragments against their union
+with candidate v2 rules. Results distinguish existing synthetic matches,
+additional synthetic matches, matching regressions and engine disagreement;
+none should be confused with live user traffic or real-world privacy benefit.
+
+EasyList contributors' rights: the upstream repository is dual licensed under
+GPL v3-or-later / CC BY-SA 3.0-or-later. The source itself is **not copied
+into git**; records include provenance and the official license reference:
+https://easylist.to/pages/licence.html .
+
+Run in ephemeral CI under `pinned-upstream-stock-comparison`. All network
+fetches are bounded, pinned, and validated before being used. Any mismatch
+fails closed. Approved publication remains **NO_GO**; browser real stock
+configuration, Firefox full-uBO, and real sites are still not verified.
