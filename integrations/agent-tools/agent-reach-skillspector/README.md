@@ -4,7 +4,7 @@
 
 ## Source and scope
 
-- Agent-Reach: https://github.com/Panniantong/Agent-Reach (script targets tag `v1.6.0`).
+- Agent-Reach: https://github.com/Panniantong/Agent-Reach (script pins release `v1.6.0` commit [`beabda7486e9a666360b18cdb5c0e759c2c4d20f`](https://github.com/Panniantong/Agent-Reach/commit/beabda7486e9a666360b18cdb5c0e759c2c4d20f)).
 - NVIDIA SkillSpector: https://github.com/NVIDIA/SkillSpector (script installs **pinned upstream Git commit `54921c8c7c23008c8af2328d5ab492a904b6ece4`**; review dependencies before production use).
 - `uv`: https://docs.astral.sh/uv/getting-started/installation/
 - The upstream code is **not vendored** into this repository.
@@ -64,7 +64,7 @@ This PR is only a **source-registration proposal**. Do not merge, release, or de
 
 - Installer now requires an explicit `-RunSetup` to enable Agent-Reach's default channels and agent skill placement; `-DryRun` never executes commands. Existing install stays untouched unless setup is explicitly requested.
 - Windows **dry-run** was executed successfully on GitHub-hosted Windows. Real installation, Agent-Reach setup, and dependency downloads are NOT_RUN. The on-repository script was changed from the original ZIP, so its checksum is intentionally different from the original ZIP-entry checksum.
-- Agent-Reach version/tag and the SkillSpector source commit are pinned. Transitive dependencies are not locked with checksums, so manual provenance review remains mandatory before running on the main Windows PC.
+- Both Agent-Reach (full `beabda7486e9a666360b18cdb5c0e759c2c4d20f`) and SkillSpector (full `54921c8c7c23008c8af2328d5ab492a904b6ece4`) upstream source commits are pinned. Transitive dependencies are not locked with checksums, so manual provenance review remains mandatory before running on the main Windows PC.
 - Upstream procedure: https://github.com/Panniantong/Agent-Reach/blob/main/docs/install.md and https://github.com/NVIDIA/skillspector
 
 ### SkillSpector immutable source pin
@@ -74,3 +74,12 @@ Latest repository HEAD observed via GitHub on 2026-10-30 was [`54921c8c7c23008c8
 ## Permanent Windows regression gate
 
 `.github/workflows/agent-tools-windows-smoke.yml` runs no-install PowerShell contract checks on pull requests and pushes to main. Verified success on GitHub-hosted Windows: https://github.com/r20942097-hue/faaff/actions/runs/41028614540. The first run exposed missing capture of PowerShell's information stream, subsequently corrected and re-tested. This does not prove live installation, login, CLI access to external sites, or SkillSpector analysis quality.
+
+## Real installation smoke (isolated GitHub runners)
+
+The additional `.github/workflows/agent-tools-install-smoke.yml` installs pinned **uv 0.13.6**, Agent-Reach, and SkillSpector into isolated Linux and Windows GitHub Actions runners, then checks their CLIs without `agent-reach setup`, account logins or real site access. Linux additionally scans a tiny synthetic local skill with `--no-llm` and verifies JSON parsing. Real installation on the user's Windows PC is never performed by GitHub Actions.
+
+- Source commit pins are immutable references; **transitive Python package versions/wheel hashes remain unpinned** and may resolve differently in the future.
+- The ephemeral smoke test does not authorize installation on the user's PC, exporting browser credentials, or connecting live MCP services.
+- Status: **NOT_RUN until the two platform jobs report completed success**. Track results in the PR and distinguish install, CLI, scanner, setup, and external-channel checks.
+- Upstream Agent-Reach CLI v1.6 requires Python >=3.10; SkillSpector 2.12.0 requires Python >=3.12,<3.16; use Python 3.12 for compatibility. Source: official `pyproject.toml` files.
