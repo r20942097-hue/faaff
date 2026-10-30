@@ -28,8 +28,11 @@ def addon_fixture():
             inner_manifest = {"manifest_version": 3, "version": "1.0.0",
                               "permissions": []}
             if browser == "Firefox":
+                inner_manifest["background"] = {"scripts": ["background.js"]}
                 inner_manifest["browser_specific_settings"] = {
                     "gecko": {"id": f"{product}@test.invalid"}}
+            else:
+                inner_manifest["background"] = {"service_worker": "background.js"}
             raw = archive({"manifest.json": json.dumps(inner_manifest),
                            "background.js": "// artificial fixture\n"})
             files[f"Extensions/{browser}/{filename}"] = raw
@@ -42,6 +45,22 @@ def addon_fixture():
              + "  " + k for k, v in sorted(files.items())]
     files["SHA256SUMS.txt"] = "\n".join(lines) + "\n"
     return files
+
+
+def replace_inner(entries, filename, updater):
+    path = next(k for k in entries if k.endswith("/" + filename))
+    with zipfile.ZipFile(io.BytesIO(entries[path])) as z:
+        inner = {n: z.read(n) for n in z.namelist()}
+    updater(inner)
+    entries[path] = archive(inner)
+    manifest = json.loads(entries["PACKAGE_MANIFEST.json"])
+    manifest[filename]["bytes"] = len(entries[path])
+    manifest[filename]["sha256"] = hashlib.sha256(entries[path]).hexdigest()
+    entries["PACKAGE_MANIFEST.json"] = json.dumps(manifest)
+    entries["SHA256SUMS.txt"] = "\\n".join(
+        hashlib.sha256(v.encode() if isinstance(v, str) else v).hexdigest()
+        + "  " + k for k, v in sorted(entries.items())
+        if k != "SHA256SUMS.txt") + "\\n"
 
 
 class CandidateArchiveChecks(unittest.TestCase):
@@ -87,13 +106,37 @@ class CandidateArchiveChecks(unittest.TestCase):
         with self.assertRaisesRegex(IntakeError, "FIREFOX_GECKO_ID_MISSING"):
             self.check(entries)
 
+    def test_broad_host_is_a_review_flag_not_an_auto_rejection(self):
+        entries = addon_fixture()
+        def edit(inner):
+            m = json.loads(inner["manifest.json"])
+            m["host_permissions"] = ["https://*/*"]
+            inner["manifest.json"] = json.dumps(m).encode()
+        replace_inner(entries, "StreamHarbor_Chrome_MV3.zip", edit)
+        result = self.check(entries)
+        entry = next(x for x in result["packages"] if
+                     x["product"] == "StreamHarbor" and x["browser"] == "Chrome")
+        self.assertIn("BROAD_HOST_PERMISSION", entry["review_flags"])
+
+    def test_missing_background_reference_is_rejected(self):
+        entries = addon_fixture()
+        def edit(inner):
+            m = json.loads(inner["manifest.json"])
+            m["background"]["service_worker"] = "missing-worker.js"
+            inner["manifest.json"] = json.dumps(m).encode()
+        replace_inner(entries, "StreamHarbor_Chrome_MV3.zip", edit)
+        with self.assertRaisesRegex(IntakeError, "MANIFEST_REFERENCED_FILE_MISSING"):
+            self.check(entries)
+
     def test_rplay_no_go(self):
         entries = {
             "DEVELOPMENT_HANDOFF_v2.68.0.md": "CANDIDATE / NO GO",
             "rplay-stable-player-extension/manifest.json":
-                '{"manifest_version":3,"version":"2.68.0"}',
+                '{"manifest_version":3,"version":"2.68.0","background":{"service_worker":"background.js"}}',
+            "rplay-stable-player-extension/background.js": "// synthetic",
             "rplay-stable-player-extension-firefox/manifest.json":
-                '{"manifest_version":3,"version":"2.68.0"}',
+                '{"manifest_version":3,"version":"2.68.0","background":{"scripts":["background.js"]}}',
+            "rplay-stable-player-extension-firefox/background.js": "// synthetic",
             "src/one.js": "// safe",
             "tests/test_fixture.py": "# safe"
         }
