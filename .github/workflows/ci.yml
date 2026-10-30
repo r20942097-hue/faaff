@@ -78,3 +78,29 @@ jobs:
           node --check extension/options.js
       - name: Smoke CLI
         run: rplay-watcher --version
+
+  windows-installer-dry-run:
+    name: Windows installer dry-run (proposal only)
+    if: github.event_name == 'pull_request' && github.head_ref == 'proposal/agent-reach-skillspector-setup-20261030'
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Verify DryRun and opt-in setup without installing tools
+        shell: pwsh
+        run: |
+          $p = '.\\integrations\\agent-tools\\agent-reach-skillspector\\Install-AgentReach-SkillSpector.ps1'
+          $a = (& $p -DryRun -Target Both 6>&1 | Out-String)
+          if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) { throw 'DryRun failed' }
+          if ($a -notmatch 'No commands executed') { throw 'DryRun did not announce no changes' }
+          $b = (& $p -DryRun -Target AgentReach -RunSetup 6>&1 | Out-String)
+          if ($b -notmatch 'PLAN: agent-reach setup') { throw 'Explicit setup plan missing' }
+          $c = (& $p -DryRun -Target AgentReach 6>&1 | Out-String)
+          if ($c -match 'PLAN: agent-reach setup') { throw 'Setup should be opt-in' }
+          $threw = $false
+          try { & $p -DryRun -RunSetup -SkipSetup | Out-Null } catch { $threw = $true }
+          if (-not $threw) { throw 'Conflicting setup flags should fail' }
+          Write-Host 'Windows installer DRYRUN checks passed; no real tool installed.'
