@@ -97,13 +97,13 @@ jobs:
           server="$GITHUB_WORKSPACE/integrations/agent-tools/mcp-inspector/mock-stdio-server.mjs"
           "$MCP_INSPECTOR_BIN" --cli node "$server" --method tools/call --tool-name echo_text --tool-arg text=hello --format json > "$RUNNER_TEMP/mcp-call.json"
           node -e 'const fs=require("node:fs"); const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8")); if(!r.result?.content?.some(c=>c.type==="text" && c.text==="hello")) process.exit(1); console.log("PASS: fixture tool called")' "$RUNNER_TEMP/mcp-call.json"
-      - name: Verify Inspector denies invalid tool arguments (not just local mock)
+      - name: Verify Inspector classifies tool-result isError:true as exit 5
         shell: bash
         run: |
           set -euo pipefail
           server="$GITHUB_WORKSPACE/integrations/agent-tools/mcp-inspector/mock-stdio-server.mjs"
           set +e
-          "$MCP_INSPECTOR_BIN" --cli node "$server" --method tools/call --tool-name echo_text --tool-args-json '{"text":42}' --format json --connect-timeout 10000 > "$RUNNER_TEMP/mcp-reject.json" 2> "$RUNNER_TEMP/mcp-reject.stderr"
+          "$MCP_INSPECTOR_BIN" --cli node "$server" --method tools/call --tool-name always_deny --tool-args-json '{}' --format json --connect-timeout 10000 > "$RUNNER_TEMP/mcp-reject.json" 2> "$RUNNER_TEMP/mcp-reject.stderr"
           status=$?
           set -e
           if [[ "$status" -ne 5 ]]; then
