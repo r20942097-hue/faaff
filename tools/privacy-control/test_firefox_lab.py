@@ -49,7 +49,7 @@ class FirefoxXpiPolicyTests(unittest.TestCase):
                 body = r.read().decode()
             self.assertIn("probe.scorecardresearch.com", body)
             self.assertNotIn("<script", body)
-            with urlopen(url + "/probe.gif?token=abc", timeout=4) as r:
+            with urlopen(url + "/asset.png?token=abc", timeout=4) as r:
                 self.assertEqual(r.status, 200)
             self.assertTrue(server.observed("abc"))
         finally:

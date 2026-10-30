@@ -47,14 +47,14 @@ class LabHandler(BaseHTTPRequestHandler):
                 return
             target = "http://" + host + ":" + str(self.server.server_port)
             content = ('<!doctype html><html><body><img id="probe" src="'
-                       + target + '/probe.gif?token=' + token
+                       + target + '/asset.png?token=' + token
                        + '" alt=""></body></html>').encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.send_header("Content-Length", str(len(content)))
             self.end_headers()
             self.wfile.write(content)
-        elif parsed.path == "/probe.gif":
+        elif parsed.path == "/asset.png":
             with self.server.counter_lock:
                 self.server.requests_seen.add(token)
             # Valid minimal GIF, only request arrival is inspected.
