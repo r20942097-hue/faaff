@@ -51,6 +51,7 @@ class ProxyContainmentTests(unittest.TestCase):
         for address in [
             f"http://openai.com:{self.proxy.server_port}/safe.png?token={token}",
             f"http://{PAGE}:9999/index?host={TRACKER}&token={token}",
+            f"http://{PAGE}:bad/index?host={TRACKER}&token={token}",
             f"http://{PAGE}:{self.proxy.server_port}/index?host=evil.test&token={token}",
             f"http://{PAGE}:{self.proxy.server_port}/not-allowed?token={token}",
             f"http://{PAGE}:{self.proxy.server_port}/index?host={TRACKER}&token=abc",
@@ -95,6 +96,27 @@ class ProxyEvidenceTests(unittest.TestCase):
             "candidate_rules_installed":False,"released_rules":0,
             "publication":"NO_GO",
         }
+
+    def test_historic_ambiguous_trials_preserved_separately_from_new_probe(self):
+        home = Path(__file__).resolve().parent / "verification"
+        old = json.loads((home / "firefox-isolation-diagnostic.json").read_text())
+        new = json.loads((home / "firefox-proxy-validation.json").read_text())
+        self.assertEqual(old["status"], "BLOCKED")
+        self.assertEqual(len(old["runs"]), 5)
+        self.assertEqual(old["observed"]["target_specificity"], "NOT_ESTABLISHED")
+        self.assertEqual(new["schema"], "upc-firefox-proxy-validation/v1")
+        self.assertEqual(new["latest_successful_run"]["workflow_run"], 41097729808)
+        self.assertEqual(new["latest_successful_run"]["result"], "PASS")
+        self.assertEqual(new["latest_successful_run"]["commit"],
+                         "0c921adf602441208448b87429c393e5b384c4ea")
+        self.assertEqual(new["observations"]["proxy_rejected_requests"], 57)
+        self.assertEqual(new["observations"]["with_addon"]["target_received"], False)
+        for control in ("first_party_received", "same_site_received",
+                        "unrelated_third_party_received"):
+            self.assertIs(new["observations"]["with_addon"][control], True)
+        self.assertTrue(all(new["observations"]["after_uninstall"].values()))
+        self.assertEqual(new["limits"]["publication"], "NO_GO")
+        self.assertEqual(new["limits"]["production_websites"], "NOT_RUN")
 
     def test_full_lifecycle_evidence_requires_controls_and_rollback(self):
         self.assertEqual(audit(self.example, self.lock), [])

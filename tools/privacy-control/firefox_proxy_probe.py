@@ -58,9 +58,12 @@ class ProxyHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         parsed = urlsplit(self.path)
+        try:
+            valid_port = parsed.port == self.server.server_port
+        except ValueError:
+            valid_port = False
         if (parsed.scheme != "http" or parsed.hostname not in HOSTS
-                or parsed.port != self.server.server_port
-                or parsed.username or parsed.password):
+                or not valid_port or parsed.username or parsed.password):
             self._deny()
             return
         args = parse_qs(parsed.query, keep_blank_values=True)

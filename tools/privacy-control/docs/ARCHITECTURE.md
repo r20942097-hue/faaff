@@ -136,3 +136,19 @@ but target-specificity and post-removal rollback are NOT_VERIFIED. Five
 records are preserved in `../verification/firefox-isolation-diagnostic.json`.
 The browser job requires manual research invocation and is not a release gate.
 The stable UPC offline/engine evaluation remains available; release NO_GO.
+
+## Phase 2e result — installed Firefox and rollback
+
+An explicit no-forwarding localhost HTTP proxy finally distinguished the
+tracker-host test request from benign first-party, same-site, and unrelated
+third-party local fixtures. The official signed uBO was installed in an
+ephemeral Firefox profile and then uninstalled. The strict
+`firefox-http-proxy-synthetic` job passed in CI run 41097729808;
+`verify_firefox_proxy.py` checks the full before/on/uninstall lifecycle.
+Earlier five failed local-IP mapping tests remain separate and unresolved,
+not silently rewritten as passes.
+
+This establishes **isolated installed-extension HTTP behavior only**.
+The candidate list was not installed, and user-specific enabled subscriptions,
+live websites, signed URLs, authentication, media and Windows/Floorp still
+need separate validation. Release gate is **NO_GO**.

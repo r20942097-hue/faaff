@@ -235,3 +235,34 @@ preserved; their results must not be silently reclassified. Even if this
 restricted proxy trial passes, that only demonstrates isolated HTTP
 behavior, **not** a real browser's enabled subscriptions, user settings,
 candidate v2 adoption, video/auth compatibility or real website efficacy.
+
+## Phase 2e — actual Firefox signed uBO control and rollback (PASS, isolated only)
+
+[UPC CI run 41097729808](https://github.com/r20942097-hue/faaff/actions/runs/41097729808)
+proved a narrower, reproducible point with an **actual Firefox extension**.
+An explicit, deny-by-default HTTP proxy bound to the ephemeral runner's
+`127.0.0.1` preserves the original URL hostnames inside Firefox while
+the proxy itself resolves **nothing** and does not forward traffic. Only
+four named test hosts, the synthetic index and static image are served;
+HTTPS CONNECT, unapproved hosts/ports/methods are refused.
+
+With **official signed uBO 1.75.0** installed, a synthetic tracking-host
+image was blocked; benign same-origin, same-site, and unrelated third-party
+images were received by the isolated local server. Upon **actual uninstallation**
+all four test image requests were received again. The independent report gate
+rejected unproven PASS outcomes, including broken benign controls or
+incomplete rollback. The proxy rejected 57 off-fixture requests. Signed
+XPI SHA-256 was checked against official release metadata.
+
+These observations are **HTTP-only and synthetic**. They do not imply that
+the 38 proposed candidate rules were installed in Firefox, that real user
+stock lists/settings are covered, or that a real login, checkout, stream,
+signed URL or production site is safe. The five earlier failed hosts-file
+attempts remain `BLOCKED` and preserved; their exact cause has not been
+proven, although the local-IP mapping was an apparent confounder.
+
+The successful isolated-proxy run is indexed in
+`verification/firefox-proxy-validation.json` with exact CI run, commit,
+official XPI hash and measured controls. Runtime JSON stays in the CI
+runner rather than Git. **No change to active subscriptions or system
+settings; release remains NO_GO.**
