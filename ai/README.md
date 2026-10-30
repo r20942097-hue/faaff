@@ -43,7 +43,18 @@ Run locally from repository root:
 python -m unittest discover -s ai/tests -p 'test_*.py' -v
 ```
 
-The existing `AI hub and pinned filter source` workflow includes this suite on pull requests under Python 3.11 and 3.14; required jobs are **not** path-skipped as an optimization. Inspect the exact CI result and current GitHub Ruleset before any approval decision.
+The existing `AI hub and pinned filter source` workflow includes this suite on pull requests under Python 3.11, 3.14 and 3.15.2; the pre-existing 3.11/3.14 required check identities remain unchanged and required jobs are **not** path-skipped as an optimization. Inspect the exact CI result and current GitHub Ruleset before any approval decision.
+
+## Python 3.15 compatibility (2026-10-31)
+
+Python 3.15.2 (released 2026-10-25) is the first 3.15 patch tested here; 3.15.0/3.15.1 are not an acceptable security baseline for this evaluation. The pinned `3.15.2` setup-python entry runs actual hub state/import verification, decision-contract regression tests, imported filter unit tests, and generated-list parity. Versions 3.11 and 3.14 remain available and required by the current Ruleset.
+
+- **Purpose:** catch 3.15 interpreter, stdlib, and UTF-8 default encoding compatibility problems without modifying the owner's Windows installation or publishing releases.
+- **Scope:** this is the engineering hub and its pinned filter snapshot; it does **not** establish Windows, third-party wheel/extension, production watcher, or real browser compatibility.
+- **Promotion:** require a successful job for the exact PR HEAD and reproduce with the actual application source and dependencies before treating 3.15 as a supported production target.
+- **Security:** prefer the latest security-maintained patch in the 3.15 line for future upgrades after checking upstream changes and test evidence; do not silently downgrade below 3.15.2.
+
+Sources: [Python 3.15.2 release](https://www.python.org/downloads/release/python-3152/), [Python 3.15 changes](https://docs.python.org/3.15/whatsnew/3.15.html).
 
 ## Migration gate
 After import checks pass, compare `s/main` against the pinned source commit, pick a single writable canonical source, then establish a tested least-privilege publishing path (or keep `s` authoritative). Reconcile the `filter-profiles.json` `faaff` output scope with existing `browser_filter_lists/` policy before any cutover. Do not infer parity from similar filenames or pass a release based only on an imported snapshot.
