@@ -57,6 +57,31 @@ jobs:
             process.exit(1);
           }
           NODE
+      - name: Mozilla web-ext 10.8.0 manifest lint / candidate lock bootstrap
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="integrations/browser-testing/firefox-lint"
+          npm install --prefix "$dir" --package-lock-only --no-audit --no-fund --ignore-scripts
+          node - "$dir/package-lock.json" <<'NODE'
+          const fs = require('node:fs');
+          console.log('MOZILLA_LOCK_BEGIN');
+          console.log(fs.readFileSync(process.argv[2]).toString('base64'));
+          console.log('MOZILLA_LOCK_END');
+          NODE
+          npm ci --prefix "$dir" --no-audit --no-fund --ignore-scripts
+          "$dir/node_modules/.bin/web-ext" lint \
+            --source-dir integrations/browser-testing/fixture-mv3 \
+            --self-hosted --no-input --output json > "$RUNNER_TEMP/firefox-lint.json"
+          node - "$RUNNER_TEMP/firefox-lint.json" <<'NODE'
+          const fs = require('node:fs');
+          const o = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+          if (Array.isArray(o.errors) && o.errors.length > 0) {
+            console.error('Firefox lint returned errors');
+            process.exit(1);
+          }
+          console.log('PASS: Mozilla web-ext lint executed, errors=0');
+          NODE
       - name: Verify MV3 Chromium and synthetic Firefox page
         env:
           # The container job runs as root; /github/home is owned by pwuser.
