@@ -54,8 +54,8 @@ The script skips binaries already on PATH instead of overwriting them. It does n
 | Original ZIP opened, CRC verified, source files inspected | PASS (2026-10-30) |
 | Local SHA-256 of input ZIP and installer recorded | PASS |
 | PowerShell execution and `-DryRun` on GitHub-hosted Windows | PASS ([workflow run](https://github.com/r20942097-hue/faaff/actions/runs/41028614540)) |
-| Actual Agent-Reach and SkillSpector installation | NOT_RUN |
-| Channel connectivity and MCP integration | NOT_RUN |
+| Actual Agent-Reach and SkillSpector installation on isolated GitHub-hosted Linux + Windows | PASS (see latest pipeline below) |
+| Anonymous public channel reads on isolated GitHub Linux | 4/5 PASS (YouTube platform BLOCKED); user PC/MCP integrations NOT_RUN |
 | Runtime security assessment of upstream projects | NOT_RUN |
 
 This PR is only a **source-registration proposal**. Do not merge, release, or deploy without the repository owner's separate approval. Public GitHub history must never contain personal credentials, cookies, or local diagnostic data.
@@ -63,7 +63,7 @@ This PR is only a **source-registration proposal**. Do not merge, release, or de
 ## 2026-10-30 safety revision
 
 - Installer now requires an explicit `-RunSetup` to enable Agent-Reach's default channels and agent skill placement; `-DryRun` never executes commands. Existing install stays untouched unless setup is explicitly requested.
-- Windows **dry-run** was executed successfully on GitHub-hosted Windows. Real installation, Agent-Reach setup, and dependency downloads are NOT_RUN. The on-repository script was changed from the original ZIP, so its checksum is intentionally different from the original ZIP-entry checksum.
+- This paragraph originally documented the initial Windows dry-run gate; **subsequent GitHub CI** installed both CLIs and their dependencies on isolated Linux/Windows runners. Agent-Reach `setup`, private logins and installation on the owner's Windows PC remain NOT_RUN. The on-repository script was changed from the original ZIP, so its checksum is intentionally different from the original ZIP-entry checksum.
 - Both Agent-Reach (full `beabda7486e9a666360b18cdb5c0e759c2c4d20f`) and SkillSpector (full `54921c8c7c23008c8af2328d5ab492a904b6ece4`) upstream source commits are pinned. Transitive dependencies are not locked with checksums, so manual provenance review remains mandatory before running on the main Windows PC.
 - Upstream procedure: https://github.com/Panniantong/Agent-Reach/blob/main/docs/install.md and https://github.com/NVIDIA/skillspector
 
@@ -89,7 +89,7 @@ The additional `.github/workflows/agent-tools-install-smoke.yml` installs pinned
 - **PASS**: commit-pinned Agent-Reach and SkillSpector installation and CLI invocation on Linux and Windows in GitHub Actions: [41030702615](https://github.com/r20942097-hue/faaff/actions/runs/41030702615).
 - **PASS**: benign fixture scan using SkillSpector `--no-llm`, JSON report parsed on Linux, same run.
 - **PASS**: actual PowerShell installer in ephemeral Windows with `-Target Both` (setup not requested): [41030702664](https://github.com/r20942097-hue/faaff/actions/runs/41030702664). Temporary changes to required `ci.yml` were removed after the result was captured; the independent `agent-tools-install-smoke.yml` is retained.
-- **NOT_RUN**: user's PC installation; Agent-Reach `setup`, login/cookie handling or live web channels; SkillSpector's LLM analysis/MCP server; full dependency lock/wheel hash integrity.
+- **NOT_RUN**: user's PC installation; Agent-Reach `setup`, login/cookie handling; SkillSpector's LLM analysis/MCP server; full Python dependency lock/wheel hash integrity. **Live anonymous public web channels were subsequently tested in isolated Linux CI** (see newer evidence below).
 
 ## Positive security-scanner regression (2026-10-30)
 
@@ -98,3 +98,18 @@ The additional `.github/workflows/agent-tools-install-smoke.yml` installs pinned
 ## Installer identity contract — 2026-10-30
 
 The PowerShell installer now validates the full Agent-Reach v1.6+ JSON version envelope before allowing any optional `setup`: `schema_version=1`, `ok=true`, `action=version`, and a supported semantic version. It rejects malformed, non-version or old responses without overwriting an existing installation. The permanent Windows DryRun test covers a valid response and six invalid cases. SkillSpector's documented `SkillSpector v...` CLI version is validated as well, and a newly installed copy must match the pinned v2.12.0 source. A Windows isolated install CI step exercises that preflight on an actual temporary installation. No account logins or setup are run. These checks are identity/compatibility assertions, not a full malware attestation.
+
+## Verified live Agent-Reach functionality — 2026-10-30
+
+Agent-Reach v1.6.0 was reinstalled from the reviewed **immutable upstream source commit** in GitHub-hosted Linux and Windows. The separate [`verify-agent-reach.py`](verify-agent-reach.py) exercises the real CLI, not a mock. All tests use a fresh temporary `HOME`, deliberately remove GitHub/social tokens from the subprocess environment, have bounded timeouts, and never run `setup`, `add`, `login`, `configure` or a browser session.
+
+**Verified [live run 41067245507](https://github.com/r20942097-hue/faaff/actions/runs/41067245507):**
+- **Linux and Windows PASS**: version JSON response and return-code contract; 14 registered channel/action definitions; local-only `doctor` status; read-only `skill` inventory; invalid-action rejection; no state/config creation before live tests.
+- **Linux anonymous network probes**: GitHub public repo read via `github-api` **PASS** (1 item), web read of `https://example.com` via `jina` **PASS** (1 item), V2EX `hot` via `v2ex-api` **PASS** (2 items), Bilibili `hot` via `bilibili-api` **PASS** (2 items).
+- **YouTube video metadata BLOCKED** (public `yt-dlp` request returned `PLATFORM_BLOCKED`, a platform verification challenge from the GitHub runner). This is neither PASS nor evidence the owner's local browser is blocked. The test stops without bypassing verification or importing cookies.
+- **Official `agent-reach check github --search` PASS**, and subsequent `doctor` reflected a fresh `search_ready` state rather than merely an installed binary.
+- Other channels require explicit installation/login and were **NOT_RUN**. The initial offline `doctor` reported 3 unverified defaults, 2 needing setup and 9 not added. Offline doctor is NOT a substitute for a network check.
+
+**This proposal is now a functioning read-only public-data smoke harness, not a fully configured Agent-Reach integration.** A pass on ephemeral GitHub runners does not install Agent-Reach into ChatGPT/Codex, enable a user's optional channels, prove Firefox/Windows browser integration, or certify upstream providers. Transitive Python wheels are not hash-locked.
+
+The test's new negative-path security check additionally exercises localhost/private/cloud-metadata/file URL inputs through the CLI and requires `BAD_INPUT` without following untrusted URLs; successful execution is documented in the latest CI check after this revision.
