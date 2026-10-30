@@ -85,6 +85,29 @@ class EvidenceContractTests(unittest.TestCase):
         r = assess(alter=alter)
         self.assertIn("missing_or_ambiguous_check:pinned-import (3.11)", r["reasons"])
 
+    def test_waiting_and_requested_checks_are_pending(self):
+        for status in ("waiting", "requested"):
+            with self.subTest(status=status):
+                r = assess(alter=lambda p, s, c: c["check_runs"][0].update(status=status, conclusion=None))
+                self.assertEqual(r["status"], "BLOCKED")
+                self.assertEqual(r["pending_checks"], ["validate"])
+                self.assertEqual(r["nonpassing_checks"], [])
+
+    def test_duplicate_required_status_rules_cannot_be_ignored(self):
+        def alter(p, s, c):
+            s["rules"].append(deepcopy(s["rules"][0]))
+        r = assess(alter=alter)
+        self.assertIn("ambiguous_required_status_check_rules", r["reasons"])
+        self.assertEqual(r["status"], "BLOCKED")
+
+    def test_malformed_extra_check_entry_fails_closed(self):
+        def alter(p, s, c):
+            c["check_runs"].append("unexpected-check")
+            c["total_count"] += 1
+        r = assess(alter=alter)
+        self.assertIn("invalid_check_run_entry", r["reasons"])
+        self.assertEqual(r["status"], "BLOCKED")
+
     def test_skipped_check_is_not_success(self):
         r = assess(alter=lambda p, s, c: c["check_runs"][0].update(conclusion="skipped"))
         self.assertEqual(r["status"], "BLOCKED")

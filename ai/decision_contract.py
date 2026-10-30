@@ -97,9 +97,11 @@ def assess_change(
         failures.append("prohibited_or_invalid_path")
     if risk == "publication":
         failures.append("publication_hold")
-    if not SHA40.fullmatch(head_sha) or checked_sha != head_sha:
+    if not isinstance(head_sha, str) or not SHA40.fullmatch(head_sha) or checked_sha != head_sha:
         failures.append("stale_or_invalid_check_sha")
-    if not required_checks or len(set(required_checks)) != len(required_checks):
+    if (not required_checks or
+            any(not isinstance(check, str) or not check for check in required_checks) or
+            len(set(required_checks)) != len(required_checks)):
         failures.append("invalid_required_checks")
     else:
         for check in required_checks:

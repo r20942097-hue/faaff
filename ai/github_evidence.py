@@ -66,6 +66,9 @@ def review_evidence(
     rule_list = ruleset.get("rules")
     if not isinstance(rule_list, list):
         return {"status": "BLOCKED", "reasons": failures + ["missing_rules"]}
+    # A second required-status-check block must never be silently ignored.
+    if sum(isinstance(item, dict) and item.get("type") == "required_status_checks" for item in rule_list) > 1:
+        failures.append("ambiguous_required_status_check_rules")
     required = []
     for item in rule_list:
         if isinstance(item, dict) and item.get("type") == "required_status_checks":
@@ -97,6 +100,8 @@ def review_evidence(
     if (not isinstance(raw_checks, list) or
             type(total_count) is not int or total_count != len(raw_checks)):
         return {"status": "BLOCKED", "reasons": failures + ["incomplete_check_runs_collection"]}
+    if any(not isinstance(item, dict) or not isinstance(item.get("name"), str) for item in raw_checks):
+        failures.append("invalid_check_run_entry")
     observed: dict[str, str] = {}
     pending_checks: list[str] = []
     nonpassing_checks: list[str] = []
@@ -112,7 +117,7 @@ def review_evidence(
         if c.get("head_sha") != head_sha:
             failures.append("check_head_mismatch:" + name)
         status, conclusion = c.get("status"), c.get("conclusion")
-        if status in ("queued", "pending", "in_progress"):
+        if status in ("queued", "pending", "in_progress", "waiting", "requested"):
             pending_checks.append(name)
         elif status != "completed" or conclusion != "success":
             nonpassing_checks.append(name)

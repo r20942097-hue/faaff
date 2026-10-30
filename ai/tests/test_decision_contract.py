@@ -88,6 +88,16 @@ class ApprovalTests(unittest.TestCase):
         a = assess(["ai/HANDOFF.md"], head_sha="abc", checked_sha="abc")
         self.assertIn("stale_or_invalid_check_sha", a.reasons)
 
+    def test_nonstring_head_sha_fails_closed_without_exception(self):
+        a = assess(["README.md"], head_sha=None, checked_sha=None)
+        self.assertEqual(a.status, "BLOCKED")
+        self.assertIn("stale_or_invalid_check_sha", a.reasons)
+
+    def test_nonhashable_required_context_fails_closed(self):
+        a = assess(["README.md"], required_checks=[["not-a-check-name"]])
+        self.assertEqual(a.status, "BLOCKED")
+        self.assertIn("invalid_required_checks", a.reasons)
+
     def test_required_checks_cannot_be_empty(self):
         a = assess(["README.md"], required_checks=[])
         self.assertIn("invalid_required_checks", a.reasons)

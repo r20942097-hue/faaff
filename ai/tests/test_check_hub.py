@@ -60,6 +60,14 @@ class HubStateTest(unittest.TestCase):
     def test_consistent_pinned_state_passes(self) -> None:
         self.assertEqual(verify(self.root), [])
 
+    def test_unsafe_windows_and_control_character_manifest_paths(self) -> None:
+        for unsafe in ("fixture.txt:altstream", "fixture\n.txt"):
+            with self.subTest(path=unsafe):
+                self.source["files"][0]["path"] = unsafe
+                self.write_metadata()
+                errors = verify(self.root)
+                self.assertTrue(any("invalid or duplicate file entry" in e for e in errors), errors)
+
     def test_pinned_commit_drift_fails(self) -> None:
         self.state["pinned_import"]["source_commit"] = "c" * 40
         self.write_metadata()

@@ -15,6 +15,8 @@ STATES = {"bootstrap_only", "main_present", "pinned_snapshot", "open_draft"}
 def safe_path(value: object) -> bool:
     return (
         isinstance(value, str) and bool(value) and chr(92) not in value
+        and ":" not in value  # Windows NTFS alternate streams/drive syntax
+        and not any(ord(ch) < 32 or ord(ch) == 127 for ch in value)
         and not value.startswith("/")
         and all(part not in ("", ".", "..") for part in value.split("/"))
     )
