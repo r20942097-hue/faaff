@@ -178,6 +178,41 @@ def make_control_fixture(dirpath: Path) -> None:
         "});", encoding='utf-8')
 
 
+def worker_extension_id(worker_url: str, manifest: dict) -> str | None:
+    """Identify a worker belonging exactly to the requested MV3 script.
+
+    Unexpected URL components or an unrelated extension worker must not
+    satisfy the real-product quality gate.
+    """
+    from urllib.parse import urlsplit
+    if not isinstance(worker_url, str) or not isinstance(manifest, dict):
+        return None
+    background = manifest.get('background')
+    if not isinstance(background, dict):
+        return None
+    script = background.get('service_worker')
+    if not isinstance(script, str) or not script:
+        return None
+    try:
+        parsed = urlsplit(worker_url)
+    except ValueError:
+        return None
+    if (parsed.scheme != 'chrome-extension' or
+            not re.fullmatch(r'[a-p]{32}', parsed.netloc) or
+            parsed.path != '/' + script or
+            parsed.query or parsed.fragment or parsed.username or parsed.password):
+        return None
+    return parsed.netloc
+
+
+def popup_identity_matches(identity: dict, extid: str) -> bool:
+    """A loaded document alone does not prove correct extension identity."""
+    return (isinstance(identity, dict) and isinstance(extid, str) and
+            re.fullmatch(r'[a-p]{32}', extid) is not None and
+            identity.get('runtime_id') == extid and
+            identity.get('origin') == 'chrome-extension://' + extid)
+
+
 def verify_positive_control(page) -> bool:
     """Fail closed until popup JavaScript, worker message and storage all succeed."""
     page.locator('#gpt1-positive-control').wait_for(state='visible', timeout=5000)
@@ -189,7 +224,9 @@ def verify_positive_control(page) -> bool:
 def browser_probe(extension_dir: Path, profile: Path, *, browser_executable: str | None = None,
                   control: bool = False) -> dict:
     result = {'status': 'BLOCKED', 'browser_process': 'NOT_RUN',
-              'worker': 'NOT_RUN', 'popup': 'NOT_RUN', 'roundtrip': 'NOT_RUN', 'product_functionality': 'NOT_RUN'}
+              'worker': 'NOT_RUN', 'worker_identity': 'NOT_RUN',
+              'popup': 'NOT_RUN', 'popup_identity': 'NOT_RUN',
+              'roundtrip': 'NOT_RUN', 'product_functionality': 'NOT_RUN'}
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -230,6 +267,11 @@ def browser_probe(extension_dir: Path, profile: Path, *, browser_executable: str
                     result.update(reason='WORKER_NOT_OBSERVED', worker='NOT_OBSERVED')
                     return result
             result['worker'] = 'OBSERVED'
+            extid = worker_extension_id(worker.url, manifest)
+            if extid is None:
+                result['reason'] = 'WORKER_ORIGIN_OR_SCRIPT_MISMATCH'
+                return result
+            result['worker_identity'] = 'PASS'
             try:
                 info = worker.evaluate('() => ({name:chrome.runtime.getManifest().name, version:chrome.runtime.getManifest().version})')
                 if info.get('name') != manifest.get('name') or info.get('version') != manifest.get('version'):
@@ -240,7 +282,6 @@ def browser_probe(extension_dir: Path, profile: Path, *, browser_executable: str
                 return result
             result['worker'] = 'PASS'
             if popup:
-                extid = worker.url.split('/')[2]
                 try:
                     page = ctx.new_page()
                     page.goto('chrome-extension://' + extid + '/' + popup,
@@ -248,6 +289,12 @@ def browser_probe(extension_dir: Path, profile: Path, *, browser_executable: str
                     if not page.locator('html').count():
                         result['reason'] = 'POPUP_EMPTY'
                         return result
+                    identity = page.evaluate(
+                        "() => ({runtime_id: chrome.runtime?.id, origin: location.origin})")
+                    if not popup_identity_matches(identity, extid):
+                        result['reason'] = 'POPUP_EXTENSION_ORIGIN_MISMATCH'
+                        return result
+                    result['popup_identity'] = 'PASS'
                     if control:
                         try:
                             if not verify_positive_control(page):
@@ -310,7 +357,9 @@ def inspect(archive: Path, expected_sha256: str, selected_root: str,
             return report
         report['synthetic_control'] = control
         if (control.get('status') != 'PASS' or control.get('worker') != 'PASS'
-                or control.get('popup') != 'PASS' or control.get('roundtrip') != 'PASS'):
+                or control.get('worker_identity') != 'PASS' or
+                control.get('popup_identity') != 'PASS' or
+                control.get('popup') != 'PASS' or control.get('roundtrip') != 'PASS'):
             report['reason'] = 'BROWSER_HARNESS_CONTROL_FAILED'
             return report
         source = work/'source'
@@ -326,7 +375,10 @@ def inspect(archive: Path, expected_sha256: str, selected_root: str,
             return report
         report['product_browser'] = product
         if (product.get('status') != 'PASS' or product.get('worker') != 'PASS'
-                or product.get('popup') not in ('RENDERED_ONLY', 'NOT_DECLARED')):
+                or product.get('worker_identity') != 'PASS'
+                or product.get('popup') not in ('RENDERED_ONLY', 'NOT_DECLARED')
+                or (product.get('popup') == 'RENDERED_ONLY' and
+                    product.get('popup_identity') != 'PASS')):
             report['reason'] = 'PRODUCT_OFFLINE_BROWSER_CHECK_INCOMPLETE'
             return report
     report['status'] = 'PASS_OFFLINE_LOAD_ONLY'
@@ -363,7 +415,9 @@ def synthetic_only(parent_netns: str | None, executable: str | None = None,
         return report
     report['synthetic_control'] = observed
     if (observed.get('status') != 'PASS' or observed.get('worker') != 'PASS'
-            or observed.get('popup') != 'PASS' or observed.get('roundtrip') != 'PASS'):
+            or observed.get('worker_identity') != 'PASS' or
+            observed.get('popup_identity') != 'PASS' or
+            observed.get('popup') != 'PASS' or observed.get('roundtrip') != 'PASS'):
         report['reason'] = 'SYNTHETIC_CONTROL_NOT_PROVEN'
         return report
     report['status'] = 'PASS_SYNTHETIC_ONLY'
