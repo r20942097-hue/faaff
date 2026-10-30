@@ -81,10 +81,17 @@ jobs:
             console.log('Firefox lint issue: ' + (item.code ?? item.type ?? 'unknown') +
               ' ' + (item.message ?? ''));
           }
-          if (errors.length > 0 || ![0, 1].includes(Number(process.argv[3]))) {
+          // This is intentional in the MDN-supported cross-browser MV3
+          // manifest: Firefox uses background.scripts, Chromium uses service_worker.
+          const allowed = new Set(['BACKGROUND_SERVICE_WORKER_IGNORED']);
+          const unexpected = warnings.filter(v => !allowed.has(v.code));
+          if (errors.length > 0 || unexpected.length > 0 ||
+              ![0, 1].includes(Number(process.argv[3])) ||
+              (Number(process.argv[3]) === 1 && warnings.length === 0)) {
+            console.error('Firefox lint failed: errors or unexpected warnings remain.');
             process.exit(1);
           }
-          console.log('PASS: Mozilla web-ext lint has no blocking errors; warning severity under review.');
+          console.log('PASS: Mozilla web-ext lint; only documented Firefox MV3 fallback warning allowed.');
           NODE
       - name: Inventory Mozilla lint dependency advisories (advisory only)
         shell: bash
