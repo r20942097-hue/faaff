@@ -60,6 +60,17 @@ jobs:
           agent-reach version
           skillspector --help
           skillspector scan --help
+      - name: Exercise Windows SkillSpector identity preflight against installed CLI
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $p = '.\\integrations\\agent-tools\\agent-reach-skillspector\\Install-AgentReach-SkillSpector.ps1'
+          & $p -Target SkillSpector
+          if ($LASTEXITCODE -and $LASTEXITCODE -ne 0) {
+            throw 'Existing SkillSpector version validation failed'
+          }
+          Write-Host 'PASS: preinstalled SkillSpector verified without reinstallation.'
       - name: Static scanner test on synthetic harmless skill (Linux only)
         if: runner.os == 'Linux'
         shell: bash
