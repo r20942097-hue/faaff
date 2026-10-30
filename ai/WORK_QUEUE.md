@@ -9,6 +9,12 @@ This is an execution queue, **not** a release registry. Re-read actual Git branc
 3. **[BLOCKED_BY_SOURCE]** Validate complete authoritative source/version/hash and safe test fixtures for RPLAY and the three browser add-ons. Source candidate observations live in Draft PR [#39](https://github.com/r20942097-hue/faaff/pull/39), **not** in `main`. Do not select a newer release from uninspected archives or claim real Firefox/Windows/HLS/DASH E2E from static ZIP integrity.
 4. **[PENDING / PRODUCT]** Once source is verified and reviewed, reuse existing product-appropriate fixtures and browser harness proposals; keep static/synthetic/real-browser/real-site/real-device gates distinct. Native Windows Firefox, real YouTube and real streaming-site behavior remain **NOT_RUN** unless independently observed.
 
+## New CI evidence gate — staged in Draft PR #40
+
+- **[IMPLEMENTED_IN_DRAFT / CI_VERIFIED]** The existing `.github/workflows/ci.yml` now runs `ai/test_product_ci_gate.py` (eight offline unit cases) and a `product-evidence` job that distinguishes `PASS / NOT_RUN / NO_GO`. Missing runtime trees are valid only as engineering bootstrap; a partially imported root runtime attempts product tests instead of silently skipping.
+- **[NOT_A_RELEASE]** The `product-evidence` job can succeed when the baseline is bootstrap-only **while explicitly reporting `product_ci=NOT_RUN` and `release_gate=NO_GO`**. Do not interpret a green workflow as approved product output. Real-site, native Firefox/Windows and signed releases remain separate.
+- **[NEXT / NOT_MERGED]** Review the actual job summary and source change scope before any approval. This proposal must not be treated as active on `main` until a separately approved merge.
+
 ## Reuse, do not duplicate
 
 - **Main-present:** Source synchronization guard, CodeQL, Dependency Review, Dependabot, AI hub/pinned filter source validator, conservative filter-list checks. Main is an **engineering/bootstrap** tree and lacks complete RPLAY/three-addon runtimes. A CI result with a skipped product test is **not** product PASS.
