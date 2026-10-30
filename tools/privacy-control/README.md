@@ -205,3 +205,33 @@ to `PASS`; 38 candidate rules remain unapproved. This is not a workaround
 for a real Firefox profile and **no user PC or installed extension was
 modified**. Future work must establish a valid benign cross-host control
 and full removal/rollback before this gate can be marked PASS.
+
+## Phase 2d — nonforwarding Firefox HTTP-proxy lab
+
+Earlier five trials mapped external-looking hostnames to 127.0.0.1 or a
+TEST-NET IP on CI loopback. Benign cross-host requests did not arrive,
+making attribution to a tracker-specific rule **BLOCKED**. uBlock Origin
+has documented LAN-protection filters, a plausible confounder, although
+no matched-filter logger entry was captured, so the root cause is NOT proven.
+
+`firefox_proxy_probe.py` is a separate experiment: in an ephemeral
+Firefox profile, configure an explicit localhost HTTP proxy. The browser
+URLs retain the public-style hostname instead of resolving that hostname
+to a local destination. This local proxy answers only four hard-coded
+synthetic HTTP hostnames and a fixed image/page fixture; it rejects all
+HTTPS CONNECT, POST, unknown hostname, route or port requests with 403,
+**never forwards to the public internet**, and never changes system DNS.
+The official signed uBO XPI is still hash-pinned and temporary.
+
+Observe all four hosts with no extension, then with the real extension,
+then **after uninstall even if controls fail**. The report is written
+even if the test result is BLOCKED, with separate reason, actual result
+booleans and rollback evidence. An independent verifier rejects any
+unproven PASS, lost benign control, missing rollback, or live-site claim.
+No raw private URL, credentials or user data are collected.
+
+The existing failing hosts-file tests and `BLOCKED` history remain
+preserved; their results must not be silently reclassified. Even if this
+restricted proxy trial passes, that only demonstrates isolated HTTP
+behavior, **not** a real browser's enabled subscriptions, user settings,
+candidate v2 adoption, video/auth compatibility or real website efficacy.
