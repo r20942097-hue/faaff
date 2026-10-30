@@ -48,6 +48,21 @@ def verify(root: Path = ROOT) -> list[str]:
         errors.append("duplicate workstream ID")
     if source.get("schema") != "pinned-source-import/v1" or source.get("source_repository") != "r20942097-hue/s":
         errors.append("bad import provenance")
+
+    # The handoff state must describe the same immutable import as the
+    # canonical import manifest. The s/main HEAD can legitimately advance
+    # for excluded documentation without changing this pinned snapshot.
+    try:
+        state = json.loads((root / "ai/PROJECT_STATE.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        errors.append(f"unreadable project state: {exc}")
+    else:
+        if not isinstance(state, dict) or state.get("schema") != "project-state/v1" or state.get("repository") != "r20942097-hue/faaff":
+            errors.append("bad project state schema/repository")
+        else:
+            pinned = state.get("pinned_import")
+            if not isinstance(pinned, dict) or pinned.get("manifest") != "ai/imports/s.json" or pinned.get("source_commit") != source.get("source_commit"):
+                errors.append("project state / pinned import mismatch")
     observed_s = next((r.get("observed_head") for r in repos if isinstance(r, dict) and r.get("id") == "s"), None)
     if source.get("source_commit") != observed_s:
         errors.append("source commit / observed head mismatch")
