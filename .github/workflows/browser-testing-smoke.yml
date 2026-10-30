@@ -32,6 +32,10 @@ jobs:
           node --check integrations/browser-testing/fixture-mv3/background.js
           node --check integrations/browser-testing/fixture-mv3/popup.js
       - name: Verify MV3 Chromium and synthetic Firefox page
+        env:
+          # The container job runs as root; /github/home is owned by pwuser.
+          # Firefox requires HOME to be owned by the launching user.
+          HOME: /root
         shell: bash
         run: |
           set -euo pipefail
