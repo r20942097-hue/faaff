@@ -14,7 +14,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$agentReachRelease = 'https://github.com/Panniantong/Agent-Reach/archive/refs/tags/v1.6.0.zip'
+$agentReachRelease = 'git+https://github.com/Panniantong/Agent-Reach.git@beabda7486e9a666360b18cdb5c0e759c2c4d20f'
 $skillSpectorSource = 'git+https://github.com/NVIDIA/skillspector.git@54921c8c7c23008c8af2328d5ab492a904b6ece4'
 $wantAgentReach = $Target -eq 'Both' -or $Target -eq 'AgentReach'
 $wantSkillSpector = $Target -eq 'Both' -or $Target -eq 'SkillSpector'
@@ -31,7 +31,7 @@ function Invoke-Checked {
 
 Write-Host 'Development tool setup — existing installations are not overwritten.'
 Write-Host 'Target:' $Target
-Write-Host 'Pinned Agent Reach version: v1.6.0'
+Write-Host 'Pinned Agent Reach version: v1.6.0 / beabda7486e9a666360b18cdb5c0e759c2c4d20f'
 Write-Host 'SkillSpector: upstream commit 54921c8c7c23008c8af2328d5ab492a904b6ece4 (content-ref pinned).'
 
 if ($DryRun) {
