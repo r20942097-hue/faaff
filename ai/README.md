@@ -45,6 +45,12 @@ python -m unittest discover -s ai/tests -p 'test_*.py' -v
 
 The existing `AI hub and pinned filter source` workflow includes this suite on pull requests under Python 3.11, 3.14 and 3.15.2; the pre-existing 3.11/3.14 required check identities remain unchanged and required jobs are **not** path-skipped as an optimization. Inspect the exact CI result and current GitHub Ruleset before any approval decision.
 
+### Cross-platform input hardening
+
+The advisory policy classification treats ASCII path prefixes case-insensitively to prevent Windows-path variants from downgrading published-list changes; it rejects NTFS alternate-stream syntax and suspicious secret-bearing paths. It does **not** expand the set of authorized GitHub operations.
+
+The pinned-source integrity verifier now rejects a symlink in any manifest path component (including an import-root ancestor), rejects extra symlinks and reports non-object metadata cleanly. The full byte-for-byte Git blob check remains unchanged. Regression tests include negative fixtures; Windows runners may skip symlink-creation fixtures when the OS disallows test symlinks, while Linux executes them. The Windows workflow disables automatic CRLF conversion before checkout to preserve canonical imported bytes.
+
 ## Python 3.15 compatibility (2026-10-31)
 
 Python 3.15.2 (released 2026-10-25) is the first 3.15 patch tested here; 3.15.0/3.15.1 are not an acceptable security baseline for this evaluation. The pinned `3.15.2` setup-python entry runs actual hub state/import verification, decision-contract regression tests, imported filter unit tests, and generated-list parity. Versions 3.11 and 3.14 remain available and required by the current Ruleset.
