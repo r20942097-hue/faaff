@@ -1,0 +1,2 @@
+# Latest verified PyPI stable release on 2026-10-30; update deliberately.
+playwright==1.64.1
