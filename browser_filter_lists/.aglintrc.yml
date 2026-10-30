@@ -1,0 +1,5 @@
+# Independent syntax lint for the published lists (see README.md, Validation).
+# Kept here, not in tooling/: AGLint looks for its config in ancestors of the linted files.
+root: true
+extends:
+  - aglint:recommended

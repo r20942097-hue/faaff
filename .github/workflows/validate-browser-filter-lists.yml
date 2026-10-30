@@ -37,3 +37,11 @@ jobs:
         run: python browser_filter_lists/scripts/validate_candidate_promotion.py
       - name: Check generated candidate report
         run: python browser_filter_lists/scripts/render_candidate_report.py --check
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+      - name: Install pinned lint tooling (lockfile, no install scripts)
+        run: npm ci --prefix browser_filter_lists/tooling --ignore-scripts --no-audit --no-fund
+      - name: Independent syntax lint of published lists (AGLint)
+        working-directory: browser_filter_lists
+        run: ./tooling/node_modules/.bin/aglint filters/*.txt

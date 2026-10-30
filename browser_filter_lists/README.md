@@ -76,7 +76,16 @@ python browser_filter_lists/scripts/validate_candidate_promotion.py
 python browser_filter_lists/scripts/render_candidate_report.py --check
 ```
 
-GitHub Actions runs compilation, regression tests, stable-list validation, candidate-evidence freshness validation, cross-source promotion gates, and generated-report consistency checks on relevant pushes and pull requests, plus a weekly scheduled check.
+Optional independent syntax lint with the pinned [AGLint](https://github.com/AdguardTeam/AGLint) (MIT; requires Node.js 18 or later; no install scripts are run):
+
+```bash
+npm ci --prefix browser_filter_lists/tooling --ignore-scripts --no-audit --no-fund
+cd browser_filter_lists && ./tooling/node_modules/.bin/aglint filters/*.txt
+```
+
+The tooling is lint-only and is not part of any published list. Update its pin through the Dependabot PRs for `browser_filter_lists/tooling`.
+
+GitHub Actions runs compilation, regression tests, stable-list validation, candidate-evidence freshness validation, cross-source promotion gates, generated-report consistency checks, and the AGLint syntax lint on relevant pushes and pull requests, plus a weekly scheduled check.
 
 ## Shared workspace generation
 
