@@ -42,3 +42,11 @@ jobs:
         run: python -VV
       - name: Import-safety regression tests
         run: python -m unittest discover -s ai/tests -p 'test_*.py' -v
+      - name: Cross-platform pinned import blob integrity
+        run: python ai/check_hub.py
+      - name: Imported source unit tests
+        run: python -m unittest discover -s integrations/browser-filters/source/s/tests -p 'test_*.py' -v
+      - name: Imported list validation
+        run: python integrations/browser-filters/source/s/scripts/validate_lists.py
+      - name: Imported generated-list parity
+        run: python integrations/browser-filters/source/s/scripts/generate_lists.py --check
