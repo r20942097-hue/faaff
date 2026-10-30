@@ -51,6 +51,21 @@ The advisory policy classification treats ASCII path prefixes case-insensitively
 
 The pinned-source integrity verifier now rejects a symlink in any manifest path component (including an import-root ancestor), rejects extra symlinks and reports non-object metadata cleanly. The full byte-for-byte Git blob check remains unchanged. Regression tests include negative fixtures; Windows runners may skip symlink-creation fixtures when the OS disallows test symlinks, while Linux executes them. The Windows workflow disables automatic CRLF conversion before checkout to preserve canonical imported bytes.
 
+## Live GitHub evidence inspection (read-only)
+
+After all PR jobs have completed, fetch actual evidence directly from GitHub rather than copying green check names into a handoff. This command uses only **GET** API requests and outputs an advisory JSON assessment:
+
+```sh
+python -m ai.inspect_pr r20942097-hue/faaff 44 --ruleset-id 26005483
+python -m ai.inspect_pr r20942097-hue/s 16 --ruleset-id 26005481
+```
+
+The ruleset IDs above are the branch-protection rulesets verified on 2026-10-31. Re-read applicable active Rulesets if the configuration changes; the command audits the **one explicitly selected ruleset** and is **not** proof that other protections are absent. For public repositories, the GitHub API may work without a token subject to its request rate limits. `GH_TOKEN` or `GITHUB_TOKEN` can optionally be supplied via the process environment (never commit or print credentials).
+
+`ai/inspect_pr.py` paginates the complete changed-file/check-run collections, checks exact HEAD/base stability by re-fetching the PR, uses both names on rename, checks active ruleset scope, and matches the required check `context`, issuing GitHub App `integration_id`, HEAD SHA, completed status, and successful conclusion. Missing, duplicate, skipped, in-progress, mismatched, inaccessible or incomplete evidence is **BLOCKED**. `AWAITING_OWNER_APPROVAL` means evidence passed this selected snapshot's checks but owner authorization and every other GitHub/release gate are **still required**. It does not merge, review, post data, write files, or claim product E2E acceptance. Re-run the command after any PR head, ruleset, or CI status changes.
+
+The deterministic adversarial fixtures are tested offline in `ai/tests/test_github_evidence.py`; executing those fixtures does **not** prove the remote GitHub API was contacted successfully. Network failures must be reported `BLOCKED`, not silently inferred as a green gate.
+
 ## Python 3.15 compatibility (2026-10-31)
 
 Python 3.15.2 (released 2026-10-25) is the first 3.15 patch tested here; 3.15.0/3.15.1 are not an acceptable security baseline for this evaluation. The pinned `3.15.2` setup-python entry runs actual hub state/import verification, decision-contract regression tests, imported filter unit tests, and generated-list parity. Versions 3.11 and 3.14 remain available and required by the current Ruleset.
