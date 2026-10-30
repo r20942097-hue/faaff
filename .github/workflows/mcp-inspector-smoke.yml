@@ -42,7 +42,7 @@ jobs:
           test -x "$inspector"
           echo "MCP_INSPECTOR_BIN=$inspector" >> "$GITHUB_ENV"
           "$inspector" --cli --help >/dev/null
-      - name: Inventory published npm advisories (report counts, no credentials)
+      - name: Gate high/critical npm advisories for locked dependencies
         shell: bash
         run: |
           set -euo pipefail
@@ -62,6 +62,10 @@ jobs:
           console.log('Published npm advisory counts: ' +
             ['critical', 'high', 'moderate', 'low', 'total']
               .map(key => key + '=' + (vuln[key] ?? 0)).join(' '));
+          if ((vuln.critical ?? 0) > 0 || (vuln.high ?? 0) > 0) {
+            console.error('Known high/critical npm vulnerabilities violate the CI gate.');
+            process.exit(1);
+          }
           NODE
       - name: Validate stdio tools/list and schema portability
         shell: bash
