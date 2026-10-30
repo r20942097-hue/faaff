@@ -150,6 +150,21 @@ def summary(report):
         "**Not a full subscription, actual active browser configuration, or live-site privacy measurement.**",
         "No automatic candidate adoption. Release **NO_GO**.",
         "",
+        "### Candidate hosts with additional synthetic matches",
+        "",
+        "| Candidate hostname | Additional uBO cases | Additional Ghostery cases |",
+        "|---|---:|---:|",
+        *[
+            "| `" + entry["host"] + "` | "
+            + str(len(entry["additional_synthetic_cases"]["ubo"])) + " | "
+            + str(len(entry["additional_synthetic_cases"]["ghostery"])) + " |"
+            for entry in report["per_host"]
+            if entry["additional_synthetic_cases"]["ubo"]
+               or entry["additional_synthetic_cases"]["ghostery"]
+        ],
+        "",
+        "These are **fixture cases**, not proven tracking hosts newly blocked for any real user.",
+        "",
     ]
     return "\n".join(lines)
 

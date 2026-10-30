@@ -72,6 +72,14 @@ class StockVerdictTests(unittest.TestCase):
         self.assertIn("NO_GO", summary(self.document))
         self.assertIn("NOT full EasyPrivacy", summary(self.document))
 
+    def test_summary_surfaces_incremental_candidate_hosts_without_safety_claim(self):
+        host = self.document["per_host"][0]["host"]
+        self.document["per_host"][0]["additional_synthetic_cases"]["ubo"] = ["third-party-script"]
+        rendered = summary(self.document)
+        self.assertIn(host, rendered)
+        self.assertIn("fixture cases", rendered)
+        self.assertIn("NO_GO", rendered)
+
     def test_fake_publication_and_user_stock_claim_rejected(self):
         for key, wrong in (("publication","GO"),
                            ("actual_browser_enabled_lists","VERIFIED"),
