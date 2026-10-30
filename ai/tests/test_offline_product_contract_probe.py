@@ -161,4 +161,104 @@ class ContractGateTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'ARCHIVE_EXCEEDS_SIZE_LIMIT'):
                 probe.archive_bytes(self.zip,hashlib.sha256(self.zip.read_bytes()).hexdigest())
 
+
+class ReviewedSuiteTests(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.base=Path(self.temp.name)
+        self.suite=Path(__file__).with_name('product_contracts.js')
+        self.wrapper=Path(__file__).with_name('isolate_node.sh')
+
+    def test_repository_runner_is_exactly_pinned(self):
+        self.assertTrue(probe.reviewed_runner_files(self.suite,self.wrapper))
+
+    def test_edited_test_script_rejected_before_execution(self):
+        script=self.base/'evil.js';script.write_bytes(self.suite.read_bytes()+b'\n//surprise')
+        self.assertFalse(probe.reviewed_runner_files(script,self.wrapper))
+        with patch.object(probe.subprocess,'run') as exec_mock,patch.object(probe.shutil,'which',return_value='/bin/test'):
+            result=probe.run_isolated(self.base,script,self.wrapper)
+        self.assertEqual(result['reason'],'REVIEWED_SUITE_OR_WRAPPER_HASH_MISMATCH')
+        exec_mock.assert_not_called()
+
+    def test_modified_wrapper_rejected_before_execution(self):
+        script=self.base/'runner.sh';script.write_bytes(self.wrapper.read_bytes()+b'\necho BYPASS')
+        self.assertFalse(probe.reviewed_runner_files(self.suite,script))
+
+    def test_missing_runner_fails_closed(self):
+        self.assertFalse(probe.reviewed_runner_files(self.base/'missing',self.wrapper))
+
+    def test_symlink_runner_rejected(self):
+        link=self.base/'linked-suite.js'
+        try:link.symlink_to(self.suite)
+        except (OSError,NotImplementedError):self.skipTest('symlinks unavailable')
+        self.assertFalse(probe.reviewed_runner_files(link,self.wrapper))
+
+    def test_oversize_runner_refused(self):
+        script=self.base/'too-large.js';script.write_bytes(b'x'*(32*1024+1))
+        self.assertFalse(probe.reviewed_runner_files(script,self.wrapper))
+
+    def _run_with_receipt(self, verdict):
+        with patch.object(probe.subprocess,'run',return_value=type('Result',(),{
+             'returncode':0,'stdout':'GPT1_ISOLATION_PROVEN_BY_WRAPPER\n'+json.dumps(verdict)})()), \
+             patch.object(probe.shutil,'which',return_value='/bin/tool'), \
+             patch.object(probe.sys,'platform','linux'), \
+             patch.object(probe.os,'readlink',return_value='net:[111]'):
+            return probe.run_isolated(self.base,self.suite,self.wrapper)
+
+    def _valid_receipt(self):
+        return {'status':'PASS','count':probe.EXPECTED_COUNT,'test_scope':probe.EXPECTED_SCOPE,
+                'network_isolated':True,'filesystem_permission_model':'NODE_PERMISSION'}
+
+    def test_known_good_receipt_accepts_reviewed_fixture(self):
+        # The actual subprocess is mocked. This proves the gate condition only.
+        result=self._run_with_receipt(self._valid_receipt())
+        self.assertEqual(result['status'],'PASS')
+
+    def test_forged_zero_or_smaller_or_larger_count_rejected(self):
+        for count in (0,1,414,416,418,100000,True,'417'):
+            with self.subTest(count=count):
+                case=self._valid_receipt();case['count']=count
+                result=self._run_with_receipt(case)
+                self.assertEqual(result['reason'],'ISOLATED_EVIDENCE_INCOMPLETE')
+
+    def test_forged_scope_rejected(self):
+        for scope in ('anything',None,'PASS',probe.EXPECTED_SCOPE+' '):
+            with self.subTest(scope=scope):
+                case=self._valid_receipt();case['test_scope']=scope
+                self.assertEqual(self._run_with_receipt(case)['status'],'BLOCKED')
+
+    def test_network_false_claim_rejected(self):
+        for network in (False,None,1,'true'):
+            with self.subTest(network=network):
+                case=self._valid_receipt();case['network_isolated']=network
+                self.assertEqual(self._run_with_receipt(case)['status'],'BLOCKED')
+
+    def test_unverified_sandbox_level_not_claimed(self):
+        case=self._valid_receipt()
+        accepted=self._run_with_receipt(case)
+        self.assertNotIn('browser_e2e',accepted)
+        self.assertNotIn('release_approved',accepted)
+
+    def test_node_permission_missing_rejected(self):
+        case=self._valid_receipt();case['filesystem_permission_model']='NONE'
+        self.assertEqual(self._run_with_receipt(case)['status'],'BLOCKED')
+
+    def test_zip_special_file_types_rejected(self):
+        root='rplay-stable-player-extension/'
+        with zipfile.ZipFile(self.base/'special.zip','w') as z:
+            z.writestr(root+'manifest.json',json.dumps({'manifest_version':3,'background':{'service_worker':'background.js'}}))
+            for name in probe.MODULES:z.writestr(root+name,'const x=1;')
+            info=zipfile.ZipInfo(root+'device')
+            info.create_system=3
+            info.external_attr=(stat.S_IFCHR|0o666)<<16
+            z.writestr(info,b'foo')
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValueError,'UNSAFE_ARCHIVE_MEMBER'):
+                probe.extract_pure_modules((self.base/'special.zip').read_bytes(),root,Path(directory))
+
+    def test_result_scope_retains_explicit_no_go(self):
+        self.assertEqual(probe.EXPECTED_COUNT,417)
+        self.assertIn('not browser/recording E2E',probe.EXPECTED_SCOPE)
+
 if __name__=='__main__':unittest.main()
