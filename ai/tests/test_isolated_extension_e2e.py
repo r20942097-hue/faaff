@@ -94,7 +94,7 @@ class ExtractionTests(unittest.TestCase):
                 with self.assertRaises(ValueError):gate.extract_verified_root(p,root,out)
 
 class DecisionTests(unittest.TestCase):
-    def run_gate(self,source=None,control=None,product=None,root='ext/'):
+    def run_gate(self,source=None,control=None,product=None,root='ext/',js=None):
         calls=[]
         def runner(*args,**kw):
             calls.append(kw['control'])
@@ -103,7 +103,11 @@ class DecisionTests(unittest.TestCase):
             with patch.object(gate,'extract_verified_root',return_value={'files':1}):
                 result=gate.inspect(Path('fixture.zip'),'0'*64,root,'net:[1]',
                     preflight=lambda *args:source or {'status':'PASS','manifest_roots':['ext/']},
-                    runner=runner)
+                    runner=runner,
+                    js_preflight=lambda *_: js if js is not None else {
+                        'status':'PASS_SYNTAX_REFS_ONLY','sha256':'0'*64,'root':root,
+                        'scripts_checked':3,'issues':[],'warnings':[],
+                        'syntax_failures':[],'release_decision':'CANDIDATE_NO_GO'})
         return result,calls
 
     def test_source_failure_prevents_any_browser(self):
@@ -410,3 +414,72 @@ class RuntimeIdentityTests(unittest.TestCase):
         self.assertEqual(outcome['reason'], 'PRODUCT_OFFLINE_BROWSER_CHECK_INCOMPLETE')
         self.assertEqual(calls, [True, False])
 
+
+
+class JavaScriptBeforeProductTests(unittest.TestCase):
+    def test_real_gate_detects_missing_node(self):
+        self.assertFalse(gate.javascript_gate_approved({'status':'PARTIAL'}, '0'*64, 'ext/'))
+
+    def test_invalid_js_evidence_does_not_start_browser(self):
+        r,c=DecisionTests().run_gate(js={'status':'FAIL','issues':['SYNTAX_ERROR']})
+        self.assertEqual(r['status'],'FAIL')
+        self.assertEqual(r['reason'],'JS_PREFLIGHT_NOT_FULLY_PASS_OR_WRONG_ARTIFACT')
+        self.assertEqual(c,[])
+        self.assertEqual(r['product_browser'],'NOT_RUN')
+
+    def test_partial_js_evidence_blocks_browser(self):
+        r,c=DecisionTests().run_gate(js={'status':'PARTIAL','warnings':['NODE_NOT_AVAILABLE']})
+        self.assertEqual(r['status'],'BLOCKED')
+        self.assertEqual(c,[])
+
+    def test_digest_mismatch_blocks_js_stage(self):
+        report={'status':'PASS_SYNTAX_REFS_ONLY','sha256':'f'*64,'root':'ext/',
+                'scripts_checked':3,'issues':[],'warnings':[],'syntax_failures':[],
+                'release_decision':'CANDIDATE_NO_GO'}
+        r,c=DecisionTests().run_gate(js=report)
+        self.assertEqual(c,[])
+        self.assertEqual(r['status'],'BLOCKED')
+
+    def test_missing_script_count_is_not_pass(self):
+        report={'status':'PASS_SYNTAX_REFS_ONLY','sha256':'0'*64,'root':'ext/',
+                'issues':[],'warnings':[],'syntax_failures':[],
+                'release_decision':'CANDIDATE_NO_GO'}
+        r,c=DecisionTests().run_gate(js=report)
+        self.assertEqual(r['status'],'BLOCKED')
+        self.assertEqual(c,[])
+
+    def test_bool_script_count_is_not_pass(self):
+        report={'status':'PASS_SYNTAX_REFS_ONLY','sha256':'0'*64,'root':'ext/',
+                'scripts_checked':True,'issues':[],'warnings':[],'syntax_failures':[],
+                'release_decision':'CANDIDATE_NO_GO'}
+        self.assertFalse(gate.javascript_gate_approved(report,'0'*64,'ext/'))
+
+    def test_expected_good_js_preflight_reaches_synthetic_then_product(self):
+        r,c=DecisionTests().run_gate()
+        self.assertEqual(c,[True,False])
+        self.assertEqual(r['status'],'PASS_OFFLINE_LOAD_ONLY')
+        self.assertEqual(r['js_preflight']['status'],'PASS_SYNTAX_REFS_ONLY')
+        self.assertEqual(r['release_decision'],'CANDIDATE_NO_GO')
+
+    def test_js_preflight_exception_fails_closed(self):
+        with patch.object(gate,'isolation_check',return_value=[]):
+            r=gate.inspect(Path('x.zip'),'0'*64,'ext/','net:[1]',
+                preflight=lambda *_:{'status':'PASS','manifest_roots':['ext/']},
+                js_preflight=lambda *_:(_ for _ in ()).throw(ImportError('no js checker')))
+        self.assertEqual(r['reason'],'JS_PREFLIGHT_UNAVAILABLE_OR_INVALID')
+        self.assertEqual(r['product_browser'],'NOT_RUN')
+
+    def test_wrong_root_or_release_state_fails(self):
+        report={'status':'PASS_SYNTAX_REFS_ONLY','sha256':'0'*64,'root':'wrong/',
+                'scripts_checked':3,'issues':[],'warnings':[],'syntax_failures':[],
+                'release_decision':'CANDIDATE_NO_GO'}
+        self.assertFalse(gate.javascript_gate_approved(report,'0'*64,'ext/'))
+        report['root']='ext/'
+        report['release_decision']='GO'
+        self.assertFalse(gate.javascript_gate_approved(report,'0'*64,'ext/'))
+
+    def test_js_preflight_delegates_exact_arguments(self):
+        with patch.dict(sys.modules, {'extension_js_preflight': __import__('types').SimpleNamespace(
+            inspect=lambda path, sha, root: (path,sha,root))}):
+            self.assertEqual(gate.javascript_preflight(Path('a.zip'),'0'*64,'ext/'),
+                             (Path('a.zip'),'0'*64,'ext/'))
