@@ -28,18 +28,13 @@ jobs:
             echo "::error::ZIP/7z archives must not be committed (see AGENTS.md)"
             exit 1
           fi
-      - id: check
-        name: Check source tree
+      - name: Verify runtime source gate regressions
         shell: bash
-        run: |
-          if [[ -f rplay_watcher/__init__.py && -f pyproject.toml ]]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-            echo "Complete source tree detected; full CI will run."
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "Repository is in bootstrap/source-sync state; full runtime CI is intentionally not claimed."
-          fi
-
+        run: bash ai/tests/test_runtime_source_gate.sh
+      - id: check
+        name: Classify runtime source state
+        shell: bash
+        run: bash ai/check_runtime_source.sh
   test:
     name: Python ${{ matrix.python-version }} / ${{ matrix.os }}
     needs: source-check
