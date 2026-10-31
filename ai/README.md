@@ -20,6 +20,15 @@ Five PR workflows (AI hub, CI, CodeQL, Dependency Review and filter validation) 
 
 Published list files, release gates, CI job identities, required checks, and the separate `s` filter source remain unchanged. The goal is eliminating redundant execution, not skipping coverage on current changes.
 
+## Workflow dependency hardening (2026-10-31)
+
+Official GitHub Actions dependency lockfiles became generally available on 2026-10-28 (https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies). They can cover transitive action dependencies and repository identity. The lockfile must be **generated** with `gh actions-lock` and must never be edited or fabricated manually. A lockfile does not prove that a dependency is safe or pin reusable-workflow implementations.
+
+**Implemented now:** `ai/tests/test_workflow_security.py` uses only Python's standard library to guard existing full-SHA `uses` pins, nonpersistent checkout credentials, least-privilege workflow permissions, PR-only cancellation, and Windows Git blob CRLF preservation. No workflow or required CI job names were changed. This test is only an offline configuration regression; it is not a transitive dependency audit.
+
+**Pending:** this environment lacks `gh` CLI and external network resolution. No `.github/workflows/actions.lock` has been generated. After a suitable authenticated environment is available, separately onboard each repository using the official extension `gh extension install github/gh-actions-lock` and `gh actions-lock`, review every generated change, and verify with real Actions before applying a lockfile requirement. Update SHA-only tests when a verified migration adopts version references plus a valid lockfile; never weaken policy preemptively.
+
+The current GitHub REST API header version `2022-11-28` remains officially supported through 2028-03-10; changing to version `2026-03-10` would require a separate breaking-change review and live API regression, not an automatic migration.
 ## Offline checks (from faaff root)
 
 ```sh
