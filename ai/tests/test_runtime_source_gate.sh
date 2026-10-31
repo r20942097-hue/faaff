@@ -31,6 +31,11 @@ assert_case() {
     no_tests) make_complete "$root"; rmdir "$root/tests" ;;
     empty_required) make_complete "$root"; : > "$root/extension/popup.js" ;;
     complete) make_complete "$root" ;;
+    symlink_file) make_complete "$root"; make_file "$tmp/outside.js"; rm "$root/extension/popup.js"; ln -s "$tmp/outside.js" "$root/extension/popup.js" ;;
+    symlink_dir) make_complete "$root"; mv "$root/extension" "$tmp/real_extension"; ln -s "$tmp/real_extension" "$root/extension" ;;
+    symlink_tests) make_complete "$root"; rmdir "$root/tests"; mkdir -p "$tmp/outside_tests"; ln -s "$tmp/outside_tests" "$root/tests" ;;
+    dangling_marker) make_file "$root/pyproject.toml"; ln -s "$tmp/does_not_exist" "$root/extension" ;;
+    symlink_pyproject) make_file "$tmp/outside_pyproject.toml"; ln -s "$tmp/outside_pyproject.toml" "$root/pyproject.toml" ;;
     *) echo "Unknown fixture $name" >&2; exit 2 ;;
   esac
   : > "$tmp/output"
@@ -58,4 +63,9 @@ assert_case tests_only 1 PARTIAL_SOURCE false
 assert_case no_tests 1 PARTIAL_SOURCE false
 assert_case empty_required 1 PARTIAL_SOURCE false
 assert_case complete 0 COMPLETE_SOURCE true
-echo "Runtime source gate fixtures: 8/8 PASS"
+assert_case symlink_file 1 PARTIAL_SOURCE false
+assert_case symlink_dir 1 PARTIAL_SOURCE false
+assert_case symlink_tests 1 PARTIAL_SOURCE false
+assert_case dangling_marker 1 PARTIAL_SOURCE false
+assert_case symlink_pyproject 1 PARTIAL_SOURCE false
+echo "Runtime source gate fixtures: 13/13 PASS"
