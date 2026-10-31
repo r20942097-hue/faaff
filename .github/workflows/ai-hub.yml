@@ -15,6 +15,12 @@ on:
 permissions:
   contents: read
 
+# Supersede only obsolete runs of the same PR for this workflow.
+# Do not cancel main pushes or manual checks, and never cross workflows.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   pinned-import:
     runs-on: ubuntu-latest
@@ -22,7 +28,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.11', '3.14']
+        python-version: ['3.11', '3.14', '3.15.2']
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -30,11 +36,90 @@ jobs:
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Show interpreter version
+        run: python --version
       - name: Verify AI index and pinned Git blob hashes
         run: python ai/check_hub.py
+      - name: AI hub state/import regression tests
+        run: python -m unittest discover -s ai/tests -p 'test_*.py' -v
       - name: Imported source unit tests
         run: python -m unittest discover -s integrations/browser-filters/source/s/tests -p 'test_*.py' -v
       - name: Imported list and include validation
         run: python integrations/browser-filters/source/s/scripts/validate_lists.py
       - name: Imported generated-list parity
         run: python integrations/browser-filters/source/s/scripts/generate_lists.py --check
+
+  # Optional Windows parity probe; required Linux check contexts remain stable.
+  windows315-compat:
+    name: Windows Python 3.15.2 compatibility
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Preserve canonical LF bytes before checkout
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.15.2'
+      - name: Show interpreter version
+        run: python --version
+      - name: Verify hub and pinned source integrity
+        run: python ai/check_hub.py
+      - name: Run AI decision and state regression tests
+        run: python -m unittest discover -s ai/tests -p 'test_*.py' -v
+      - name: Run pinned filter unit tests
+        run: python -m unittest discover -s integrations/browser-filters/source/s/tests -p 'test_*.py' -v
+      - name: Validate pinned filters
+        run: python integrations/browser-filters/source/s/scripts/validate_lists.py
+      - name: Verify pinned filter generation parity
+        run: python integrations/browser-filters/source/s/scripts/generate_lists.py --check
+
+  # Advisory API smoke after all hub jobs; never a merge or release gate.
+  live-pr-evidence-smoke:
+    name: Read-only GitHub API smoke (not a merge gate)
+    if: github.event_name == 'pull_request'
+    needs: [pinned-import, windows315-compat]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.11'
+      - name: Fetch live PR, effective rules, and check-run evidence
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python -m ai.inspect_pr "$GITHUB_REPOSITORY" "$PR_NUMBER" --ruleset-id 26005483 --expected-head-sha "$PR_HEAD_SHA" > "$RUNNER_TEMP/evidence.json" || true
+          cat "$RUNNER_TEMP/evidence.json"
+          python - "$RUNNER_TEMP/evidence.json" <<'PY'
+          import json, sys
+          with open(sys.argv[1], encoding="utf-8") as f:
+              result = json.load(f)
+          if result.get("live_api_collected") is not True:
+              raise SystemExit("LIVE_API_SMOKE_FAIL: evidence was not collected from all required API endpoints")
+          if result.get("event_head_verified") is not True or result.get("head_sha") != __import__("os").environ["PR_HEAD_SHA"]:
+              raise SystemExit("LIVE_API_SMOKE_FAIL: observed PR HEAD is not the triggering event HEAD")
+          if result.get("status") not in {"BLOCKED", "AWAITING_OWNER_APPROVAL"}:
+              raise SystemExit("LIVE_API_SMOKE_FAIL: unknown policy status")
+          if result.get("status") == "BLOCKED":
+              pending = result.get("pending_checks", [])
+              nonpassing = result.get("nonpassing_checks", [])
+              if pending and not nonpassing:
+                  print("LIVE_API_AUDIT_PENDING: required checks still running =", ", ".join(pending))
+              else:
+                  print("LIVE_API_AUDIT_BLOCKED: inspect reasons and nonpassing checks", nonpassing)
+          print("LIVE_API_SMOKE_PASS: API queries completed; advisory policy status =", result["status"])
+          print("LIVE_API_SMOKE_PASS is NOT a merge, review, or release authorization")
+          PY

@@ -15,9 +15,21 @@ STATES = {"bootstrap_only", "main_present", "pinned_snapshot", "open_draft"}
 def safe_path(value: object) -> bool:
     return (
         isinstance(value, str) and bool(value) and chr(92) not in value
+        and ":" not in value  # Windows NTFS alternate streams/drive syntax
+        and not any(ord(ch) < 32 or ord(ch) == 127 for ch in value)
         and not value.startswith("/")
         and all(part not in ("", ".", "..") for part in value.split("/"))
     )
+
+
+def linked_component(base: Path, relative: str) -> bool:
+    """Reject links at *any* component of an untrusted manifest path."""
+    current = base
+    for part in relative.rstrip("/").split("/"):
+        current = current / part
+        if current.is_symlink():
+            return True
+    return False
 
 
 def blob_sha(content: bytes) -> str:
@@ -31,6 +43,9 @@ def verify(root: Path = ROOT) -> list[str]:
         source = json.loads((root / "ai/imports/s.json").read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         return [f"unreadable metadata: {exc}"]
+
+    if not isinstance(projects, dict) or not isinstance(source, dict):
+        return ["invalid metadata structure: expected JSON objects"]
 
     if projects.get("schema") != "ai-hub-registry/v1" or projects.get("hub") != "r20942097-hue/faaff":
         errors.append("bad project registry schema/hub")
@@ -48,6 +63,21 @@ def verify(root: Path = ROOT) -> list[str]:
         errors.append("duplicate workstream ID")
     if source.get("schema") != "pinned-source-import/v1" or source.get("source_repository") != "r20942097-hue/s":
         errors.append("bad import provenance")
+
+    # The handoff state must describe the same immutable import as the
+    # canonical import manifest. The s/main HEAD can legitimately advance
+    # for excluded documentation without changing this pinned snapshot.
+    try:
+        state = json.loads((root / "ai/PROJECT_STATE.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        errors.append(f"unreadable project state: {exc}")
+    else:
+        if not isinstance(state, dict) or state.get("schema") != "project-state/v1" or state.get("repository") != "r20942097-hue/faaff":
+            errors.append("bad project state schema/repository")
+        else:
+            pinned = state.get("pinned_import")
+            if not isinstance(pinned, dict) or pinned.get("manifest") != "ai/imports/s.json" or pinned.get("source_commit") != source.get("source_commit"):
+                errors.append("project state / pinned import mismatch")
     observed_s = next((r.get("observed_head") for r in repos if isinstance(r, dict) and r.get("id") == "s"), None)
     if source.get("source_commit") != observed_s:
         errors.append("source commit / observed head mismatch")
@@ -55,6 +85,8 @@ def verify(root: Path = ROOT) -> list[str]:
     prefix = source.get("target_prefix", "")
     if not safe_path(prefix.rstrip("/")) or prefix != "integrations/browser-filters/source/s/":
         return errors + ["unsafe or unexpected import prefix"]
+    if linked_component(root, prefix):
+        return errors + ["linked import root path"]
     files = source.get("files", [])
     if not isinstance(files, list) or not files:
         return errors + ["empty import manifest"]
@@ -70,12 +102,20 @@ def verify(root: Path = ROOT) -> list[str]:
             continue
         seen.add(name)
         target = imported / name
-        if target.is_symlink() or not target.is_file():
+        if linked_component(imported, name) or not target.is_file():
             errors.append(f"missing or linked source: {name}")
             continue
-        content = target.read_bytes()
+        try:
+            content = target.read_bytes()
+        except OSError as exc:
+            errors.append(f"unreadable source: {name}: {exc}")
+            continue
         if len(content) != size or blob_sha(content) != sha:
             errors.append(f"source blob mismatch: {name}")
+    # Extra symlinks should also fail even if they are not manifest entries.
+    for path in imported.rglob("*"):
+        if path.is_symlink():
+            errors.append(f"linked extra source: {path.relative_to(imported).as_posix()}")
     actual = {p.relative_to(imported).as_posix() for p in imported.rglob("*") if p.is_file() and "__pycache__" not in p.parts}
     if actual != seen:
         errors.append(f"import file set drift: missing={sorted(seen - actual)}, extra={sorted(actual - seen)}")
