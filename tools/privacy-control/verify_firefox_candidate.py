@@ -66,6 +66,38 @@ def audit(report):
     if (report.get("incremental_synthetic_hosts") != incremental
             or report.get("incremental_synthetic_host_count") != len(incremental)):
         errors.append("incremental host counts not evidence-based")
+    scripts=report.get("script_stage_receipts")
+    script_rounds=report.get("script_two_round_receipts")
+    if not isinstance(scripts,dict) or set(scripts)!=set(stages):
+        errors.append("script scenario stages incomplete")
+    else:
+        for phase, hit in scripts.items():
+            if (not isinstance(hit,dict) or set(hit)!=expected
+                    or any(type(value) is not bool for value in hit.values())):
+                errors.append("script host response evidence invalid: "+phase)
+                return errors
+            if not all(hit[host] for host in CONTROL_HOSTS):
+                errors.append("benign script control blocked: "+phase)
+        if (not scripts["stock"][SENTINEL] or scripts["candidate"][SENTINEL]
+                or not scripts["restored"][SENTINEL]):
+            errors.append("script managed rule sentinel transition not proven")
+        if any(scripts["candidate"][host] for host in hosts):
+            errors.append("candidate script host not blocked")
+        if any(scripts["stock"][host]!=scripts["restored"][host] for host in hosts):
+            errors.append("script candidate rollback mismatch")
+        scripts_new=[host for host in hosts if scripts["stock"][host]]
+        scripts_old=[host for host in hosts if not scripts["stock"][host]]
+        if (report.get("script_incremental_synthetic_hosts")!=scripts_new
+                or report.get("script_incremental_synthetic_host_count")!=len(scripts_new)
+                or report.get("script_already_blocked_by_stock_synthetic_hosts")!=scripts_old):
+            errors.append("script effect counts not derived from observations")
+        if not isinstance(script_rounds,dict) or set(script_rounds)!=set(stages):
+            errors.append("missing independent script sampling")
+        else:
+            for phase, samples in script_rounds.items():
+                if (not isinstance(samples,list) or len(samples)!=2
+                        or any(type(row) is not dict or row!=scripts[phase] for row in samples)):
+                    errors.append("inconsistent script rounds: "+phase)
     safe = report.get("synthetic_safety")
     checks = {"signed_url_preserved", "auth_cookie_roundtrip", "media_range_206"}
     if not isinstance(safe, dict) or set(safe) != set(stages):
@@ -121,15 +153,23 @@ def main():
                 stream.write("**Additional observed hostnames:** " +
                              (", ".join("`"+host+"`" for host in data["incremental_synthetic_hosts"]) or "none") +
                              ".\\n\\n")
-                stream.write("**Already blocked in this installed stock-uBO image fixture:** "+
+                stream.write("**Already blocked in installed stock uBO image fixture:** "+
                              str(len(data["already_blocked_by_stock_synthetic_hosts"])) +
-                             "/38. Two repeated independent samples per stage agree.\\n\\n")
+                             "/38. Two independent samples per stage agree.\\n\\n")
+                stream.write("**Additional script-request hostnames:** " +
+                             (", ".join("`"+host+"`" for host in data["script_incremental_synthetic_hosts"]) or "none") +
+                             ". ("+str(data["script_incremental_synthetic_host_count"])+"/38).\\n\\n")
+                stream.write("**Already blocked by stock in script fixture:** " +
+                             str(len(data["script_already_blocked_by_stock_synthetic_hosts"]))+
+                             "/38. Two independent script samples per stage agree.\\n\\n")
                 stream.write("This is NOT real-site protection or proof of user stock configurations. ")
                 stream.write("No public rules modified; release NO_GO.\n")
         print("UPC CANDIDATE EVIDENCE PASS: real Firefox, pinned 38, delta",
               data["incremental_synthetic_host_count"],
               ",".join(data["incremental_synthetic_hosts"]) or "(none)",
-              "synthetic hosts; 2 rounds/stage; NO_GO")
+              "image hosts; script delta", data["script_incremental_synthetic_host_count"],
+              ",".join(data["script_incremental_synthetic_hosts"]) or "(none)",
+              "script hosts; 2 rounds/resource/stage; NO_GO")
         return 0
     except (OSError,ValueError,KeyError,TypeError) as error:
         print("UPC CANDIDATE EVIDENCE FAIL:",error,file=sys.stderr)

@@ -94,19 +94,34 @@ class ProxyHandler(BaseHTTPRequestHandler):
                        + dest + '"></body></html>').encode()
             mime = "text/html; charset=utf-8"
         elif parsed.path == "/batch" and parsed.hostname == PAGE:
+            kinds = args.get("kind", ["image"])
+            if len(kinds) != 1 or kinds[0] not in ("image", "script"):
+                self._deny()
+                return
+            kind = kinds[0]
             hosts = sorted(self.server.extra_hosts | HOSTS)
-            targets = [
-                f'<img src="http://{host}:{self.server.server_port}/safe.png?token={token}" alt="">'
-                for host in hosts
-            ]
+            if kind == "script":
+                targets = [
+                    f'<script src="http://{host}:{self.server.server_port}/safe.js?token={token}"></script>'
+                    for host in hosts
+                ]
+            else:
+                targets = [
+                    f'<img src="http://{host}:{self.server.server_port}/safe.png?token={token}" alt="">'
+                    for host in hosts
+                ]
             content = ('<!doctype html><html><body>' +
                        ''.join(targets) + '</body></html>').encode()
             mime = "text/html; charset=utf-8"
-        elif parsed.path == "/safe.png":
+        elif parsed.path in ("/safe.png", "/safe.js"):
             with self.server.guard:
                 self.server.hits.add((parsed.hostname, token))
-            content = GIF
-            mime = "image/gif"
+            if parsed.path == "/safe.js":
+                content = b"/* UPC synthetic no-op browser request fixture */"
+                mime = "application/javascript; charset=utf-8"
+            else:
+                content = GIF
+                mime = "image/gif"
         elif parsed.hostname == PAGE and parsed.path == "/signed":
             tag = args.get("utm_source", [])
             digest = args.get("sig", [])

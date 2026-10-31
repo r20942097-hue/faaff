@@ -60,9 +60,9 @@ def managed_policy(rules):
             }}}
 
 
-def sample_browser(driver, proxy, hosts):
+def sample_browser(driver, proxy, hosts, kind="image"):
     token = secrets.token_hex(16)
-    url = f"http://{PAGE}:{proxy.server_port}/batch?token={token}"
+    url = f"http://{PAGE}:{proxy.server_port}/batch?token={token}&kind={kind}"
     driver.get(url)
     end = time.monotonic() + 5.0
     while time.monotonic() < end:
@@ -123,8 +123,16 @@ def browser_session(proxy, xpi, test_hosts, stage):
             differences = [host for host in test_hosts if first[host] != second[host]]
             raise ValueError("inconsistent independent HTTP samples: " +
                              ",".join(differences))
+        script_first = sample_browser(driver, proxy, test_hosts, kind="script")
+        script_second = sample_browser(driver, proxy, test_hosts, kind="script")
+        if script_first != script_second:
+            differences = [host for host in test_hosts
+                           if script_first[host] != script_second[host]]
+            raise ValueError("inconsistent independent script request samples: " +
+                             ",".join(differences))
         safety = synthetic_safety(driver, proxy)
-        return first, driver.capabilities.get("browserVersion"), safety, [first, second]
+        return (first, driver.capabilities.get("browserVersion"), safety,
+                [first, second], script_first, [script_first, script_second])
     finally:
         if driver is not None:
             driver.quit()
@@ -174,18 +182,26 @@ def run(xpi, report):
     versions = {}
     safety = {}
     rounds = {}
+    script_results = {}
+    script_rounds = {}
     failure = None
     try:
         stage = "stock"
-        results["stock"], versions["stock"], safety["stock"], rounds["stock"] = browser_session(server, xpi, hosts, stage)
+        (results["stock"], versions["stock"], safety["stock"],
+          rounds["stock"], script_results["stock"],
+          script_rounds["stock"]) = browser_session(server, xpi, hosts, stage)
         stage = "candidate"
         base.mkdir(parents=True, exist_ok=True)
         policy.write_text(json.dumps(managed_policy(lines), sort_keys=True) + "\n",
                           encoding="utf-8")
-        results["candidate"], versions["candidate"], safety["candidate"], rounds["candidate"] = browser_session(server, xpi, hosts, stage)
+        (results["candidate"], versions["candidate"], safety["candidate"],
+          rounds["candidate"], script_results["candidate"],
+          script_rounds["candidate"]) = browser_session(server, xpi, hosts, stage)
         stage = "restored"
         policy.unlink()
-        results["restored"], versions["restored"], safety["restored"], rounds["restored"] = browser_session(server, xpi, hosts, stage)
+        (results["restored"], versions["restored"], safety["restored"],
+          rounds["restored"], script_results["restored"],
+          script_rounds["restored"]) = browser_session(server, xpi, hosts, stage)
     except Exception as error:
         failure = (stage, "STAGE_" + type(error).__name__.upper())
     finally:
@@ -229,7 +245,38 @@ def run(xpi, report):
                              policy_removed=not policy.exists(), source=provenance,
                              xpi_sha=lock["sha256"])
         raise
+    if any(not all(script_results[name].get(host) is True for host in CONTROL_HOSTS)
+           for name in ("stock", "candidate", "restored")):
+        write_blocked_report(report, stage="script_evaluation",
+                             reason="SCRIPT_BENIGN_CONTROL_FAILURE",
+                             results=results, versions=versions, safety=safety,
+                             policy_removed=not policy.exists(), source=provenance,
+                             xpi_sha=lock["sha256"])
+        raise ValueError("script baseline or controls not received")
+    if any(script_results["candidate"][host] for host in candidate_hosts):
+        write_blocked_report(report, stage="script_evaluation",
+                             reason="SCRIPT_CANDIDATE_BLOCK_FAILURE",
+                             results=results, versions=versions, safety=safety,
+                             policy_removed=not policy.exists(), source=provenance,
+                             xpi_sha=lock["sha256"])
+        raise ValueError("candidate script host not blocked")
+    if any(script_results["stock"][host] != script_results["restored"][host]
+           for host in candidate_hosts + [SENTINEL]):
+        write_blocked_report(report, stage="script_evaluation",
+                             reason="SCRIPT_STOCK_ROLLBACK_FAILURE",
+                             results=results, versions=versions, safety=safety,
+                             policy_removed=not policy.exists(), source=provenance,
+                             xpi_sha=lock["sha256"])
+        raise ValueError("script stock baseline not restored")
+    if not script_results["stock"][SENTINEL] or script_results["candidate"][SENTINEL]:
+        write_blocked_report(report, stage="script_evaluation",
+                             reason="SCRIPT_SENTINEL_FAILURE",
+                             results=results, versions=versions, safety=safety,
+                             policy_removed=not policy.exists(), source=provenance,
+                             xpi_sha=lock["sha256"])
+        raise ValueError("managed candidate script sentinel not activated")
     incremental = [host for host in candidate_hosts if results["stock"][host]]
+    script_incremental = [host for host in candidate_hosts if script_results["stock"][host]]
     evidence = {
         "schema":"upc-firefox-managed-candidates/v1",
         "status":"PASS",
@@ -243,6 +290,11 @@ def run(xpi, report):
         "sentinel":SENTINEL,
         "stage_receipts":results,
         "two_round_receipts":rounds,
+        "script_stage_receipts":script_results,
+        "script_two_round_receipts":script_rounds,
+        "script_incremental_synthetic_hosts":script_incremental,
+        "script_incremental_synthetic_host_count":len(script_incremental),
+        "script_already_blocked_by_stock_synthetic_hosts":[host for host in candidate_hosts if not script_results["stock"][host]],
         "synthetic_safety":safety,
         "incremental_synthetic_hosts":incremental,
         "already_blocked_by_stock_synthetic_hosts":[host for host in candidate_hosts if not results["stock"][host]],
@@ -262,7 +314,9 @@ def run(xpi, report):
     report.write_text(json.dumps(evidence,indent=2,sort_keys=True)+"\n",encoding="utf-8")
     print("UPC CANDIDATE FIREFOX PASS: 38 pinned rule host outcomes, additional synthetic hosts",
           len(incremental), ",".join(incremental) or "(none)",
-          "; 2 consistent independent samples per stage; benign controls and rollback PASS")
+          "; added script hosts", len(script_incremental),
+          ",".join(script_incremental) or "(none)",
+          "; 2 independent image and script rounds per stage; controls and rollback PASS")
     return 0
 
 

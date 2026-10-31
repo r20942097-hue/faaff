@@ -397,3 +397,33 @@ Next checks: independent rerun of the exact live Firefox experiment,
 other request methods/types, effective stock subscriptions in additional
 browsers, and actual site compatibility. None authorizes publication:
 **Draft / PUBLICATION_HOLD / NO_GO**.
+
+## Phase 2i — installed Firefox resource-type comparisons
+
+The browser experiment now runs **two independently tokenized batches for
+each of two resource types** in each of three real Firefox sessions:
+third-party `<img>` and third-party `<script>`. The JavaScript fixture
+is an inert no-op served by the exact same nonforwarding localhost proxy;
+no real tracker script is downloaded or run. The fixture includes all
+38 pinned candidate hostnames, the managed-storage activation sentinel,
+and first-party, same-site and unrelated third-party controls.
+
+Image and script results are separately preserved in the runtime JSON.
+The independent verifier checks both types' full host receipts, two
+matching independent rounds, sentinel activation, benign controls,
+stock-to-restored equality, and evidence-derived per-host incremental
+classification. CI summarizes the additional and already-stock-covered
+hostnames for **each type**; missing or conflicting evidence is FAIL.
+The signed URL, cookie auth and HTTP 206 Range controls remain required in
+all three sessions.
+
+The confirmed preceding image fixture result was **1 additionally
+blocked hostname: `rudderstack.com`**, with 37 already blocked by the
+installed stock-uBO configuration, from CI run 41147465530. This is
+one synthetic image URL per host, not proof of actual trackers or new
+blocking value for all 38 rules. **Script outcomes remain unverified
+until the revised CI run succeeds.**
+
+Publication remains NO_GO. No real websites, production streaming or
+signed-media CDN traffic are contacted, and no filter URLs or user's
+Firefox settings are changed.

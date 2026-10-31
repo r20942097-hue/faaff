@@ -60,6 +60,14 @@ class CandidateManagedPolicyTests(unittest.TestCase):
             "two_round_receipts":{"stock":[dict(stock),dict(stock)],
                                   "candidate":[dict(stage),dict(stage)],
                                   "restored":[dict(restored),dict(restored)]},
+            "script_stage_receipts":{"stock":dict(stock),"candidate":dict(stage),
+                                     "restored":dict(restored)},
+            "script_two_round_receipts":{"stock":[dict(stock),dict(stock)],
+                                         "candidate":[dict(stage),dict(stage)],
+                                         "restored":[dict(restored),dict(restored)]},
+            "script_incremental_synthetic_hosts":[self.hosts[0]],
+            "script_incremental_synthetic_host_count":1,
+            "script_already_blocked_by_stock_synthetic_hosts":self.hosts[1:],
             "already_blocked_by_stock_synthetic_hosts":self.hosts[1:],
             "additional_host_inference":"ONE_IMAGE_FIXTURE_PER_HOST_NOT_REAL_WORLD_EFFICACY",
             "auto_promote_candidates":False,
@@ -144,6 +152,27 @@ class CandidateManagedPolicyTests(unittest.TestCase):
         del edited["synthetic_safety"]["candidate"]["media_range_206"]
         self.assertTrue(audit(edited))
 
+    def test_script_rules_and_rollback_are_independently_verified(self):
+        self.assertEqual(audit(self.example()),[])
+        item=self.example()
+        item["script_stage_receipts"]["candidate"][self.hosts[0]]=True
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["script_stage_receipts"]["restored"][self.hosts[0]]=False
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["script_two_round_receipts"]["stock"][1][self.hosts[0]]=False
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["script_incremental_synthetic_host_count"]=38
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["script_already_blocked_by_stock_synthetic_hosts"]=[]
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["script_stage_receipts"]["candidate"][CONTROL_HOSTS[0]]=False
+        self.assertTrue(audit(item))
+
     def test_incomplete_browser_rules_and_rollback_rejected(self):
         doc=self.example()
         doc["stage_receipts"]["candidate"][self.hosts[0]]=True
@@ -191,6 +220,19 @@ class CandidateManagedPolicyTests(unittest.TestCase):
                 for host in [*self.hosts,SENTINEL,*CONTROL_HOSTS]:
                     self.assertIn("http://"+host+":",html)
                 self.assertNotIn("<script",html)
+                conn.request("GET",
+                    f"http://{PAGE}:{server.server_port}/batch?token={token}&kind=script")
+                script=conn.getresponse()
+                self.assertEqual(script.status,200)
+                page=script.read().decode()
+                for host in [*self.hosts,SENTINEL,*CONTROL_HOSTS]:
+                    self.assertIn("http://"+host+":",page)
+                self.assertEqual(page.count("<script"),43)
+                conn.request("GET",
+                    f"http://{self.hosts[0]}:{server.server_port}/safe.js?token={token}")
+                source=conn.getresponse()
+                self.assertEqual(source.status,200)
+                self.assertIn(b"no-op",source.read())
             finally:
                 conn.close()
         finally:
