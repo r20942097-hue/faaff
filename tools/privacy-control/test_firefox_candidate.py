@@ -1,0 +1,245 @@
+"""Pinned v2 candidate import/rollback evidence, no real browser needed."""
+import copy
+from http.client import HTTPConnection
+import json
+from pathlib import Path
+import sys
+import threading
+import unittest
+
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+from firefox_candidate_probe import (
+    SENTINEL, CONTROL_HOSTS, pinned_candidate_rules, managed_policy,
+    write_blocked_report
+)
+from firefox_proxy_probe import IsolatedProxy, PAGE
+from verify_firefox_candidate import audit
+
+
+class CandidateManagedPolicyTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.rules,cls.hosts,cls.source=pinned_candidate_rules()
+
+    def test_candidate_source_is_exactly_pinned(self):
+        self.assertEqual(len(self.rules),38)
+        self.assertEqual(len(self.hosts),38)
+        self.assertEqual(len(set(self.hosts)),38)
+        self.assertEqual(len(self.source["source_commit"]),40)
+        self.assertEqual(len(self.source["git_blob_sha"]),40)
+
+    def test_managed_storage_has_no_trusted_scriptlets(self):
+        manifest=managed_policy(self.rules)
+        self.assertEqual(manifest["name"],"uBlock0@raymondhill.net")
+        self.assertEqual(manifest["type"],"storage")
+        self.assertEqual(manifest["data"]["toOverwrite"]["filters"][:-1],self.rules)
+        self.assertEqual(len(manifest["data"]["toOverwrite"]["filters"]),39)
+        self.assertTrue(all("$third-party" in x for x in
+                            manifest["data"]["toOverwrite"]["filters"]))
+        self.assertNotIn("filterLists",manifest["data"]["toOverwrite"])
+        self.assertNotIn("toAdd",manifest["data"])
+
+    def example(self):
+        allhosts=[*self.hosts,SENTINEL,*CONTROL_HOSTS]
+        stage={h:False for h in allhosts}
+        for control in CONTROL_HOSTS:
+            stage[control]=True
+        stock=dict(stage)
+        stock[SENTINEL]=True
+        stock[self.hosts[0]]=True
+        restored=dict(stock)
+        return {
+            "schema":"upc-firefox-managed-candidates/v1",
+            "status":"PASS",
+            "mode":"EPHEMERAL_MANAGED_STORAGE_THREE_BROWSER_SESSIONS",
+            "candidate_source":self.source,
+            "selected_candidate_count":38,
+            "candidate_hosts":self.hosts,
+            "sentinel":SENTINEL,
+            "stage_receipts":{"stock":stock,"candidate":stage,"restored":restored},
+            "two_round_receipts":{"stock":[dict(stock),dict(stock)],
+                                  "candidate":[dict(stage),dict(stage)],
+                                  "restored":[dict(restored),dict(restored)]},
+            "script_stage_receipts":{"stock":dict(stock),"candidate":dict(stage),
+                                     "restored":dict(restored)},
+            "script_two_round_receipts":{"stock":[dict(stock),dict(stock)],
+                                         "candidate":[dict(stage),dict(stage)],
+                                         "restored":[dict(restored),dict(restored)]},
+            "script_incremental_synthetic_hosts":[self.hosts[0]],
+            "script_incremental_synthetic_host_count":1,
+            "script_already_blocked_by_stock_synthetic_hosts":self.hosts[1:],
+            "already_blocked_by_stock_synthetic_hosts":self.hosts[1:],
+            "additional_host_inference":"ONE_IMAGE_FIXTURE_PER_HOST_NOT_REAL_WORLD_EFFICACY",
+            "auto_promote_candidates":False,
+            "synthetic_safety":{phase:{"signed_url_preserved":True,
+                                       "auth_cookie_roundtrip":True,
+                                       "media_range_206":True}
+                                for phase in ("stock","candidate","restored")},
+            "incremental_synthetic_hosts":[self.hosts[0]],
+            "incremental_synthetic_host_count":1,
+            "policy_removed":True,
+            "firefox_versions":{"stock":"157.0","candidate":"157.0","restored":"157.0"},
+            "controls":list(CONTROL_HOSTS),
+            "https_connect":"DENIED",
+            "proxy_forwarding":"DISABLED",
+            "real_site_efficacy":"NOT_RUN",
+            "actual_user_configuration":"NOT_VERIFIED",
+            "credentials_and_site_media":"NOT_RUN",
+            "rules_published":0,
+            "release":"NO_GO",
+        }
+
+    def test_committed_prior_evidence_is_scoped_and_not_promoted(self):
+        log = json.loads((Path(__file__).resolve().parent /
+                          "verification/firefox-managed-candidates-validation.json").read_text())
+        self.assertEqual(log["schema"],"upc-managed-firefox-candidate-evidence-index/v1")
+        self.assertEqual(log["run_id"],41102700720)
+        self.assertEqual(log["commit"],"6cb0f8946344a0a4a4d538ea686f45ffa9c380ab")
+        self.assertEqual(log["status"],"PASS")
+        self.assertEqual(log["candidates"],38)
+        self.assertEqual(log["newly_blocked_synthetic_image_hosts_over_stock"],1)
+        self.assertEqual(log["already_blocked_by_stock_synthetic_image_hosts"],37)
+        self.assertEqual(log["newly_blocked_hostname"],"NOT_LOGGED_IN_FIRST_RUN")
+        self.assertEqual(log["full_active_stock_subscriptions"],"NOT_VERIFIED")
+        self.assertEqual(log["production_website_safety"],"NOT_RUN")
+        self.assertFalse(log["persistent_browser_user_settings_changed"])
+        self.assertEqual(log["rules_published"],0)
+        self.assertEqual(log["release"],"NO_GO")
+
+    def test_repeated_rounds_and_stock_overlap_are_audited(self):
+        reference=self.example()
+        self.assertEqual(len(reference["already_blocked_by_stock_synthetic_hosts"]),37)
+        self.assertEqual(audit(reference),[])
+        for stage in ("stock", "candidate", "restored"):
+            item=self.example()
+            item["two_round_receipts"][stage][1][self.hosts[0]]=not (
+                item["two_round_receipts"][stage][1][self.hosts[0]])
+            with self.subTest(stage=stage):
+                self.assertTrue(audit(item))
+        item=self.example()
+        item["already_blocked_by_stock_synthetic_hosts"]=[]
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["auto_promote_candidates"]=True
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["additional_host_inference"]="REAL_WORLD_SAFETY_VERIFIED"
+        self.assertTrue(audit(item))
+
+    def test_complete_evidence_is_accepted(self):
+        self.assertEqual(audit(self.example()),[])
+
+    def test_failure_and_forged_effectiveness_rejected(self):
+        for field,value in (
+            ("status","PARTIAL"),("rules_published",1),("release","GO"),
+            ("policy_removed",False),("real_site_efficacy","PASS"),
+            ("actual_user_configuration","VERIFIED"),
+            ("selected_candidate_count",39),
+            ("incremental_synthetic_host_count",15)):
+            with self.subTest(field=field):
+                doc=self.example()
+                doc[field]=value
+                self.assertTrue(audit(doc))
+
+    def test_candidate_synthetic_normal_flows_must_survive(self):
+        for phase in ("stock", "candidate", "restored"):
+            for name in ("signed_url_preserved", "auth_cookie_roundtrip", "media_range_206"):
+                edited=self.example()
+                edited["synthetic_safety"][phase][name]=False
+                with self.subTest(phase=phase, name=name):
+                    self.assertTrue(audit(edited))
+        edited=self.example()
+        del edited["synthetic_safety"]["candidate"]["media_range_206"]
+        self.assertTrue(audit(edited))
+
+    def test_script_rules_and_rollback_are_independently_verified(self):
+        self.assertEqual(audit(self.example()),[])
+        item=self.example()
+        item["script_stage_receipts"]["candidate"][self.hosts[0]]=True
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["script_stage_receipts"]["restored"][self.hosts[0]]=False
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["script_two_round_receipts"]["stock"][1][self.hosts[0]]=False
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["script_incremental_synthetic_host_count"]=38
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["script_already_blocked_by_stock_synthetic_hosts"]=[]
+        self.assertTrue(audit(item))
+        item=self.example()
+        item["script_stage_receipts"]["candidate"][CONTROL_HOSTS[0]]=False
+        self.assertTrue(audit(item))
+
+    def test_incomplete_browser_rules_and_rollback_rejected(self):
+        doc=self.example()
+        doc["stage_receipts"]["candidate"][self.hosts[0]]=True
+        self.assertTrue(audit(doc))
+        doc=self.example()
+        doc["stage_receipts"]["restored"][self.hosts[0]]=False
+        self.assertTrue(audit(doc))
+        doc=self.example()
+        doc["stage_receipts"]["candidate"][CONTROL_HOSTS[0]]=False
+        self.assertTrue(audit(doc))
+        doc=self.example()
+        doc["stage_receipts"]["candidate"][SENTINEL]=True
+        self.assertTrue(audit(doc))
+
+    def test_partial_candidate_failure_is_recorded_without_promoting_pass(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as d:
+            evidence = Path(d) / "candidate-blocked.json"
+            output = write_blocked_report(
+                evidence, stage="candidate", reason="STAGE_VALUEERROR",
+                results={"stock":{"synthetic.example.org":True}},
+                versions={"stock":"157.0"},
+                safety={"stock":{"signed_url_preserved":True}},
+                policy_removed=True, source=self.source, xpi_sha="a"*64,
+            )
+            self.assertEqual(output["status"], "BLOCKED")
+            self.assertEqual(output["release"], "NO_GO")
+            self.assertEqual(output["candidate_activation"], "NOT_VERIFIED")
+            self.assertEqual(output["rules_published"], 0)
+            self.assertEqual(json.loads(evidence.read_text()), output)
+            self.assertTrue(audit(output))
+    def test_proxy_batch_has_allowlisted_candidate_hosts_only(self):
+        server=IsolatedProxy(extra_hosts=[*self.hosts,SENTINEL])
+        thread=threading.Thread(target=server.serve_forever,daemon=True)
+        thread.start()
+        try:
+            token="a"*32
+            conn=HTTPConnection("127.0.0.1",server.server_port,timeout=4)
+            try:
+                conn.request("GET",
+                    f"http://{PAGE}:{server.server_port}/batch?token={token}")
+                r=conn.getresponse()
+                self.assertEqual(r.status,200)
+                html=r.read().decode()
+                for host in [*self.hosts,SENTINEL,*CONTROL_HOSTS]:
+                    self.assertIn("http://"+host+":",html)
+                self.assertNotIn("<script",html)
+                conn.request("GET",
+                    f"http://{PAGE}:{server.server_port}/batch?token={token}&kind=script")
+                script=conn.getresponse()
+                self.assertEqual(script.status,200)
+                page=script.read().decode()
+                for host in [*self.hosts,SENTINEL,*CONTROL_HOSTS]:
+                    self.assertIn("http://"+host+":",page)
+                self.assertEqual(page.count("<script"),43)
+                conn.request("GET",
+                    f"http://{self.hosts[0]}:{server.server_port}/safe.js?token={token}")
+                source=conn.getresponse()
+                self.assertEqual(source.status,200)
+                self.assertIn(b"no-op",source.read())
+            finally:
+                conn.close()
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=3)
+
+
+if __name__=="__main__":
+    unittest.main()

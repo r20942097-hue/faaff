@@ -1,0 +1,46 @@
+{
+  "schema": "upc-firefox-proxy-validation/v1",
+  "date": "2026-10-31",
+  "latest_successful_run": {
+    "repo": "r20942097-hue/faaff",
+    "workflow_run": 41097729808,
+    "job_id": 124207738536,
+    "commit": "0c921adf602441208448b87429c393e5b384c4ea",
+    "result": "PASS",
+    "scenario": "isolated real Firefox + official signed uBO via nonforwarding HTTP proxy",
+    "note": "Run step emitted target-specific loopback-only success; local runner JSON not committed."
+  },
+  "addon": {
+    "name": "uBlock Origin",
+    "version": "1.75.0",
+    "official_signed_xpi_sha256": "5b74415860456370644bd80f16125e865b0e6c356bb5dfcfb84069967eaa5287"
+  },
+  "observations": {
+    "tracker_host": "probe.scorecardresearch.com",
+    "with_addon": {
+      "target_received": false,
+      "first_party_received": true,
+      "same_site_received": true,
+      "unrelated_third_party_received": true
+    },
+    "after_uninstall": {
+      "target_received": true,
+      "first_party_received": true,
+      "same_site_received": true,
+      "unrelated_third_party_received": true
+    },
+    "proxy_rejected_requests": 57,
+    "transfer_to_public_internet": "DISABLED",
+    "https_CONNECT": "DENIED"
+  },
+  "limits": {
+    "actual_user_browser_settings": "NOT_VERIFIED",
+    "user_browser_profile": "NOT_TOUCHED",
+    "candidate_v2_rules_loaded_into_browser": false,
+    "production_websites": "NOT_RUN",
+    "media_auth_checkout": "NOT_RUN",
+    "publication": "NO_GO"
+  },
+  "prior_failed_host_mapping_runs": "verification/firefox-isolation-diagnostic.json",
+  "resolution": "An explicit deny-by-default HTTP proxy made same-origin, same-site and independent cross-site controls reachable while the tracked host was blocked; old IP-mapping failures are preserved and their exact root cause is still unproven."
+}

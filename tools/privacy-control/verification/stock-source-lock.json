@@ -1,0 +1,39 @@
+{
+  "schema": "upc-stock-source-lock/v1",
+  "snapshot_date": "2026-10-31",
+  "source_repository": "easylist/easylist",
+  "upstream_commit": "cc2adcfc0e1eef5ff7f1f81f603705761c6f7db8",
+  "scope": "SELECTED_EASYPRIVACY_SOURCE_COMPONENTS_ONLY_NOT_COMPLETE_COMPILED_LIST",
+  "license_choice": "GPL-3.0-or-later OR CC-BY-SA-3.0-or-later; retained as a cited runtime-only test input, not redistributed",
+  "references": [
+    "https://github.com/easylist/easylist",
+    "https://easylist.to/pages/licence.html"
+  ],
+  "files": [
+    {
+      "path": "easyprivacy/easyprivacy_thirdparty.txt",
+      "size": 99085,
+      "git_blob_sha": "1e54fa9982eca7bba91cbdb550293dcd2e10cec2"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_trackingservers_thirdparty.txt",
+      "size": 74942,
+      "git_blob_sha": "b3f08c333e2d612967f4f4a6c9404f47f248a6c7"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_general.txt",
+      "size": 58422,
+      "git_blob_sha": "8e7c519a5497b8209d2f15f19021c3cee86f5abe"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_specific.txt",
+      "size": 74727,
+      "git_blob_sha": "6fa74d3a8b948d8ebec12ea564197c3501b50321"
+    },
+    {
+      "path": "easyprivacy/easyprivacy_allowlist.txt",
+      "size": 52078,
+      "git_blob_sha": "062bd75addb167935042e8e697d4f0b4b712eada"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "upc-ubol-official-release-lock/v1",
+  "source": "uBlockOrigin/uBOL-home",
+  "release_tag": "2026.1026.1812",
+  "published_at": "2026-10-26T18:13:42Z",
+  "release_asset": "uBOLite_2026.1026.1812.chromium.zip",
+  "download_url": "https://github.com/uBlockOrigin/uBOL-home/releases/download/2026.1026.1812/uBOLite_2026.1026.1812.chromium.zip",
+  "size": 9009606,
+  "sha256": "d3788eac9f0a44c67f3745a43c3fd446ef33d56b1121f469b19e0fa0a836c2b5",
+  "expected_manifest_version": "2026.1026.1812",
+  "expected_static_rulesets": ["ublock-filters", "easylist", "easyprivacy", "pgl"],
+  "usage": "CI_ONLY_ISOLATED_SYNTHETIC_TEST",
+  "rules_published": 0,
+  "publication": "NO_GO"
+}

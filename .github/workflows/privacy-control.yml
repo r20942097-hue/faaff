@@ -1,0 +1,398 @@
+name: Unified Privacy Control offline quality gates
+
+on:
+  pull_request:
+    paths:
+      - 'tools/privacy-control/**'
+      - '.github/workflows/privacy-control.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/privacy-control/**'
+      - '.github/workflows/privacy-control.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-evaluation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.14']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile UPC evaluation and regressions
+        run: python -m compileall -q tools/privacy-control
+      - name: Run UPC parser, evidence and no-release regression tests
+        run: python -m unittest discover -s tools/privacy-control -p 'test_*.py' -v
+      - name: Compare immutable pinned stable tracking and candidate scope
+        run: |
+          python tools/privacy-control/cli.py \
+            --check \
+            --report "$RUNNER_TEMP/upc-coverage-report.json" \
+            --html "$RUNNER_TEMP/upc-static-viewer.html" \
+            --github-summary "$GITHUB_STEP_SUMMARY"
+      - name: Assert unresolved real Firefox browser gate is explicitly recorded
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          record = json.loads(Path("tools/privacy-control/verification/firefox-isolation-diagnostic.json").read_text())
+          assert record["schema"] == "upc-firefox-browser-isolation-diagnostic/v1"
+          assert record["status"] == "BLOCKED" and record["publication"] == "NO_GO"
+          assert record["observed"]["benign_cross_host_control_when_installed"] == "FAIL"
+          assert record["observed"]["target_specificity"] == "NOT_ESTABLISHED"
+          assert record["observed"]["after_uninstall_restoration"] == "NOT_RUN"
+          assert len(record["runs"]) == 5
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as out:
+              out.write("\\n**Firefox installed-uBO host-isolation gate: BLOCKED.**\\n")
+              out.write("Five isolated runs could not preserve a benign cross-host control. ")
+              out.write("Target-specificity and post-uninstall restoration NOT_VERIFIED. ")
+              out.write("This browser job is manual research-only; publication NO_GO.\\n")
+          print("UPC FIREFOX GATE: BLOCKED, NOT_VERIFIED; no publication")
+          PY
+      - name: Confirm no executable blocking layer or new public list is introduced
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          record = json.loads((Path(os.environ['RUNNER_TEMP']) / 'upc-coverage-report.json').read_text())
+          assert record['release'] == 'NO_GO'
+          assert record['rules_published'] == 0
+          assert record['source']['role'] == 'PINNED_NON_PUBLISHING_SNAPSHOT'
+          assert record['browser_stock_coverage'] == 'NOT_RUN'
+          assert record['real_engine_efficacy'] == 'NOT_RUN'
+          view = (Path(os.environ['RUNNER_TEMP']) / 'upc-static-viewer.html').read_text(encoding='utf-8')
+          assert "script-src 'none'" in view and '<script>' not in view
+          assert view.count('<tr>') == 39
+          print('UPC NO-RELEASE GATE: PASS')
+          PY
+
+  pinned-engine-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Fetch SHA-256 locked uBlock Origin engine outside checkout
+        run: |
+          python integrations/browser-filters/source/s/scripts/prepare_engine.py \
+            --directory "$RUNNER_TEMP/upc-ublock-engine"
+      - name: Install locked Ghostery engine without executing package scripts
+        run: |
+          npm ci \
+            --prefix integrations/browser-filters/source/s/verification/ghostery \
+            --ignore-scripts --no-audit --no-fund
+      - name: Run pinned two-engine synthetic request matrix
+        run: |
+          node tools/privacy-control/engine_matrix.mjs \
+            --engine-dir "$RUNNER_TEMP/upc-ublock-engine" \
+            --ghostery-entry "integrations/browser-filters/source/s/verification/ghostery/node_modules/@ghostery/adblocker/dist/esm/index.js" \
+            --report "$RUNNER_TEMP/upc-engine-matrix.json"
+      - name: Fail on missing or overstated actual-engine report
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          x = json.loads((Path(os.environ['RUNNER_TEMP']) / 'upc-engine-matrix.json').read_text())
+          assert x['schema'] == 'upc-engine-matrix/v1'
+          assert x['result'] == 'PASS'
+          assert x['pinned_tracking_rules'] == 47
+          assert x['requests_compared'] == 568
+          assert x['exception_controls'] == 4
+          assert x['synthetic_only'] is True
+          assert x['actual_stock_lists_enabled'] == 'NOT_RUN'
+          assert x['live_site_compatibility'] == 'NOT_RUN'
+          assert x['publication'] == 'NO_GO'
+          print('UPC ENGINE EVIDENCE: PASS 568 synthetic comparisons incl. exception controls, live sites NOT_RUN')
+          PY
+
+  pinned-upstream-stock-comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Download five immutable EasyPrivacy source fragments
+        run: python tools/privacy-control/fetch_stock.py --output-dir "$RUNNER_TEMP/upc-selected-stock"
+      - name: Prepare pinned uBlock Origin engine outside repository
+        run: |
+          python integrations/browser-filters/source/s/scripts/prepare_engine.py \
+            --directory "$RUNNER_TEMP/upc-engine"
+      - name: Install pinned Ghostery parser without install scripts
+        run: |
+          npm ci --prefix integrations/browser-filters/source/s/verification/ghostery \
+            --ignore-scripts --no-audit --no-fund
+      - name: Compare synthetic matching with and without candidate rules
+        run: |
+          node tools/privacy-control/compare_stock.mjs \
+            --stock-dir "$RUNNER_TEMP/upc-selected-stock" \
+            --engine-dir "$RUNNER_TEMP/upc-engine" \
+            --ghostery-entry "integrations/browser-filters/source/s/verification/ghostery/node_modules/@ghostery/adblocker/dist/esm/index.js" \
+            --report "$RUNNER_TEMP/upc-stock-comparison.json"
+      - name: Fail closed on incomplete per-host evidence and release claims
+        run: |
+          python tools/privacy-control/verify_stock_report.py \
+            --report "$RUNNER_TEMP/upc-stock-comparison.json" \
+            --html "$RUNNER_TEMP/upc-stock-review.html" \
+            --github-summary "$GITHUB_STEP_SUMMARY"
+
+  pinned-full-template-comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+      - name: Download and verify all pinned official EasyPrivacy template source parts
+        run: |
+          python tools/privacy-control/fetch_full_stock.py \
+            --output-dir "$RUNNER_TEMP/upc-full-template"
+      - name: Prepare pinned uBlock Origin engine in isolated temporary directory
+        run: |
+          python integrations/browser-filters/source/s/scripts/prepare_engine.py \
+            --directory "$RUNNER_TEMP/upc-full-engine"
+      - name: Install locked Ghostery with no install scripts
+        run: |
+          npm ci --prefix integrations/browser-filters/source/s/verification/ghostery \
+            --ignore-scripts --no-audit --no-fund
+      - name: Compare entire pinned official template source vs optional candidates
+        run: |
+          node tools/privacy-control/compare_full_stock.mjs \
+            --stock-dir "$RUNNER_TEMP/upc-full-template" \
+            --engine-dir "$RUNNER_TEMP/upc-full-engine" \
+            --ghostery-entry "integrations/browser-filters/source/s/verification/ghostery/node_modules/@ghostery/adblocker/dist/esm/index.js" \
+            --report "$RUNNER_TEMP/upc-full-template-comparison.json"
+      - name: Fail closed on incomplete comparisons, claims and source drift
+        run: |
+          python tools/privacy-control/verify_stock_report.py \
+            --full-template \
+            --report "$RUNNER_TEMP/upc-full-template-comparison.json" \
+            --html "$RUNNER_TEMP/upc-full-template-review.html" \
+            --github-summary "$GITHUB_STEP_SUMMARY"
+
+  # Manual research gate only: five actual CI attempts showed benign cross-host
+  # controls blocked, so the browser result is BLOCKED, not proven PASS.
+  # Do not make candidate publication depend on a misleading localhost test.
+  firefox-full-ubo-real-loopback:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Verify installed real Firefox and geckodriver
+        run: |
+          firefox --version
+          geckodriver --version
+      - name: Install pinned Selenium CI harness (not application runtime)
+        run: python -m pip install --disable-pip-version-check selenium==4.52.0
+      - name: Pin and verify official signed Firefox uBO extension
+        run: |
+          python tools/privacy-control/fetch_firefox_xpi.py \
+            --output "$RUNNER_TEMP/upc-ubo-signed.xpi"
+      - name: Bind reserved documentation TEST-NET IP only on disposable runner lo
+        run: |
+          sudo ip address add 192.0.2.10/32 dev lo
+          ip -4 route get 192.0.2.10 | grep -F 'local 192.0.2.10 dev lo'
+          printf '192.0.2.10 probe.scorecardresearch.com assets.example.com pages.example.com unrelated.example.org\n' \
+            | sudo tee -a /etc/hosts
+          python - <<'PY'
+          import socket
+          assert socket.gethostbyname("probe.scorecardresearch.com") == "192.0.2.10"
+          assert socket.gethostbyname("assets.example.com") == "192.0.2.10"
+          assert socket.gethostbyname("pages.example.com") == "192.0.2.10"
+          assert socket.gethostbyname("unrelated.example.org") == "192.0.2.10"
+          print("UPC FIREFOX NETWORK ISOLATION: RFC5737 IP bound to lo PASS")
+          PY
+      - name: Test Firefox before, while real uBO installed, after uninstall
+        run: |
+          python tools/privacy-control/firefox_ubo_probe.py \
+            --xpi "$RUNNER_TEMP/upc-ubo-signed.xpi" \
+            --report "$RUNNER_TEMP/upc-firefox-loopback.json"
+      - name: Verify browser evidence and explicit real-site limits
+        run: |
+          python tools/privacy-control/verify_firefox_report.py \
+            --report "$RUNNER_TEMP/upc-firefox-loopback.json" \
+            --lock tools/privacy-control/verification/firefox-ubo-xpi-lock.json \
+            --github-summary "$GITHUB_STEP_SUMMARY"
+
+  firefox-http-proxy-synthetic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Check Firefox and geckodriver availability
+        run: |
+          firefox --version
+          geckodriver --version
+      - name: Install locked Selenium test harness
+        run: python -m pip install --disable-pip-version-check selenium==4.52.0
+      - name: Verify signed Firefox uBO XPI
+        run: |
+          python tools/privacy-control/fetch_firefox_xpi.py \
+            --output "$RUNNER_TEMP/official-ubo.xpi"
+      - name: Observe target and benign controls through nonforwarding HTTP proxy
+        run: |
+          python tools/privacy-control/firefox_proxy_probe.py \
+            --xpi "$RUNNER_TEMP/official-ubo.xpi" \
+            --report "$RUNNER_TEMP/firefox-proxy-evidence.json"
+      - name: Independently check actual evidence and rollback
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/firefox-proxy-evidence.json" ]; then
+            python tools/privacy-control/verify_firefox_proxy.py \
+              --report "$RUNNER_TEMP/firefox-proxy-evidence.json" \
+              --lock tools/privacy-control/verification/firefox-ubo-xpi-lock.json \
+              --github-summary "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Firefox proxy evidence missing: BLOCKED / NO_GO' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+  firefox-managed-v2-candidates:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 16
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Verify installed Firefox and Geckodriver
+        run: |
+          firefox --version
+          geckodriver --version
+      - name: Install pinned test Selenium and signed uBO XPI
+        run: |
+          python -m pip install --disable-pip-version-check selenium==4.52.0
+          python tools/privacy-control/fetch_firefox_xpi.py \
+            --output "$RUNNER_TEMP/upc-managed-candidates.xpi"
+      - name: Ensure no preexisting candidate managed policy
+        run: |
+          test ! -e "$HOME/.mozilla/managed-storage/uBlock0@raymondhill.net.json"
+      - name: Compare real Firefox stock, 38 managed v2 rules, and restored stock
+        run: |
+          python tools/privacy-control/firefox_candidate_probe.py \
+            --xpi "$RUNNER_TEMP/upc-managed-candidates.xpi" \
+            --report "$RUNNER_TEMP/upc-firefox-managed-v2.json"
+      - name: Require exact effective rules and evidence-based rollback
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/upc-firefox-managed-v2.json" ]; then
+            python tools/privacy-control/verify_firefox_candidate.py \
+              --report "$RUNNER_TEMP/upc-firefox-managed-v2.json" \
+              --github-summary "$GITHUB_STEP_SUMMARY"
+          else
+            echo '**Managed candidate browser evidence missing — BLOCKED, release NO_GO**' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+      - name: Verify ephemeral managed policy was removed
+        if: always()
+        run: |
+          test ! -e "$HOME/.mozilla/managed-storage/uBlock0@raymondhill.net.json"
+
+  chromium-mv3-dnr-synthetic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Install pinned Playwright from official PyPI and bundled Chromium
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.64.1
+          python -m playwright install --with-deps --no-shell chromium
+      - name: Verify isolated MV3 DNR candidate actions and rollback
+        run: |
+          python tools/privacy-control/chromium_dnr_probe.py \
+            --report "$RUNNER_TEMP/upc-chromium-mv3.json"
+      - name: Independently verify Chromium browser evidence
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/upc-chromium-mv3.json" ]; then
+            python tools/privacy-control/verify_chromium_dnr.py \
+              --report "$RUNNER_TEMP/upc-chromium-mv3.json" \
+              --github-summary "$GITHUB_STEP_SUMMARY"
+          else
+            echo '**Chromium DNR lab: NOT_VERIFIED; NO_GO**' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+  official-ubol-chromium-stock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Install pinned Playwright and extension-capable bundled Chromium
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.64.1
+          python -m playwright install --with-deps --no-shell chromium
+      - name: Download vendor-hashed official uBO Lite Chrome package outside source tree
+        run: |
+          python tools/privacy-control/fetch_official_ubol.py \
+            --output-dir "$RUNNER_TEMP/official-ubol-chromium"
+      - name: Measure installed official uBO Lite default enabled stock vs no extension
+        run: |
+          python tools/privacy-control/ubol_official_probe.py \
+            --package "$RUNNER_TEMP/official-ubol-chromium" \
+            --report "$RUNNER_TEMP/official-ubol-stock.json"
+      - name: Fail closed on invalid official package provenance, browser receipts or inflated efficacy
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/official-ubol-stock.json" ]; then
+            python tools/privacy-control/verify_ubol_official.py \
+              --report "$RUNNER_TEMP/official-ubol-stock.json" \
+              --github-summary "$GITHUB_STEP_SUMMARY"
+          else
+            echo '**Official uBO Lite actual package stock comparison: NOT_VERIFIED; NO_GO**' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
