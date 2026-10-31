@@ -29,17 +29,58 @@ jobs:
             exit 1
           fi
       - id: check
-        name: Check source tree
+        name: Classify runtime source state
         shell: bash
         run: |
-          if [[ -f rplay_watcher/__init__.py && -f pyproject.toml ]]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-            echo "Complete source tree detected; full CI will run."
-          else
+          required_paths=(
+            rplay_watcher/__init__.py
+            pyproject.toml
+            extension/bridge.js
+            extension/content.js
+            extension/popup.js
+            extension/options.js
+            tests
+          )
+          runtime_markers=(rplay_watcher extension tests)
+          runtime_seen=false
+          for marker in "${runtime_markers[@]}"; do
+            if [[ -e "$marker" ]]; then
+              runtime_seen=true
+              break
+            fi
+          done
+          missing=()
+          for path in "${required_paths[@]}"; do
+            if [[ ! -e "$path" ]]; then
+              missing+=("$path")
+            fi
+          done
+          if [[ "$runtime_seen" == false ]]; then
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "Repository is in bootstrap/source-sync state; full runtime CI is intentionally not claimed."
+            {
+              echo "### Runtime source gate"
+              echo "- Source: **BOOTSTRAP_ONLY**"
+              echo "- Product tests: **NOT_RUN** (runtime source absent)"
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::notice::Runtime source absent; product tests NOT_RUN."
+          elif (( ${#missing[@]} > 0 )); then
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            {
+              echo "### Runtime source gate"
+              echo "- Source: **PARTIAL_SOURCE**"
+              echo "- Product tests: **BLOCKED** (required paths missing)"
+              printf -- '- Missing: %s\n' "${missing[@]}"
+            } >> "$GITHUB_STEP_SUMMARY"
+            printf '::error::Partial runtime source, missing %s\n' "${missing[*]}"
+            exit 1
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "### Runtime source gate"
+              echo "- Source: **COMPLETE_SOURCE** (structural check only)"
+              echo "- Product tests: **SCHEDULED** (results must be checked separately)"
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
-
   test:
     name: Python ${{ matrix.python-version }} / ${{ matrix.os }}
     needs: source-check
