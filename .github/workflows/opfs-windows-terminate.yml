@@ -1,0 +1,54 @@
+name: Windows browser forced termination OPFS recovery (not product)
+
+on:
+  pull_request:
+    paths:
+      - 'ai/opfs_windows_terminate_fixture.py'
+      - 'ai/test_opfs_windows_terminate_fixture.py'
+      - 'ai/opfs_postcommit_kill_fixture.py'
+      - 'ai/opfs_process_kill_fixture.py'
+      - 'ai/opfs_restart_fixture.py'
+      - 'ai/chromium_renderer_crash_fixture.py'
+      - 'ai/requirements-browser.txt'
+      - 'ai/requirements-process.txt'
+      - '.github/workflows/opfs-windows-terminate.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  native-windows-browser-kill:
+    runs-on: windows-2025
+    timeout-minutes: 24
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Install pinned Playwright and psutil
+        run: python -m pip install -r ai/requirements-browser.txt -r ai/requirements-process.txt
+      - name: Install disposable Playwright browser for Windows
+        run: python -m playwright install ${{ matrix.browser }}
+      - name: Test fail-closed ownership and report contracts
+        run: python -m unittest ai.test_opfs_windows_terminate_fixture -v
+      - name: Force-stop owned Windows browser processes and inspect OPFS restart
+        run: python -m ai.opfs_windows_terminate_fixture --browser ${{ matrix.browser }} --output windows-opfs-terminate-${{ matrix.browser }}.json
+      - name: Upload only sanitized synthetic evidence
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: windows-opfs-terminate-${{ matrix.browser }}
+          path: windows-opfs-terminate-${{ matrix.browser }}.json
+          retention-days: 14
+          if-no-files-found: warn

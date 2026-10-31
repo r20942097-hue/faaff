@@ -1,0 +1,2 @@
+# Process-tree isolation and PID reuse protections; source PyPI pinned, Python 3.13.
+psutil==7.2.2

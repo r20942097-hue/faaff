@@ -1,0 +1,44 @@
+name: Development environment readiness audit
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.14'
+      - name: Validate audit and fixture contracts
+        run: python -m unittest ai.test_audit_environment ai.test_browser_preflight ai.test_extension_fixture_e2e ai.test_archive_intake ai.test_source_intake_guard ai.test_opfs_snapshot_fixture ai.test_opfs_restart_fixture ai.test_toolchain_inventory ai.test_opfs_fault_matrix ai.test_chromium_native_quota ai.test_opfs_worker_sync_fixture ai.test_chromium_renderer_crash_fixture ai.test_opfs_process_kill_fixture ai.test_opfs_postcommit_kill_fixture ai.test_opfs_windows_terminate_fixture ai.test_source_segment_fingerprint -v
+      - name: Emit source-readiness evidence without claiming product E2E
+        run: python ai/audit_environment.py . --output environment-readiness-${{ matrix.os }}.json
+      - name: Record installed toolchain versions without exposing paths
+        run: python -m ai.toolchain_inventory --output toolchain-${{ matrix.os }}.json
+      - name: Upload scoped evidence
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: environment-readiness-${{ matrix.os }}
+          path: |
+            environment-readiness-${{ matrix.os }}.json
+            toolchain-${{ matrix.os }}.json
+          retention-days: 14
+          if-no-files-found: warn

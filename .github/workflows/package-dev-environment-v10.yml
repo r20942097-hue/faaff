@@ -1,0 +1,54 @@
+name: Reproducible v10 development environment bundle (not product)
+
+on:
+  pull_request:
+    paths:
+      - 'ai/DEV_ENV_V10.md'
+      - 'ai/package_dev_env_v10.py'
+      - 'ai/test_package_dev_env_v10.py'
+      - 'ai/opfs_process_kill_fixture.py'
+      - 'ai/opfs_worker_sync_fixture.py'
+      - 'ai/requirements-process.txt'
+      - '.github/workflows/package-dev-environment-v10.yml'
+      - 'ai/requirements-browser.txt'
+      - 'ai/opfs_restart_fixture.py'
+      - 'ai/chromium_renderer_crash_fixture.py'
+      - 'ai/test_chromium_renderer_crash_fixture.py'
+      - 'ai/test_opfs_process_kill_fixture.py'
+      - 'ai/test_opfs_worker_sync_fixture.py'
+      - '.github/workflows/opfs-process-kill.yml'
+      - '.github/workflows/opfs-worker-sync-fixture.yml'
+      - '.github/workflows/chromium-renderer-crash.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Test deterministic allowlist package rules
+        run: python -m unittest ai.test_package_dev_env_v10 -v
+      - name: Package v10 source and verify CRC and SHA-256
+        run: python -m ai.package_dev_env_v10 --root . --output dist/development_environment_upgrade_20261030_v10.zip --evidence dist/v10_integrity.json
+      - name: Upload bundle and integrity JSON
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: development-environment-v10
+          path: |
+            dist/development_environment_upgrade_20261030_v10.zip
+            dist/v10_integrity.json
+          retention-days: 30
+          if-no-files-found: error

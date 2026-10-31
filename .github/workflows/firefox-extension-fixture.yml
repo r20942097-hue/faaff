@@ -1,0 +1,48 @@
+name: Firefox MV3 fixture E2E (not product)
+
+on:
+  pull_request:
+    paths:
+      - 'ai/firefox_extension_fixture_e2e.py'
+      - 'ai/test_firefox_extension_fixture_e2e.py'
+      - 'ai/extension_fixture_e2e.py'
+      - '.github/workflows/firefox-extension-fixture.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  firefox-addon-fixture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Set up official Firefox binary
+        id: firefox
+        uses: browser-actions/setup-firefox@0bc507ddf224827e3b1af68e014d5e42ab93e795 # v1.7.2
+        with:
+          firefox-version: 'latest'
+      - name: Install pinned Selenium (driver supplied by Selenium Manager)
+        run: python -m pip install selenium==4.52.0
+      - name: Audit Firefox fixture invariant
+        run: python -m unittest ai.test_firefox_extension_fixture_e2e -v
+      - name: Verify temporary Firefox MV3 add-on on loopback
+        run: python -m ai.firefox_extension_fixture_e2e --executable "${{ steps.firefox.outputs.firefox-path }}" --output firefox-mv3-fixture.json
+      - name: Upload scoped evidence
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: firefox-mv3-fixture
+          path: firefox-mv3-fixture.json
+          retention-days: 14
+          if-no-files-found: warn

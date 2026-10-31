@@ -1,0 +1,46 @@
+name: Package reproducible dev environment v9 (not product)
+
+on:
+  pull_request:
+    paths:
+      - 'ai/package_dev_env_v9.py'
+      - 'ai/test_package_dev_env_v9.py'
+      - 'ai/DEV_ENV_V9.md'
+      - 'ai/opfs_worker_sync_fixture.py'
+      - 'ai/test_opfs_worker_sync_fixture.py'
+      - 'ai/chromium_renderer_crash_fixture.py'
+      - 'ai/test_chromium_renderer_crash_fixture.py'
+      - '.github/workflows/package-dev-environment-v9.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  package-v9:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Verify deterministic packaging unit tests
+        run: python -m unittest ai.test_package_dev_env_v9 -v
+      - name: Create verified ZIP from allowlisted source files
+        run: python -m ai.package_dev_env_v9 --root . --output dist/development_environment_v9.zip --evidence dist/development_environment_v9_manifest.json
+      - name: Upload checked ZIP and evidence
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: development-environment-v9
+          path: |
+            dist/development_environment_v9.zip
+            dist/development_environment_v9_manifest.json
+          retention-days: 30
+          if-no-files-found: error

@@ -1,0 +1,51 @@
+name: CI workflow security and concurrency audit
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+      - 'ai/ci_workflow_audit.py'
+      - 'ai/test_ci_workflow_audit.py'
+      - 'ai/requirements-ci-audit.txt'
+      - 'ai/CI_GOVERNANCE_V11.md'
+      - 'ai/ci_governance_bundle_v11.py'
+      - 'ai/test_ci_governance_bundle_v11.py'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Install pinned PyYAML
+        run: python -m pip install -r ai/requirements-ci-audit.txt
+      - name: Run governance security regression tests
+        run: python -m unittest ai.test_ci_workflow_audit ai.test_ci_governance_bundle_v11 -v
+      - name: Verify all workflow YAML files
+        run: python -m ai.ci_workflow_audit --root . --output ci-governance-v11.json
+      - name: Build deterministic audit source bundle after all checks pass
+        run: python -m ai.ci_governance_bundle_v11 --root . --output ci-governance-v11.zip --evidence ci-governance-v11-integrity.json
+      - name: Save audit report and source bundle
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: ci-governance-v11
+          path: |
+            ci-governance-v11.json
+            ci-governance-v11.zip
+            ci-governance-v11-integrity.json
+          retention-days: 14
+          if-no-files-found: warn
