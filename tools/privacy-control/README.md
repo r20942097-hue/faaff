@@ -554,3 +554,43 @@ login, checkout or media compatibility is proven.
 
 Status **DRAFT / NO_GO**. Zero automatic candidate promotions;
 no main pushes or public filter list changes.
+
+### Observed official-package stock results
+
+[GitHub Actions 41157094931](https://github.com/r20942097-hue/faaff/actions/runs/41157094931)
+verified the exact official Chromium asset from tag `2026.1026.1812`
+against the vendor SHA-256. The installed browser exposed six active
+default DNR sets: `easylist`, `easyprivacy`, `pgl`,
+`ublock-badware`, `ublock-filters`, and `urlhaus-full`.
+
+For **both third-party synthetic image and script fixtures**:
+34 of 38 candidate hostnames were reachable with no extension; 33 of
+those 34 were blocked with the official uBO Lite stock configuration.
+**`rudderstack.com` was still reachable.** Four other hosts did not
+reach the proxy even with no extension: `google-analytics.com`,
+`mixpanel.com`, `mouseflow.com`, and `bat.bing.com`. Their exact
+nonreceipt cause is **unresolved**, so they are NOT counted as uBO
+Lite benefits. The no-extension browser baseline was restored after
+removing uBO Lite, and the first-party `rudderstack.com` control was
+preserved. This is a per-host image/script proxy result, not a measure of
+end-user tracking, and not a combined uBOL-plus-candidate evaluation.
+
+An immutable CI evidence index is kept in
+`verification/ubol-official-stock-validation.json` with exact run,
+job and source checksum; the original uncommitted CI JSON is not
+misrepresented as a repository artifact.
+
+### Protocol compatibility expansion
+
+A new actual Chromium check also exercises an HMAC-protected query
+parameter, a synthetic HttpOnly login cookie, and a byte-range 206
+request, **in each of the three real-browser lifecycle stages**.
+`verify_ubol_official.py` independently rejects any missing or failed
+control. The previously verified stock result and this newer
+compatibility extension are separate results; **do not claim the new
+protocol tests passed until their own CI run is completed**.
+
+No real HTTPS credentials, login, signed media/CDN URLs, payment,
+streaming or user browser profile has been tested. Official uBO Lite
+remains the *only* installed blocker in that session; no unpublished
+candidate rules are pushed or merged. Release status **NO_GO**.

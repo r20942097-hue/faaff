@@ -1,0 +1,57 @@
+{
+  "schema": "upc-official-ubol-stock-ci-index/v1",
+  "observed_on": "2026-10-31",
+  "run_id": 41157094931,
+  "job_id": 124406175919,
+  "tested_commit": "0fe5ac4016cc814d15b582b11198fa3a64c56afc",
+  "source": "uBlockOrigin/uBOL-home",
+  "release_tag": "2026.1026.1812",
+  "release_published_at": "2026-10-26T18:13:42Z",
+  "zip_sha256": "d3788eac9f0a44c67f3745a43c3fd446ef33d56b1121f469b19e0fa0a836c2b5",
+  "actual_official_package_installed": true,
+  "enabled_stock_rulesets": [
+    "easylist",
+    "easyprivacy",
+    "pgl",
+    "ublock-badware",
+    "ublock-filters",
+    "urlhaus-full"
+  ],
+  "experimental_scope": "synthetic_cross_origin_image_and_script_one_request_per_hostname_two_rounds_each_3_disposable_Chromium_profiles",
+  "candidate_source_host_count": 38,
+  "image": {
+    "baseline_received": 34,
+    "blocked_by_official_stock_from_received": 33,
+    "stock_still_received": [
+      "rudderstack.com"
+    ],
+    "baseline_missing_without_extension": [
+      "google-analytics.com",
+      "mixpanel.com",
+      "mouseflow.com",
+      "bat.bing.com"
+    ]
+  },
+  "script": {
+    "baseline_received": 34,
+    "blocked_by_official_stock_from_received": 33,
+    "stock_still_received": [
+      "rudderstack.com"
+    ],
+    "baseline_missing_without_extension": [
+      "google-analytics.com",
+      "mixpanel.com",
+      "mouseflow.com",
+      "bat.bing.com"
+    ]
+  },
+  "addon_removed_baseline_restored": true,
+  "firstparty_candidate_control": "PASS",
+  "candidate_rules_loaded_in_official_ubol": false,
+  "root_cause_of_pre_extension_missing_hosts": "UNKNOWN",
+  "real_website_efficacy": "NOT_RUN",
+  "user_stock_configuration": "NOT_VERIFIED",
+  "rules_published": 0,
+  "release": "NO_GO",
+  "note": "Aggregate fact index from exact CI job logs; full runtime JSON not committed. A later version adds signed URL/cookie/range checks, not yet represented by this earlier run."
+}

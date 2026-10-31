@@ -43,7 +43,8 @@ def audit(doc):
         errors.append("official active stock rulesets unverified")
     try:
         audit_lifecycle(doc["before"],doc["official_stock"],doc["restored"],
-                        doc["first_party_candidate_receipts"],hosts)
+                        doc["first_party_candidate_receipts"],hosts,
+                        doc.get("synthetic_protocol_safety"))
         cover=doc["coverage"]
         if set(cover)!=set(KINDS):
             raise ValueError("missing resource-specific stock comparisons")
@@ -87,6 +88,8 @@ def main():
                     out.write("not received even without any extension.\n\n")
                     out.write("Received despite uBO Lite: "+
                               (", ".join("`"+x+"`" for x in row["still_received_with_official_stock"]) or "none")+".\n\n")
+                out.write("Synthetic HMAC query, HttpOnly cookie auth and HTTP Range 206 ")
+                out.write("preserved in all three actual Chromium sessions.\\n\\n")
                 out.write("**Not measured:** candidate rules added inside uBO Lite, ")
                 out.write("actual user settings, live websites or production HTTPS. Publication NO_GO.\n")
         print("UPC OFFICIAL UBOL EVIDENCE PASS: vendor stock, no added candidate rules, NO_GO")

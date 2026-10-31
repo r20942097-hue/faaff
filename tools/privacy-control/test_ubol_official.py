@@ -99,6 +99,10 @@ class OfficialUBOLTests(unittest.TestCase):
             "first_party_candidate_receipts":{
                 stage:{kind:[True,True] for kind in KINDS}
                 for stage in ("baseline","dnr","restored")},
+            "synthetic_protocol_safety":{
+                stage:{"signed_url_preserved":True,"auth_cookie_roundtrip":True,
+                       "media_range_206":True}
+                for stage in ("baseline","ubol","restored")},
             "coverage":{kind:{
                 "browser_baseline_received":self.hosts,
                 "browser_baseline_not_received_unknown_cause":[],
@@ -115,8 +119,38 @@ class OfficialUBOLTests(unittest.TestCase):
             "rules_published":0,"publication":"NO_GO",
         }
 
+    def test_archived_vendor_ci_result_does_not_overstate_candidate_gain(self):
+        data=json.loads((Path(__file__).resolve().parent/
+                         "verification/ubol-official-stock-validation.json").read_text())
+        self.assertEqual(data["schema"],"upc-official-ubol-stock-ci-index/v1")
+        self.assertEqual(data["run_id"],41157094931)
+        self.assertEqual(data["tested_commit"],
+                         "0fe5ac4016cc814d15b582b11198fa3a64c56afc")
+        self.assertEqual(data["zip_sha256"],self.lock["sha256"])
+        for kind in KINDS:
+            self.assertEqual(data[kind]["baseline_received"],34)
+            self.assertEqual(data[kind]["blocked_by_official_stock_from_received"],33)
+            self.assertEqual(data[kind]["stock_still_received"],["rudderstack.com"])
+            self.assertEqual(len(data[kind]["baseline_missing_without_extension"]),4)
+        self.assertFalse(data["candidate_rules_loaded_in_official_ubol"])
+        self.assertEqual(data["real_website_efficacy"],"NOT_RUN")
+        self.assertEqual(data["root_cause_of_pre_extension_missing_hosts"],"UNKNOWN")
+        self.assertEqual(data["rules_published"],0)
+        self.assertEqual(data["release"],"NO_GO")
+
     def test_complete_narrow_evidence_accepted(self):
         self.assertEqual(audit(self.example()),[])
+
+    def test_protocol_safety_is_required_across_all_stock_stages(self):
+        for stage in ("baseline","ubol","restored"):
+            for feature in ("signed_url_preserved","auth_cookie_roundtrip","media_range_206"):
+                record=self.example()
+                record["synthetic_protocol_safety"][stage][feature]=False
+                with self.subTest(stage=stage,feature=feature):
+                    self.assertTrue(audit(record))
+        record=self.example()
+        del record["synthetic_protocol_safety"]["ubol"]["media_range_206"]
+        self.assertTrue(audit(record))
 
     def test_forged_coverage_or_release_is_rejected(self):
         for field,value in (
