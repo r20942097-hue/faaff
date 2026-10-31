@@ -1,0 +1,4 @@
+# Pinned upstream source is byte-for-byte audited using Git blob SHA.
+# Never translate its line endings on Windows, Linux, or macOS.
+# Scope limited to the imported snapshot; published lists are unchanged.
+integrations/browser-filters/source/s/** -text
