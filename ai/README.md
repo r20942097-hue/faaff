@@ -27,7 +27,7 @@ python browser_filter_lists/scripts/test_evidence.py
 python browser_filter_lists/scripts/test_promotion.py
 ```
 
-`ai/check_runtime_source.sh` classifies BOOTSTRAP_ONLY / PARTIAL_SOURCE / COMPLETE_SOURCE. The corresponding regression suite always runs on PR CI; a partial source tree fails the source check, while Bootstrap explicitly reports product tests NOT_RUN. A complete structural source gate does not imply product runtime or browser E2E PASS.
+`ai/check_runtime_source.sh` classifies BOOTSTRAP_ONLY / PARTIAL_SOURCE / COMPLETE_SOURCE. The corresponding regression suite always runs on PR CI; a partial source tree fails the source check, while Bootstrap explicitly reports product tests NOT_RUN. Required paths must be nonempty regular files and real directories; symlinks (including dangling links) fail closed as partial source. The fixture regression suite covers 13 conditions. A complete structural source gate does not imply product runtime or browser E2E PASS.
 
 `ai/check_hub.py` validates the index and checks the original Git blob hashes of every imported source file. These checks do not update external subscriptions. Online engine checks and real Firefox, Windows, login, recording or product acceptance are separate gates.
 
