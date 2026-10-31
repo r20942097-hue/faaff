@@ -427,3 +427,45 @@ until the revised CI run succeeds.**
 Publication remains NO_GO. No real websites, production streaming or
 signed-media CDN traffic are contacted, and no filter URLs or user's
 Firefox settings are changed.
+
+## Phase 2j — isolated Chromium MV3 DNR experiment (not uBO Lite)
+
+The official Chromium `declarativeNetRequest` API provides a useful
+additional **real-browser** compatibility gate for the 38 optional
+domain-anchored `$third-party` rules. Chrome documents
+`urlFilter` domain anchors and `domainType:"thirdParty"`; Playwright
+documents testing MV3 extensions with its **bundled Chromium** in
+`launch_persistent_context` (unpacked sideloading is not a supported
+equivalent in production Chrome or Edge).
+
+A new **CI-only MV3 test extension** is generated in a temporary directory,
+never committed, signed, published, or installed in any user profile.
+It contains exactly 38 SHA-verified domain block rules plus one synthetic
+activation sentinel, limited to synthetic `image` and `script`
+requests. Every rule uses `condition.urlFilter="||domain^"` and
+`condition.domainType="thirdParty"`. A local-only deny-by-default
+HTTP proxy from the existing Firefox lab serves the known hostnames;
+unknown hosts, HTTPS tunnels and outbound forwarding are rejected.
+
+Three isolated bundled Chromium profiles (no extension → test MV3 DNR
+extension → no extension) each run two independently tokenized image
+and script batches. Every target and activation sentinel must be reachable
+without the extension, blocked with the test rules, and reachable again
+after the extension is absent; all benign first-party/same-site/unrelated
+third-party controls must always be reachable. The independent report
+validator checks every response bit, full rollback and provenance.
+
+**Not equivalent to uBO Lite**: this uses a deliberately minimal,
+synthetic, hand-generated MV3 extension and **does not load the real uBO
+Lite packaged stock rules or managed settings**. It cannot measure
+incremental coverage against uBO Lite, deduce user defaults, test HTTPS
+signed media, or demonstrate live-site compatibility. DNR's third-party
+semantics and the full uBO engine's filters are not fully interchangeable.
+Do not promote or publish rule candidates based on this experiment.
+
+Sources: 
+- https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest/
+- https://playwright.dev/python/docs/chrome-extensions
+- https://github.com/uBlockOrigin/uBOL-home/wiki/Frequently-asked-questions-(FAQ)
+
+Release **NO_GO**. 

@@ -331,3 +331,33 @@ jobs:
         if: always()
         run: |
           test ! -e "$HOME/.mozilla/managed-storage/uBlock0@raymondhill.net.json"
+
+  chromium-mv3-dnr-synthetic:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 17
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Install pinned Playwright from official PyPI and bundled Chromium
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.64.1
+          python -m playwright install --with-deps --no-shell chromium
+      - name: Verify isolated MV3 DNR candidate actions and rollback
+        run: |
+          python tools/privacy-control/chromium_dnr_probe.py \
+            --report "$RUNNER_TEMP/upc-chromium-mv3.json"
+      - name: Independently verify Chromium browser evidence
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/upc-chromium-mv3.json" ]; then
+            python tools/privacy-control/verify_chromium_dnr.py \
+              --report "$RUNNER_TEMP/upc-chromium-mv3.json" \
+              --github-summary "$GITHUB_STEP_SUMMARY"
+          else
+            echo '**Chromium DNR lab: NOT_VERIFIED; NO_GO**' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
