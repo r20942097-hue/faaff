@@ -146,8 +146,12 @@ def verify_lifecycle(stock, active, restored, hosts):
             if not all(rounds[0][h] for h in CONTROLS):
                 raise ValueError(stage+" benign host blocked for "+kind)
     for kind in KINDS:
-        if not all(stock[kind][0].values()) or restored[kind][0]!=stock[kind][0]:
-            raise ValueError(kind+" baseline not accessible or restored")
+        if restored[kind][0]!=stock[kind][0]:
+            raise ValueError(kind+" baseline not restored to exact observed request outcomes")
+        if not stock[kind][0][SENTINEL]:
+            raise ValueError(kind+" activation sentinel already missing without DNR")
+        if not any(stock[kind][0][host] for host in hosts):
+            raise ValueError(kind+" no measurable candidate hosts in baseline")
         if any(active[kind][0][h] for h in [*hosts,SENTINEL]):
             raise ValueError(kind+" candidate DNR request not blocked")
     return True
@@ -184,7 +188,7 @@ def run(output):
                 "actual_ubol_loaded":"NOT_RUN",
                 "rules_published":0,
                 "release":"NO_GO",
-            }, indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+            }, indent=2,sort_keys=True)+chr(10),encoding="utf-8")
             for stage, doc in (("stock", stock), ("active", active), ("restored", restored)):
                 for kind in KINDS:
                     missing=[host for host,received in doc[kind][0].items() if not received]
@@ -200,6 +204,13 @@ def run(output):
             "candidate_source":provenance,
             "compiled_rules":len(rules),
             "candidate_hosts":hosts,
+            "baseline_preblocked_hosts":{
+                kind:[host for host in hosts if not stock[kind][0][host]]
+                for kind in KINDS},
+            "newly_blocked_relative_to_no_extension":{
+                kind:[host for host in hosts if stock[kind][0][host]]
+                for kind in KINDS},
+            "baseline_missing_attribution":"UNKNOWN_BROWSER_OR_PROXY_CAUSE_NOT_DNR",
             "sentinel":SENTINEL,
             "controls":list(CONTROLS),
             "resource_types":list(KINDS),
@@ -216,8 +227,12 @@ def run(output):
         }
         output.write_text(json.dumps(output_data,indent=2,sort_keys=True)+"\n",
                           encoding="utf-8")
-        print("UPC CHROMIUM DNR LAB PASS: 38 temporary candidate rules, 1 activation sentinel, "
-              "2 image + 2 script rounds each in baseline/DNR/restored; NO_GO")
+        print("UPC CHROMIUM DNR LAB PASS: 38 candidates and sentinel blocked with DNR;",
+              "baseline_not_received_image",
+              ",".join(output_data["baseline_preblocked_hosts"]["image"]) or "(none)",
+              "baseline_not_received_script",
+              ",".join(output_data["baseline_preblocked_hosts"]["script"]) or "(none)",
+              "no-extension baseline restored for both resources; NO_GO")
     finally:
         proxy.shutdown()
         proxy.server_close()

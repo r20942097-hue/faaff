@@ -469,3 +469,29 @@ Sources:
 - https://github.com/uBlockOrigin/uBOL-home/wiki/Frequently-asked-questions-(FAQ)
 
 Release **NO_GO**. 
+
+### Chromium baseline diagnostic correction (Phase 2j)
+
+The first real Chromium run showed no-extension HTTP image/script requests
+to four known upstream hostnames did not reach the isolated proxy:
+`google-analytics.com`, `mixpanel.com`, `mouseflow.com`, and
+`bat.bing.com`. The same four were absent after returning to a new
+no-extension profile, while all 38 candidate host requests and the
+synthetic sentinel were absent with the MV3 DNR test rules installed.
+The precise cause of those baseline misses is **unknown** (possible
+browser upgrade/security/network behavior); they must **not** be
+claimed as newly blocked by DNR.
+
+The corrected test requires two identical independent rounds of image
+and inert script requests in each of three profiles, stable benign
+controls, an active sentinel and exact **observed baseline ↔ restored
+outcome equality**. Its evidence report explicitly distinguishes
+requests never received without the DNR extension from newly blocked
+requests attributable to switching on the test rules. Any change in
+the unknown baseline set causes a fail-closed mismatch if rollback
+does not reproduce it.
+
+The initial Chromium CI was **FAIL** and remains recorded in Actions;
+this change does not retroactively change that result. Chromium
+compatibility is NOT_VERIFIED until the revised job passes. This
+is still an independent DNR test extension, not official uBO Lite.

@@ -57,6 +57,9 @@ class ChromiumDNRTests(unittest.TestCase):
             "candidate_source":self.source,
             "compiled_rules":39,
             "candidate_hosts":self.hosts,
+            "baseline_preblocked_hosts":{kind:[] for kind in KINDS},
+            "newly_blocked_relative_to_no_extension":{kind:list(self.hosts) for kind in KINDS},
+            "baseline_missing_attribution":"UNKNOWN_BROWSER_OR_PROXY_CAUSE_NOT_DNR",
             "sentinel":SENTINEL,
             "controls":list(CONTROLS),
             "resource_types":list(KINDS),
@@ -78,6 +81,24 @@ class ChromiumDNRTests(unittest.TestCase):
                                          record["dnr_receipts"],record["restored_receipts"],
                                          self.hosts))
         self.assertEqual(audit(record),[])
+
+    def test_preblocked_hosts_do_not_count_as_dnr_incremental_effect(self):
+        record=self.example()
+        host=self.hosts[2]
+        for kind in KINDS:
+            for phase in ("baseline_receipts","restored_receipts"):
+                for row in record[phase][kind]:
+                    row[host]=False
+            record["baseline_preblocked_hosts"][kind]=[host]
+            record["newly_blocked_relative_to_no_extension"][kind]=[
+                h for h in self.hosts if h!=host
+            ]
+        self.assertEqual(audit(record),[])
+        record["baseline_preblocked_hosts"]["image"]=[]
+        self.assertTrue(audit(record))
+        record=self.example()
+        record["baseline_missing_attribution"]="DNR_BLOCKED_WITHOUT_EXTENSION"
+        self.assertTrue(audit(record))
 
     def test_invalid_dnr_results_or_rollback_rejected(self):
         for field,kind,host,value in (

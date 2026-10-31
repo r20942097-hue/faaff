@@ -29,6 +29,26 @@ def audit(doc):
             or doc["rules_published"]!=0
             or doc.get("release")!="NO_GO"):
         errors.append("scope, provenance, binary identity or release boundary invalid")
+    candidate_hostnames = hosts
+    baselines=doc.get("baseline_receipts")
+    if isinstance(baselines,dict) and set(baselines)==set(KINDS):
+        preblocked={}
+        reachable={}
+        for kind in KINDS:
+            rounds=baselines.get(kind)
+            if (not isinstance(rounds,list) or not rounds or
+                    not isinstance(rounds[0],dict)):
+                errors.append("invalid baseline receipt type: "+kind)
+                continue
+            preblocked[kind]=[host for host in candidate_hostnames
+                              if rounds[0].get(host) is False]
+            reachable[kind]=[host for host in candidate_hostnames
+                              if rounds[0].get(host) is True]
+        if (doc.get("baseline_preblocked_hosts")!=preblocked
+                or doc.get("newly_blocked_relative_to_no_extension")!=reachable):
+            errors.append("preblocked/additional host classification not raw-evidence-derived")
+    if doc.get("baseline_missing_attribution") != "UNKNOWN_BROWSER_OR_PROXY_CAUSE_NOT_DNR":
+        errors.append("unknown baseline missing requests incorrectly attributed to DNR")
     names=("baseline_receipts","dnr_receipts","restored_receipts")
     if any(name not in doc for name in names):
         errors.append("required original browser receipts missing")
