@@ -7,6 +7,7 @@ This directory is the cross-project navigation and verification layer for `faaff
 - `projects.json`: machine-readable index of verified GitHub sources and their *observed* state, not an always-live inventory.
 - `imports/s.json`: pinned file-level provenance for the imported `s` source.
 - `WORK_QUEUE.md`: staged integration plan.
+- `CODEX_SETUP.md`: Codex account/cloud/repository setup, read-only first-task smoke test and acceptance boundaries; reuse the existing tests instead of adding another harness.
 
 ## Ownership
 - `faaff/main` is currently the engineering/bootstrap hub; keep its existing `browser_filter_lists/` unchanged.
