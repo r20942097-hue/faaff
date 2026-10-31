@@ -77,8 +77,8 @@ def build_extension(directory, rules):
 def read_browser(page, proxy, hosts, kind, token):
     url = (f"http://{PAGE}:{proxy.server_port}/batch"
            f"?token={token}&kind={kind}")
-    page.goto(url, wait_until="domcontentloaded", timeout=20000)
-    time.sleep(2)
+    page.goto(url, wait_until="load", timeout=40000)
+    time.sleep(0.5)
     with proxy.guard:
         observed = {h for h, k in proxy.hits if k == token}
     return {host: host in observed for host in hosts}
@@ -168,7 +168,30 @@ def run(output):
                 stock = chromium_session(pw,proxy,test_hosts,None,work/"stock")
                 active = chromium_session(pw,proxy,test_hosts,extension,work/"active")
                 restored = chromium_session(pw,proxy,test_hosts,None,work/"restored")
-        verify_lifecycle(stock,active,restored,hosts)
+        try:
+            verify_lifecycle(stock,active,restored,hosts)
+        except ValueError as error:
+            output.write_text(json.dumps({
+                "schema":"upc-chromium-mv3-dnr-diagnostic/v1",
+                "status":"BLOCKED",
+                "reason":"LIFECYCLE_VALIDATION_FAILURE",
+                "detail":str(error),
+                "candidate_source":provenance,
+                "stock_receipts":stock,
+                "active_receipts":active,
+                "restored_receipts":restored,
+                "real_websites":"NOT_RUN",
+                "actual_ubol_loaded":"NOT_RUN",
+                "rules_published":0,
+                "release":"NO_GO",
+            }, indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+            for stage, doc in (("stock", stock), ("active", active), ("restored", restored)):
+                for kind in KINDS:
+                    missing=[host for host,received in doc[kind][0].items() if not received]
+                    print("UPC CHROMIUM DIAGNOSTIC:", stage, kind,
+                          "missing_count",len(missing), "missing",",".join(missing),
+                          flush=True)
+            raise
         output_data = {
             "schema":"upc-chromium-mv3-dnr-lab/v1",
             "result":"PASS",
