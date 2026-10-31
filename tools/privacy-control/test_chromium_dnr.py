@@ -57,6 +57,10 @@ class ChromiumDNRTests(unittest.TestCase):
             "candidate_source":self.source,
             "compiled_rules":39,
             "candidate_hosts":self.hosts,
+            "first_party_candidate_host":"rudderstack.com",
+            "first_party_candidate_receipts":{
+                stage:{kind:[True,True] for kind in KINDS}
+                for stage in ("baseline","dnr","restored")},
             "baseline_preblocked_hosts":{kind:[] for kind in KINDS},
             "newly_blocked_relative_to_no_extension":{kind:list(self.hosts) for kind in KINDS},
             "baseline_missing_attribution":"UNKNOWN_BROWSER_OR_PROXY_CAUSE_NOT_DNR",
@@ -99,6 +103,19 @@ class ChromiumDNRTests(unittest.TestCase):
         record=self.example()
         record["baseline_missing_attribution"]="DNR_BLOCKED_WITHOUT_EXTENSION"
         self.assertTrue(audit(record))
+
+    def test_same_domain_candidate_is_never_blocked_as_third_party(self):
+        document=self.example()
+        self.assertEqual(audit(document),[])
+        for stage in ("baseline","dnr","restored"):
+            for kind in KINDS:
+                record=self.example()
+                record["first_party_candidate_receipts"][stage][kind][0]=False
+                with self.subTest(stage=stage,kind=kind):
+                    self.assertTrue(audit(record))
+        document=self.example()
+        document["first_party_candidate_host"]="example.net"
+        self.assertTrue(audit(document))
 
     def test_invalid_dnr_results_or_rollback_rejected(self):
         for field,kind,host,value in (

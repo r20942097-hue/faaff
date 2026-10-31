@@ -113,6 +113,21 @@ class ProxyHandler(BaseHTTPRequestHandler):
             content = ('<!doctype html><html><body>' +
                        ''.join(targets) + '</body></html>').encode()
             mime = "text/html; charset=utf-8"
+        elif (parsed.path == "/firstparty"
+              and parsed.hostname == "rudderstack.com"
+              and parsed.hostname in self.server.extra_hosts):
+            kinds = args.get("kind", [])
+            if len(kinds) != 1 or kinds[0] not in ("image", "script"):
+                self._deny()
+                return
+            suffix, tag = (("safe.png", "img") if kinds[0] == "image"
+                           else ("safe.js", "script"))
+            src = f"http://rudderstack.com:{self.server.server_port}/{suffix}?token={token}"
+            child = (f'<img src="{src}" alt="">' if tag == "img"
+                     else f'<script src="{src}"></script>')
+            content = ("<!doctype html><html><body>"+child+
+                       "</body></html>").encode()
+            mime = "text/html; charset=utf-8"
         elif parsed.path in ("/safe.png", "/safe.js"):
             with self.server.guard:
                 self.server.hits.add((parsed.hostname, token))

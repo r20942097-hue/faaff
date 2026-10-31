@@ -100,6 +100,41 @@ def experiment(context, proxy, hosts):
         page.close()
 
 
+def candidate_first_party_experiment(context, proxy):
+    """A rule for third-party requests must preserve same-domain images/scripts."""
+    import secrets
+    if "rudderstack.com" not in proxy.extra_hosts:
+        raise ValueError("first-party candidate not pinned")
+    page = context.new_page()
+    try:
+        result = {}
+        for kind in KINDS:
+            samples=[]
+            for _ in range(2):
+                token=secrets.token_hex(16)
+                page.goto(
+                    f"http://rudderstack.com:{proxy.server_port}/firstparty"
+                    f"?token={token}&kind={kind}",
+                    wait_until="load",timeout=40000)
+                samples.append(proxy.seen("rudderstack.com",token))
+            result[kind]=samples
+        return result
+    finally:
+        page.close()
+
+
+def verify_first_party(stages):
+    if not isinstance(stages,dict) or set(stages)!={"baseline","dnr","restored"}:
+        raise ValueError("candidate first-party lifecycle missing")
+    for stage, value in stages.items():
+        if not isinstance(value,dict) or set(value)!=set(KINDS):
+            raise ValueError(stage+" first-party resource types missing")
+        for kind in KINDS:
+            if value[kind] != [True,True]:
+                raise ValueError(stage+" first-party candidate "+kind+" blocked")
+    return True
+
+
 def chromium_session(playwright, proxy, hosts, extension_path, profile_path):
     arguments = []
     if extension_path is not None:
@@ -128,7 +163,9 @@ def chromium_session(playwright, proxy, hosts, extension_path, profile_path):
             enabled = worker.evaluate("chrome.declarativeNetRequest.getEnabledRulesets()")
             if "upc-candidate" not in enabled:
                 raise ValueError("DNR static candidate ruleset not active")
-        return experiment(context, proxy, hosts)
+        cross_origin=experiment(context, proxy, hosts)
+        first_party=candidate_first_party_experiment(context,proxy)
+        return cross_origin,first_party
     finally:
         context.close()
 
@@ -169,11 +206,13 @@ def run(output):
             work = Path(d)
             extension = build_extension(work, rules)
             with sync_playwright() as pw:
-                stock = chromium_session(pw,proxy,test_hosts,None,work/"stock")
-                active = chromium_session(pw,proxy,test_hosts,extension,work/"active")
-                restored = chromium_session(pw,proxy,test_hosts,None,work/"restored")
+                stock,stock_fp = chromium_session(pw,proxy,test_hosts,None,work/"stock")
+                active,active_fp = chromium_session(pw,proxy,test_hosts,extension,work/"active")
+                restored,restored_fp = chromium_session(pw,proxy,test_hosts,None,work/"restored")
+        first_party={"baseline":stock_fp,"dnr":active_fp,"restored":restored_fp}
         try:
             verify_lifecycle(stock,active,restored,hosts)
+            verify_first_party(first_party)
         except ValueError as error:
             output.write_text(json.dumps({
                 "schema":"upc-chromium-mv3-dnr-diagnostic/v1",
@@ -184,6 +223,7 @@ def run(output):
                 "stock_receipts":stock,
                 "active_receipts":active,
                 "restored_receipts":restored,
+                "first_party_candidate_receipts":first_party,
                 "real_websites":"NOT_RUN",
                 "actual_ubol_loaded":"NOT_RUN",
                 "rules_published":0,
@@ -204,6 +244,8 @@ def run(output):
             "candidate_source":provenance,
             "compiled_rules":len(rules),
             "candidate_hosts":hosts,
+            "first_party_candidate_host":"rudderstack.com",
+            "first_party_candidate_receipts":first_party,
             "baseline_preblocked_hosts":{
                 kind:[host for host in hosts if not stock[kind][0][host]]
                 for kind in KINDS},

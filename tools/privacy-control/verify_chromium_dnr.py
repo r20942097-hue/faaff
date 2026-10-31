@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import sys
 
-from chromium_dnr_probe import compile_dnr, verify_lifecycle, SENTINEL, CONTROLS, KINDS
+from chromium_dnr_probe import compile_dnr, verify_lifecycle, verify_first_party, SENTINEL, CONTROLS, KINDS
 
 
 def audit(doc):
@@ -29,6 +29,12 @@ def audit(doc):
             or doc["rules_published"]!=0
             or doc.get("release")!="NO_GO"):
         errors.append("scope, provenance, binary identity or release boundary invalid")
+    if doc.get("first_party_candidate_host")!="rudderstack.com":
+        errors.append("missing named first-party candidate safety control")
+    try:
+        verify_first_party(doc.get("first_party_candidate_receipts"))
+    except (ValueError,TypeError,KeyError) as error:
+        errors.append("third-party-only DNR rules overblock first-party requests: "+str(error))
     candidate_hostnames = hosts
     baselines=doc.get("baseline_receipts")
     if isinstance(baselines,dict) and set(baselines)==set(KINDS):

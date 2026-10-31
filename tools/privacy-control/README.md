@@ -495,3 +495,15 @@ The initial Chromium CI was **FAIL** and remains recorded in Actions;
 this change does not retroactively change that result. Chromium
 compatibility is NOT_VERIFIED until the revised job passes. This
 is still an independent DNR test extension, not official uBO Lite.
+
+### Explicit third-party vs first-party compatibility gate
+
+In addition to image/script requests from `pages.example.com` to all 38
+candidate hosts, the isolated Chromium DNR experiment now uses the
+`rudderstack.com` candidate as a first-party initiator and fetches an
+image and an inert script from **the same domain**. Those requests must
+remain reachable **with or without** the generated third-party DNR rules;
+two independent requests per type per stage are independently verified.
+If the DNR translation blocks a first-party request, the job FAILs
+regardless of the observed third-party blocking result. No live site is
+contacted; these are synthetic URLs served through the local proxy.
