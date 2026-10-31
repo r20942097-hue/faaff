@@ -361,3 +361,38 @@ jobs:
             echo '**Chromium DNR lab: NOT_VERIFIED; NO_GO**' >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
+
+  official-ubol-chromium-stock:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Install pinned Playwright and extension-capable bundled Chromium
+        run: |
+          python -m pip install --disable-pip-version-check playwright==1.64.1
+          python -m playwright install --with-deps --no-shell chromium
+      - name: Download vendor-hashed official uBO Lite Chrome package outside source tree
+        run: |
+          python tools/privacy-control/fetch_official_ubol.py \
+            --output-dir "$RUNNER_TEMP/official-ubol-chromium"
+      - name: Measure installed official uBO Lite default enabled stock vs no extension
+        run: |
+          python tools/privacy-control/ubol_official_probe.py \
+            --package "$RUNNER_TEMP/official-ubol-chromium" \
+            --report "$RUNNER_TEMP/official-ubol-stock.json"
+      - name: Fail closed on invalid official package provenance, browser receipts or inflated efficacy
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/official-ubol-stock.json" ]; then
+            python tools/privacy-control/verify_ubol_official.py \
+              --report "$RUNNER_TEMP/official-ubol-stock.json" \
+              --github-summary "$GITHUB_STEP_SUMMARY"
+          else
+            echo '**Official uBO Lite actual package stock comparison: NOT_VERIFIED; NO_GO**' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi

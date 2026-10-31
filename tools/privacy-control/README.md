@@ -507,3 +507,50 @@ two independent requests per type per stage are independently verified.
 If the DNR translation blocks a first-party request, the job FAILs
 regardless of the observed third-party blocking result. No live site is
 contacted; these are synthetic URLs served through the local proxy.
+
+## Phase 2k — original official uBO Lite package, independently verified
+
+Official upstream source: [uBlockOrigin/uBOL-home](https://github.com/uBlockOrigin/uBOL-home).
+The current inspected vendor release is `2026.1026.1812`
+(published **2026-10-26**). The exact Chromium ZIP is locked to
+**9,009,606 bytes** and release-provided SHA-256
+`d3788eac9f0a44c67f3745a43c3fd446ef33d56b1121f469b19e0fa0a836c2b5`.
+`verification/ubol-official-release-lock.json` is the immutable
+allowlist; CI refuses version drift, checksum mismatch, symlinks,
+archive path traversal, duplicate files, oversized contents, wrong
+manifest identity or missing initially enabled vendor DNR lists.
+The upstream archive is unpacked only under `RUNNER_TEMP`, not
+committed, redistributed or loaded in the user's browser.
+
+`official-ubol-chromium-stock` uses Playwright's bundled Chromium
+and **exactly one blocker per session**. It compares no extension →
+original official uBO Lite with the vendor-provided static DNR rulesets
+(including `easyprivacy`, `easylist`, `ublock-filters`, and `pgl`)
+→ no extension in three separate ephemeral profiles. Every session
+measures two independently tokenized image and inert JavaScript
+requests per candidate hostname. First-party `rudderstack.com`
+resources and benign distinct-domain controls are tested. An
+independent verifier recomputes every per-host outcome and rejects
+unrestored baselines or unsupported claims.
+
+This is **not** an experiment with the 38 candidate filters installed
+into uBO Lite. The earlier synthesized MV3 DNR test extension is
+separate; **never run both blockers at once**. The new report measures
+vendor stock vs *browser-only baseline*, not candidate-list incremental
+value relative to the vendor stock extension. That requires an
+independent (official package plus optional rules) experiment after
+safe mode/configuration research. uBO Lite filters vary by enabled
+rulesets, filtering modes and permissions; recorded enablement in this
+test cannot describe a user's setup. All requests stay on a
+local nonforwarding HTTP proxy; no actual website or signed HTTPS CDN,
+login, checkout or media compatibility is proven.
+
+### Primary references
+
+- https://github.com/uBlockOrigin/uBOL-home/releases/tag/2026.1026.1812
+- https://github.com/uBlockOrigin/uBOL-home/wiki/Frequently-asked-questions-(FAQ)
+- https://github.com/uBlockOrigin/uBOL-home/wiki/Troubleshooting
+- https://playwright.dev/python/docs/chrome-extensions
+
+Status **DRAFT / NO_GO**. Zero automatic candidate promotions;
+no main pushes or public filter list changes.
